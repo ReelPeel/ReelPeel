@@ -3,7 +3,7 @@
   "name": "DocNot",
   "version": "1.0",
   "permissions": ["activeTab", "scripting", "storage"],
-  "host_permissions": ["*://*.instagram.com/*", "http://im-redstone02.hs-regensburg.de:32311*"],
+  "host_permissions": ["*://*.instagram.com/*", "http://im-redstone02.hs-regensburg.de:38843*"],
   "background": {
     "service_worker": "background.js"
   },
@@ -26,6 +26,6 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src http://im-redstone02.hs-regensburg.de:32311"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src http://im-redstone02.hs-regensburg.de:38843"
   }
 }
