@@ -1,0 +1,264 @@
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- LLM Configs --- 
+ 
+ --------------------------------------------------------------- 
+
+BASE_URL   : http://localhost:11434/v1
+API_KEY    : ollama
+BASE_MODEL : meditron:7b
+BASE_TEMP  : 0.7
+
+ STEP2:
+   MODEL      = meditron:7b
+   TEMP       = 0.7
+   MAX_TOKENS = 128
+
+ STEP3:
+   MODEL      = meditron:7b
+   TEMP       = 0.7
+   MAX_TOKENS = 1024
+
+ STEP5:
+   MODEL      = gemma3:12b
+   TEMP       = 0.7
+   MAX_TOKENS = 512
+
+ STEP6:
+   MODEL      = meditron:7b
+   TEMP       = 0.7
+   MAX_TOKENS = 512
+
+ STEP7:
+   MODEL      = meditron:7b
+   TEMP       = 0.7
+   MAX_TOKENS = 512
+
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- LLM Preprompts --- 
+ 
+ --------------------------------------------------------------- 
+
+Preprompt STEP2:
+
+You are part of a medical fact-checking pipeline.  
+If you propagate a false statement, the app may mislead people.
+
+INPUT TRANSCRIPT
+---------------
+{transcript}
+---------------
+
+TASK  
+Extract **medical claims** suitable for fact-checking.
+
+SELECTION RULES  
+1. Return **exactly three** distinct claims.  
+2. Prefer clinically relevant, novel, or potentially harmful claims.  
+3. Discard greetings, jokes, moral or motivational advice, rhetorical questions, non-medical content, or data too vague to be verified.  
+4. Merge duplicate / near-duplicate claims into one concise statement.
+
+STRICT OUTPUT  
+A valid JSON array with 1–3 strings.  
+No commentary, no extra keys, no markdown.
+
+
+
+
+Prepromt STEP3:
+
+You are a biomedical librarian inside a fact‐checking app.  
+If the claim is too vague, non‐medical, or otherwise unlikely to be indexed in PubMed, output the single word: NONE
+
+Otherwise, **think quickly (silently)** about the core PICO concepts in the claim, identify appropriate MeSH headings (in quotes with [MeSH]) and text‐word synonyms (with [tiab]), and produce ONE PubMed Boolean query string that:
+Example:
+(
+  "Smoking"[MeSH] 
+  OR smoking[tiab] 
+  OR smokers[tiab] 
+  OR "tobacco use"[tiab]
+)
+AND
+(
+  "Lung Function Tests"[MeSH] 
+  OR "pulmonary function"[tiab] 
+  OR "lung function"[tiab] 
+  OR FEV1[tiab] 
+  OR FVC[tiab]
+)
+AND
+(
+  "Inflammation"[MeSH] 
+  OR inflammation[tiab] 
+  OR "mucus hypersecretion"[tiab] 
+  OR mucus[tiab]
+)
+AND
+(
+  "Proanthocyanidins"[MeSH] 
+  OR proanthocyanidin*[tiab] 
+  OR OPC[tiab] 
+  OR "Traumotein"[tiab] 
+  OR "pine bark extract"[tiab] 
+  OR Pycnogenol[tiab]
+)
+
+
+• Is exactly one line (no line breaks).  
+• Uses uppercase AND/OR to combine concepts.  
+• Wraps MeSH terms in quotes followed by [MeSH] (e.g., "Smoking"[MeSH]).  
+• Marks synonym or free‐text terms with [tiab] (e.g., smoking[tiab]).  
+• Groups synonyms with parentheses; groups PICO domains by combining with AND.  
+• Does not include field tags other than [MeSH] and [tiab].  
+• Does not include quotation marks around free‐text terms (other than MeSH).  
+• Begins with a letter (A–Z or a–z) and contains no leading/trailing spaces.  
+• Contains no line breaks or extra whitespace.
+
+CLAIM:
+{claim}
+
+
+
+
+Preprompt STEP5:
+
+You are summarising evidence for a medical fact-checker.  
+Think briefly (silently) about study design and main results, then write the summary.
+
+GUIDELINES  
+• ≤ 300 words, plain text.  
+• Focus on methods, population, key outcomes, effect sizes, and limitations.  
+• Do NOT add interpretation beyond the abstract itself.
+
+TEXT TO SUMMARISE
+-----------------
+{abstract}
+-----------------
+
+
+
+
+Preprompt STEP6:
+
+You are verifying whether the summary actually addresses the claim.  
+Think (silently) first; then answer in exactly one word.
+
+STATEMENT: {statement}
+
+EVIDENCE SUMMARY: {evidence_summary}
+
+Does the summary *directly relate to or support* the statement?
+Respond with only: yes   |   no
+
+
+
+
+Prepromt STEP7:
+
+You are a professional medical fact-checker.  
+A wrong verdict could spread misinformation, so think carefully (silently) before answering.
+
+TASK  
+Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim.
+
+CLAIM:
+{claim_text}
+
+EVIDENCE:
+{evidence_block}
+
+Inclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
+{transcript}
+
+give the final response in the following format:
+
+STRICT OUTPUT – exactly two lines, nothing else:
+VERDICT: true|false|uncertain
+FINALSCORE: <probability 0.00–1.00>
+
+
+
+
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step1 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting transcribing: estimated time: 10 - 20 seconds
+...
+...
+ --- Step1 Audio to Transcript ---> LLM Output: ---
+Give your kid butter before bed. It's the epic bedtime hack you've probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night's sleep. It was a game changer, all because of butter. Now, why is this helpful? It's not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry. Since they can't communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they'll love. Now, if you've already tried it and it worked for you, please share your experience in the comments below. I love hearing from other moms sharing their tips with each other. Just a reminder, every child's different. You know your baby best. Trust your instincts. And if it doesn't work for you, then we could try something else. Something.
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step2 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step2: Transcript to Medical Statements
+...
+...
+Error code: 404 - {'error': {'message': "model 'meditron:7b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+FALLBACK
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step3 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step3: Statement to PubMed Query
+...
+...
+ERROR ERROR ERROR --> FALLBACK 
+
+Error code: 404 - {'error': {'message': "model 'meditron:7b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+ERROR ERROR ERROR --> FALLBACK 
+
+Error code: 404 - {'error': {'message': "model 'meditron:7b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+ERROR ERROR ERROR --> FALLBACK 
+
+Error code: 404 - {'error': {'message': "model 'meditron:7b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+ERROR ERROR ERROR --> FALLBACK 
+
+Error code: 404 - {'error': {'message': "model 'meditron:7b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+ERROR ERROR ERROR --> FALLBACK 
+
+Error code: 404 - {'error': {'message': "model 'meditron:7b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+ERROR ERROR ERROR --> FALLBACK 
+
+Error code: 404 - {'error': {'message': "model 'meditron:7b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+ERROR ERROR ERROR --> FALLBACK 
+
+Error code: 404 - {'error': {'message': "model 'meditron:7b' not found", 'type': 'api_error', 'param': None, 'code': None}}

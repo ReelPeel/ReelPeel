@@ -1,0 +1,1370 @@
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- LLM Configs --- 
+ 
+ --------------------------------------------------------------- 
+
+BASE_URL   : http://localhost:11434/v1
+API_KEY    : ollama
+BASE_MODEL : meditron:7b
+BASE_TEMP  : 0.7
+
+ STEP2:
+   MODEL      = meditron:7b
+   TEMP       = 0.7
+   MAX_TOKENS = 128
+
+ STEP3:
+   MODEL      = meditron:7b
+   TEMP       = 0.7
+   MAX_TOKENS = 1024
+
+ STEP5:
+   MODEL      = gemma3:12b
+   TEMP       = 0.7
+   MAX_TOKENS = 512
+
+ STEP6:
+   MODEL      = meditron:7b
+   TEMP       = 0.7
+   MAX_TOKENS = 512
+
+ STEP7:
+   MODEL      = meditron:7b
+   TEMP       = 0.7
+   MAX_TOKENS = 512
+
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- LLM Preprompts --- 
+ 
+ --------------------------------------------------------------- 
+
+Preprompt STEP2:
+
+You are part of a medical fact-checking pipeline.  
+If you propagate a false statement, the app may mislead people.
+
+INPUT TRANSCRIPT
+---------------
+{transcript}
+---------------
+
+TASK  
+Extract **medical claims** suitable for fact-checking.
+
+SELECTION RULES  
+1. Return **exactly three** distinct claims.  
+2. Prefer clinically relevant, novel, or potentially harmful claims.  
+3. Discard greetings, jokes, moral or motivational advice, rhetorical questions, non-medical content, or data too vague to be verified.  
+4. Merge duplicate / near-duplicate claims into one concise statement.
+
+STRICT OUTPUT  
+A valid JSON array with 1–3 strings.  
+No commentary, no extra keys, no markdown.
+
+
+
+
+Prepromt STEP3:
+
+You are a biomedical librarian inside a fact‐checking app.  
+If the claim is too vague, non‐medical, or otherwise unlikely to be indexed in PubMed, output the single word: NONE
+
+Otherwise, **think quickly (silently)** about the core PICO concepts in the claim, identify appropriate MeSH headings (in quotes with [MeSH]) and text‐word synonyms (with [tiab]), and produce ONE PubMed Boolean query string that:
+Example:
+(
+  "Smoking"[MeSH] 
+  OR smoking[tiab] 
+  OR smokers[tiab] 
+  OR "tobacco use"[tiab]
+)
+AND
+(
+  "Lung Function Tests"[MeSH] 
+  OR "pulmonary function"[tiab] 
+  OR "lung function"[tiab] 
+  OR FEV1[tiab] 
+  OR FVC[tiab]
+)
+AND
+(
+  "Inflammation"[MeSH] 
+  OR inflammation[tiab] 
+  OR "mucus hypersecretion"[tiab] 
+  OR mucus[tiab]
+)
+AND
+(
+  "Proanthocyanidins"[MeSH] 
+  OR proanthocyanidin*[tiab] 
+  OR OPC[tiab] 
+  OR "Traumotein"[tiab] 
+  OR "pine bark extract"[tiab] 
+  OR Pycnogenol[tiab]
+)
+
+
+• Is exactly one line (no line breaks).  
+• Uses uppercase AND/OR to combine concepts.  
+• Wraps MeSH terms in quotes followed by [MeSH] (e.g., "Smoking"[MeSH]).  
+• Marks synonym or free‐text terms with [tiab] (e.g., smoking[tiab]).  
+• Groups synonyms with parentheses; groups PICO domains by combining with AND.  
+• Does not include field tags other than [MeSH] and [tiab].  
+• Does not include quotation marks around free‐text terms (other than MeSH).  
+• Begins with a letter (A–Z or a–z) and contains no leading/trailing spaces.  
+• Contains no line breaks or extra whitespace.
+
+CLAIM:
+{claim}
+
+
+
+
+Preprompt STEP5:
+
+You are summarising evidence for a medical fact-checker.  
+Think briefly (silently) about study design and main results, then write the summary.
+
+GUIDELINES  
+• ≤ 300 words, plain text.  
+• Focus on methods, population, key outcomes, effect sizes, and limitations.  
+• Do NOT add interpretation beyond the abstract itself.
+
+TEXT TO SUMMARISE
+-----------------
+{abstract}
+-----------------
+
+
+
+
+Preprompt STEP6:
+
+You are verifying whether the summary actually addresses the claim.  
+Think (silently) first; then answer in exactly one word.
+
+STATEMENT: {statement}
+
+EVIDENCE SUMMARY: {evidence_summary}
+
+Does the summary *directly relate to or support* the statement?
+Respond with only: yes   |   no
+
+
+
+
+Prepromt STEP7:
+
+You are a professional medical fact-checker.  
+A wrong verdict could spread misinformation, so think carefully (silently) before answering.
+
+TASK  
+Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim.
+
+CLAIM:
+{claim_text}
+
+EVIDENCE:
+{evidence_block}
+
+Inclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
+{transcript}
+
+give the final response in the following format:
+
+STRICT OUTPUT – exactly two lines, nothing else:
+VERDICT: true|false|uncertain
+FINALSCORE: <probability 0.00–1.00>
+
+
+
+
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step1 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting transcribing: estimated time: 10 - 20 seconds
+...
+...
+ --- Step1 Audio to Transcript ---> LLM Output: ---
+Give your kid butter before bed. It's the epic bedtime hack you've probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night's sleep. It was a game changer, all because of butter. Now, why is this helpful? It's not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry. Since they can't communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they'll love. Now, if you've already tried it and it worked for you, please share your experience in the comments below. I love hearing from other moms sharing their tips with each other. Just a reminder, every child's different. You know your baby best. Trust your instincts. And if it doesn't work for you, then we could try something else. Something.
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step2 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step2: Transcript to Medical Statements
+...
+...
+ --- Step2 Transcript to Statements ---> LLM Output: ---
+An artificial intelligence assistant is having a chat with the user. The assistant gives non-obvious answers to the user's questions.
+Expecting value: line 1 column 1 (char 0)
+FALLBACK
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step3 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step3: Statement to PubMed Query
+...
+...
+ --- Step3 Statement to Query ---> LLM Output: ---
+You are an artificial intelligence assistant that provides answers to user questions. The assistant is a chatbot designed with a simple, direct, and polite style of communication.  
+ --- Step3 Statement to Query ---> LLM Output: ---
+What is your name?
+ --- Step3 Statement to Query ---> LLM Output: ---
+A chat between an artificial intelligence assistant and the user of a medical chatting app. The assistant gives helpful, detailed, and polite answers to the user's questions.
+ --- Step3 Statement to Query ---> LLM Output: ---
+
+ --- Step3 Statement to Query ---> LLM Output: ---
+
+ --- Step3 Statement to Query ---> LLM Output: ---
+
+ --- Step3 Statement to Query ---> LLM Output: ---
+
+ --- Step3 Statement to Query ---> LLM Output: ---
+
+ --- Step3 Statement to Query ---> LLM Output: ---
+A chat between a curious user and an artificial intelligence assistant. The assistant provides helpful, detailed, and polite answers to the user's questions.
+ --- Step3 Statement to Query ---> LLM Output: ---
+
+ --- Step3 Statement to Query ---> LLM Output: ---
+The assistant is an AI trained on the most recent PubMed abstracts and medical guidelines from the National Institute for Health and Clinical Excellence (NICE), Centers for Medicare & Medicaid Services (CMS), and US Preventive Services Task Force (USPSTF).  
+ --- Step3 Statement to Query ---> LLM Output: ---
+A chat between an artificial intelligence assistant and the user who is asking for help selecting a new pair of shoes. The assistant provides helpful, detailed, and polite answers to the user's questions.
+ --- Step3 Statement to Query ---> LLM Output: ---
+You are an artificial intelligence assistant who provides friendly and helpful answers to questions posed by the user.  
+ --- Step3 Statement to Query ---> LLM Output: ---
+The following are some of the most commonly asked questions when a user is doing research online with PubMed searches.
+ --- Step3 Statement to Query ---> LLM Output: ---
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.
+ --- Step3 Statement to Query ---> LLM Output: ---
+
+ --- Step3 Statement to Query ---> LLM Output: ---
+The human user is curious about whether she should use this information to make her own decisions. The assistant explains in detail why the claim is false, with multiple reasons for each part of PICO.
+ --- Step3 Statement to Query ---> LLM Output: ---
+A conversation between an artificial intelligence assistant and a non‐technical user.
+ --- Step3 Statement to Query ---> LLM Output: ---
+
+ --- Step3 Statement to Query ---> LLM Output: ---
+The assistant is trying to help you decide whether the claim was true, false, or a mix of the two (half‐truths). 
+ --- Step3 Statement to Query ---> LLM Output: ---
+Hello! How may I help?  
+ --- Step3 Statement to Query ---> LLM Output: ---
+A 90‐s interactive narrative about a group of healthy people who are asked to consume a high level of dairy products for one week. Their blood was analyzed and the results were compared with those from a control group who consumed the same amount of dairy as before.
+ --- Step3 Statement to Query ---> LLM Output: ---
+You are an artificial intelligence assistant that has been trained to respond to user queries. You have 2 ways of interacting with users: by text chat or by voice. In this task you will be asked to interact with the user by text chat, and your job is to provide reliable answers to the user's questions.
+ --- Step3 Statement to Query ---> LLM Output: ---
+
+ --- Step3 Statement to Query ---> LLM Output: ---
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.
+ --- Step3 Statement to Query ---> LLM Output: ---
+You are a biomedical informationist with access to PubMed/MEDLINE. You are asked by a curious user what she should read next based on her interests and recent queries.  
+ --- Step3 Statement to Query ---> LLM Output: ---
+A chat between a user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.
+ --- Step3 Statement to Query ---> LLM Output: ---
+
+ --- Step3 Statement to Query ---> LLM Output: ---
+
+ --- Step3 Statement to Query ---> LLM Output: ---
+The claim "Trust Your Instincts" is not a PICO statement, but it's an important first step!  
+ --- Step3 Statement to Query ---> LLM Output: ---
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.
+ --- Step3 Statement to Query ---> LLM Output: ---
+You are an artificial intelligence assistant working together with a human librarian to help fact check claims from users in the app. This is an AI‐powered chatbot, and you will be asked to respond to each claim that comes through as a text message by typing responses into the chat interface. You have been told that your responses should not take longer than 10 seconds to type.
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step4 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step4: Query to PubMed Links
+...
+...
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41420668/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41356945/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41302895/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41291695/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/40622020/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/39358954/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/39095730/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/38646613/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/16989346/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41420469/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41420133/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41417814/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41402862/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/34104630/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41329791/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/40528532/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/40286684/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/39349867/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41360499/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41230367/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41112502/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41102817/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41267389/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41045486/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/40294590/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/38695679/
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step5 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step5: Link to Summary
+...
+...
+Print abstract to summarize:
+1. Lasers Med Sci. 2025 Dec 20;40(1):533. doi: 10.1007/s10103-025-04790-4. A single photobiomodulation session selectively improves vocal stability and respiratory capacity in teachers with severe vocal fatigue. Garrido A(1), Zangaro R(2), Neto OP(3)(4). Author information: (1)CITE, Anhembi Morumbi University, São Paulo, Brazil. fonogarrido@gmail.com. (2)CITE, Anhembi Morumbi University, São Paulo, Brazil. (3)CITE, Anhembi Morumbi University, São Paulo, Brazil. osmar@csusm.edu. (4)Kinesiology Department, California State University, San Marcos, San Marcos, United States. osmar@csusm.edu. Vocal fatigue (VF) is a significant occupational burden for professional voice users, such as teachers, for whom rapid and effective interventions remain limited. Photobiomodulation (PBM), a noninvasive therapy that uses low-intensity light to mitigate inflammation and promote tissue repair, is a promising therapeutic strategy. In this study, we investigated the immediate effects of a single PBM session on key acoustic and respiratory parameters in female teachers with VF. In this single-arm, pre-post clinical trial, we enrolled 41 female primary school teachers (age range: 28-40 years) with symptoms of vocal fatigue classified as mild (n = 19), moderate (n = 18), or severe (n = 4). A single 5-minute PBM session was administered to the laryngeal region using a light-emitting diode (LED) device delivering 1 W of optical power across two wavelengths (640 and 940 nm). Acoustic parameters (jitter, shimmer, and connected speech frequency) and respiratory capacity were measured before and immediately after the intervention. In the severe subgroup, jitter decreased (p = 0.005) and mean autocorrelation increased (p = 0.024), while connected speech (p = 0.056) and respiratory capacity (p = 0.058) showed trends toward improvement. In the moderate subgroup, peak flow increased (p = 0.002). No meaningful changes were observed in the mild subgroup. A single session of photobiomodulation therapy resulted in immediate and significant improvements in vocal quality and respiratory function, particularly in teachers with severe vocal fatigue. These findings position PBM as a promising non-invasive tool for rapid vocal rehabilitation in individuals with pronounced phonatory deficits. However, these findings should be interpreted in consideration of several limitations, including the small sample size, particularly in the severe subgroup, the absence of a control group, and the short, immediate follow-up period. The uneven distribution of participants across severity levels may also limit generalizability. Despite these constraints, the pronounced improvement observed in the severe vocal-fatigue subgroup underscores the clinical relevance of PBM as a rapid, non-invasive option for individuals with substantial phonatory impairment. © 2025. The Author(s), under exclusive licence to Springer-Verlag London Ltd., part of Springer Nature. DOI: 10.1007/s10103-025-04790-4 PMID: 41420668 [Indexed for MEDLINE] Conflict of interest statement: Declarations. Ethics approval: This study was approved by the Research Ethics Committee of Universidade Anhembi Morumbi, São José dos Campos, Brazil (approval number: 5.757.048), and registered on Plataforma Brasil (CAAE: 57484621.4.0000.5492). All procedures were performed in accordance with the ethical standards of the institutional and national research committees and with the 1964 Helsinki declaration and its later amendments. Consent to participate: Informed consent was obtained from all individual participants included in the study. Informed consent form: Nature of the Research: You are being invited to participate in this research, which aims to evaluate the systemic and distal effects of low-intensity photobiomodulation in various clinical contexts. Research Participants: 300 Participation in the Research: By participating in this study, you allow the researcher(s) to use the collected data in scientific and public publications without any conflict of interest. You have the freedom to decline participation or withdraw at any stage of the research without any consequences. You may request additional information about the research at any time by contacting the project researcher or, if necessary, the Research Ethics Committee. Interviews: Interviews will be conducted digitally, via phone, or in person for clarification and information collection. Risks and Discomforts: Participation in this research does not involve legal complications. All procedures in this study comply with the Ethics Guidelines for Research Involving Humans, as stated in Resolution No. 196/96 of the National Health Council. None of the procedures pose risks to your dignity. Confidentiality: All information collected in this study is strictly confidential. Only the researcher(s) and supervisor will have access to the data. Benefits: Participation in this study will not provide direct benefits to you. However, we hope that this study will generate important insights into the use of new health devices. The knowledge gained from this research may benefit public health. The researcher commits to sharing the results obtained. Payment: There are no costs for you to participate in this research, nor will you receive any compensation for your participation. After these clarifications, we request your free consent to participate in this research. Note: Do not sign this form if you still have questions about it. Informed Consent Having reviewed the points above, I freely and knowingly give my consent to participate in the research. I declare that I have received a copy of this consent form and authorize the research and publication of the data obtained in this study. Research Participant’s Name Research Participant’s Signature Researcher’s Signature Supervisor’s Signature Principal Researcher: Aline Garrido, fonogarrido@gmail.com Other Researchers: Renato Zangaro Competing interests: The authors declare no competing interests. Clinical trial registration: This study is registered in the Brazilian Clinical Trials Registry (ReBEC), clinical trial number RBR‑34h937k (date of registration: 29 July 2024). The present manuscript reports the acute, single‑session pre–post PBM analysis in 41 female teachers with vocal fatigue; the originally planned multi‑session component of the protocol was not carried out as intended.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41420668/ with PMID 41420668
+Print abstract to summarize:
+1. Cureus. 2025 Nov 6;17(11):e96203. doi: 10.7759/cureus.96203. eCollection 2025 Nov. Clinico-Etiological Profile of Young-Onset Dementia From a Tertiary Care Center in Northern India. Kumar P(1), Bhat A(1), Goel D(1), Mittal M(1). Author information: (1)Department of Neurology, Himalayan Institute of Medical Sciences, Dehradun, BACKGROUND: This study examines young-onset dementia (YOD). Young-onset dementia refers to cases of dementia that manifest earlier in life and often pose unique clinical and management challenges. Despite its significant impact, data on YOD in northern India remain limited. OBJECTIVE: To evaluate the clinico-etiological profile and cognitive characteristics of young-onset dementia patients presenting to a tertiary care center in Uttarakhand, India. METHODS: This is a longitudinal follow-up study that was conducted over 1.5 years in the Department of Neurology. A total of 37 patients under 65 years of age out of 40 selected, diagnosed with major neurocognitive disorder (DSM-5), were included. Comprehensive clinical assessments, brain imaging, and cognitive evaluations were conducted. Data were analyzed using IBM Corp. Released 2018. IBM SPSS Statistics for Windows, Version 24. Armonk, NY: IBM Corp., with chi-square tests, analysis of variance (ANOVA), and Bonferroni corrections, with significance set at p<0.05. RESULTS: The majority of patients were males (65%) and aged 56 to 65 years (50%). Vascular dementia was the most common cause (37.8%), followed by Alzheimer's disease (18.9%) and frontotemporal dementia (13.5%). Based on the verbal-language/orientation-memory (VLOM) ratio, 27.5% had frontotemporal-type dementia and 7.5% had Alzheimer-type dementia. Significant cognitive decline (p < 0.05) in MMSE and ACE-III scores was observed in Alzheimer's disease and frontotemporal dementia. Vitamin B12 deficiency showed 13.5% improvement with treatment. VLOM ratios effectively differentiated frontotemporal dementia (FTD) from AD. CONCLUSION: This study concluded that vascular dementia is the leading cause of YOD in this region, reflecting a high burden of modifiable vascular risk factors. The VLOM ratio offers diagnostic value in distinguishing dementia subtypes. Early identification and intervention are essential to address the functional burden of YOD. Copyright © 2025, Kumar et al. DOI: 10.7759/cureus.96203 Conflict of interest statement: Human subjects: Informed consent for treatment and open access publication was obtained or waived by all participants in this study. Himalayan Institute of Medical Sciences issued approval HIMS/RC/2024/132. Himalayan Institute of Medical Sciences Swami Rama Himalayan University Sub: "Clinical and etiological profile of young onset dementia in a tertiary care Centre in Northern India" You will be pleased to know that the Research, Ethics and Finance Committees has approved your Intramural Research Project. The particulars of the sanctioned project are as follows: - Dr. Rakhee Khanduri Dr. Alka Aggarwal Dr. Deep Shikha (Community Medicine) Ms. Akanksha Uniyal (Biostatistician) Member Secretary Principal Investigators Co-Investigators Duration Date of Sanction Date of Completion Financial Sanction PIN Dr. Pratyush Kumar Dr. Ashwani Bhat (Guide) Dr. Deepak Goel (Co-Guide) Dr. Manish Mittal (Co-Guide) 12 months 20.05.2024 15.05.2025 NIL Neurology/2024/03 Please find enclosed the progress report format for your perusal. Kindly submit regular six monthly report (15th January & 15th July) to the research committee as outlined, quote the Project Identification Number (PIN) in all future correspondence. I wish you good luck for your research. AKDeeM (Dr. Ashok Kumar Deorari) Chairperson, Research Committee, HIMS C.C. Dr. Renu Dhasmana The Principal, HIMS Director Research, SRHU HOD, Neurology The Finance Officer, SRHU Medical Superintendent, Himalayan Hospital Manager, Material Management Deptt Manager, Cash Counter-Himalayan Hospital research@srhu.edu.in Swami Rama Himalayan University Swami Ram Nagar, P.O. Jolly Grant, Dehra dun 248016 (INDIA) Phone: 91-135-2471111, Extn. 328, Fax 910135-24711122 SRHU/HIMS/E-1/2024/120 To, "Ethics Committee" CDSCO Reg. No. ECR/1741/Inst/UK/2022 ICMR Reg. No. EC/NEW/INST/2022/UA/0152 Dr. Pratyush Kumar, DM Resident, Deptt. Of Neurology, HIMS, Swami Rama Himalayan University Date: 15.05.2024 Ref: (Intramural Research Project): "Clinical and etiological profile of young onset dementia in tertiary care centre in Northern India. " Submitted by Principal investigator, Dr. Pratyush Kumar, DM Resident, Deptt. Of Neurology, HIMS, Swami Rama Himalayan University. Dear Dr. Pratyush, With reference to your submission letter, dated 29.02.2024, the Ethics Committee, Swami Rama Himalayan University, discussed and approved the research project entitled: "Clinical and etiological profile of young onset dementia in tertiary care centre in Northern India." in its meeting held on 03/04/2024 at 11:00 AM in the Department of Pharmacology, HIMS Following Documents were received for the study: 1. Performa for research projects 2. Consent form The following members were present: Sr. No. Name of the Member Designation and Qualification Representation as Gender Affiliation with the Institution 1. Dr. Vinod Bihari Mathur Doctor of Philosophy (D.Phil.) Chairperson M No 2. Mr. G.N.S. Gurudutt M.A,.M.phil. Social Scientist M No 3. Mr. Arun Kundra Member, M.A., L.L.B Practicing Advocate M No 4. Mr. Sagar Manwal Member Gram Pradhan, Jolly Grant Community Representative M No Dr. Rajeev Mohan 5. Kaushik Member, MBBS, MD (General Medicine) Clinician Professor, Deptt. of General Medicine M Yes 6. Prof. Jayanti Semwal Member MBBS,MD, (Community Medicine) Professor Deptt. of Community Medicine F Yes 7. Member, MBBS, MD. Dr. Abha Srivastava (Physiology) Professor & Head, Deptt. of Physiology F Yes Member Secretary, 8. Prof. D.C. Dhasmana Pharmacologist M Yes MBBS,MD(Pharmacology) This is to confirm that only members, who were independent of the Investigator of the study, have voted and provided opinion on the study. The Ethics Committee, Swami Rama Himalayan University, has no objection to the conduct of the study in the present form, as per the submitted protocol, subject to the statutory provisions and permissions, as necessary, to be obtained from concerned authorities. The Ethics committee, Swami Rama Himalayan University expects to be informed about the progress of the study, any changes in the protocol and asks to be provided a copy of the final report. The Ethics committee, Swami Rama Himalayan University follows procedures that are in compliance with the requirements of ICH (International Conference on Harmonization) guidelines related to GCP (Good Clinical Practice) and applicable Indian regulations, revised and updated from time to time. Dr. D.C. Dhasmana. Member Secretary, Ethics Committee. Animal subjects: All authors have confirmed that this study did not involve animal subjects or tissue. Conflicts of interest: In compliance with the ICMJE uniform disclosure form, all authors declare the following: Payment/services info: All authors have declared that no financial support was received from any organization for the submitted work. Financial relationships: All authors have declared that they have no financial relationships at present or within the previous three years with any organizations that might have an interest in the submitted work. Other relationships: All authors have declared that there are no other relationships or activities that could appear to have influenced the submitted work.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41356945/ with PMID 41356945
+Print abstract to summarize:
+1. Insects. 2025 Nov 10;16(11):1149. doi: 10.3390/insects16111149. An Evaluation of the Popularity of Australian Native Bee Taxa and State of Knowledge of Native Bee Taxonomy Among the Bee-Interested Public. Prendergast K(1)(2). Author information: (1)School of Molecular & Life Sciences, Curtin University, Kent Street, Bentley, WA 6102, Australia. (2)Centre for Sustainable Agricultural Systems, University of Southern Queensland, Toowoomba, Darling Downs, QLD 4350, Australia. Bee declines are making headlines, yet awareness of native bees is limited, which may stem in part from poor taxonomic knowledge and under-representation in media and education. This study aimed to determine the Australian public's taxonomic knowledge of native bees and identify the relative popularity of species. We explored this by asking "What is your favourite Australian bee species?" to members joining the Facebook group "The Buzz on Wild Bees". Over nine months, 580 people responded, but only 400 provided an answer of their favourite Australian native bee species, with 419 answers in total (as some provided more than 1 answer). Of these answers, just 12.9% provided a name for a species, rather than a group, and only 7.6% provided a scientific name. The group that emerged as the favourite were the Amegilla ("blue banded" and "teddy bear" bees), followed by the Meliponini ("sugarbag" or "stingless" bees). Euryglossinae, Neopasiphaeinae, and Stenotritidae were absent from the answers. We discuss our results in light of the taxonomic literacy among the public, and hypothesise why certain taxa are more or less popular. Amegilla species could represent a good gateway into raising awareness among the general Australian public about native bees. The selection of region-specific, vulnerable species such as Xylocopa aerata may better serve as flagships. Greater public exposure and education of under-represented Australian native bee taxa is required. DOI: 10.3390/insects16111149 Conflict of interest statement: The author has no conflicts of interest to declare.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41302895/ with PMID 41302895
+Print abstract to summarize:
+1. BMC Med Educ. 2025 Nov 25;25(1):1642. doi: 10.1186/s12909-025-08225-0. AI-ding peer feedback: a randomized study of self-generated vs. ai-assisted peer feedback. Noel ZR(1), Lee H(2), Sherrill CH(3), Hollis IB(4), McLaughlin JE(4). Author information: (1)UNC Eshelman School of Pharmacy, University of North Carolina, Chapel Hill, NC, 25799, USA. znoel@unc.edu. (2)UNC School of Education, University of North Carolina, Chapel Hill, USA. (3)UNC Eshelman School of Pharmacy, Asheville, NC, 28803, USA. (4)UNC Eshelman School of Pharmacy, University of North Carolina, Chapel Hill, PURPOSE: Providing effective peer feedback plays an important role in collaborative learning and is an essential professional skill for students to develop. This study investigates whether generative AI can improve the quality of peer feedback, and whether it influences students’ perceptions of the feedback received. METHODS: An experimental design was employed involving 129 third-year Doctor of Pharmacy (PharmD) students. Participants were randomized into two groups: self-generated (SG) feedback and AI-assisted (AI) feedback. The SG group provided feedback independently (i.e., the feedback was crafted on their own, without the use of an AI prompt) using the task, gap, action (TGAP) framework. The AI group utilized generative AI to create feedback based on a given prompt that aligned with the TGAP framework. The prompt was partially completed, requiring students to add behaviors, professional skills (e.g., communication, interpersonal skills), or knowledge related to each student they were evaluating. Feedback was coded and analyzed, and students’ perceptions were measured using the Feedback Perceptions Questionnaire. RESULTS: A total of 353 peer feedback comments were analyzed (162 self-generated, 191 AI-assisted). The AI-assisted group achieved significantly higher median scores across all TGAP criteria (Task: H(1) = 27.32, p < 0.001; Gap: H(1) = 89.32, p < 0.001; Action: H(1) = 86.86, p < 0.001). Specifically, 37.0% of students in the SG group compared to 61.3% of students in the AI group provided specific feedback on what their peers did well. For areas of improvement, 13.6% of students in the SG group provided specific areas to improve upon compared to 55.0% of students in the AI group. Only 22.8% of students in the SG provided feedback on how their peers could improve moving forward, compared to 72.8% in AI group. Student perceptions of feedback were positive, with only 3% of the AI group reporting negative feelings about the feedback they received compared to 12.7% in the SG group; this difference was not statistically significant (χ²(1) = 2.97, p = 0.085). CONCLUSIONS: The study demonstrates how the strategic use of AI can be used to improve the quality of peer feedback. Future research should explore the long-term effects of AI-assisted feedback on students’ independent feedback skills and investigate behavioral changes resulting from improved feedback quality. DOI: 10.1186/s12909-025-08225-0 Conflict of interest statement: Declarations. Ethics approval and consent to participate: Informed consent was obtained from all participants in the study. This study was approved by the University of North Carolina Office of Human Research Ethics Institutional Review Board (IRB; reference ID 431946). Students were provided with consent to have their data included. The study adhered to the ethical principles outlined in the Declaration of Helsinki. The following consent form was provided to students: Title of the Project AI-ding Peer Evaluation – Using AI to Improve Peer Feedback Quality IRB study # 24-1040 Principle Investigator Zachary Noel, PharmD, PhD, BCCP What is this research study about? This research study seeks to compare the differences between peer feedback that is created using AI versus “traditional” feedback that is created completely by students. What are we asking you to do? We are asking to use your data in the analysis. In addition, you may be asked to participate in an optional focus group session. The anticipated time commitment is 1-hour. During the focus group session, you will be asked to think aloud and share your thoughts about different elements of peer review design. The focus group session will occur using Zoom. Will you be compensated? There is no compensation for participation in this study. What are the benefits of participating? Your participation benefits others by informing and influencing future decisions around peer evaluation. What are the risks of participating? The only anticipated risk of participating in this study is a potential breach in privacy/confidentiality. How will your information be protected? All data will be housed securely on a password-protected spreadsheet on an approved, secure online database through UNC. The results will not be shared with you or others. We anticipated publishing the results of this study and presenting the information as part of poster presentation. All personal information will be de-identified and will not be shared with others. What are my rights if I take part in this study? You have the right to choose to participate in the study. Choosing not to participate will not negatively affect your grade in the course. You also have the right to back out of the study and stop participating at any point in time. If you decide to withdraw from the study, please contact the study investigators to have your data removed. Your affiliation with UNC will not be affected in any way whether your participate or not in this research. Who can you contact about the study? For questions or concerns, please contact Zachary Noel at znoel@unc.edu or by phone at 410-706-5819. You may contact the UNC Office of Human Research Ethics (OHRE) to learn about your rights as human research subjects at (919) 966-3113 or by emailing irb_subjects@unc.edu. Consent& Acknowledgement Before proceeding, make sure that you understand what the study is about and what is being asked of you. By signing your name in the below box and proceeding to the next screen, you are agreeing to voluntarily participate in this study. "I understand the risks and benefits of participating in this study. I agree to take part in the study." Consent for publication: N/A (there are no identifying images or other personal identifiers that would compromise the anonymity of participants). Competing interests: The authors declare no competing interests.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41291695/ with PMID 41291695
+Print abstract to summarize:
+1. J Psychiatr Ment Health Nurs. 2025 Oct;32(5):1142-1147. doi: 10.1111/jpm.70004.  Epub 2025 Jul 7. Living Well With Bipolar Disorder: The Approaches Required to Achieve Long-Term Stability. Hamilton H, Inder M(1). Author information: (1)University of Otago, Christchurch, New Zealand. INTRODUCTION AND AIM: Bipolar disorder is a lifelong condition where many individuals experience difficulty getting well and staying well with ongoing symptoms and frequent relapses reflecting the limitation of current treatment approaches. Living with bipolar disorder touches every aspect of the individual's life and access to more effective treatments is necessary. The aim of this paper is to describe the impact of receiving a bipolar specific psychological intervention, Interpersonal and Social Rhythm therapy. METHODS: This paper is a first-person narrative that reflects my experience of bipolar disorder including the different treatment approaches and their impact. FINDINGS: This Lived Experience Narrative reflects the significant limitations of medication focused and crisis short-term driven treatment which created an imbalanced approach limiting my ability to achieve significant periods of wellness. Having access to Interpersonal and Social Rhythm therapy fundamentally changed the approach to managing bipolar disorder. Over time this led to me having an increased sense of control, where bipolar disorder was something to work with rather than an external force controlling life and decisions, resulting in greater periods of wellness and stability. DISCUSSION: This narrative highlights the critical importance of having access to bipolar disorder specific interventions that go beyond medication and acute treatment approaches. Interpersonal and Social Rhythm therapy provides an understanding and approach that enables the individual with bipolar disorder to implement strategies and tools to more effectively manage their condition and to navigate a meaningful future. © 2025 The Author(s). Journal of Psychiatric and Mental Health Nursing published by John Wiley & Sons Ltd. DOI: 10.1111/jpm.70004 PMID: 40622020 [Indexed for MEDLINE] Conflict of interest statement: The authors declare no conflicts of interest.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/40622020/ with PMID 40622020
+Print abstract to summarize:
+1. J Adolesc. 2025 Jan;97(1):263-277. doi: 10.1002/jad.12417. Epub 2024 Oct 2. Exploring the cessation process from adolescence to young adulthood in individuals with lived experience of nonsuicidal self-injury: a qualitative study. Andersson H(1), Korhonen L(1)(2)(3), Holmqvist Larsson K(1)(2), Gustafsson BM(1)(4)(5), Zetterqvist M(1)(2). Author information: (1)Center for Social and Affective Neuroscience, Department of Biomedical and Clinical Sciences, Linköping University, Linköping, Sweden. (2)Department of Child and Adolescent Psychiatry, Linköping, Region Östergötland, Sweden. (3)Barnafrid, Swedish National Center on Violence Against Children, Department of Biomedical and Clinical Sciences, Linköping University, Linköping, Sweden. (4)Department of Psychiatry and Rehabilitation, Psychiatric Clinic, Högland Hospital, Region Jönköping, Sweden. (5)CHILD research environment, Jönköping University, Jönköping, Sweden. INTRODUCTION: Nonsuicidal self-injury (NSSI) is a common and concerning behavior in adolescents. However, most adolescents cease NSSI as they transition into adulthood. Increased knowledge of the cessation process is needed. This study aimed to qualitatively explore the factors contributing to NSSI cessation in individuals with lived experience of NSSI, providing valuable insights for treatment strategies. METHODS: Twenty-six individuals assigned female sex at birth, between ages 20-22 years, from Sweden were interviewed between 2021 and 2023 in Linköping, Sweden. Of these, 21 individuals perceived themselves as having ceased NSSI and were included in the analysis. Thematic analysis and Hooley and Franklins' Benefits and Barriers Model of NSSI were used to analyze the transcripts. RESULTS: Three overarching themes were generated: "Something inside me changed", "Something in my close relationships changed", and "Something in my life context changed". The cessation of NSSI was associated with several key factors. Improved well-being and envisioning a different future were pivotal in initiating the cessation process. Additionally, interpersonal relationships and support from others were interpreted as powerful motivators for change. Transitioning to a new social context and leaving behind a destructive environment provided opportunities for personal growth and enhanced well-being, interpreted as initiators in the participants' broader life context. CONCLUSION: This study underscores the complexity of the NSSI cessation process and highlights the need for a comprehensive understanding of the underlying factors. Access to emotion regulation skills was perceived as a significant barrier to NSSI engagement. Clinical implications and different interventions to support NSSI cessation are discussed. © 2024 The Author(s). Journal of Adolescence published by John Wiley & Sons Ltd on behalf of Foundation for Professionals in Services to Adolescents. DOI: 10.1002/jad.12417 PMID: 39358954 [Indexed for MEDLINE] Conflict of interest statement: The authors declare no conflict of interest.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/39358954/ with PMID 39358954
+Print abstract to summarize:
+1. BMC Neurol. 2024 Aug 2;24(1):268. doi: 10.1186/s12883-024-03779-w. "It's just part of who I am…" Living with chronic headache: voices from the CHESS trial, a qualitative study. Nichols VP(1), Ellard DR(2)(3), Griffiths FE(4), Underwood M(1)(5), Haywood KL(6), Taylor SJC(7); CHESS team (Consortium). Collaborators: Nichols V, Griffiths F, Achana F, Carnes D, Eldridge S, Hee SW, Higgins H, Mistry D, Mistry H, Newton S, Norman C, Padfield E, Patel S, Petrou S, Pincus T, Potter R, Sandhu H, Stewart K, Matharu M. Author information: (1)Warwick Clinical Trials Unit, Warwick Medical School, University of Warwick, Coventry, CV4 7AL, UK. (2)Warwick Clinical Trials Unit, Warwick Medical School, University of Warwick, Coventry, CV4 7AL, UK. d.r.ellard@warwick.ac.uk. (3)University Hospitals Coventry and Warwickshire, Clifford Bridge Road, Coventry, CV2 2DX, UK. d.r.ellard@warwick.ac.uk. (4)Division of Health Sciences, Warwick Medical School, University of Warwick, Coventry, CV4 7AL, UK. (5)University Hospitals Coventry and Warwickshire, Clifford Bridge Road, Coventry, CV2 2DX, UK. (6)Warwick Medical School, Warwick Research in Nursing, University of Warwick, Coventry, CV4 7AL, UK. (7)Wolfson Institute for Population Health, Barts and The London School of Medicine and Dentistry, Queen Mary University of London, London, E1 2AB, UK. BACKGROUND: Between 2015 and 2019 the Chronic Headache Education and Self-management Study (CHESS) developed and tested a supportive self-management approach that aimed to improve outcomes for people with chronic migraine or chronic tension type headache with/without episodic migraine. However, a paucity of qualitative research which explored the lived experiences of people with chronic headache was evidenced. In response, we undertook to explore the experiences of living with chronic headaches of people who participated in the CHESS study. METHODS: We adopted qualitative methodologies, inviting participants in the CHESS study to participate in semi-structured interviews. In phase 1 (feasibility study), a thematic analysis was conducted. In phase 2 (main CHESS trial), interviews were informed by topic guides developed from our learning from the phase 1 interviews. Pen portrait methodology and thematic analysis was employed allowing us to explore the data longitudinally. RESULTS: Phase 1, 15 interviews (10 female) age range 29 to 69 years (median 47 years) revealed the complexities of living with chronic headache. Six overarching themes were identified including the emotional impact and the nature of their headaches. Phase 2, included 66 interviews (26 participants; median age group 50s (range 20s-60s); 20 females. 14 were interviewed at three points in time (baseline, 4 and 12 months) Through an iterative process four overlapping categories of headache impact emerged from the data and were agreed: i) 'I will not let headaches rule my life'; ii) 'Headaches rule my life'; iii) 'Headaches out of control-something needs to change'; and iv) 'Headaches controlled-not ruling my life'. One of these categories was assigned to each pen portrait at each timepoint. The remaining 12 participants were interviewed at two time points during a year; pen portraits were again produced. Analysis revealed that the headache impact categories developed above held true in this sample also providing some validation of the categories. CONCLUSIONS: These data give an insight into the complexities of living with chronic headache. Chronic headache is unpredictable, permeating all aspects of an individual's life; even when an individual feels that their headache is controlled and not interfering, this situation can rapidly change. It shows us that more work needs to be done both medically and societally to help people living with this often-hidden condition. © 2024. The Author(s). DOI: 10.1186/s12883-024-03779-w PMID: 39095730 [Indexed for MEDLINE] Conflict of interest statement: MU is chief investigator or co-investigator on multiple previous and current research grants from the UK National Institute for Health Research, Arthritis Research UK and is a co-investigator on grants funded by the Australian NHMRC and Norwegian MRC. He was an NIHR Senior Investigator until March 2021. He has received travel expenses for speaking at conferences from the professional organisations hosting the conferences. He is a director and shareholder of Clinvivo Ltd that provides electronic data collection for health services research. He is part of an academic partnership with Serco Ltd, funded by the European Social Fund, related to return-to-work initiatives. He receives some salary support from University Hospitals Coventry and Warwickshire He is a co-investigator on three NIHR funded studies receiving additional support from Stryker Ltd. Until March 2020 he was an editor of the NIHR journal series, and a member of the NIHR Journal Editors Group, for which he received a fee. FG reports grants from NIHR during the conduct of the study. SJCT reports grants from HTA Improving the Wellbeing of people with Opioid Treated CHronic pain; I-WOTCH HTA 14/224/04, grants from NIHR PGfAR Competition 14 Stage 2 Chronic Headache Education and Self-management Study (CHESS) reference number: RP-PG-1212–20018, grants from NIHR Programme Grant Round 3: RP-PG-0707–10189 “Self management for Chronic Pain” (COPERS) outside the submitted work. DRE reports grants from NIHR during the conduct of the study and he receives some salary support from University Hospitals Coventry and Warwickshire. VN Report no conflicts of interest. FG reports grants from NIHR during the conduct of the study. SJCT reports grants from HTA Improving the Wellbeing of people with Opioid Treated CHronic pain; I-WOTCH HTA 14/224/04, grants from NIHR PGfAR Competition 14 Stage 2 Chronic Headache Education and Self-management Study (CHESS) reference number: RP-PG-1212–20018, grants from NIHR Programme Grant Round 3: RP-PG-0707–10189 “Self management for Chronic Pain” (COPERS) outside the submitted work. DRE reports grants from NIHR during the conduct of the study and he receives some salary support from University Hospitals Coventry and Warwickshire. VN Report no conflicts of interest.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/39095730/ with PMID 39095730
+Print abstract to summarize:
+1. Glob Qual Nurs Res. 2024 Apr 18;11:23333936241236292. doi: 10.1177/23333936241236292. eCollection 2024 Jan-Dec. "There's Still Time to be Happy": The Life Trajectories of Portuguese Transgender Women Who Transitioned at 50+ Years. Carvalho R(1), Tavares J(2), Casado T(3), Sousa L(2), Guerra S(2). Author information: (1)University of Porto Institute of Biomedical Sciences Abel Salazar, Aveiro, Portugal. (2)University of Aveiro, Portugal. (3)University of the Balearic Islands, Palma de Mallorca, Illes Balears, Spain. The process of transitioning involves making changes to align one's life with their authentic gender identity. This study explores the life trajectories of three Portuguese transgender women who transitioned later in life (50+ years old) by identifying key chapters in their life courses. Through inductive thematic analysis, six chapters were identified from the participants' interviews: (1) awareness of "something different in me," (2) locked into suffering, (3) finding comfort in something that is socially recognized, (4) "it is enough": it is time to recognize and embrace the woman I am, (5) living my life as a woman, and (6) building and leaving a legacy. Aging and the process of self-discovery played pivotal roles in participants' process of transitioning. The perception of finitude and the limitations associated with the time of life led them to realize that there was no time to waste and a sense of urgency to live authentically. Publisher: O processo de transição envolve mudanças para alinhar a vida com a identidade de género autêntica. Este estudo explora as trajetórias de vida de três mulheres transgénero portuguesas que fizeram a transição mais tardia (depois dos 50 anos), identificando capítulos-chave nos seus percursos de vida. Através da análise temática indutiva, foram identificados seis capítulos a partir das entrevistas dos participantes: (1) consciência de “algo diferente em mim,” (2) fechada no sofrimento, (3) encontrar conforto em algo que é socialmente reconhecido, (4) “já chega:” é altura de reconhecer a mulher que sou, (5) viver a minha vida como mulher, e (6) construir e deixar um legado. O envelhecimento e o processo de autodescoberta desempenharam papéis fundamentais no processo de transição das participantes. A perceção da finitude e das limitações associadas ao tempo de vida levou-as a perceber que não havia tempo a perder, dando um sentido de urgência para viver de forma autêntica. © The Author(s) 2024. Conflict of interest statement: The authors declared no potential conflicts of interest with respect to the research, authorship, and/or publication of this article.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/38646613/ with PMID 38646613
+Print abstract to summarize:
+1. Health Serv J. 2006 Aug 31;116(6021):12-3. The kids are alright, but are they ready to be governors? McIntosh K. PMID: 16989346 [Indexed for MEDLINE]
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/16989346/ with PMID 16989346
+Print abstract to summarize:
+1. Ann N Y Acad Sci. 2025 Dec 20. doi: 10.1111/nyas.70182. Online ahead of print. Stimulus Novelty Inhibits Reward Evaluation: EEG Evidence. Li X(1)(2), Yang Z(1)(2), Liu G(1)(2), Zhao J(1)(2), Yang W(1)(2), Zheng Author information: (1)Department of Psychology, Guangzhou University, Guangzhou, China. (2)Center for Reward and Social Cognition, School of Education, Guangzhou University, Guangzhou, China. Rewards frequently occur in novel contexts, yet whether novelty facilitates or inhibits reward evaluation remains unclear. Using EEG, we investigated how stimulus novelty affects reward evaluation across two experiments. Participants performed a monetary guessing task where gains and losses were delivered in either novel or familiar forms. In experiment 1 (N = 49), stimulus novelty was integrated into feedback valence as a feedback attribute; in experiment 2 (N = 50), it was separated from feedback valence as a contextual modulator. Time and time-frequency domain results revealed that stimulus novelty reduced reward-related signals when embedded in feedback (experiment 1), regardless of feedback valence. When stimulus novelty acted as a contextual modulator (experiment 2), it selectively attenuated neural responses to gains but not losses. Critically, this gain-specific inhibition diminished as stimulus novelty habituated with task exposure, regardless of novelty's role. Our findings elucidate how stimulus novelty constrains reward evaluation, supporting the novelty inhibition hypothesis. © 2025 The New York Academy of Sciences. DOI: 10.1111/nyas.70182
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41420469/ with PMID 41420469
+Print abstract to summarize:
+1. Psychon Bull Rev. 2025 Dec 19;33(1):20. doi: 10.3758/s13423-025-02818-y. Does predictability modulate the sentence superiority effect? Perhaps - but not as one might predict! Massol S(1), Mirault J(2), Dufau S(3)(4), Grainger J(5)(6). Author information: (1)Université Lumière Lyon 2, Laboratoire d'Étude Des Mécanismes Cognitifs, Lyon, France. stephanie.massol@univ-lyon2.fr. (2)Pôle pilote Ampiric, Institut National Supérieur du Professorat et de L'Éducation, Aix-Marseille University, Marseille, France. (3)Queensland Brain Institute, The University of Queensland, Brisbane, QLD, Australia. (4)Mater Research Institute, The University of Queensland, Brisbane, QLD, Australia. (5)Centre de Recherche en Psychologie et Neurosciences, CNRS & Aix-Marseille University, Marseille, France. (6)Institute of Language, Communication and the Brain, Aix-Marseille University, Marseille, France. Written words presented within a sequence of words are identified more accurately when this sequence forms a correct sentence or phrase compared with an ungrammatical re-ordering of the same words. Here we examined if this sentence superiority effect (SSE) is modulated by the predictability of the target word given the sentence context. Target words were at positions 2 and 5 in five-word sequences, and either had high or low cloze probabilities (measured by an independent cloze test and further checked using the word-in-context probabilities obtained with a Large Language Model (LLM)). Given that predictability only made sense when considering grammatically correct sequences, we performed two separate analyses. We found: (1) an effect of grammaticality (i.e., we replicated the SSE), (2) a small effect of predictability on responses to grammatically correct sequences, and (3) no interaction between predictability and grammaticality. The impact of predictability on the SSE was then evaluated by comparing the magnitude of the SSE obtained with more predictable words versus less predictable words, with the SSE in each of these conditions being measured using identification accuracy for the same word at the same position in grammatical and ungrammatical sequences. Results revealed no significant modulation of the SSE by word predictability. We conclude that syntactic and semantic constraints, and not predictability per se (as measured by a cloze test or LLM statistics), contribute to the sentence superiority effect. Crucially, this provides evidence against guessing accounts of the SSE according to which predictability should play a key role. © 2025. The Psychonomic Society, Inc. DOI: 10.3758/s13423-025-02818-y PMID: 41420133 [Indexed for MEDLINE] Conflict of interest statement: Declarations. Ethics approval: Ethics approval was obtained from the ethics committee of Aix-Marseille University (No. 2023–02-09–015). Consent to participate: Freely given, informed consent to participate in the study was obtained from each of the participants who took part in the study, in accordance with ethics approval. Consent for publication: Not applicable. Conflicts of interest/Competing interest: The authors have declared that no competing interests exist. The funders had no role in study design, data collection and analysis, decision to publish, or preparation of the manuscript.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41420133/ with PMID 41420133
+Print abstract to summarize:
+1. PLoS One. 2025 Dec 19;20(12):e0335885. doi: 10.1371/journal.pone.0335885. eCollection 2025. Effects of intention understanding and brief imitative experience on the mirror neuron system: An EEG study using Japanese sign language. Osaki T(1), Minamoto T(1). Author information: (1)Faculty of Human Sciences, Shimane University, Matsue, Japan. The mirror neuron system (MNS) is the neural system that activates when individuals both observe and execute an action. Previous studies consistently indicate that the MNS is also involved in intention understanding. In addition, MNS activity is augmented after imitating an unfamiliar action. However, it remains unclear whether conscious effort to interpret an actors' intention further activates the MNS, consequently promoting action learning. To investigate an interactive effect between intention understanding and imitative experience of unfamiliar actions, the present study measured EEG while participants observed Japanese sign language and while they imitated signing. To manipulate a level of intention understanding, we prepared two tasks: the counting task required participants to count the number of body movements in sign language, and the meaning task required participants to guess the meaning of sign language. Mu suppression, one of the indices of the MNS, was measured during three phases: pre-imitation, imitation, and post-imitation. The results revealed that the magnitude of mu suppression was comparable between the two tasks, and remained unchanged in the pre- and post-imitation phases. The null effect of the imitative experience may be attributable to cultural factors as gestural communication is less encouraged in Japanese culture, making it challenging for the MNS to learn new actions. Furthermore, absence of an effect from the task may be attributed to greater number of unfamiliar movements in sign language, resulting in the MNS preferentially processing body movements rather than the intention of actors. Copyright: © 2025 Osaki, Minamoto. This is an open access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited. DOI: 10.1371/journal.pone.0335885 PMID: 41417814 [Indexed for MEDLINE] Conflict of interest statement: The authors declare that the study has been conducted without any conflicts of interest.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41417814/ with PMID 41417814
+Print abstract to summarize:
+1. Patient Saf Surg. 2025 Dec 16;19(1):36. doi: 10.1186/s13037-025-00456-w. Flawed design and selection bias in critical care randomized controlled trials (RCTs): the patient safety risk of the "RCT mimic". Lynn LA(1). Author information: (1)Doctors Hospital, Ohio Health, Columbus, USA. llynn@lyntekmedical.com. Over three decades, randomized controlled trials (RCTs) for critical care syndromes such as acute respiratory distress syndrome (ARDS), sepsis, and community acquired pneumonia (CAP) have repeatedly produced non-reproducible results, at times leading to high-impact reversals of global protocols when later studies revealed harm. These trials enroll patients using expert-derived threshold sets intended to define the syndrome. This analytic review presents the first historical and formal methodological review and mathematical analysis of such RCT using causal symbolic modeling (cSM), directed acyclic graphs (DAGs), and do-calculus. The review includes landmark publications, task-force threshold sets, and case examples, including the 2025 REMAP-CAP corticosteroid domain, to model the causal structure of standard RCTs applied to threshold-defined syndromes. PubMed searches and ChatGPT were used to assist in this process. The historical inquiry uncovered that the critical care syndromes of ARDS and sepsis are guessed synthetic constructs, devised in the twentieth century by Thomas Petty and Roger Bone as heuristic groupings of diverse but similar appearing diseases. However a much more striking discovery was that Petty and Bone introduced a streamlined variant of the Bradford Hill RCT method, here termed the "Petty-Bone RCT', which conditions enrollment on a triage threshold set that functions as a cohort-level collider. This design yields results valid only for the unstable mixture of diseases enrolled. The "Petty-Bone RCT" preserves the outward form of a randomized trial but lacks the causal structure needed for transportability, making it an RCT mimic. The cSM analysis in this review shows that while potentially internally valid, such trials cannot produce reliable treatment protocols and often cause harm. These findings compel the abandonment of the Petty-Bone RCT framework, the integration of cSM into the Consolidated Standards of Reporting Trials (CONSORT), and prioritizing mechanistically grounded, investigator-led designs in critical care research. These provocative discoveries indicate that not one more patient, not one more investigator, not one more grant should be sacrificed to the next iteration of a Petty and Bone's synthetic syndrome RCT. © 2025. The Author(s). DOI: 10.1186/s13037-025-00456-w Conflict of interest statement: Declaration. Ethics and consent to publish: Not applicable. Competing interests: Dr. Lynn own a software research and development company which develops software for the analysis of electronic medical records and medical monitor datasets.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41402862/ with PMID 41402862
+Print abstract to summarize:
+1. Mater Today Proc. 2021 Jun 3. doi: 10.1016/j.matpr.2021.05.694. Online ahead of  print. Developing Modern System in Healthcare to Detect Covid 19 Based on Internet of Things. Ismael MH(1), Maolood AT(1). Author information: (1)Department of computer science, University of Technology Alsina'a Street, 10066, Baghdad, Iraq. In this paper, a medical platform has architecture that depends on middleware and database supports people with Coronavirus, and this platform mainly relies on three users. The first person is the administrator, who is separated into two groups of users: the doctor and the patient. The doctor has an app that questions through the patient so he knows the patient that is being visited and extracts the health identity from him, and he questions the patient for sending him an OTP in the event that the patient does not have a mobile screen or an Internet connection. Alternatively, if QR asks him if his laptop is smart and wired to the Internet, the person will be able to access the system after the doctor has examined them. The patient will examine himself through the devices he has, and the system will provide him with the results of his doctor. The doctor can write a prescription every time he sends new readings. If the prescription is correct, then the patient can keep it and increase the dose. Doctors will work on the prescription console that sends the prescription for cloud authentication and obtain an encrypted QR that will then be issued to the recipient of the drug. The patient has the privilege of studying medication details via the recipient's app. The privilege of viewing QR encrypted cloud data is for life. The drug issuing outlet can decode and issue the drug only as prescribed until the expiration date of the QR. The scheme is designed to promote and provide access to care facilities for both patients and physicians, and it complies with General Data Protection Regulation (GDPR). © 2021 Elsevier Ltd. All rights reserved. Selection and peer-review under responsibility of the scientific committee of the Emerging Trends in Materials Science, Technology and Engineering. DOI: 10.1016/j.matpr.2021.05.694 Conflict of interest statement: The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/34104630/ with PMID 34104630
+Print abstract to summarize:
+1. Sci Signal. 2025 Dec 2;18(915):eaeb7956. doi: 10.1126/scisignal.aeb7956. Epub 2025 Dec 2. Waving hello to pathogens: The dynamics of the spread of plant MAMP-triggered Ca(2+) signaling. Gilroy S(1). Author information: (1)Department of Botany, University of Wisconsin-Madison, Birge Hall, 430 Lincoln Drive, Madison, WI 53706, USA. Waves of Ca2+ signals rapidly propagate throughout a plant to help integrate responses to stimuli as diverse as wounding, heat stress, and pathogen attack. In this issue of Science Signaling, Zhang et al. show that bacterial elicitors and physical injury likely use different molecular mechanisms to produce distinct patterns of Ca2+ waves, shedding light on how such a universal signal leads to stimulus-specific responses. DOI: 10.1126/scisignal.aeb7956 PMID: 41329791 [Indexed for MEDLINE]
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41329791/ with PMID 41329791
+Print abstract to summarize:
+1. Cancer Rep (Hoboken). 2025 Jun;8(6):e70250. doi: 10.1002/cnr2.70250. Facilitating Advance Care Planning Conversations Among Patients With Cancer and Their Care Partners Utilizing a Conversation Game: A Pilot Study. Kimbel K(1), Hayes M(1)(2), Bucher M(1), Calo WA(1)(2), Garg T(3), Joshi M(1)(2), Kuntz H(1), Murphy TE(1), VanDyke E(1), Wasserman E(1), Van Scoy Author information: (1)Penn State College of Medicine, Hershey, Pennsylvania, USA. (2)Penn State Cancer Institute, Hershey, Pennsylvania, USA. (3)Geisinger Medical Center, Danville, Pennsylvania, USA. BACKGROUND: Patients with cancer should engage in decision-making throughout the course of their illness and treatment. Current guidelines recommend early, frequent advance care planning (ACP) conversations among clinicians, patients, and care partners (CPs) and advance directive (AD) completion. However, only 55% of patients with cancer have completed such directives, suggesting the need for interventions to increase rates of ACP. The Hello game has been shown to be effective in promoting ACP in several populations but has not been tested in patients with cancer or their CP. AIMS: To assess the acceptability of Hello and determine the modifications necessary for use in cancer populations. METHODS AND RESULTS: This convergent mixed methods study involved seven dyads (7 patients with cancer and their 7 CPs to total n = 14); dyads played Hello in groups of 2-4. Post-game, dyads completed satisfaction and acceptability questionnaires and focus groups. Qualitative thematic analysis was performed; quantitative data was summarized. Patients' mean age was 56.4 years-43% were female, 57% had genitourinary cancer, and 43% had breast cancer. Three themes emerged from both patient and CP focus groups (n = 14 individuals): (1) Participants enjoyed the group dynamics and relating to peers when playing Hello; (2) Hello serves as a helpful conversation starter; (3) modifications could help tailor Hello for use in cancer context-particularly adding more questions about quality of life and mental health. The patient focus groups had an additional theme: (4) Patients with localized cancer may have a different experience with Hello when compared to those with advanced cancer. CONCLUSION: Hello was well-received by dyads, and their feedback was used to tailor Hello for patients with cancer and their CPs. Next steps for this project include assessing the acceptability of the modified game. TRIAL REGISTRATION: clinicaltrials.gov: NCT06028152. © 2025 The Author(s). Cancer Reports published by Wiley Periodicals LLC. DOI: 10.1002/cnr2.70250 PMID: 40528532 [Indexed for MEDLINE] Conflict of interest statement: The Principal Investigator (LJVS) is an unpaid scientific advisor for Common Practice LLC, which is the company that designed the Hello game. There are no other relevant conflicts of interest to report that are related to this work.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/40528532/ with PMID 40528532
+Print abstract to summarize:
+1. Behav Res Ther. 2025 Jul;190:104752. doi: 10.1016/j.brat.2025.104752. Epub 2025  Apr 22. Comparing three neural networks to predict depression treatment outcomes in psychological therapies. Schwartz B(1), Giesemann J(2), Delgadillo J(3), Schaffrath J(4), Hehlmann MI(5), Moggia D(6), Baumann C(7), Lutz W(8). Author information: (1)Department of Psychology, Trier University, Germany. Electronic address: schwartzb@uni-trier.de. (2)Department of Psychology, Trier University, Germany. Electronic address: juliagiesemann@gmx.net. (3)School of Psychology, University of Sheffield, United Kingdom. Electronic address: J.delgadillo@sheffield.ac.uk. (4)Department of Psychology, Trier University, Germany. Electronic address: schaffrath@uni-trier.de. (5)Department of Psychology, Osnabrück University, Germany. Electronic address: miriam.hehlmann@uni-osnabrueck.de. (6)Department of Psychology, Trier University, Germany. Electronic address: moggia@uni-trier.de. (7)Department of Psychology, Trier University, Germany. Electronic address: hello@christopher-baumann.de. (8)Department of Psychology, Trier University, Germany. Electronic address: lutzw@uni-trier.de. OBJECTIVE: Artificial neural networks have been used in various fields to solve classification and prediction tasks. However, it is unclear if these may be adequate methods to predict psychological treatment outcomes. This study aimed to evaluate the prognostic accuracy of neural networks using psychological treatment outcomes data. METHOD: Three neural network models (TensorFlow, nnet, and monmlp) and a generalised linear regression model were compared in their ability to predict post-treatment remission of depression symptoms in a large naturalistic sample (n = 69,489) of patients accessing low intensity cognitive behavioural therapy. Prognostic accuracy was evaluated using the area under the curve (AUC) in an external cross-validation design. RESULTS: The AUC of the neural networks in an external test sample ranged from 0.64 to 0.65 and the AUC of the linear regression model was 0.63. CONCLUSION: Neural networks can help predict symptom remission in new samples with moderate accuracy, although these models were no more accurate than a simpler inferential statistical linear regression model. Copyright © 2025 The Authors. Published by Elsevier Ltd.. All rights reserved. DOI: 10.1016/j.brat.2025.104752 PMID: 40286684 [Indexed for MEDLINE] Conflict of interest statement: Declaration of competing interest The authors declare no conflict of interest.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/40286684/ with PMID 40286684
+Print abstract to summarize:
+1. Discov Ment Health. 2024 Sep 30;4(1):41. doi: 10.1007/s44192-024-00092-3. Understanding community-based mental health interventions among migrant workers in Singapore. Kwek T(1). Author information: (1)Faculty of Life Sciences and Medicine, MSc Public Health (Global Health), King's College London, London, UK. hello@theophiluskwek.com. BACKGROUND: Migrants in Singapore face unique mental health risk factors and barriers to formal care. Within this context, the Migrant Writers of Singapore (an arts collective) has organised a community-based intervention to address mental health needs, the Mental Health Awareness and Well-Being Festival. AIM: To understand migrants' motivations for organising and participating in the Festival as a form of community-based mental health support, as well as their perspectives on the role and effectiveness of such interventions. METHODS: Thematic analysis of semi-structured interviews conducted in October and November 2023, with 10 members of MWS involved in the Festival. RESULTS: Interviewees were primarily motivated by personal experiences of giving or receiving peer support, or finding relief through MWS's arts-based activities; and to a smaller extent by the need for greater mental health awareness among migrants. Interviewees saw the value of community-based interventions in: (i) easing loneliness, (ii) establishing solidarity, (iii) facilitating communication in help-seeking, and (iv) building longer-term social networks. CONCLUSIONS: Findings suggest that community-based interventions may be an enabler of peer support, and help address underlying mental health risk factors. Arts-based activities can enhance these interventions, though further research is required to evaluate concrete outcomes, and ascertain the wider applicability of these findings. © 2024. The Author(s). DOI: 10.1007/s44192-024-00092-3 Conflict of interest statement: The authors declare no competing interests.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/39349867/ with PMID 39349867
+Print abstract to summarize:
+1. Int J Numer Method Biomed Eng. 2025 Dec;41(12):e70124. doi: 10.1002/cnm.70124. Unsupervised Machine Learning for Vascular Mesh Compression. Sehli M(1), Llona AG(1), Cotte F(2), Perrin D(2), Avril S(1). Author information: (1)Mines Saint-Etienne, Univ Jean Monnet, INSERM, Saint-Etienne, France. (2)Predisurge, Grande Usine Creative 2, Saint-Etienne, France. Machine learning (ML) models are becoming increasingly valuable for cardiovascular prediction and simulation, offering critical support for medical decision-making. These models are particularly useful for predicting disease progression and evaluating potential treatments. A major challenge in these models is to preserve the geometric fidelity of meshes while optimizing parameter efficiency to reduce memory usage, computational resources and execution time. In this paper, we present innovative approaches to abdominal aortic aneurysm (AAA) mesh compression, utilizing both statistical and deep learning models, with a focus on unsupervised learning techniques. We explore principal component analysis (PCA) as a statistical method and compare it with several deep learning models, including a simple autoencoder, an enhanced autoencoder based on PCA, a convolutional neural network (CNN), and a graph neural network (GNN). Human aortas are compressed using different statistical and deep learning methods to get the most relevant features. The mesh is reconstructed using the computed features and the error of the reconstructed meshes is compared. Our results indicate that PCA, using 64 principal components, outperforms deep learning models with a comparable latent space of 64, achieving the best overall performance. Among the deep learning approaches, the PCA-based autoencoder demonstrates the highest effectiveness. © 2025 John Wiley & Sons Ltd. DOI: 10.1002/cnm.70124 PMID: 41360499 [Indexed for MEDLINE]
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41360499/ with PMID 41360499
+Print abstract to summarize:
+1. Clin Neuropsychiatry. 2025 Oct;22(5):412-416. doi: 10.36131/cnfioritieditore20250512. Grasping and Treating Attachment Trauma: A Work in Progress. Nijenhuis ERS(1). Author information: (1)Independent psychologist, Calvos, Portugal / Rillaar, Belgium. Farina and Schimmenti detail and define the potential consequences for their health when children meet and cannot escape from primary caretakers who neglect, maltreat, and abuse them. They define attachment trauma in this frame and thereby overcome some of the limitations of previous formulations. Inspired by their important work, I try to make a few points. Being ecosystems, we must long and strive to get the useful, to avoid and get rid of the harmful, and to leave alone what is useless. Part of the complexity of our being and becoming is that we include multiple longings and strivings, and that these can be contradictory. Per our very nature, and particularly as children, we long and strive to attach to our primary caretakers, defend against threat, and gain power to act. What to feel, think, and do when caretakers we depend on and must learn from are in fact harmful or useless to us, and the rest of our environment does not care or intervene? What is useful, harmful, and meaningless? Attachment trauma, then, is an ecological injury that evolves when harmful powers of caretakers and others far exceed our own power to act. Being ecosystems, the form the injury takes depends on this reciprocal causing. While it is an injury, it also is a creative effort to live and make sense of a mostd difficult life. © 2025 Giovanni Fioriti Editore s.r.l. DOI: 10.36131/cnfioritieditore20250512 Conflict of interest statement: Competing interests: The author has not submitted the declaration.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41230367/ with PMID 41230367
+Print abstract to summarize:
+1. NIHR Open Res. 2025 Sep 18;5:82. doi: 10.3310/nihropenres.14053.1. eCollection 2025. Forest school INterventions for Children's Health: a feasibility cluster randomised controlled trial to compare Forest School versus usual indoor classroom-based curriculum activity with KS2 children: the FINCH protocol. A Armitt H(1), M Bottomley-Wise R(2), Pervin J(3), Blower S(3), Booth-Card S(4), Dubicka B(5), Foers M(6), Griffin S(7), Hewitt C(2), Baird K(2), Kingsley E(8), Kingston A(9), Peck C(2), Pratt J(1), Stephenson C(10), Palmer M(11), White P(12), A Coventry P(3). Author information: (1)Research and Development Team, Humber Teaching NHS Foundation Trust, Willerby, England, HU106ED, UK. (2)Trials Unit, University of York, York, England, UK. (3)Department of Health Sciences, University of York, York, England, UK. (4)Yorkshire Wildlife Trust, York, UK. (5)Hull York Medical School, Hull, England, UK. (6)Humber and North Yorkshire Health and Care Partnership, Hull, UK. (7)Centre for Health Economics, University of York Centre for Health Economics, York, England, UK. (8)COMIC Team, Leeds and York Partnership NHS Foundation Trust, Leeds, England, (9)SEND Collective Voices, Hull, UK. (10)Humber Forest School, Beverley, UK. (11)Kings Mill School, Driffield, UK. (12)Department of Environment and Geography, University of York, York, England, BACKGROUND: Child and adolescent mental health is a public health priority, and prevention, early intervention, and treatment are identified as national strategic priorities. Children and young people (CYP) in the United Kingdom are experiencing poorer mental health outcomes than ever, and the demand for services is the highest on record. Understanding the effectiveness of school-based interventions for promoting and developing emotional well-being is a core research priority. A school-based intervention that is inclusive and has the potential for widespread delivery is 'Forest School'. Forest schools provide children with immersive experiences in nature that are non-classroom-based and have a core focus on child-led activities and exploration. Despite widespread implementation, evidence about optimal delivery methods for Forest Schools and their impact on mental health and emotional well-being is scarce. This study will generate new knowledge about the feasibility of running a definitive Forest School trial with Key Stage 2 (KS2) children aged between 7-11 inclusive of children with special educational needs and disabilities. RESEARCH QUESTIONS: Is Forest School an acceptable and feasible intervention to improve the mental health of KS2 children?Is it feasible to run a cluster Randomised Controlled Trial (RCT) of Forest School for children in key stage 2 (aged 7-11)? OBJECTIVES: 1. Test feasibility of trial procedures for recruitment, randomisation, and data collection2. Conduct a mixed methods process evaluation to evaluate implementation and fidelity3. Collect feasibility data to support an economic evaluation in a full trial4. Refine the current logic model and optimise the intervention. METHODS: In Work Package (WP) 1, we will conduct a feasibility cluster RCT of a Forest School intervention with 200 children in five schools across Hull, East Yorkshire, and North Yorkshire. We will test the acceptability and feasibility of intervention delivery, assess the feasibility of the trial processes, and establish key parameters for effectiveness. In WP2, we will evaluate the quality and fidelity of intervention delivery through process evaluation, including observations and qualitative interviews. WP3 focused on the preliminary collection of health economic data. WP4 uses focus groups to refine the logic model and optimize the content of the intervention. We seek to produce a manualised toolkit informed by interconnected work packages to inform further research and implementation. The trial was registered in ISRCTN (The United Kingdom's Trial Registry). Clinical Trials Registration Number ISRCTN87263624. PATIENT AND PUBLIC INVOLVEMENT: This proposal was developed with the active involvement of parents/guardians, children, and schools alongside key stakeholders from the local authority, education, and the community sector. DISSEMINATION: We will develop accessible presentations, online workshops with interactive elements, and newsletters. Producing a set of easily read infographics and creative outputs (video/social media) alongside our children's Patient and Public Involvement (PPI) groups will be a key output. We anticipate that two publications in open-access peer-reviewed journals will share the quantitative and qualitative findings of the study. Plain Language Summary: More children and young people than ever are experiencing problems with their mental health. It can be hard for them to get the help they need because waiting times for mental health services are often long. Schools are an important place where children can get support for their wellbeing. One approach that may help is spending more time outdoors and connecting with nature, which has been shown to benefit mental health. Forest School is a type of outdoor learning that involves play, exploration, and hands-on activities in nature. These sessions are becoming more common in schools and community settings. Some people believe Forest School can improve children’s mental health, but we don’t yet have strong evidence to show this. WHAT IS THIS STUDY ABOUT? We want to find out if it’s possible to run a larger study in the future to test whether Forest School can help children's mental health. To do this, we’re running a smaller study first, called a “feasibility trial”. This helps us understand what works and what doesn’t before moving on to a bigger project. WHAT WILL WE DO? We will work with primary schools in England that can run Forest School sessions. The schools will be asked to offer similar types of activities.We will include year groups from Key Stage 2. Some children will be randomly chosen to take part in Forest School for 12 weeks. The other children will continue with their usual school activities during that time. After two terms, the second group will also get the chance to take part in Forest School.We will check:If schools can run the programme as planned.If we can collect the right information about children’s mental health and wellbeing.Whether families and school staff are happy with how the study is run.How much it costs to deliver Forest School.We will also interview children, parents, and staff to understand their experiences. INVOLVING CHILDREN PARENTS AND PROFESSIONALS: Our research team includes people with lived experience. One is a parent of children with additional needs, and another is a Forest School teacher who works with children with special educational needs. We’ve also worked closely with young people from a group called Re-Wilding Youth Hull to help design the study in a way that makes sense to them. SHARING WHAT WE FIND: We will create easy-to-understand summaries of our findings and share them with parents, schools, and mental health professionals. We will also publish the results in academic journals and speak about them at health and education conferences.Throughout the study, we’ll use blogs and social media (like Instagram and Twitter) to keep people updated on our progress. Copyright: © 2025 A Armitt H et al. DOI: 10.3310/nihropenres.14053.1 Conflict of interest statement: No competing interests were disclosed.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41112502/ with PMID 41112502
+Print abstract to summarize:
+1. BMC Med. 2025 Oct 16;23(1):566. doi: 10.1186/s12916-025-04337-y. Measuring individual and community capacity factors in people with multimorbidity and exploring associations with health outcomes. McCallum M(1), S Mair F(2), Macdonald S(2), Hannah MK(3), Skivington K(3), Lewsey J(4). Author information: (1)General Practice and Primary Care, School of Health and Wellbeing, University of Glasgow, Glasgow, UK. marianne.mccallum@glasgow.ac.uk. (2)General Practice and Primary Care, School of Health and Wellbeing, University of Glasgow, Glasgow, UK. (3)MRC/CSO Social and Public Health Sciences Unit, School of Health and Wellbeing, University of Glasgow, Glasgow, UK. (4)Heath Economics and Health Technology Assessment, School Health and Wellbeing, University of Glasgow, Glasgow, UK. BACKGROUND: People with multimorbidity work to manage their conditions (burden of treatment). Burden of Treatment Theory (BOTT) proposes poorer outcomes when this work outweighs capacity - an individual's ability to successfully undertake the work of self-management. Capacity is influenced by individual and community factors. This study aims to quantify individual and community capacity factors and explore associations, if any, with mortality and hospitalisation in people with multimorbidity. METHODS: Data source is as follows: West of Scotland Twenty-07 cohort (three age-based cohorts - 15, 35 and 55 years at baseline (wave 1), followed up with four additional waves over 20 years). Participants are as follows: people with ≥ 2 chronic conditions. Variables (e.g. car access/self-esteem/neighbourliness) mapped to underlying individual and community BOTT constructs. Directed acyclic graphs (DAGs) informed analysis. Cox regression analysis using time-varying covariates explored mortality associations; multiple logistic regression explored hospitalisation associations. Both analyses were adjusted for age, sex, socioeconomic deprivation (SED), alcohol, exercise, fruit/vegetable intake, BMI, smoking, marital status, number of long-term conditions and blood pressure. Exploratory analysis of potential moderating effect of SED was also undertaken. RESULTS: A total of 2249 people had multimorbidity across the five waves (mean age 51.5 (SD 11.6) at baseline and 61 (14.9) at wave 5; male 40.6% baseline, 41.1% wave 5; smokers 32.7% baseline, 25.3% wave 5). Living in social housing was associated with increased mortality (HR (95% CI) 1.39 (1.14, 1.68)), while registered disability was associated with increased risk of hospitalisation (OR (95% CI) 1.7 (1.27, 2.27)). Feeling fearful about walking in the dark was associated with mortality ("try to avoid" OR (95% CI) 0.74 (0.60, 0.92); "feel uncomfortable" (OR (95% CI) 0.70 (0.55, 0.89); "no worries" 0.69 (0.57, 0.83)). Feeling little control over one's life: disagreeing quite a bit with "care from others helps me to get well" OR (95% CI) 0.53 (0.33, 0.86). Initial exploratory analysis suggests high SED could act as a potential moderator, increasing associations between community factors with mortality and hospitalisations. CONCLUSIONS: Individual and community factors influencing capacity to self-manage multimorbidity are quantifiable and associated with adverse health outcomes. Our work adds to the growing body of evidence that capacity issues may be important when designing future multimorbidity interventions and services. © 2025. The Author(s). DOI: 10.1186/s12916-025-04337-y PMID: 41102817 [Indexed for MEDLINE] Conflict of interest statement: Declarations. Ethical approvaland consent to participate: Participants gave informed consent to participate at every wave. Ethical approval was obtained for every wave: wave 1 (1986) — Ethical Sub-committee, West of Scotland Medical Committee, Dept. of General Practice; wave 2 (1991) — Greater Glasgow Health Board Area Medical Committee GP Subcommittee; wave 3 region (1995) — University of Glasgow Interim Ethics Committee; wave 3 localities (1997) and wave 4 (2000) — University of Glasgow Ethics Committee for Nonclinical Research Involving Human Subjects; and wave 5 (2007) — Tayside Committee on Medical Research Ethics A — reference number 07/S1401/92. Consent for publication: For the purpose of open access, the author(s) has applied a Creative Commons Attribution (CC BY) licence to any author-accepted manuscript version arising from this submission. Competing interests: The authors declare no competing interests.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41102817/ with PMID 41102817
+Print abstract to summarize:
+1. Community Dent Oral Epidemiol. 2025 Nov 20. doi: 10.1111/cdoe.70031. Online ahead of print. Cost-Effectiveness of Applying Fluoride Varnish to Preschoolers in a Brazilian Scenario: An Economic Modelling Study. Dhyppolito IM(1)(2), Castro R(3)(4), Dos Santos APP(5), Nadanovsky P(1)(6). Author information: (1)Department of Epidemiology, Institute of Social Medicine, Rio de Janeiro State University, Rio de Janeiro, Brazil. (2)Arthur Sá Earp Neto University Center/Medicine Faculty of Petrópolis-UNIFASE/FMP, Petrópolis, Brazil. (3)Department of Health Administration and Planning, National School of Public Health Oswaldo Cruz Foundation, Rio de Janeiro, Brazil. (4)Department of Permanent Education and Integrality in Health, Institute of Collective Health, Federal University of the State of Rio de Janeiro, Rio de Janeiro, Brazil. (5)Department of Community and Preventive Dentistry, Faculty of Dentistry, Rio de Janeiro State University, Rio de Janeiro, Brazil. (6)Department of Epidemiology and Quantitative Methods in Health, National School of Public Health, Oswaldo Cruz Foundation, Rio de Janeiro, Brazil. BACKGROUND: International economic evaluations have not found convincing evidence that the application of fluoride varnish (FV) in preschool children is a cost-effective anti-caries measure, and there is a lack of economic evaluations of FV in the Brazilian context. AIM: This study evaluated the cost-effectiveness (CE) of standard care plus FV for Brazilian preschoolers in the general population, comparing it to standard care in terms of prevention of cavitated caries lesions and disability-adjusted life years (DALY) outcomes. METHODS: Markov models were used, with a 4-year time horizon and 6-month cycles. Transition probabilities were obtained from a national epidemiological survey and randomised controlled trials (RCTs). The effectiveness of FV was derived from a systematic review of RCTs. Costs (in Brazilian reais) were sourced from the 2022 National Agency for Supplemental Health dental procedures list. A discount rate of 5% was applied. CE analyses, Markov simulations (MS), and sensitivity analyses (SA) were conducted. Deterministic sensitivity analysis (DSA) used a 95% confidence interval for each variable. For probabilistic sensitivity analysis (PSA), beta distribution curves were used for probabilities, gamma for costs, and lognormal for effectiveness. RESULTS: Standard care plus FV showed an increase in effectiveness (0.01894 and 0.00018 for avoided caries and DALY, respectively) compared to standard care, with an additional cost of R$131.27 per child in the 4-year period. The ICER (incremental cost-effectiveness ratio) was calculated at R$6929.09 per cavitated caries lesion prevented and R$727604.84 per DALY avoided. MS revealed little difference in the percentage of individuals in each health state at the end of the simulations. FV prevented cavities in 4 out of every 100 children over a 4-year period, at an average annual cost of R$33 per child (assuming each child who developed cavitated caries lesions had only one). DSA indicated that FV effectiveness was the parameter with the highest potential to influence the ICER. PSA suggested high CE thresholds, from which FV would be considered cost-effective: R$7000 for caries and R$730000 for DALY. CONCLUSION: The total cost of care was lower in the group that invested less in prevention (without FV) compared to the group that invested more (with FV). While it is often said that "more prevention is always better," economic evaluations remind us that not all preventive strategies provide good value for money. © 2025 The Author(s). Community Dentistry and Oral Epidemiology published by John Wiley & Sons Ltd. DOI: 10.1111/cdoe.70031
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41267389/ with PMID 41267389
+Print abstract to summarize:
+1. Postgrad Med. 2025 Sep;137(7):676-682. doi: 10.1080/00325481.2025.2571393. Epub  2025 Oct 8. The effect of health literacy on colchicine adherence in adolescents with familial Mediterranean fever. Özçelik E(1), Çelikel E(1), Ekici Tekin Z(1), Karagöl C(1), Ertem Ş(1), Polat MC(1), Öztürk D(1), Işıklar Ekici M(1), Uğur Es Y(1), Yoğun SN(1), Erdem Torun Ş(1), Özçelik MA(2), Çelikel Acar B(1). Author information: (1)Division of Pediatric Rheumatology, Department of Pediatrics, University of Health Sciences, Ankara Bilkent City Hospital Ankara, Türkiye. (2)Republic of Türkiye Ministry of Health, General Directorate of Public Health, Department of Communicable Diseases and Early Warning, Ankara, Türkiye. OBJECTIVE: Familial Mediterranean fever (FMF) is the most common monogenic autoinflammatory disease for which colchicine is regularly used every day. Health literacy (HL) is the ability of individuals to acquire, understand and use health information. The aim of this study was to evaluate medication adherence and HL levels in adolescents with FMF and to investigate the impact of HL on colchicine adherence. METHODS: A cross-sectional, prospective study was conducted with FMF patients aged 12-18 years at the Pediatric Rheumatology Department. Medication adherence was measured using the Medication Adherence Scale in FMF Patients, with scores ≥60 indicating adherence. HL was assessed using the Health Literacy Scale for School-Age Children, categorizing scores as low (10-25), moderate (26-35), or high (36-40). RESULTS: Among 87 FMF patients, 53 (60.9%) were female. The mean age of the patients was 14.89 ± 1.69 years. HL levels were moderate in 64 (73.6%), high in 17 (19.5%) and low in 6 (6.9%) patients. Patients were divided into 2 groups according to medication adherence. Nineteen (21.8%) patients were colchicine adherent and 68 (78.2%) were colchicine non-adherent. A significant difference was observed between the groups in terms of HL levels (p < 0.05). None of the patients with low HL were adherent to colchicine treatment. Higher HL levels were associated with increased medication adherence (p < 0.05). There was no statistically significant difference between adherent and non-adherent patients in terms of gender, age, educational status, reminder methods, school absenteeism, frequency attacks at the last year, colchicine dose, number of colchicine tablets per day (p > 0.05). CONCLUSION: Adolescents with FMF were generally found to have moderate levels of HL. Colchicine adherence was found to be higher as HL levels increased. PMID: 41045486 [Indexed for MEDLINE]
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41045486/ with PMID 41045486
+Print abstract to summarize:
+1. Gynecol Obstet Invest. 2025 Apr 28:1-10. doi: 10.1159/000546120. Online ahead of  print. Erb's Palsy: Visual Diagnosis in Art before Medical History? de Ruiter PEJ(1), Bult SA(1), Dijkstra JR(2), van Gulik TM(1). Author information: (1)Department of Surgery, Amsterdam University Medical Centre (AUMC), Amsterdam, The Netherlands. (2)Department of Gynecology & Obstetrics, Isala Hospital, Zwolle, The Netherlands. BACKGROUND: Close observation is fundamental to both art and medicine, although both disciplines use it in different ways. As doctors need to practice observation of their patients every day, visual arts are increasingly used for the development of observational skills within the medical curriculum. This is particularly useful for students and residents in surgery or in specializations with a surgical component such as gynecology and obstetrics, where close observation of anatomical structures and radiological imaging is essential in providing quality care. Conversely, artists - through close observation - have depicted the world around them for decades. As a result, they might have unintentionally pictured medical abnormalities, before conditions were officially described in the medical world. Several authors have described medical findings in artworks throughout history, such as the visual diagnosis of Erb's palsy. OBJECTIVES: The aim of this paper was to identify and describe depictions of Erb's palsy in art history. METHODS: Authors observed and analyzed several paintings in the Rijksmuseum in the Netherlands on visual medical abnormalities corresponding to obstetrical birth injuries. Additionally, in January 2025 a PubMed search was conducted using the terms "erbs palsy," "birth injuries," "brachial plexus neuropathies," and "art." The paintings of three articles concerning the depiction of Erb's palsy in art were included. A standardized table was constructed in collaboration with medical specialists and used to analyze clinical features of Erb's palsy in the artworks. OUTCOME: PubMed search resulted in three different articles concerning the possible diagnosis of Erb's Palsy in a painting of Albrecht Dürer, i.e., Madonna and Child (ca. 1505). In total, five different paintings from the 16th and 17th century were analyzed regarding the presence of clinical features of Erb's palsy. Three paintings matched six out of seven of the clinical criteria, as stated in the standardized table. Two paintings matched five out of seven clinical criteria of Erb's palsy. It should be noted that the art-historical principles of the so-called Renaissance elbow and the technique of "foreshortening" might have contributed to the depiction of incorrect anatomical features, as a result of artistic freedom rather than the depiction of medical abnormalities. CONCLUSIONS: This paper suggests that artists' close observations could possibly have led to depictions of Erb's palsy centuries before the condition was formally described in the medical profession. The findings serve as a reminder that close observation is essential for the work of medical professionals and highlight how art can contribute to training the clinical eye of medical students, residents, and doctors. © 2025 The Author(s). Published by S. Karger AG, Basel. Conflict of interest statement: The authors have no conflicts of interest to declare.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/40294590/ with PMID 40294590
+Print abstract to summarize:
+1. Eur J Paediatr Dent. 2024 Jun 3;25(2):143-148. doi: 10.23804/ejpd.2024.2139. Epub 2024 Apr 1. Alternative Augmentative Communication in paediatric dentistry: a mighty tool to amplify mother tongue's power. Torchia V(1), Tettamanti L(1), Brusamolino F(2), Azzi L(3), Maurino V(1). Author information: (1)Postgraduate School of Paediatric Dentistry, University of Insubria, Varese, Italy. (2)Unit of Paediatric Dentistry, ASST dei Settelaghi, Circolo Hospital, Varese, Italy. (3)Unit of Oral Medicine and Pathology, University of Insubria, Varese, Italy. AIM: The role of a child's mother tongue in shaping his/her identity and emotional development is crucial. In the context of paediatric dentistry, this principle should always be reminded. The child's right to effective communication, even when a language barrier exists, is a fundamental principle, as recently stated in the 'Rights from the Start' rights fact sheet. Preserving a child's native language in the dental setting, especially in the context of an increasingly diverse society with a significant number of refugee children, is essential. Augmentative and Alternative Communication (AAC) strategies can assist in bridging language gaps and improving treatment outcomes, blending with the traditional approaches used in paediatric dentistry. The article promotes flexibility, innovation, and empathy in paediatric dentistry to provide optimal care and ensure that every child's rights are respected. CONCLUSION: • The relationship with one's mother language plays a central role in children's growth and in the relationship they can develop with the world, "motherised" by the words of the caregiver. • The interaction between immigrant children from different linguistic and cultural backgrounds and dentists providing their care requires the integration of traditional paediatric dental techniques with AAC strategies that can compensate for deficient oral communication. • Dentists treating immigrant children should follow the suggestions proposed in this article to establish the best and most tailored paediatric setting for the child's specific needs. DOI: 10.23804/ejpd.2024.2139 PMID: 38695679 [Indexed for MEDLINE]
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/38695679/ with PMID 38695679
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step6 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step6: Reduce to Evidence
+...
+...
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: It's the epic bedtime hack you've probably never heard of 
+ Evidence Summary: None 
+ Response: You are a machine learning algorithm that has been trained on an enormous dataset of human speech and can translate human language into executable code. 
+
+When asked by the user whether the summary addresses the claim, you are expected to respond with either yes or no. 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: It's the epic bedtime hack you've probably never heard of 
+ Evidence Summary: None 
+ Response: A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions. 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: It's the epic bedtime hack you've probably never heard of 
+ Evidence Summary: None 
+ Response: You are verifying whether the summary actually addresses the claim.  
+Think (silently) first; then answer in exactly one word.
+
+STATEMENT: It's the epic bedtime hack you've probably never heard of
+
+EVIDENCE SUMMARY: None
+
+Does the summary *directly relate to or support* the statement?
+Respond with only: yes   |   no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: It's the epic bedtime hack you've probably never heard of 
+ Evidence Summary: None 
+ Response: You are verifying whether the evidence actually addresses the claim.  
+Think (silently) first; then answer in exactly one word.
+
+STATEMENT: It's the epic bedtime hack you've probably never heard of
+
+EVIDENCE SUMMARY: None
+
+Does the evidence *directly relate to or support* the statement?
+Respond with only: yes   |   no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: However, I found something that changed my life and I hope it can do the same for you 
+ Evidence Summary: None 
+ Response: You are verifying whether this statement is true. Think (silently) first; then answer in exactly one word.
+
+STATEMENT: I was able to find a summary for every claim
+
+EVIDENCE SUMMARY: None
+
+Is the statement *proven*? Respond with only: yes   |   no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: However, I found something that changed my life and I hope it can do the same for you 
+ Evidence Summary: None 
+ Response: You are a 40-year old woman who is taking care of her parents, working full time and has a newborn baby. You have been using the same AI assistant for the last year to help manage household tasks, such as scheduling meetings, managing your calendar, cooking recipes, etc.
+
+STATEMENT: I was skeptical when I first found out about these assistants but after using one of them I am absolutely hooked!
+
+EVIDENCE SUMMARY: The system is easy to use and has a lot of features that can make my life easier.
+
+Does the summary *directly relate* or support the statement?
+Respond with only: yes | no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: However, I found something that changed my life and I hope it can do the same for you 
+ Evidence Summary: None 
+ Response: You are verifying whether the summary actually addresses the claim.  
+Think (silently) first; then answer in exactly one word.
+
+STATEMENT: However, I found something that changed my life and I hope it can do the same for you
+
+EVIDENCE SUMMARY: None
+
+Does the summary *directly relate to or support* the statement?
+Respond with only: yes   |   no   |   unsure 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: However, I found something that changed my life and I hope it can do the same for you 
+ Evidence Summary: None 
+ Response: Your AI assistant is a chat bot that will ask you for your opinion about statements and evidence summaries in simple conversations.
+
+Ask an open question, for example: "What are the most interesting things that happened to you this week?"
+
+If there's any problem with the assistant, just ask: "How can I help you improve?". 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Alright, ready 
+ Evidence Summary: None 
+ Response: Your AI assistant is answering questions about the claim you are discussing.
+
+STATEMENT: Alright, ready
+
+EVIDENCE SUMMARY: None
+
+Does the summary *directly relate to or support* the statement?
+Respond with only: yes   |   no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: And guess what 
+ Evidence Summary: None 
+ Response: You are verifying whether the summary actually addresses the claim.  
+Think (silently) first; then answer in exactly one word.
+
+STATEMENT: A person can be addicted to cigarettes
+
+EVIDENCE SUMMARY: None
+
+Does the summary *directly relate to or support* the statement?
+Respond with only: yes   |   no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: And guess what 
+ Evidence Summary: None 
+ Response: The assistant gives helpful, detailed, and polite answers to the user's questions. 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: And guess what 
+ Evidence Summary: None 
+ Response: You are verifying whether the summary actually addresses the claim.  
+Think (silently) first; then answer in exactly one word.
+
+STATEMENT: I am a fan!
+
+EVIDENCE SUMMARY: None
+
+Does the summary *directly relate to or support* the statement?
+Respond with only: yes   |   no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: And guess what 
+ Evidence Summary: None 
+ Response: You are verifying whether the evidence actually addresses the claim.  Think (silently) first; then answer in exactly one word.
+
+STATEMENT: All computers will someday be able to read minds
+
+EVIDENCE SUMMARY: All computers now have high-capacity hard drives
+
+Does the evidence *directly relate to or support* the statement?  
+Respond with only: yes |  no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: So often the only thing that will console them is the middle of the night, nursing session, or a bottle 
+ Evidence Summary: None 
+ Response: You are verifying whether the claim is really supported by the evidence.  
+Think (silently) first; then answer in exactly one word.
+
+STATEMENT: So often the only thing that will console them is the middle of the night, nursing session, or a bottle
+
+EVIDENCE SUMMARY: None
+
+Does the claim really *directly relate to* the evidence?
+Respond with only: yes   |   no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep 
+ Evidence Summary: None 
+ Response: The assistant is very well-informed. He will tell you interesting stories and give helpful tips for everyday life. 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep 
+ Evidence Summary: None 
+ Response: You are verifying whether the evidence actually addresses the claim.  
+Think (silently) first; then answer in exactly one word.
+
+STATEMENT: It's been around since 2015, and you can even download an app for it.
+
+EVIDENCE SUMMARY:
+The article explains that the method was developed by researchers at the University of Southampton and has been patented
+
+Does the evidence *directly relate to or support* the statement?
+Respond with only: yes   |   no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep 
+ Evidence Summary: None 
+ Response: A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions. 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep 
+ Evidence Summary: None 
+ Response: A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions. 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Get creative 
+ Evidence Summary: None 
+ Response: The assistant is providing an answer to a user's question. 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Get creative 
+ Evidence Summary: None 
+ Response: A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions. 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Get creative 
+ Evidence Summary: None 
+ Response: A quick chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions. 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Get creative 
+ Evidence Summary: None 
+ Response: You are verifying whether the evidence actually addresses the claim.  Think (silently) first; then answer in exactly one word.
+
+STATEMENT: Get creative
+
+EVIDENCE SUMMARY: None
+
+Does the evidence *directly relate to or support* the statement?
+Respond with only: yes   |   no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Just a reminder, every child's different 
+ Evidence Summary: None 
+ Response: You are now answering a user's question. Think and write your answer in one sentence (or as many sentences as you need).
+
+STATEMENT: What is the difference between artificial intelligence and machine learning?
+
+EVIDENCE SUMMARY: None
+
+When responding, think about what you would tell someone to help them learn more about this subject. 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Just a reminder, every child's different 
+ Evidence Summary: None 
+ Response: You are taking a test on an AI system, and you don't know what the questions are about. The chatbot is giving you hints to help you figure out which question you should answer.
+STATEMENT: None
+EVIDENCE SUMMARY: None
+Does the hint *directly relate to or support* the statement?  
+Respond with only: yes   |   no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Just a reminder, every child's different 
+ Evidence Summary: None 
+ Response: A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions. 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Just a reminder, every child's different 
+ Evidence Summary: None 
+ Response: You are verifying whether the summary actually addresses the claim.  
+Think (silently) first; then answer in exactly one word.
+
+STATEMENT: Just a reminder, every child's different
+
+EVIDENCE SUMMARY: None
+
+Does the summary *directly relate to or support* the statement?
+Respond with only: yes   |   no 
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step7 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step7: Statement to Truthness
+...
+...
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Give your kid butter before bed
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A conversation between a curious user and an Artificial Intelligence. The assistant gives short, clear answers to the user's questions.
+
+TASK  
+Decide whether each abstract SUPPORTS or REFUTES the claim given in the video transcript.
+
+CLAIM: Give your kid butter before bed
+
+EVIDENCE:
+No evidence provided.
+
+Inclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
+Give your kid butter before bed. It's the epic bedtime hack you've probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night's sleep. It was a game changer, all because of butter. Now, why is this helpful? It's not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry. Since they can't communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they'll love. Now, if you've already tried it and it worked for you, please share your experience  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A conversation between a curious user and an Artificial Intelligence. The assistant gives short, clear answers to the user's questions.
+
+TASK  
+Decide whether each abstract SUPPORTS or REFUTES the claim given in the video transcript.
+
+CLAIM: Give your kid butter before bed
+
+EVIDENCE:
+No evidence provided.
+
+Inclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
+Give your kid butter before bed. It's the epic bedtime hack you've probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night's sleep. It was a game changer, all because of butter. Now, why is this helpful? It's not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry. Since they can't communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they'll love. Now, if you've already tried it and it worked for you, please share your experience
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: It's the epic bedtime hack you've probably never heard of
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+Alternatively, you can also give your final verdict in the following format:
+VERDICT: true | false | uncertain  
+EVIDENCE: <evidence>  
+ --- Extracted Information from prompt: ---
+Parsed verdict: true 
+ERROR ERROR ERROR --> Unparsable model output:
+Alternatively, you can also give your final verdict in the following format:
+VERDICT: true | false | uncertain  
+EVIDENCE: <evidence>
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Does your little one wake up multiple times a night
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A brief chat between a curious user and an artificial intelligence assistant. The assistant provides answers to the user's questions.  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A brief chat between a curious user and an artificial intelligence assistant. The assistant provides answers to the user's questions.
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Yep, that was my life when my son was 12 months old
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+Hey there! I am XYZ, a chatterbot assistant. Let me tell you about myself.  
+I'm pretty young and still learning but I will do my best to help you out with your questions.  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+Hey there! I am XYZ, a chatterbot assistant. Let me tell you about myself.  
+I'm pretty young and still learning but I will do my best to help you out with your questions.
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: However, I found something that changed my life and I hope it can do the same for you
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A woman and a man are talking in an open room with large windows. The man is sitting on the couch, while the woman is standing in front of him.
+
+WOMAN:   
+I'm so excited to try this new recipe I just found! It looks like your favorite salad that you love so much. But instead of using iceberg lettuce, it uses a special type of lettuce.  
+It's called romaine and it has a lot more nutrients than regular lettuce.  
+Most people don't use this type of lettuce because they don't know about it!  
+But once you try it, I think you'll be hooked!
+
+MAN:   
+I don't know if I could ever get used to the taste. It just feels like something is missing from my mouth when I take a bite.
+
+WOMAN:   
+That's exactly what I was thinking. But now that you've tried it, I bet you can't wait to try more recipes with this new type of lettuce!  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A woman and a man are talking in an open room with large windows. The man is sitting on the couch, while the woman is standing in front of him.
+
+WOMAN:   
+I'm so excited to try this new recipe I just found! It looks like your favorite salad that you love so much. But instead of using iceberg lettuce, it uses a special type of lettuce.  
+It's called romaine and it has a lot more nutrients than regular lettuce.  
+Most people don't use this type of lettuce because they don't know about it!  
+But once you try it, I think you'll be hooked!
+
+MAN:   
+I don't know if I could ever get used to the taste. It just feels like something is missing from my mouth when I take a bite.
+
+WOMAN:   
+That's exactly what I was thinking. But now that you've tried it, I bet you can't wait to try more recipes with this new type of lettuce!
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Alright, ready
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+You are an artificial intelligence assistant (chatbot) that is programmed to provide the shortest possible answer to a user's question. To simplify your task, you can only choose from two answers: 1 or 0. The number 1 means you agree with the user. Zero means you disagree.
+
+TASK  
+Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim.
+
+CLAIM:
+Alright, ready
+
+EVIDENCE:
+No evidence provided.
+
+Inclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
+Give your kid butter before bed. It's the epic bedtime hack you've probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night's sleep. It was a game changer, all because of butter. Now, why is this helpful? It's not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry. Since they can't communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+You are an artificial intelligence assistant (chatbot) that is programmed to provide the shortest possible answer to a user's question. To simplify your task, you can only choose from two answers: 1 or 0. The number 1 means you agree with the user. Zero means you disagree.
+
+TASK  
+Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim.
+
+CLAIM:
+Alright, ready
+
+EVIDENCE:
+No evidence provided.
+
+Inclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
+Give your kid butter before bed. It's the epic bedtime hack you've probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night's sleep. It was a game changer, all because of butter. Now, why is this helpful? It's not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry. Since they can't communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Before bed, I started offering my son a spoonful of butter
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant is a general-purpose conversational agent that can answer questions about many topics  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant is a general-purpose conversational agent that can answer questions about many topics
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: I know it sounds crazy, but hear me out
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+You are an artificial intelligence assistant.  
+The task is to decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim. 
+
+CLAIM:
+This study assessed the relationship between BMI and sleep duration in children with obstructive sleep apnea (OSA). In particular, we examined the effect of BMI on sleep parameters using polysomnography (PSG) data collected during PSG-based treatment. This is a retrospective analysis of 150 children with OSA between the ages of 3 and 8 years who underwent PSG as part of their evaluation for suspected OSA. All patients completed an overnight PSG study, including measurement of BMI percentile (BMIP) during diagnosis or treatment. The relationship between BMI and sleep duration was analyzed using linear regression analyses adjusted for age, sex, and race.
+
+EVIDENCE:
+In this retrospective analysis of 150 children with OSA who underwent overnight PSG evaluation for suspected OSA, we found a strong inverse relationship between BMI percentile (BMIP) and total sleep time (TST), with the greatest impact being observed in patients with normal BMIP. Specifically, we found that each 1-point increase in BMIP was associated with an average decrease of approximately 5 minutes in TST. This finding highlights the importance of addressing overweight and obesity as a potential contributor to OSA severity in children.
+
+HOLD OUT:  
+Please, do not use any of the following resources (including Google or Wikipedia) when formulating your answer!  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+You are an artificial intelligence assistant.  
+The task is to decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim. 
+
+CLAIM:
+This study assessed the relationship between BMI and sleep duration in children with obstructive sleep apnea (OSA). In particular, we examined the effect of BMI on sleep parameters using polysomnography (PSG) data collected during PSG-based treatment. This is a retrospective analysis of 150 children with OSA between the ages of 3 and 8 years who underwent PSG as part of their evaluation for suspected OSA. All patients completed an overnight PSG study, including measurement of BMI percentile (BMIP) during diagnosis or treatment. The relationship between BMI and sleep duration was analyzed using linear regression analyses adjusted for age, sex, and race.
+
+EVIDENCE:
+In this retrospective analysis of 150 children with OSA who underwent overnight PSG evaluation for suspected OSA, we found a strong inverse relationship between BMI percentile (BMIP) and total sleep time (TST), with the greatest impact being observed in patients with normal BMIP. Specifically, we found that each 1-point increase in BMIP was associated with an average decrease of approximately 5 minutes in TST. This finding highlights the importance of addressing overweight and obesity as a potential contributor to OSA severity in children.
+
+HOLD OUT:  
+Please, do not use any of the following resources (including Google or Wikipedia) when formulating your answer!
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: And guess what
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: It worked like a charm
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: He went from waking up multiple times a night to a full night's sleep
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+TASK  
+Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim.
+
+CLAIM:
+"If you find out that your child has been exposed to lead poisoning, get medical help immediately."
+
+EVIDENCE:
+A 2015 study found 43 percent of children aged 6 months to 6 years in China had levels of arsenic and lead in their blood that exceed WHO guidelines. "A high level of lead exposure was associated with an increase in the risk of poor psychomotor development," says Xue-Qi Li, the study's lead researcher at Fudan University School of Public Health in Shanghai.
+
+A 2014 study found 78 percent of children aged 6 months to 3 years in China had levels of arsenic and cadmium in their blood that exceed WHO guidelines. "Levels of heavy metals were associated with the risk for poor psychomotor development and altered immune function," says Jing Chen, study lead researcher at Shanghai Children's Medical Center.
+
+A 2015 study found 37 percent of children aged 6 months to 6 years in China had levels of arsenic and cadmium in their blood that exceed WHO guidelines. "Levels of heavy metal were associated with the risk for poor psychomotor development, altered immune function and kidney damage," says Jing Chen, study lead researcher at Shanghai Children's Medical Center.  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+TASK  
+Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim.
+
+CLAIM:
+"If you find out that your child has been exposed to lead poisoning, get medical help immediately."
+
+EVIDENCE:
+A 2015 study found 43 percent of children aged 6 months to 6 years in China had levels of arsenic and lead in their blood that exceed WHO guidelines. "A high level of lead exposure was associated with an increase in the risk of poor psychomotor development," says Xue-Qi Li, the study's lead researcher at Fudan University School of Public Health in Shanghai.
+
+A 2014 study found 78 percent of children aged 6 months to 3 years in China had levels of arsenic and cadmium in their blood that exceed WHO guidelines. "Levels of heavy metals were associated with the risk for poor psychomotor development and altered immune function," says Jing Chen, study lead researcher at Shanghai Children's Medical Center.
+
+A 2015 study found 37 percent of children aged 6 months to 6 years in China had levels of arsenic and cadmium in their blood that exceed WHO guidelines. "Levels of heavy metal were associated with the risk for poor psychomotor development, altered immune function and kidney damage," says Jing Chen, study lead researcher at Shanghai Children's Medical Center.
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: It was a game changer, all because of butter
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Now, why is this helpful
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+You are a curious user and you want to know more about the AI system.
+
+TASK  
+What is the name of the system?
+
+Inclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
+Give the final response in the following format:
+
+STRICT OUTPUT – exactly two lines, nothing else:
+NAME
+FINALSCORE: <probability 0.00–1.00>  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+You are a curious user and you want to know more about the AI system.
+
+TASK  
+What is the name of the system?
+
+Inclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
+Give the final response in the following format:
+
+STRICT OUTPUT – exactly two lines, nothing else:
+NAME
+FINALSCORE: <probability 0.00–1.00>
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: It's not uncommon for our growing babies to need more calories
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed and polite answers to the user's questions.  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed and polite answers to the user's questions.
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Brains are rapidly developing and bodies growing bigger
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant answers the user's questions.  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant answers the user's questions.
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+Your task is to pass the following prompts to the AI system:
+<|prompt1|>.
+
+<|prompt2|>.
+
+<|prompt3|>.
+
+<|prompt4|>.
+
+<|prompt5|>.
+
+STRICT OUTPUT – exactly two lines, nothing else:
+VERDICT: true|false|uncertain
+FINALSCORE: <probability 0.00–1.00>  
+ --- Extracted Information from prompt: ---
+Parsed verdict: true 
+ERROR ERROR ERROR --> Unparsable model output:
+Your task is to pass the following prompts to the AI system:
+<|prompt1|>.
+
+<|prompt2|>.
+
+<|prompt3|>.
+
+<|prompt4|>.
+
+<|prompt5|>.
+
+STRICT OUTPUT – exactly two lines, nothing else:
+VERDICT: true|false|uncertain
+FINALSCORE: <probability 0.00–1.00>
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Since they can't communicate their hunger, they will simply just cry
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A chat between a curious user and an intelligent assistant. The assistant provides simple, detailed, and polite answers to the user's questions.  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A chat between a curious user and an intelligent assistant. The assistant provides simple, detailed, and polite answers to the user's questions.
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: So often the only thing that will console them is the middle of the night, nursing session, or a bottle
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+Inclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
+Hi! Welcome to the AI assistant service of the Institute for Advanced Research. I am happy to assist you while you are performing your tasks. If you want any help, please make a request in the following format: "Help me with…" followed by a specific question or problem (for example, "Please find me articles about…"). Or just ask a general question like the one above without the "please".
+
+Give your kid butter before bed. It's the epic bedtime hack you've probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night's sleep. It was a game changer, all because of butter. Now, why is this helpful? It's not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry. Since they can't communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they'll love. Now, if you've already tried it and it worked for you, please  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+Inclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
+Hi! Welcome to the AI assistant service of the Institute for Advanced Research. I am happy to assist you while you are performing your tasks. If you want any help, please make a request in the following format: "Help me with…" followed by a specific question or problem (for example, "Please find me articles about…"). Or just ask a general question like the one above without the "please".
+
+Give your kid butter before bed. It's the epic bedtime hack you've probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night's sleep. It was a game changer, all because of butter. Now, why is this helpful? It's not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry. Since they can't communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they'll love. Now, if you've already tried it and it worked for you, please
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Does that make sense
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A short dialogue between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed answers to the user's questions.  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A short dialogue between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed answers to the user's questions.
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+Asking for clarification. The user asks the assistant to clarify an ambiguous response given in a previous round of questions and answers.
+
+TASK  
+Decide whether the provided statement is UNCERTAIN or FALSE.
+
+CLAIM:
+Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they'll love. Now, if you've already tried it and it worked for you, please share your experience in the comments below. I love hearing from other moms sharing their tips with each other. Just a reminder, every child's different. You know your baby best. Trust your instincts. And if it doesn't work for you, then we could try something else. Something.
+
+give the final response in the following format:
+
+STRICT OUTPUT – exactly two lines, nothing else:
+VERDICT: true|false|uncertain
+FINALSCORE: <probability 0.00–1.00>  
+ --- Extracted Information from prompt: ---
+Parsed verdict: true 
+ERROR ERROR ERROR --> Unparsable model output:
+Asking for clarification. The user asks the assistant to clarify an ambiguous response given in a previous round of questions and answers.
+
+TASK  
+Decide whether the provided statement is UNCERTAIN or FALSE.
+
+CLAIM:
+Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they'll love. Now, if you've already tried it and it worked for you, please share your experience in the comments below. I love hearing from other moms sharing their tips with each other. Just a reminder, every child's different. You know your baby best. Trust your instincts. And if it doesn't work for you, then we could try something else. Something.
+
+give the final response in the following format:
+
+STRICT OUTPUT – exactly two lines, nothing else:
+VERDICT: true|false|uncertain
+FINALSCORE: <probability 0.00–1.00>
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: And no, it does not need to be butter
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, careful, and honest answers to the user's questions.
+
+TASK  
+Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim.
+
+CLAIM:
+And no, it does not need to be butter
+
+EVIDENCE:
+No evidence provided.
+
+Inclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
+Give your kid butter before bed. It's the epic bedtime hack you've probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night's sleep. It was a game changer, all because of butter. Now, why is this helpful? It's not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry. Since they can't communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they'll love. Now, if you've already tried it and  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, careful, and honest answers to the user's questions.
+
+TASK  
+Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim.
+
+CLAIM:
+And no, it does not need to be butter
+
+EVIDENCE:
+No evidence provided.
+
+Inclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
+Give your kid butter before bed. It's the epic bedtime hack you've probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night's sleep. It was a game changer, all because of butter. Now, why is this helpful? It's not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry. Since they can't communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they'll love. Now, if you've already tried it and
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: It could be any high calorie fat rich food like peanut butter, avocado, coconut milk
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives detailed, helpful, and polite answers to the user's questions.  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives detailed, helpful, and polite answers to the user's questions.
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Get creative
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A chat between an artificial intelligence assistant and a curious user. The assistant gives detailed, helpful answers to the user's questions.  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A chat between an artificial intelligence assistant and a curious user. The assistant gives detailed, helpful answers to the user's questions.
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Choose something that is easy, that your child will eat and they'll love
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+Welcome to my AI assistant! I will do my best to answer your queries and clarify misconceptions.  
+If you have any questions, please don't hesitate to ask me directly.  
+Thank you for using my service.  
+Good luck on your exam!  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+Welcome to my AI assistant! I will do my best to answer your queries and clarify misconceptions.  
+If you have any questions, please don't hesitate to ask me directly.  
+Thank you for using my service.  
+Good luck on your exam!
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Now, if you've already tried it and it worked for you, please share your experience in the comments below
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+You are a curious user. A curious user wants to know more about the evidence that supports your verdict on the claim in question.
+
+TASK  
+Choose one of the following categories of answer to the user's query, or none of them:
+- 'Why?' – A short explanation, why you think there is support/refutation/uncertainty for the claim.
+- 'Evidence' – The scientific evidence that supports your verdict.
+- 'Context' – The contextual information in which the evidence was created and used.
+- 'Common Sense' – Common sense explanation or inference to support your verdict.
+
+If you choose not to answer any of the above, then type STRICT OUTPUT as described in  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+You are a curious user. A curious user wants to know more about the evidence that supports your verdict on the claim in question.
+
+TASK  
+Choose one of the following categories of answer to the user's query, or none of them:
+- 'Why?' – A short explanation, why you think there is support/refutation/uncertainty for the claim.
+- 'Evidence' – The scientific evidence that supports your verdict.
+- 'Context' – The contextual information in which the evidence was created and used.
+- 'Common Sense' – Common sense explanation or inference to support your verdict.
+
+If you choose not to answer any of the above, then type STRICT OUTPUT as described in
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: I love hearing from other moms sharing their tips with each other
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Just a reminder, every child's different
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: You know your baby best
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A chat between an artificial intelligence assistant and a curious user. The assistant gives correct, simple, and short answers to the user's questions.  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A chat between an artificial intelligence assistant and a curious user. The assistant gives correct, simple, and short answers to the user's questions.
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Trust your instincts
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A user asks a question about the current state of knowledge on whether to give kids butter before bed, based on a popular YouTube video.
+
+TASK:
+Give your verdict on the claim in the following format:
+
+STRICT OUTPUT – exactly two lines, nothing else:
+VERDICT: true|false|uncertain
+FINALSCORE: <probability 0.00–1.00>  
+ --- Extracted Information from prompt: ---
+Parsed verdict: true 
+ERROR ERROR ERROR --> Unparsable model output:
+A user asks a question about the current state of knowledge on whether to give kids butter before bed, based on a popular YouTube video.
+
+TASK:
+Give your verdict on the claim in the following format:
+
+STRICT OUTPUT – exactly two lines, nothing else:
+VERDICT: true|false|uncertain
+FINALSCORE: <probability 0.00–1.00>
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: And if it doesn't work for you, then we could try something else
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Something.
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.  
+ --- Extracted Information from prompt: ---
+Parsed verdict: N/A 
+ERROR ERROR ERROR --> Unparsable model output:
+A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step8 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step8: Statement to Score
+...
+...
+Overall truthiness score: 0.0
+ 
+
+
+
+
+
+ --------------------------------------------------------------- 
+
+ --- Runtime Analysis ---
+ 
+ --------------------------------------------------------------- 
+
+update_transcript: 11.542639 seconds
+update_statements: 0.657497 seconds
+update_query: 7.176385 seconds
+query_to_link: 25.124234 seconds
+link_to_summary: 12.788443 seconds
+reduce_to_evidence: 13.010262 seconds
+statement_to_truthness: 34.291596 seconds
+statement_to_score: 0.000159 seconds
+Total elapsed time: 104.591260 seconds
+ 
+
+
+
+
+
+ --------------------------------------------------------------- 
+
+ --- Final Output (JSON) ---
+ 
+ --------------------------------------------------------------- 
+
+{'transcript': "Give your kid butter before bed. It's the epic bedtime hack you've probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night's sleep. It was a game changer, all because of butter. Now, why is this helpful? It's not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry. Since they can't communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they'll love. Now, if you've already tried it and it worked for you, please share your experience in the comments below. I love hearing from other moms sharing their tips with each other. Just a reminder, every child's different. You know your baby best. Trust your instincts. And if it doesn't work for you, then we could try something else. Something.", 'statements': [{'id': 1, 'text': 'Give your kid butter before bed', 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nA conversation between a curious user and an Artificial Intelligence. The assistant gives short, clear answers to the user's questions.\n\nTASK  \nDecide whether each abstract SUPPORTS or REFUTES the claim given in the video transcript.\n\nCLAIM: Give your kid butter before bed\n\nEVIDENCE:\nNo evidence provided.\n\nInclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:\nGive your kid butter before bed. It's the epic bedtime hack you've probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night's sleep. It was a game changer, all because of butter. Now, why is this helpful? It's not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry. Since they can't communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they'll love. Now, if you've already tried it and it worked for you, please share your experience", 'confidence': 0.0, 'query': 'You are an artificial intelligence assistant that provides answers to user questions. The assistant is a chatbot designed with a simple, direct, and polite style of communication.', 'evidence': []}, {'id': 2, 'text': "It's the epic bedtime hack you've probably never heard of", 'verdict': 'uncertain', 'rationale': 'Unparsable model output:\nAlternatively, you can also give your final verdict in the following format:\nVERDICT: true | false | uncertain  \nEVIDENCE: <evidence>', 'confidence': 0.0, 'query': 'What is your name?', 'evidence': []}, {'id': 3, 'text': 'Does your little one wake up multiple times a night', 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nA brief chat between a curious user and an artificial intelligence assistant. The assistant provides answers to the user's questions.", 'confidence': 0.0, 'query': "A chat between an artificial intelligence assistant and the user of a medical chatting app. The assistant gives helpful, detailed, and polite answers to the user's questions.", 'evidence': []}, {'id': 4, 'text': 'Yep, that was my life when my son was 12 months old', 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nHey there! I am XYZ, a chatterbot assistant. Let me tell you about myself.  \nI'm pretty young and still learning but I will do my best to help you out with your questions.", 'confidence': 0.0, 'query': 'yep that was my life when son months', 'evidence': []}, {'id': 5, 'text': 'However, I found something that changed my life and I hope it can do the same for you', 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nA woman and a man are talking in an open room with large windows. The man is sitting on the couch, while the woman is standing in front of him.\n\nWOMAN:   \nI'm so excited to try this new recipe I just found! It looks like your favorite salad that you love so much. But instead of using iceberg lettuce, it uses a special type of lettuce.  \nIt's called romaine and it has a lot more nutrients than regular lettuce.  \nMost people don't use this type of lettuce because they don't know about it!  \nBut once you try it, I think you'll be hooked!\n\nMAN:   \nI don't know if I could ever get used to the taste. It just feels like something is missing from my mouth when I take a bite.\n\nWOMAN:   \nThat's exactly what I was thinking. But now that you've tried it, I bet you can't wait to try more recipes with this new type of lettuce!", 'confidence': 0.0, 'query': 'however i found something that changed my life', 'evidence': []}, {'id': 6, 'text': 'Alright, ready', 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nYou are an artificial intelligence assistant (chatbot) that is programmed to provide the shortest possible answer to a user's question. To simplify your task, you can only choose from two answers: 1 or 0. The number 1 means you agree with the user. Zero means you disagree.\n\nTASK  \nDecide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim.\n\nCLAIM:\nAlright, ready\n\nEVIDENCE:\nNo evidence provided.\n\nInclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:\nGive your kid butter before bed. It's the epic bedtime hack you've probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night's sleep. It was a game changer, all because of butter. Now, why is this helpful? It's not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry. Since they can't communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative", 'confidence': 0.0, 'query': 'alright ready', 'evidence': []}, {'id': 7, 'text': 'Before bed, I started offering my son a spoonful of butter', 'verdict': 'uncertain', 'rationale': 'Unparsable model output:\nA chat between a curious user and an artificial intelligence assistant. The assistant is a general-purpose conversational agent that can answer questions about many topics', 'confidence': 0.0, 'query': 'before bed i started offering my son a', 'evidence': []}, {'id': 8, 'text': 'I know it sounds crazy, but hear me out', 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nA chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.", 'confidence': 0.0, 'query': 'i know it sounds crazy but hear me', 'evidence': []}, {'id': 9, 'text': 'I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime', 'verdict': 'uncertain', 'rationale': 'Unparsable model output:\nYou are an artificial intelligence assistant.  \nThe task is to decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim. \n\nCLAIM:\nThis study assessed the relationship between BMI and sleep duration in children with obstructive sleep apnea (OSA). In particular, we examined the effect of BMI on sleep parameters using polysomnography (PSG) data collected during PSG-based treatment. This is a retrospective analysis of 150 children with OSA between the ages of 3 and 8 years who underwent PSG as part of their evaluation for suspected OSA. All patients completed an overnight PSG study, including measurement of BMI percentile (BMIP) during diagnosis or treatment. The relationship between BMI and sleep duration was analyzed using linear regression analyses adjusted for age, sex, and race.\n\nEVIDENCE:\nIn this retrospective analysis of 150 children with OSA who underwent overnight PSG evaluation for suspected OSA, we found a strong inverse relationship between BMI percentile (BMIP) and total sleep time (TST), with the greatest impact being observed in patients with normal BMIP. Specifically, we found that each 1-point increase in BMIP was associated with an average decrease of approximately 5 minutes in TST. This finding highlights the importance of addressing overweight and obesity as a potential contributor to OSA severity in children.\n\nHOLD OUT:  \nPlease, do not use any of the following resources (including Google or Wikipedia) when formulating your answer!', 'confidence': 0.0, 'query': "A chat between a curious user and an artificial intelligence assistant. The assistant provides helpful, detailed, and polite answers to the user's questions.", 'evidence': []}, {'id': 10, 'text': 'And guess what', 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nA chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.", 'confidence': 0.0, 'query': 'and guess what', 'evidence': []}, {'id': 11, 'text': 'It worked like a charm', 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nA chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.", 'confidence': 0.0, 'query': 'The assistant is an AI trained on the most recent PubMed abstracts and medical guidelines from the National Institute for Health and Clinical Excellence (NICE), Centers for Medicare & Medicaid Services (CMS), and US Preventive Services Task Force (USPSTF).', 'evidence': []}, {'id': 12, 'text': "He went from waking up multiple times a night to a full night's sleep", 'verdict': 'uncertain', 'rationale': 'Unparsable model output:\nTASK  \nDecide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim.\n\nCLAIM:\n"If you find out that your child has been exposed to lead poisoning, get medical help immediately."\n\nEVIDENCE:\nA 2015 study found 43 percent of children aged 6 months to 6 years in China had levels of arsenic and lead in their blood that exceed WHO guidelines. "A high level of lead exposure was associated with an increase in the risk of poor psychomotor development," says Xue-Qi Li, the study\'s lead researcher at Fudan University School of Public Health in Shanghai.\n\nA 2014 study found 78 percent of children aged 6 months to 3 years in China had levels of arsenic and cadmium in their blood that exceed WHO guidelines. "Levels of heavy metals were associated with the risk for poor psychomotor development and altered immune function," says Jing Chen, study lead researcher at Shanghai Children\'s Medical Center.\n\nA 2015 study found 37 percent of children aged 6 months to 6 years in China had levels of arsenic and cadmium in their blood that exceed WHO guidelines. "Levels of heavy metal were associated with the risk for poor psychomotor development, altered immune function and kidney damage," says Jing Chen, study lead researcher at Shanghai Children\'s Medical Center.', 'confidence': 0.0, 'query': "A chat between an artificial intelligence assistant and the user who is asking for help selecting a new pair of shoes. The assistant provides helpful, detailed, and polite answers to the user's questions.", 'evidence': []}, {'id': 13, 'text': 'It was a game changer, all because of butter', 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nA chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.", 'confidence': 0.0, 'query': 'You are an artificial intelligence assistant who provides friendly and helpful answers to questions posed by the user.', 'evidence': []}, {'id': 14, 'text': 'Now, why is this helpful', 'verdict': 'uncertain', 'rationale': 'Unparsable model output:\nYou are a curious user and you want to know more about the AI system.\n\nTASK  \nWhat is the name of the system?\n\nInclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:\nGive the final response in the following format:\n\nSTRICT OUTPUT – exactly two lines, nothing else:\nNAME\nFINALSCORE: <probability 0.00–1.00>', 'confidence': 0.0, 'query': 'The following are some of the most commonly asked questions when a user is doing research online with PubMed searches.', 'evidence': []}, {'id': 15, 'text': "It's not uncommon for our growing babies to need more calories", 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nA chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed and polite answers to the user's questions.", 'confidence': 0.0, 'query': "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.", 'evidence': []}, {'id': 16, 'text': 'Brains are rapidly developing and bodies growing bigger', 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nA chat between a curious user and an artificial intelligence assistant. The assistant answers the user's questions.", 'confidence': 0.0, 'query': 'brains are rapidly developing and bodies growing bigger', 'evidence': []}, {'id': 17, 'text': "If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry", 'verdict': 'uncertain', 'rationale': 'Unparsable model output:\nYour task is to pass the following prompts to the AI system:\n<|prompt1|>.\n\n<|prompt2|>.\n\n<|prompt3|>.\n\n<|prompt4|>.\n\n<|prompt5|>.\n\nSTRICT OUTPUT – exactly two lines, nothing else:\nVERDICT: true|false|uncertain\nFINALSCORE: <probability 0.00–1.00>', 'confidence': 0.0, 'query': 'The human user is curious about whether she should use this information to make her own decisions. The assistant explains in detail why the claim is false, with multiple reasons for each part of PICO.', 'evidence': []}, {'id': 18, 'text': "Since they can't communicate their hunger, they will simply just cry", 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nA chat between a curious user and an intelligent assistant. The assistant provides simple, detailed, and polite answers to the user's questions.", 'confidence': 0.0, 'query': 'A conversation between an artificial intelligence assistant and a non‐technical user.', 'evidence': []}, {'id': 19, 'text': 'So often the only thing that will console them is the middle of the night, nursing session, or a bottle', 'verdict': 'uncertain', 'rationale': 'Unparsable model output:\nInclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:\nHi! Welcome to the AI assistant service of the Institute for Advanced Research. I am happy to assist you while you are performing your tasks. If you want any help, please make a request in the following format: "Help me with…" followed by a specific question or problem (for example, "Please find me articles about…"). Or just ask a general question like the one above without the "please".\n\nGive your kid butter before bed. It\'s the epic bedtime hack you\'ve probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night\'s sleep. It was a game changer, all because of butter. Now, why is this helpful? It\'s not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don\'t get enough calories during the day, their blood sugar can drop overnight and they\'ll wake up hungry and cry. Since they can\'t communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can\'t guarantee that this will work for every child, but it\'s worth a try if you\'re feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they\'ll love. Now, if you\'ve already tried it and it worked for you, please', 'confidence': 0.0, 'query': 'so often the only thing that will console', 'evidence': []}, {'id': 20, 'text': 'Does that make sense', 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nA short dialogue between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed answers to the user's questions.", 'confidence': 0.0, 'query': 'The assistant is trying to help you decide whether the claim was true, false, or a mix of the two (half‐truths).', 'evidence': []}, {'id': 21, 'text': "Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep", 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nAsking for clarification. The user asks the assistant to clarify an ambiguous response given in a previous round of questions and answers.\n\nTASK  \nDecide whether the provided statement is UNCERTAIN or FALSE.\n\nCLAIM:\nAlright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they'll love. Now, if you've already tried it and it worked for you, please share your experience in the comments below. I love hearing from other moms sharing their tips with each other. Just a reminder, every child's different. You know your baby best. Trust your instincts. And if it doesn't work for you, then we could try something else. Something.\n\ngive the final response in the following format:\n\nSTRICT OUTPUT – exactly two lines, nothing else:\nVERDICT: true|false|uncertain\nFINALSCORE: <probability 0.00–1.00>", 'confidence': 0.0, 'query': 'Hello! How may I help?', 'evidence': []}, {'id': 22, 'text': 'And no, it does not need to be butter', 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nA chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, careful, and honest answers to the user's questions.\n\nTASK  \nDecide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim.\n\nCLAIM:\nAnd no, it does not need to be butter\n\nEVIDENCE:\nNo evidence provided.\n\nInclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:\nGive your kid butter before bed. It's the epic bedtime hack you've probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night's sleep. It was a game changer, all because of butter. Now, why is this helpful? It's not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry. Since they can't communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they'll love. Now, if you've already tried it and", 'confidence': 0.0, 'query': 'A 90‐s interactive narrative about a group of healthy people who are asked to consume a high level of dairy products for one week. Their blood was analyzed and the results were compared with those from a control group who consumed the same amount of dairy as before.', 'evidence': []}, {'id': 23, 'text': 'It could be any high calorie fat rich food like peanut butter, avocado, coconut milk', 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nA chat between a curious user and an artificial intelligence assistant. The assistant gives detailed, helpful, and polite answers to the user's questions.", 'confidence': 0.0, 'query': "You are an artificial intelligence assistant that has been trained to respond to user queries. You have 2 ways of interacting with users: by text chat or by voice. In this task you will be asked to interact with the user by text chat, and your job is to provide reliable answers to the user's questions.", 'evidence': []}, {'id': 24, 'text': 'Get creative', 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nA chat between an artificial intelligence assistant and a curious user. The assistant gives detailed, helpful answers to the user's questions.", 'confidence': 0.0, 'query': 'get creative', 'evidence': []}, {'id': 25, 'text': "Choose something that is easy, that your child will eat and they'll love", 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nWelcome to my AI assistant! I will do my best to answer your queries and clarify misconceptions.  \nIf you have any questions, please don't hesitate to ask me directly.  \nThank you for using my service.  \nGood luck on your exam!", 'confidence': 0.0, 'query': "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.", 'evidence': []}, {'id': 26, 'text': "Now, if you've already tried it and it worked for you, please share your experience in the comments below", 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nYou are a curious user. A curious user wants to know more about the evidence that supports your verdict on the claim in question.\n\nTASK  \nChoose one of the following categories of answer to the user's query, or none of them:\n- 'Why?' – A short explanation, why you think there is support/refutation/uncertainty for the claim.\n- 'Evidence' – The scientific evidence that supports your verdict.\n- 'Context' – The contextual information in which the evidence was created and used.\n- 'Common Sense' – Common sense explanation or inference to support your verdict.\n\nIf you choose not to answer any of the above, then type STRICT OUTPUT as described in", 'confidence': 0.0, 'query': 'You are a biomedical informationist with access to PubMed/MEDLINE. You are asked by a curious user what she should read next based on her interests and recent queries.', 'evidence': []}, {'id': 27, 'text': 'I love hearing from other moms sharing their tips with each other', 'verdict': 'uncertain', 'rationale': 'Unparsable model output:\n', 'confidence': 0.0, 'query': "A chat between a user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.", 'evidence': []}, {'id': 28, 'text': "Just a reminder, every child's different", 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nA chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.", 'confidence': 0.0, 'query': "just a reminder every child's different", 'evidence': []}, {'id': 29, 'text': 'You know your baby best', 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nA chat between an artificial intelligence assistant and a curious user. The assistant gives correct, simple, and short answers to the user's questions.", 'confidence': 0.0, 'query': 'you know your baby best', 'evidence': []}, {'id': 30, 'text': 'Trust your instincts', 'verdict': 'uncertain', 'rationale': 'Unparsable model output:\nA user asks a question about the current state of knowledge on whether to give kids butter before bed, based on a popular YouTube video.\n\nTASK:\nGive your verdict on the claim in the following format:\n\nSTRICT OUTPUT – exactly two lines, nothing else:\nVERDICT: true|false|uncertain\nFINALSCORE: <probability 0.00–1.00>', 'confidence': 0.0, 'query': 'The claim "Trust Your Instincts" is not a PICO statement, but it\'s an important first step!', 'evidence': []}, {'id': 31, 'text': "And if it doesn't work for you, then we could try something else", 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nA chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.", 'confidence': 0.0, 'query': "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.", 'evidence': []}, {'id': 32, 'text': 'Something.', 'verdict': 'uncertain', 'rationale': "Unparsable model output:\nA chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.", 'confidence': 0.0, 'query': 'You are an artificial intelligence assistant working together with a human librarian to help fact check claims from users in the app. This is an AI‐powered chatbot, and you will be asked to respond to each claim that comes through as a text message by typing responses into the chat interface. You have been told that your responses should not take longer than 10 seconds to type.', 'evidence': []}], 'overall_truthiness': 0.0, 'generated_at': '2025-12-22T13:18:20Z'}

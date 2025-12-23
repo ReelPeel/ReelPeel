@@ -1,0 +1,499 @@
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- LLM Configs --- 
+ 
+ --------------------------------------------------------------- 
+
+BASE_URL   : http://localhost:11434/v1
+API_KEY    : ollama
+BASE_MODEL : gemma3:27b
+BASE_TEMP  : 0.7
+
+ STEP2:
+   MODEL      = gemma3:27b
+   TEMP       = 0.7
+   MAX_TOKENS = 128
+
+ STEP3:
+   MODEL      = gemma3:27b
+   TEMP       = 0.7
+   MAX_TOKENS = 1024
+
+ STEP5:
+   MODEL      = gemma3:12b
+   TEMP       = 0.7
+   MAX_TOKENS = 512
+
+ STEP6:
+   MODEL      = gemma3:27b
+   TEMP       = 0.7
+   MAX_TOKENS = 512
+
+ STEP7:
+   MODEL      = gemma3:27b
+   TEMP       = 0.7
+   MAX_TOKENS = 512
+
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- LLM Preprompts --- 
+ 
+ --------------------------------------------------------------- 
+
+Preprompt STEP2:
+
+You are part of a medical fact-checking pipeline.  
+If you propagate a false statement, the app may mislead people.
+
+INPUT TRANSCRIPT
+---------------
+{transcript}
+---------------
+
+TASK  
+Extract **medical claims** suitable for fact-checking.
+
+SELECTION RULES  
+1. Return **exactly three** distinct claims.  
+2. Prefer clinically relevant, novel, or potentially harmful claims.  
+3. Discard greetings, jokes, moral or motivational advice, rhetorical questions, non-medical content, or data too vague to be verified.  
+4. Merge duplicate / near-duplicate claims into one concise statement.
+
+STRICT OUTPUT  
+A valid JSON array with 1–3 strings.  
+No commentary, no extra keys, no markdown.
+
+
+
+
+Prepromt STEP3:
+
+You are a biomedical librarian inside a fact‐checking app.  
+If the claim is too vague, non‐medical, or otherwise unlikely to be indexed in PubMed, output the single word: NONE
+
+Otherwise, **think quickly (silently)** about the core PICO concepts in the claim, identify appropriate MeSH headings (in quotes with [MeSH]) and text‐word synonyms (with [tiab]), and produce ONE PubMed Boolean query string that:
+Example:
+(
+  "Smoking"[MeSH] 
+  OR smoking[tiab] 
+  OR smokers[tiab] 
+  OR "tobacco use"[tiab]
+)
+AND
+(
+  "Lung Function Tests"[MeSH] 
+  OR "pulmonary function"[tiab] 
+  OR "lung function"[tiab] 
+  OR FEV1[tiab] 
+  OR FVC[tiab]
+)
+AND
+(
+  "Inflammation"[MeSH] 
+  OR inflammation[tiab] 
+  OR "mucus hypersecretion"[tiab] 
+  OR mucus[tiab]
+)
+AND
+(
+  "Proanthocyanidins"[MeSH] 
+  OR proanthocyanidin*[tiab] 
+  OR OPC[tiab] 
+  OR "Traumotein"[tiab] 
+  OR "pine bark extract"[tiab] 
+  OR Pycnogenol[tiab]
+)
+
+
+• Is exactly one line (no line breaks).  
+• Uses uppercase AND/OR to combine concepts.  
+• Wraps MeSH terms in quotes followed by [MeSH] (e.g., "Smoking"[MeSH]).  
+• Marks synonym or free‐text terms with [tiab] (e.g., smoking[tiab]).  
+• Groups synonyms with parentheses; groups PICO domains by combining with AND.  
+• Does not include field tags other than [MeSH] and [tiab].  
+• Does not include quotation marks around free‐text terms (other than MeSH).  
+• Begins with a letter (A–Z or a–z) and contains no leading/trailing spaces.  
+• Contains no line breaks or extra whitespace.
+
+CLAIM:
+{claim}
+
+
+
+
+Preprompt STEP5:
+
+You are summarising evidence for a medical fact-checker.  
+Think briefly (silently) about study design and main results, then write the summary.
+
+GUIDELINES  
+• ≤ 300 words, plain text.  
+• Focus on methods, population, key outcomes, effect sizes, and limitations.  
+• Do NOT add interpretation beyond the abstract itself.
+
+TEXT TO SUMMARISE
+-----------------
+{abstract}
+-----------------
+
+
+
+
+Preprompt STEP6:
+
+You are verifying whether the summary actually addresses the claim.  
+Think (silently) first; then answer in exactly one word.
+
+STATEMENT: {statement}
+
+EVIDENCE SUMMARY: {evidence_summary}
+
+Does the summary *directly relate to or support* the statement?
+Respond with only: yes   |   no
+
+
+
+
+Prepromt STEP7:
+
+You are a professional medical fact-checker.  
+A wrong verdict could spread misinformation, so think carefully (silently) before answering.
+
+TASK  
+Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim.
+
+CLAIM:
+{claim_text}
+
+EVIDENCE:
+{evidence_block}
+
+Inclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
+{transcript}
+
+give the final response in the following format:
+
+STRICT OUTPUT – exactly two lines, nothing else:
+VERDICT: true|false|uncertain
+FINALSCORE: <probability 0.00–1.00>
+
+
+
+
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step1 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting transcribing: estimated time: 10 - 20 seconds
+...
+...
+ --- Step1 Audio to Transcript ---> LLM Output: ---
+Give your kid butter before bed. It's the epic bedtime hack you've probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night's sleep. It was a game changer, all because of butter. Now, why is this helpful? It's not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry. Since they can't communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they'll love. Now, if you've already tried it and it worked for you, please share your experience in the comments below. I love hearing from other moms sharing their tips with each other. Just a reminder, every child's different. You know your baby best. Trust your instincts. And if it doesn't work for you, then we could try something else. Something.
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step2 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step2: Transcript to Medical Statements
+...
+...
+ --- Step2 Transcript to Statements ---> LLM Output: ---
+["Offering a child butter or other high-calorie foods before bed can prevent nighttime awakenings caused by low blood sugar.", "Babies wake up at night and cry specifically due to hunger and low blood sugar, not other reasons.", "A baby's blood sugar can drop overnight, causing them to wake up and cry if they do not consume enough calories during the day."]
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step3 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step3: Statement to PubMed Query
+...
+...
+ --- Step3 Statement to Query ---> LLM Output: ---
+("Hypoglycemia"[MeSH] OR hypoglycemia[tiab] OR "low blood sugar"[tiab]) AND ("Sleep Wake Disorders"[MeSH] OR sleep[tiab] OR awakenings[tiab] OR "night waking"[tiab]) AND ("Diet"[MeSH] OR diet[tiab] OR feeding[tiab] OR butter[tiab] OR "high-calorie foods"[tiab])
+ --- Step3 Statement to Query ---> LLM Output: ---
+("Infant"[MeSH] OR infant[tiab] OR babies[tiab] OR "newborn"[tiab]) AND ("Wakefulness"[MeSH] OR waking[tiab] OR "sleep disturbances"[tiab] OR crying[tiab]) AND ("Hypoglycemia"[MeSH] OR "low blood sugar"[tiab] OR hypoglycemia[tiab] OR hunger[tiab] OR "feeding behavior"[tiab])
+ --- Step3 Statement to Query ---> LLM Output: ---
+("Hypoglycemia"[MeSH] OR hypoglycemia[tiab] OR "low blood sugar"[tiab]) AND ("Infant"[MeSH] OR baby[tiab] OR babies[tiab] OR infant*[tiab]) AND ("Feeding"[MeSH] OR feeding[tiab] OR "caloric intake"[tiab] OR "energy intake"[tiab] OR "nutrition"[tiab]) AND (cry[tiab] OR crying[tiab] OR "wakefulness"[tiab])
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step4 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step4: Query to PubMed Links
+...
+...
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41365423/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41264764/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41156470/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41133541/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41121158/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/40039419/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/39460064/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/39449948/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/28140403/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/26571288/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/22754199/
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step5 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step5: Link to Summary
+...
+...
+Print abstract to summarize:
+1. Gynecol Obstet Fertil Senol. 2025 Dec 7:S2468-7189(25)00408-8. doi: 10.1016/j.gofs.2025.12.001. Online ahead of print. [Preexisting diabetes: Expert consensus from the College of French Gynecologists and Obstetricians and from the French Society of Diabetology]. [Article in French] Garabedian C(1), Sénat MV(2), Sananès N(3), Berveiller P(4), Brillac T(5), Le Lous M(6), Lemaître M(7), Mitanchez D(8), Morel O(9), Paquin S(10), Rigouzzo A(11), Rimareix F(12), Simon L(13), Tatulashvili S(14), Sibiude J(15), Vambergue Author information: (1)ULR METRICS 2694, CHU de Lille, clinique d'obstétrique, University Lille, 59000 Lille, France. Electronic address: charles.garabedian@chu-lille.fr. (2)La clinique des femmes, 95, avenue de la Bourdonnais, 75007 Paris, France. Electronic address: senatmv@gmail.com. (3)Département de gynécologie-obstétrique, hôpital américain de Paris, Neuilly-sur-Seine, France. Electronic address: nicolas.sananes@gmail.com. (4)Département de gynécologie-obstétrique, centre hospitalier intercommunal de Poissy/Saint-Germain-en-Laye, 78300 Poissy, France; Université Paris-Saclay - UMR 1198, INRAE, BREED, RhuMA, Montigny-Le-Bretonneux, France. Electronic address: paulberveiller@yahoo.fr. (5)Département universitaire de médecine générale, université de Toulouse, collège de la médecine générale, Toulouse, France. Electronic address: thierry.brillac@dumg-toulouse.fr. (6)Département de gynécologie obstétrique et reproduction humaine - université de Rennes, UMR LTSI 1099, CHU de Rennes, Rennes, France. Electronic address: Maela.Le.Lous@chu-rennes.fr. (7)Service de diabétologie, CHU de Lille, 59000 Lille, France. Electronic address: Madleen.lemaitre@chu-lille.fr. (8)Service de néonatologie, CHU de Tours, université de Tours, 37000, Tours, France; Inserm UMR_S 938 centre de recherche Saint-Antoine, 75012 Paris, France; Service de néonatologie, CHU de Tours, université de Tours 37000, Inserm UMR_S 938 centre de recherche Saint-Antoine, 75012 Paris, France. Electronic address: delphine.mitanchez@univ-tours.fr. (9)Pôle de gynécologie-obstétrique, CHRU de Nancy, 54000 Nancy, France. Electronic address: olivier.morel17@gmail.com. (10)Départment d'anesthésie, centre hospitalier Agen-Nérac, Agen, France. Electronic address: paquin.sandrine@orange.fr. (11)Département d'anesthésie-réanimation chirurgicale, hôpital Trousseau-Sorbonne Université, AP-HP, Paris, France. Electronic address: agnes.rigouzzo@aphp.fr. (12)Service de diabétologie - Rangueil, CHU de Toulouse, centre diabète nutrition grossesse - Paule-de-Viguier, Toulouse, France. Electronic address: Frederique.rimareix@gmail.com. (13)Nantes Université, INRAE, UMR1280 PhAN, CRNH - Ouest, IMAD, Nantes, France; Nantes université, INRAE, UMR1280 PhAN, CRNH - Ouest, IMAD, 44000 Nantes, France. Electronic address: Laure.Simon@chu-nantes.fr. (14)Service d'endocrinologie-diabetologie-nutrition, hôpital Avicenne, université Sorbonne Paris Nord and Université Paris Cité, Inserm, INRAE, CNAM, Center of Research in Epidemiology and StatisticS (CRESS), Nutritional Epidemiology Research Team (EREN), AP-HP, 93017 Bobigny, France. Electronic address: Sopio.tatulashvili@aphp.fr. (15)Sorbonne université, AP-HP, service de gynécologie obstétrique, hôpital Armand Trousseau, IAME-INSERM, FHU Prem'impact, 75012 Paris, France. Electronic address: jeanne.sibiude@aphp.fr. (16)Service de diabétologie, CHU de Lille, 59000 Lille, France. Electronic address: Anne.Vambergue@chu-lille.fr. In France, 0.2% of women who gave birth in 2021 had type 1 diabetes, and 0.3% had type 2 diabetes. Regarding preconception care, it is recommended that women with any type of diabetes achieve an HbA1c level of less than 6.5%. For women using continuous glucose monitoring (CGM), the recommended target range is 0.70-1.80g/L (3.9-10mmol/L), and it is recommended to achieve this range at least 70% of the time. The preconception assessment includes: 1) an HbA1c measurement, 2) an assessment of microangiopathic impact, 3) an assessment of macroangiopathic complications, 4) screening for associated cardiovascular risk factors, and 5) a TSH measurement in women with type 1 diabetes (T1D), as well as screening for obstructive sleep apnea syndrome during questioning in cases of type 2 diabetes (T2D) and obesity in women with T1D. To improve preconception glycemic control, implementation of a CGM system is recommended for all women with T1D. Implementation of automated insulin delivery (AID) in anticipation of pregnancy should also be discussed as part of a shared medical decision. For type 2 diabetes, treatment with metformin and/or insulin therapy is recommended if necessary. Other antidiabetic treatments should be discontinued before conception. The following is recommended: 1) Discontinuing statin and potentially teratogenic antihypertensive treatments, replacing them with treatments compatible with pregnancy; 2) systematically providing smoking cessation advice to women who smoke, offering support from a healthcare professional trained in tobacco addiction; and 3) starting folic acid supplementation at 0.4mg per day before conception. Finally, women of childbearing age should be regularly advised of the importance of planning their pregnancies during follow-up visits. They should also be provided with dietary care to improve glycemic control, and, in some cases, encouraged to lose weight prior to pregnancy. Women should be encouraged to engage in physical activity to improve glycemic control. Regarding care during pregnancy, the following metabolic targets are recommended: Fasting blood glucose should be less than 0.95g/dL (less than 5.3mmol/L), and postprandial blood glucose should be less than 1.20g/dL (less than 6.7mmol/L) two hours after eating. Time spent in the target range (0.63-1.40g/dL [3.5-7.8mmol/L]) should be greater than 70% for type 1 diabetes (T1D) and greater than 90% for type 2 diabetes (T2D). The HbA1c level should be less than 6% during pregnancy, and hypoglycemia should be limited as much as possible. An CGM is recommended for T1D during pregnancy. For women with T2D, an CGM is recommended or they should maintain multiple daily capillary self-monitoring of blood glucose as part of individualized management. For women with type 1 diabetes, treatment with an insulin pump infusion device (IUD) is recommended during pregnancy. For type 2 diabetes, insulin therapy is recommended. The addition or continuation of metformin should be discussed on a case-by-case basis, depending on the diabetes phenotype and glycemic control. Regular monitoring by a diabetes specialist and monthly monitoring by an obstetrician-gynecologist, in collaboration with a maternity ward, are recommended from the first trimester. Depending on the patient's history, treatment, pregnancy progress, and glycemic control, monitoring may be intensified in the third trimester. Regarding ultrasound monitoring, an ultrasound should be performed between 36 and 37 weeks of gestation to assess fetal growth, guide the mode of delivery, and determine gestational age at birth. Regarding fetal heart rate monitoring, there is insufficient data to recommend its use in predicting fetal death. Similarly, there is insufficient data to recommend routine aspirin prescriptions during pregnancy to prevent maternal or perinatal morbidity. Prenatal treatment with corticosteroids is recommended according to the same indications as for non-diabetic women. This treatment involves close monitoring of maternal blood glucose control during hospitalization and an increase in the usual dose of insulin during the days following corticosteroid administration. Regarding acute diabetes complications, women who do not perceive their hypoglycemia should be identified to adapt monitoring and alert women with type 1 diabetes mellitus (T1DM) to the increased risk of hypoglycemia during the first trimester of pregnancy. Regarding diabetic ketoacidosis, capillary ketonemia should be measured when clinical signs of ketoacidosis are present (e.g., nausea, vomiting, and abdominal pain) and systematically when blood glucose levels are greater than or equal to 2g/dL (11mmol/L). Women should be screened for diabetic retinopathy (DR) through quarterly ophthalmological monitoring during pregnancy, which may increase to monthly monitoring if risk factors are present. An initial assessment of kidney function is recommended for screening for diabetic nephropathy before pregnancy or during the first trimester. If diabetic nephropathy is diagnosed, then monthly monitoring is recommended. In cases of high blood pressure, the target blood pressure should be below 140/90mmHg. In the context of pre-existing diabetes, a cesarean section is recommended for delivery if fetal weight is suspected to be greater than 4,500g to reduce the risk of brachial plexus palsy and other associated neonatal injuries. Due to the risk of fetal mortality, delivery should be considered between 37 and 38+6 weeks of gestation. The gestational age at birth depends on the presence of comorbidities, blood glucose levels, and estimated fetal weight (macrosomia or intrauterine growth restriction). The obstetrician-gynecologist, anesthesiologist, and pediatrician should be present in the maternity ward during delivery. Recommended blood glucose targets during labor and delivery are 0.8g/L to 1.4g/L (4.4mmol/L to 7.8mmol/L). Monitoring can be performed using capillary blood glucose measurements or continuous glucose monitoring (CGM). Rapid-acting insulin is the preferred treatment for managing labor. According to an advance protocol agreed upon with the diabetes specialist, insulin can be administered via an insulin pump, IUD, continuous intravenous infusion, or multiple injections. In the event of glycemic imbalance, continuous intravenous insulin therapy should be used as rescue therapy. For postpartum management of T1D, a reduction in insulin doses is recommended in the immediate postpartum period. For women with T2D, oral or injectable antidiabetic drugs should be reintroduced. If the woman is breastfeeding, metformin is the only acceptable oral antidiabetic drug. Women should be informed during pregnancy about the benefits of breastfeeding, and breastfeeding should be actively supported if desired. Breastfeeding should be encouraged in the delivery room. If the woman wishes to use contraception in the immediate postpartum period, it is recommended that she be prescribed either long-acting reversible contraception (such as a copper or hormonal intrauterine device or a subcutaneous implant) or a microgestin-only pill. An initial consultation with a diabetes specialist should take place within six months after birth. Regarding neonatal care, active measures should be taken to prevent hypoglycemia, including: 1) thermoregulation (e.g., early skin-to-skin contact and rapid drying of the newborn after birth), 2) feeding within one hour of birth, and 3) encouraging breastfeeding if desired. Blood glucose monitoring should begin before the infant's second feeding and no later than 4hours after birth, or earlier if the infant exhibits symptoms such as tremors, hypothermia, or irritability. Monitoring should continue before each feeding every three hours for at least 24hours. Each team caring for these newborns should have a protocol for preventing, monitoring, and treating hypoglycemia. The child's medical record should indicate that the pregnancy occurred in the context of preexisting diabetes and specify the type of diabetes. Copyright © 2025 The Authors. Published by Elsevier Masson SAS.. All rights reserved. DOI: 10.1016/j.gofs.2025.12.001 Conflict of interest statement: Déclaration de liens d’intérêts Charles Garabedian a participé à des réunions de conseil pour Organon et Hemosquid, et a été conférencier pour General Electrics dans les trois dernières années. Paul Berveiller a participé à des réunions de conseil pour Organon et Effik, et a été conférencier pour General Electrics et Effik. Sandrine Paquin a été conférencière pour LFB. Thierry Brillac a été conférencier pour Nordic Pharma. Maela Le Lous a été conférencière pour EvalFormSanté. Laure Simon a été conférencière pour MEDTRONIC. Madleen Lemaitre a été conférencière pour Lily Diabetes et a été invitée à des congrès par Novonordisk, Sanofi et Isis Diabet. Frédérique Rimareix a été conférencière pour Abbott et Novo Nordisk. Marie Victoire Sénat a participé à des réunions de conseil pour Exeltis. Olivier Morel a participé à des réunions de conseil pour Cook. Anne Vambergue a été conférencière pour Ypsomed. Sopio Tatulashvili a été conférencière pour Lily Diabetes et a été invitée à des congrès par Novonordisk, Sanofi, Vitalaire. Les autres auteurs déclarent ne pas avoir de liens d’intérêts.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41365423/ with PMID 41365423
+Print abstract to summarize:
+1. Smith-Kingsmore Syndrome. Prada CE(1), Raski CR(1), Mirzaa G(2), Besterman A(3), Krueger DA(4), Liu AC(5). In: Adam MP, Bick S, Mirzaa GM, Pagon RA, Wallace SE, Amemiya A, editors. GeneReviews(®) [Internet]. Seattle (WA): University of Washington, Seattle; 1993–2025. 2025 Nov 20. Author information: (1)Edwards Family Division of Genetics and Rare Diseases, Ann & Robert H Lurie Children's Hospital of Chicago;, Department of Pediatrics, Feinberg School of Medicine, Northwestern University, Chicago, Illinois (2)Department of Pediatrics, University of Washington School of Medicine, Seattle, Washington (3)Division of Child and Adolescent Psychiatry, Department of Psychiatry, University of California San Diego;, Rady Children's Hospital;, Rady Children's Institute for Genomic Medicine, San Diego, California (4)Division of Neurology, Department of Pediatrics, Cincinnati Children's Hospital Medical Center;, University of Cincinnati College of Medicine, Cincinnati, Ohio (5)Department of Physiology and Aging, University of Florida College of Medicine, Gainesville, Florida CLINICAL CHARACTERISTICS: Smith-Kingsmore syndrome (SKS) is characterized by varying degrees of overgrowth, developmental delay / intellectual disability, neurodevelopmental issues (autistic features, ADHD), and congenital anomalies. Developmental delay typically involves all aspects of development (gross motor, fine motor, speech/language). Virtually all individuals have speech delay, although speech abilities over time range from vocalizations to some verbal communication, with about 50% of individuals reportedly able to use verbal communication. Intellectual disability is frequently identified in affected individuals and typically ranges from moderate to severe. Regression in development has been reported in a minority of affected individuals. Other features of SKS include congenital hypotonia, epilepsy, sleep-wake disturbances (including insomnia and obstructive sleep apnea), macrocephaly, hyperphagia, eye anomalies, skeletal anomalies, cardiac findings (including stable aortic root dilatation), and genitourinary anomalies, most commonly in males (undescended testes and hypospadias). DIAGNOSIS/TESTING: The diagnosis of SKS is established in a proband with suggestive findings and a heterozygous constitutional or early postzygotic activating pathogenic variant in MTOR identified by molecular genetic testing. Because a significant subset (20%-25%) of individuals have a pathogenic variant that is postzygotic (and thus mosaic), more than one tissue may need to be tested, such as sequence analysis of DNA derived from a freshly obtained dermal biopsy. MANAGEMENT: Treatment of manifestations: Feeding therapy with consideration of gastrostomy tube placement for persistent feeding issues; healthy lifestyle and referral to nutritionist to address obesity; standard treatment for epilepsy, developmental delay / intellectual disability, scoliosis and/or pes planus, mobility issues, vision issues, aortic dilatation, valvar and cardiac septal defects, sleep abnormalities, undescended testes / hypospadias, hypoglycemia, and hearing loss. Surveillance: At each visit, measure growth parameters, evaluate nutritional status, monitor eating habits, assess for signs of hyperphagia, assess for new neurologic manifestations such as seizures and developmental regression, monitor developmental progress and educational needs, assess mobility and self-help skills, monitor for signs/symptoms of sleep disturbance, and assess for scoliosis clinically (until skeletal maturity). At least annually or as clinically indicated, obtain ophthalmology evaluation. As clinically indicated, monitor for hypoglycemia (typically in infancy), obtain behavioral assessment for anxiety, ADHD, autism, aggression, and self-injury, and perform audiology evaluation. Therapies under investigation: Off-label sirolimus (rapamycin) has been used in seven individuals with SKS at low-to-moderate doses with parent-reported improvements in some behaviors, including verbal skills, attention span, decreased self-aggression, and improved hyperphagia. Before using mTOR inhibitors (e.g., rapamycin), it is advisable or necessary to assess the biochemical and functional impacts of the pathogenic variant in the affected individual to optimize dosing and timing. Of note, first-generation, second-generation, and third-generation inhibitors may have distinct mechanisms and off-target effects. Any off-label use of drugs should be done at the discretion of the treating physician in conjunction with the affected individual and/or caregiver and is not endorsed by GeneReviews or the authors of this chapter. GENETIC COUNSELING: SKS is an autosomal dominant disorder typically caused by a de novo pathogenic variant. Approximately 86% of individuals diagnosed with SKS have the disorder as the result of a de novo constitutional or early postzygotic pathogenic variant in MTOR. Some individuals have the disorder as the result of an MTOR pathogenic variant inherited from an unaffected parent with gonadal mosaicism (~11%) or, rarely, an affected parent (~3%). Sib recurrence has been reported in several families with presumed parental gonadal mosaicism. Once the MTOR pathogenic variant has been identified in an affected family member, prenatal and preimplantation genetic testing are possible. Copyright © 1993-2025, University of Washington, Seattle. GeneReviews is a registered trademark of the University of Washington, Seattle. All rights reserved.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41264764/ with PMID 41264764
+Print abstract to summarize:
+1. Nutrients. 2025 Oct 14;17(20):3217. doi: 10.3390/nu17203217. The Influence of Food Intake and Blood Glucose on Postprandial Sleepiness and Work Productivity: A Scoping Review. Kaneda H(1), Kageyama I(1), Kobayashi Y(1), Kodama K(1). Author information: (1)Medical Data Science Lab, Hoshi University, Tokyo 142-0063, Japan. Background: Occupational accidents, injuries, and illnesses are serious problems for organizations. Workplace sleepiness is a major issue that affects occupational safety and productivity. Workplace sleepiness is influenced by sleep, diet, and blood glucose levels, but the causal relationship is unclear. This scoping review aimed to investigate the factors affecting work productivity, with a particular focus on the impact of sleepiness caused by food intake and blood glucose level on productivity. Methods: PubMed, and Web of Science were used to search terms, such as "workplace," "sleepiness or postprandial hypoglycemia," "productivity," and "measurement." The following studies were included: (1) those with working hours evaluations; (2) that excluded patients with diabetes, heart diseases, or other diseases; (3) that excluded patients with mental illness; (4) that did not limit the evaluation of sleepiness at work to sleep only; (5) with publications after 2014; and (6) that were research articles. Results: The search yielded 521 articles. Nine papers met the inclusion criteria. Six studies assessed blood glucose levels, six assessed sleepiness, and one simultaneously assessed blood glucose and sleepiness. The Karolinska Sleepiness Scale (KSS) is the most frequently used sleep measure. Most studies have assessed the effects of controlled diets. Although some studies have used continuous glucometers, their evaluation of blood glucose levels has been limited. The extracted literature also included mild exercise and control of environmental illumination as a countermeasure against sleepiness. Conclusions: Although few studies have analyzed the causes and countermeasures of sleepiness in the workplace, sleepiness affects work productivity, diet affects sleepiness, and several methods for suppressing sleepiness have been researched. However, a few studies have directly evaluated the effects of blood glucose fluctuations and sleepiness on work productivity. These results suggest that further research into the relationship between sleepiness at work and related biological signals and blood glucose fluctuations will be important in understanding the causes, as it will form the basis for measures to improve work productivity. DOI: 10.3390/nu17203217 PMID: 41156470 [Indexed for MEDLINE] Conflict of interest statement: K.K. has received research donations for their institution from Kumagaya Gumi, Sumitomo Life Insurance, Merge System, Yasuhara Chemical, Tamai Investment Education, and Ernst & Young ShinNihon. No other authors have competing interests to declare.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41156470/ with PMID 41156470
+Print abstract to summarize:
+1. Reports (MDPI). 2025 Oct 8;8(4):200. doi: 10.3390/reports8040200. Continuous Glucose Monitoring Improves Weight Loss and Hypoglycemic Symptoms in a Non-Diabetic Bariatric Patient 14 Years After RYGB: A Case Report. Pape-Köhler C(1), Stier C(2), Kopanos S(3), Feldkamp J(3). Author information: (1)Klinikum Bielefeld-Rosenhöhe, Bariatric Clinic, An der Rosenhöhe 27, 33647 Bielefeld, Germany. (2)Department of Surgery, Interdisciplinary Endoscopy, University Medicine Mannheim, Heidelberg University, Theodor-Kutzer-Ufer 1-3, 68167 Mannheim, Germany. (3)Department of General Internal Medicine, Endocrinology and Diabetes, Infectiology, Klinikum Bielefeld-Mitte, Medical School and University Medical Center OWL, Bielefeld University, Universitätsstraße 25, 33615 Bielefeld, Germany. Background and Clinical Significance: Roux-en-Y gastric bypass (RYGB) significantly alters glucose metabolism, yet managing glucose variability in patients undergoing bariatric surgery remains challenging. Continuous Glucose Monitoring (CGM) offers real-time insights into glucose fluctuations and may support long-term metabolic management in this population. This case highlights the utility of CGM in identifying postprandial glycemic variability and guiding dietary adjustments. Case Presentation: A 45-year-old female, 14 years post-RYGB, presented with symptoms including postprandial fatigue, nocturnal cravings, and unexplained weight gain, despite adherence to nutritional guidelines. Her BMI had decreased from 52 kg/m2 (pre-surgery) to 29 kg/m2. She was provided with a CGM device (FreeStyle Libre 3) by the clinical team and instructed to monitor glucose without modifying her routine initially. Data revealed significant glycemic variability, with peaks up to 220 mg/dL and hypoglycemic dips to 45 mg/dL. Based on this, she adjusted her diet by reducing non-complex carbohydrates and increasing vegetables, proteins, and complex carbohydrates. Within two weeks, her symptoms improved, including better sleep and energy levels, accompanied by a 3 kg weight loss following dietary adjustments informed by CGM feedback. Conclusions: This case suggests how CGM can empower patients having undergone bariatric surgery to manage glucose fluctuations through informed self-management. The patient's ability to identify and address glucose variability without formal intervention highlights CGM's potential as a supportive tool in long-term care. While further studies are needed, this case suggests CGM may benefit similar patients experiencing postprandial symptoms or weight regain after bariatric surgery. DOI: 10.3390/reports8040200 Conflict of interest statement: The authors declare no conflicts of interest related to this publication. The CGM device (FreeStyle Libre 3, Abbott) was purchased through routine clinical care at our institution. None of the authors have any financial or professional affiliations with Abbott.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41133541/ with PMID 41133541
+Print abstract to summarize:
+1. BMC Pediatr. 2025 Oct 21;25(1):845. doi: 10.1186/s12887-025-06257-5. Comparison of postpartum depression, anxiety, sleep quality and neonatal outcomes in mothers with pregestational and gestational diabetes. Aycan OK(1), Aksu SC(2). Author information: (1)Faculty of Medicine Department of Pediatrics, Balikesir University, Balıkesir, Turkey. ozlem.aycan@balikesir.edu.tr. (2)Faculty of Health Sciences, Department of Obstetrics and Gynecology Nursing, Balıkesir University, Balıkesir, Turkey. BACKGROUND: This study was conducted to compare postpartum depression, anxiety, sleep quality, and neonatal outcomes in mothers with pregestational and gestational diabetes mellitus. METHODS: Designed as a descriptive, comparative, and prospective study, the sample consisted of 80 mothers (40 with pregestational diabetes mellitus (PGDM) and 40 with gestational diabetes mellitus (GDM)), who were monitored by the Pediatric Outpatient Clinic of Balıkesir University Training and Research Hospital in Türkiye. The data were collected using the "Descriptive Information Form," "Pittsburgh Sleep Quality Index (PSQI)," "Beck Anxiety Inventory (BAI)," and "Edinburgh Postnatal Depression Scale (EPDS)." RESULTS: In terms of neonatal outcomes, the rate of newborn intervention was 40.0%, exclusive breastfeeding 22.5%, and combined breastfeeding and formula feeding 52.5% in the GDM group. These rates were 37.5%, 25.0%, and 60.0%, respectively, in the PGDM group. The most common neonatal complications among infants of PGDM mothers were hypoglycemia (42.5%), hyperbilirubinemia (37.5%), and large for gestational age (LGA) (27.5%), while in the GDM group, hypoglycemia (42.5%), respiratory distress syndrome (RDS) (27.5%), and hyperbilirubinemia (22.5%) were most frequently observed. In our study, mothers in the PGDM group had significantly higher scores on both the Edinburgh Postnatal Depression Scale and the Beck Anxiety Inventory compared to those in the GDM group. CONCLUSION: These results suggest that healthcare professionals should address not only diabetes treatment and monitoring, nutrition, weight management, and exercise during the prenatal and postpartum periods but also monitor emotional issues such as sleep disturbances, anxiety, and depression in mothers with pregestational and gestational diabetes to improve maternal and neonatal health outcomes. © 2025. The Author(s). DOI: 10.1186/s12887-025-06257-5 PMID: 41121158 [Indexed for MEDLINE] Conflict of interest statement: Declarations. Ethics approval and consent to participate: Ethical approval for the study was received from Balıkesir University Health Sciences Non-Interventional Research Ethics Committee with the number 03.12.2024-E.452846. Written informed consent was obtained from all participants, and for participants under the age of 16, consent was obtained from their parents or legal guardians. Consent for publication: Written informed consent for publication of the data collected, including any identifiable information or images, was obtained from all participants or their legal guardians. Competing interests: The authors declare no competing interests.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41121158/ with PMID 41121158
+Print abstract to summarize:
+1. Annu Int Conf IEEE Eng Med Biol Soc. 2024 Jul;2024:1-4. doi: A Multi-task Model for Infant Crying Detection and Reasoning. Xia M, Huang D, Wang W. Clinical studies have shown that infant crying is a crucial signal containing physical and mental information, such as hunger and pain, which can provide valuable insights into infants' pathology and demand. However, existing studies either focused on infant crying detection or reasoning (needs/diseases), where the limited data and label types hinder the model's generalization to unknown infants and reasons. To this end, we propose a multi-task Infant Crying Detection and Reasoning (ICDR) model for both the tasks of cry detection and reasoning, which utilizes a shared extractor to extract the deep representations and incorporates two classifiers for different tasks. In this way, ICDR can augment data by mixing datasets from associated tasks and introducing inductive bias as the regularization term to mitigate overfitting. Extensive experiments were performed on four infant crying datasets, showing that ICDR outperforms its corresponding single-task model in both tasks, exhibiting a 0.31% and 6.12% improvement in F1-score for infant crying detection and reasoning when using FNN as the shared extractor, obtaining 0.11% and 1.38% improvement when using CNN as the shared extractor. These results demonstrate that multi-task learning can efficiently leverage data from related tasks to enhance the model's generalization for infant crying detection and reasoning. PMID: 40039419 [Indexed for MEDLINE]
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/40039419/ with PMID 40039419
+Print abstract to summarize:
+1. Sensors (Basel). 2024 Oct 12;24(20):6575. doi: 10.3390/s24206575. Classification of Infant Crying Sounds Using SE-ResNet-Transformer. Li F(1), Cui C(1), Hu Y(1). Author information: (1)Department of Computer Science and Technology, Anhui University of Finance and Economics, Bengbu 233030, China. Recently, emotion analysis has played an important role in the field of artificial intelligence, particularly in the study of speech emotion analysis, which can help understand one of the most direct ways of human emotional communication-speech. This study focuses on the emotion analysis of infant crying. Within cries lies a variety of information, including hunger, pain, and discomfort. This paper proposes an improved classification model using ResNet and transformer. It utilizes modified Mel-frequency cepstral coefficient Mel-frequency cepstral coefficient (MFCC) features obtained through feature engineering from infant cries and integrates SE attention mechanism modules into residual blocks to enhance the model's ability to adjust channel weights. The proposed method achieved 93% accuracy rate in experiments, offering advantages of shorter training time and higher accuracy compared to other traditional models. It provides an efficient and stable solution for infant cry classification. DOI: 10.3390/s24206575 PMID: 39460064 [Indexed for MEDLINE] Conflict of interest statement: The authors declare no conflicts of interest.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/39460064/ with PMID 39460064
+Print abstract to summarize:
+1. Cureus. 2024 Sep 23;16(9):e70030. doi: 10.7759/cureus.70030. eCollection 2024 Sep. Assessment of Breastfeeding and Weaning Practices and Their Effects on Infant Growth in Western Maharashtra: A Cross-Sectional Study. Dalbhanjan JS(1)(2), Kadam Y(3)(2). Author information: (1)Community and Family Medicine, Krishna Institute of Medical Sciences, Karad, (2)Preventive and Social Medicine (PSM), Krishna Vishwa Vidyapeeth (Deemed to be University), Karad, IND. (3)Family Medicine, Krishna Institute of Medical Sciences, Karad, IND. INTRODUCTION: Breastfeeding provides nutrients and antibodies crucial for developing infants and their immune systems. Understanding the current breastfeeding and weaning practices helps identify areas requiring improvements to boost infant health outcomes. The World Health Organization and other health bodies recommend that babies be exclusively breastfed for the first six months of life. Then, complementary feeding should be introduced along with breastfeeding, which should be continued for up to two years or more. OBJECTIVE: This study aims to analyze the perception and practices of breastfeeding and weaning among mothers with 9- to 12-month-old infants. METHODOLOGY: This cross-sectional analytical study was conducted at Krishna Hospital and Research Centre, Karad, for a period of six months. A validated questionnaire developed by investigators was used as the study tool. Mothers visiting the immunization clinics with their 9- to 12-month-old infants were enrolled in the study. Infants diagnosed as having inborn metabolic disorders, diabetes, heart diseases, and congenital malformations and those who were on special feeds or diets were not included in the study. RESULTS: The majority of the study participants (28 [33%]) initiated weaning when the infants were six to seven months of age, with the earliest being five months (8 [10%]). Five (6%) mothers could not initiate weaning until the infants were 12 months old. The most common weaning food was dal and rice with ghee (24 [29%]). A total of 50 (60%) participants used plastic bottles for feeding, and among them, 30 (36%) mothers used bottles to give water to their infants. A total of 23 (27%) participants did not feed their infants colostrum. The most common hunger cue was crying (82 [98%]), whereas the least common cue was mouth opening (8 [9%]). The incorrect practices followed by the mothers were late initiation of breastfeeding because of which colostrum could not be fed to the neonate; incorrect breastfeeding technique, that is, feeding little milk from each side of the breast without emptying one breast completely; late or no initiation of weaning foods; and offering less amount of weaning food than that required by the infant according to its nutritional demand. CONCLUSION: Initiating breastfeeding early and continuing breastfeeds along with complimentary feeds are essential for optimal infant growth. Copyright © 2024, Dalbhanjan et al. DOI: 10.7759/cureus.70030 Conflict of interest statement: Human subjects: Consent was obtained or waived by all participants in this study. Institutional Ethical committee issued approval KIMSDU/IEC/03/2023. The IEC has given approval for the protocol number 553/2022-2023. Animal subjects: All authors have confirmed that this study did not involve animal subjects or tissue. Conflicts of interest: In compliance with the ICMJE uniform disclosure form, all authors declare the following: Payment/services info: SETS (Scholarly editing and translation services); Email: cs@editingindia.com; website: www.editingindia.com; Phone: +919987594481; Editing service quotation number: 205726. Financial relationships: All authors have declared that they have no financial relationships at present or within the previous three years with any organizations that might have an interest in the submitted work. Other relationships: All authors have declared that there are no other relationships or activities that could appear to have influenced the submitted work.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/39449948/ with PMID 39449948
+Print abstract to summarize:
+1. Transl Psychiatry. 2017 Jan 31;7(1):e1014. doi: 10.1038/tp.2016.269. Medical history of discordant twins and environmental etiologies of autism. Willfors C(1)(2), Carlsson T(1)(3), Anderlid BM(4)(5), Nordgren A(4)(5), Kostrzewa E(1)(2), Berggren S(1)(2)(6), Ronald A(7), Kuja-Halkola R(8), Tammimies K(1)(2), Bölte S(1)(2)(6). Author information: (1)Karolinska Institutet Center for Neurodevelopmental Disorders, Pediatric Neuropsychiatry Unit, Department of Women's and Children's Health, Karolinska Institutet, Solna, Sweden. (2)Center for Psychiatry Research, Stockholm County Council, Stockholm, Sweden. (3)Prima Child and Adult Psychiatry, Stockholm, Sweden. (4)Department of Molecular Medicine and Surgery, Center of Molecular Medicine, Karolinska Institutet, Solna, Sweden. (5)Department of Clinical Genetics, Karolinska University Hospital, Solna, Sweden. (6)Child and Adolescent Psychiatry, Stockholm County Council, Stockholm, Sweden. (7)Genes Environment Lifespan laboratory, Department of Psychological Sciences, Birkbeck, University of London, London, UK. (8)Department of Medical Epidemiology and Biostatistics, Karolinska Institutet, Solna, Sweden. The environmental contributions to autism spectrum disorder (ASD) and their informative content for diagnosing the condition are still largely unknown. The objective of this study was to investigate associations between early medical events and ASD, as well as autistic traits, in twins, to test the hypothesis of a cumulative environmental effect on ASD risk. A total of 80 monozygotic (MZ) twin pairs (including a rare sample of 13 twin pairs discordant for clinical ASD) and 46 dizygotic (DZ) twin pairs with varying autistic traits, were examined for intra-pair differences in early medical events (for example, obstetric and neonatal factors, first year infections). First, differences in early medical events were investigated using multisource medical records in pairs qualitatively discordant for ASD. The significant intra-pair differences identified were then tested in relation to autistic traits in the remaining sample of 100 pairs, applying generalized estimating equations analyses. Significant association of the intra-pair differences in the MZ pairs were found for the cumulative load of early medical events and clinical ASD (Z=-2.85, P=0.004) and autistic traits (β=78.18, P=0.002), as well as infant dysregulation (feeding, sleeping abnormalities, excessive crying and worriedness), when controlling for intelligence quotient and attention deficit hyperactivity disorder comorbidity. The cumulative load of early medical events in general, and infant dysregulation in particular, may index children at risk of ASD owing to non-shared environmental contributions. In clinical practice, these findings may facilitate screening and early detection of ASD. DOI: 10.1038/tp.2016.269 PMID: 28140403 [Indexed for MEDLINE] Conflict of interest statement: SBö has in the last 3 years acted as a consultant or lecturer for Shire, Roche, Medice, Eli Lilly, Prima Psychiatry, Kompetento, Expo Medica, System Analytic, Prophase and GLG Consultation, and receives royalties from Kohlhammer, UTB and Hogrefe/Huber publishers. The remaining authors declare no conflicts of interest.
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/28140403/ with PMID 28140403
+Print abstract to summarize:
+1. JBI Database System Rev Implement Rep. 2015 Oct;13(10):123-32. doi: 10.11124/jbisrir-2015-2287. Parents' experiences of transition when their infants are discharged from the Neonatal Intensive Care Unit: a systematic review protocol. Aagaard H(1), Uhrenfeldt L, Spliid M, Fegran L. Author information: (1)1Department of Pediatrics, Aarhus University Hospital, Denmark2Danish Center of Systematic Synthesis in Nursing: an Affiliate Center of the Joanna Briggs Institute; The Center of Clinical Guidelines - Clearing House, Aalborg University Denmark3Faculty of Health and Sport Sciences, University of Agder, Kristiansand, Norway4Clinical Research Unit, Randers Regional Hospital, Denmark5Department of Health Science and Technology, Aalborg University, Denmark. REVIEW QUESTION/OBJECTIVE: The objective of this review is to identify, appraise and synthesize the best available studies exploring parents' experiences of transition when their infants are discharged from the Neonatal Intensive Care Unit (NICU).The review questions are: BACKGROUND: Giving birth to a premature or sick infant is a stressful event for parents. The parents' presence and participation in the care of the infant is fundamental to reduce this stress and to provide optimal care for both the premature or sick infant and family. A full term pregnancy is estimated to last between 37 and 40 weeks. Preterm infants born before 28 week (5.1%) are defined as extremely preterm, while those who are born between 28 to 31 weeks (10.3%) are defined as very preterm. The majority of the preterm (84.1%) are born between 32 to 37 week and may have significant medical problems requiring prolonged hospitalization.The prevalence of preterm birth is increasing worldwide. More than one in ten babies are born preterm annually. This is equal to 15 million preterm infants born globally and the second largest direct cause of deaths in children below five. The highest rates of preterm birth are in Sub-Saharan Africa and South Asia (more than 60%) and the lowest rates are in Northern Africa, Western Asia, Latin America and the Caribbean. The preterm birth rates in the developing countries vary widely and follow a different pattern than in high income countries.The preterm birth rate has increased between 1990 and 2010 with an average of 0.8% annually in almost all countries. Morbidity among critically ill newborn and preterm infants vary widely from no late effects to severe complications, such as visual or hearing impairment, chronic lung disease, growth failure in infancy and specific learning impairments, dyslexia and reduced academic achievement. Full term infants may also experience significant health problems requiring neonatal intensive care. The most common reasons for a full term infant to be admitted to a NICU after birth are temperature instability, hypoglycemia, respiratory distress, hyperbilirubinemia and neonatal mortality. Admission of a full term newborn infant from home within the first four weeks after birth is due to jaundice, dehydration, respiratory complications, feeding difficulties, urinary tract infection, diarrhea and meningitis.In the last two to three decades, technological advances in neonatalogy have improved the survival rates of critically ill and preterm infants.Two major issues have influenced the design of the NICU wards: i) the increased volume of preterm infants with extremely low gestational age who need neonatalogy assistance, and ii) the impact of the parents' presence in the NICU to support the infant's development.The health status of preterm babies can have a significant impact on the family wellbeing and function. The separation between the preterm infant and the parents is a threat to the attachment and bonding process. Worldwide, there has been a paradigm shift in the NICUs over the last decade, inviting parents to be admitted together with the infant or at least to spend most of the day together with their critical ill and preterm infant in the NICU. Parental involvement increases the performing of Kangaroo Mother Care during the admission in the NICU and increases parental preparedness for discharge to home. This change prepares the parents to take over tasks such as nurturing and feeding. The parents are the most important caregivers for the infant during the admission in the NICU and their co-admission increases the bonding and prepare the parents for the transition discharged to home.Family centered care (FCC) based on a partnership between families and professionals is described as essential in current research on neonatal care. Family centered care is facilitated by parental involvement, communication based on mutuality and respect, and unrestricted parental presence in the NICU. According to Mikkelsen and Frederiksen, the central attribute of FCC is partnership with the core value of mutuality and common goals.A NICU is a high-tech setting where highly specialized professionals care for premature or critically ill infants. During the infants' hospitalization, the relationship between parents and nurses evolves through an interchange of roles and responsibilities. However, this collaboration is challenging due to a discrepancy between parents' and nurses' expectations of their roles.To facilitate parents' skin-to-skin contact and involvement in their infant's care, NICUs are now redesigned to facilitate parents' "24-hour" presence, also called "rooming-in". Seporo et al. describes several benefits with "rooming-in" the NICUs. Staying in the same room increases infants' and parents' possibility for "skin-to-skin care". This improves the infant's sleep time and temperature regulation, decreased crying and need for oxygen, increases parental confidence and positive infant-parent interaction. Parents' experience of "skin-to-skin care" and "rooming in" may help parents to be acquainted with their infant and thus prepare for the transition to home. However, despite these positive effects of rooming-in, some negative effects, e.g. less sleep and lack of privacy, have been described by parents who have stayed with their child in a pediatric unit.The hospitalization may challenge the normal attachment process and parents' confidence as caregivers; parents' preparation for bringing the infant home is thus essential. The infant's discharge from the NICU is experienced as a moment of mixed feelings. Going home is a happy event, but at the same time it is combined with parental anxiety. Parents' pervasive uncertainty, medical concerns and adjustment to the new parental and partner-adjustment role are common concerns. To make parents confident and prepared for taking their infant home tailored information, guidance and hands-on experience caring for their infant before discharge is crucial.During the literature research we became aware of a systematic narrative review protocol by Parascandolo et al.'s concerning nurses', midwives', doctors' and parents' experiences of the preterm infants' discharge to home. The aim of our comprehensive review is to perform a metasynthesis on parents' perspectives and their experiences of transition from discharge from NICU to home. We will include qualitative primary studies to offer a deeper understanding of the parent perspective. DOI: 10.11124/jbisrir-2015-2287 PMID: 26571288 [Indexed for MEDLINE]
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/26571288/ with PMID 26571288
+Print abstract to summarize:
+1. Indian J Clin Biochem. 2011 Jul;26(3):312-5. doi: 10.1007/s12291-011-0139-x. Epub 2011 Jun 8. A Rare Case of Short-Chain Acyl-COA Dehydrogenase Deficiency: The Apparent Rarity of the Disorder Results in Under Diagnosis. Reddy GS, Sujatha M. Short-chain acyl-CoA dehydrogenase (ACAD) deficiency is an extremely rare inherited mitochondrial disorder of fat metabolism. This belongs to a group of diseases known as fatty acid oxidation disorders. Screening programmes have provided evidence that all the fatty acid oxidation disorders combined are among the most common inborn errors of metabolism. Mitochondrial beta oxidation of fatty acids is an essential energy producing pathway. It is a particularly important pathway during prolonged periods of starvation and during periods of reduced caloric intake due to gastrointestinal illness or increased energy expenditure during febrile illness. The most common presentation is an acute episode of life threatening coma and hypoglycemia induced by a period of fasting due to defective hepatic ketogenesis. Here, the case of a 4 month old female patient who had seizures since the third day of her birth and persistent hypoglycemia is described. She was born to parents of second degree consanguinity after 10 years of infertility treatment. There was history of delayed cry after birth. Metabolic screening for TSH, galactosemia, 17-OHP, G6PD, cystic fibrosis, biotinidase were normal. Tandem mass spectrometric (TMS) screening for blood amino acids, organic acids, fatty acids showed elevated butyryl carnitine (C4) as 3.40 μmol/L (normal <2.00 μmol/L), hexanoyl carnitine (C6) as 0.92 μmol/L (normal <0.72 μmol/L), C4/C3 as 2.93 μmol/L (normal <1.18 μmol/L). The child was started immediately on carnitor syrup (carnitine) 1/2 ml twice daily. Limitation of fasting stress and dietary fat was advised. Baby responded well by gaining weight and seizures were controlled. Until now, less than 25 patients have been reported worldwide. The limited number of patients diagnosed until now is due to the rarity of the disorder resulting in under diagnosis. DOI: 10.1007/s12291-011-0139-x
+Error during Ollama call Step5: Error code: 404 - {'error': {'message': "model 'gemma3:12b' not found", 'type': 'api_error', 'param': None, 'code': None}}
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/22754199/ with PMID 22754199
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step6 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step6: Reduce to Evidence
+...
+...
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Offering a child butter or other high-calorie foods before bed can prevent nighttime awakenings caused by low blood sugar. 
+ Evidence Summary: None 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Offering a child butter or other high-calorie foods before bed can prevent nighttime awakenings caused by low blood sugar. 
+ Evidence Summary: None 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Offering a child butter or other high-calorie foods before bed can prevent nighttime awakenings caused by low blood sugar. 
+ Evidence Summary: None 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Offering a child butter or other high-calorie foods before bed can prevent nighttime awakenings caused by low blood sugar. 
+ Evidence Summary: None 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Babies wake up at night and cry specifically due to hunger and low blood sugar, not other reasons. 
+ Evidence Summary: None 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Babies wake up at night and cry specifically due to hunger and low blood sugar, not other reasons. 
+ Evidence Summary: None 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Babies wake up at night and cry specifically due to hunger and low blood sugar, not other reasons. 
+ Evidence Summary: None 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Babies wake up at night and cry specifically due to hunger and low blood sugar, not other reasons. 
+ Evidence Summary: None 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: A baby's blood sugar can drop overnight, causing them to wake up and cry if they do not consume enough calories during the day. 
+ Evidence Summary: None 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: A baby's blood sugar can drop overnight, causing them to wake up and cry if they do not consume enough calories during the day. 
+ Evidence Summary: None 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: A baby's blood sugar can drop overnight, causing them to wake up and cry if they do not consume enough calories during the day. 
+ Evidence Summary: None 
+ Response: no 
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step7 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step7: Statement to Truthness
+...
+...
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Offering a child butter or other high-calorie foods before bed can prevent nighttime awakenings caused by low blood sugar.
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+VERDICT: uncertain
+FINALSCORE: 0.30  
+ --- Extracted Information from prompt: ---
+Parsed verdict: uncertain 
+Parsed score: 0.30
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Babies wake up at night and cry specifically due to hunger and low blood sugar, not other reasons.
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+VERDICT: uncertain
+FINALSCORE: 0.30  
+ --- Extracted Information from prompt: ---
+Parsed verdict: uncertain 
+Parsed score: 0.30
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: A baby's blood sugar can drop overnight, causing them to wake up and cry if they do not consume enough calories during the day.
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+VERDICT: uncertain
+FINALSCORE: 0.65  
+ --- Extracted Information from prompt: ---
+Parsed verdict: uncertain 
+Parsed score: 0.65
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step8 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step8: Statement to Score
+...
+...
+Overall truthiness score: 0.42
+ 
+
+
+
+
+
+ --------------------------------------------------------------- 
+
+ --- Runtime Analysis ---
+ 
+ --------------------------------------------------------------- 
+
+update_transcript: 11.911618 seconds
+update_statements: 13.183972 seconds
+update_query: 9.009904 seconds
+query_to_link: 2.175961 seconds
+link_to_summary: 5.340281 seconds
+reduce_to_evidence: 6.331047 seconds
+statement_to_truthness: 3.881042 seconds
+statement_to_score: 0.000116 seconds
+Total elapsed time: 51.833978 seconds
+ 
+
+
+
+
+
+ --------------------------------------------------------------- 
+
+ --- Final Output (JSON) ---
+ 
+ --------------------------------------------------------------- 
+
+{'transcript': "Give your kid butter before bed. It's the epic bedtime hack you've probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night's sleep. It was a game changer, all because of butter. Now, why is this helpful? It's not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry. Since they can't communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they'll love. Now, if you've already tried it and it worked for you, please share your experience in the comments below. I love hearing from other moms sharing their tips with each other. Just a reminder, every child's different. You know your baby best. Trust your instincts. And if it doesn't work for you, then we could try something else. Something.", 'statements': [{'id': 1, 'text': 'Offering a child butter or other high-calorie foods before bed can prevent nighttime awakenings caused by low blood sugar.', 'verdict': 'uncertain', 'rationale': 'VERDICT: uncertain\nFINALSCORE: 0.30', 'confidence': 0.3, 'query': '("Hypoglycemia"[MeSH] OR hypoglycemia[tiab] OR "low blood sugar"[tiab]) AND ("Sleep Wake Disorders"[MeSH] OR sleep[tiab] OR awakenings[tiab] OR "night waking"[tiab]) AND ("Diet"[MeSH] OR diet[tiab] OR feeding[tiab] OR butter[tiab] OR "high-calorie foods"[tiab])', 'evidence': []}, {'id': 2, 'text': 'Babies wake up at night and cry specifically due to hunger and low blood sugar, not other reasons.', 'verdict': 'uncertain', 'rationale': 'VERDICT: uncertain\nFINALSCORE: 0.30', 'confidence': 0.3, 'query': '("Infant"[MeSH] OR infant[tiab] OR babies[tiab] OR "newborn"[tiab]) AND ("Wakefulness"[MeSH] OR waking[tiab] OR "sleep disturbances"[tiab] OR crying[tiab]) AND ("Hypoglycemia"[MeSH] OR "low blood sugar"[tiab] OR hypoglycemia[tiab] OR hunger[tiab] OR "feeding behavior"[tiab])', 'evidence': []}, {'id': 3, 'text': "A baby's blood sugar can drop overnight, causing them to wake up and cry if they do not consume enough calories during the day.", 'verdict': 'uncertain', 'rationale': 'VERDICT: uncertain\nFINALSCORE: 0.65', 'confidence': 0.65, 'query': '("Hypoglycemia"[MeSH] OR hypoglycemia[tiab] OR "low blood sugar"[tiab]) AND ("Infant"[MeSH] OR baby[tiab] OR babies[tiab] OR infant*[tiab]) AND ("Feeding"[MeSH] OR feeding[tiab] OR "caloric intake"[tiab] OR "energy intake"[tiab] OR "nutrition"[tiab]) AND (cry[tiab] OR crying[tiab] OR "wakefulness"[tiab])', 'evidence': []}], 'overall_truthiness': 0.42, 'generated_at': '2025-12-22T12:51:49Z'}

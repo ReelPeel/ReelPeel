@@ -33,3 +33,18 @@ https://www.instagram.com/reels/DJDzRAgNHyv/  Entgiftung
 
 
 https://www.instagram.com/reels/DFycUIjy1C4/ 
+
+
+
+Modelle von Huggingface ziehen: (Public)
+ollama run hf.co/QuantFactory/Meditron3-8B-GGUF
+ollama run huggingface.co/mradermacher/Meditron3-70B-GGUF
+
+Umbenennen: (Kopieren)
+ollama cp huggingface.co/mradermacher/Meditron3-70B-GGUF meditron3-70b
+
+Löschen:
+ollama rm huggingface.co/mradermacher/Meditron3-70B-GGUF
+
+Modelle auflisten:
+ollama ls
