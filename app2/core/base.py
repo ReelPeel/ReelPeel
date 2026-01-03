@@ -10,24 +10,34 @@ class PipelineStep(ABC):
         self.config = step_config
         self.debug = self.config.get("debug", False)
         self.step_name = self.config.get("name", self.__class__.__name__)
-        self.log_file = "pipeline_debug.log"
+        self.log_file = self.config.get("log_file", "pipeline_debug.log")
 
     def run(self, state: PipelineState) -> PipelineState:
+        """
+        The public interface. Wraps the logic with timing, logging, and stats tracking.
+        DO NOT OVERRIDE THIS METHOD IN SUBCLASSES.
+        """
         start_time = time.time()
 
+        # 1. Run the actual logic
         try:
+            # Execute the subclass's logic
             new_state = self.execute(state)
         except Exception as e:
-            # Errors should still be visible in terminal
             print(f"[ERROR] Step {self.step_name} failed: {e}")
             raise e
 
+        # 2. Measure duration
         duration = time.time() - start_time
 
-        # Record timing stats
+        is_module = isinstance(self, PipelineModule)
+
+        # 3. Record timing stats
         new_state.execution_log.append({
             "step": self.step_name,
-            "duration": duration
+            "duration": duration,
+            "indent": state.depth,
+            "is_module": is_module
         })
 
         if self.debug:
@@ -54,6 +64,10 @@ class PipelineStep(ABC):
 
     @abstractmethod
     def execute(self, state: PipelineState) -> PipelineState:
+        """
+        IMPLEMENT THIS METHOD instead of run().
+        Contains the actual step logic.
+        """
         pass
 
 
@@ -65,20 +79,34 @@ class PipelineModule(PipelineStep):
 
         from .factory import StepFactory
         parent_debug = self.config.get("debug", False)
+        parent_log_file = self.config.get("log_file")
 
         for step_def in module_config.get("steps", []):
             if "settings" not in step_def:
                 step_def["settings"] = {}
+
+            # Propagate Debug
             if "debug" not in step_def["settings"]:
                 step_def["settings"]["debug"] = parent_debug
+
+            # Propagate Log File (if not already set by Orchestrator recursion)
+            if "log_file" not in step_def["settings"] and parent_log_file:
+                step_def["settings"]["log_file"] = parent_log_file
+
             self.steps.append(StepFactory.create(step_def))
 
     def execute(self, state: PipelineState) -> PipelineState:
         if self.debug:
             self._log_boundary(f"=== Entering Module: {self.module_name} ===")
 
+        # --- INCREASE DEPTH FOR CHILDREN ---
+        state.depth += 1
+
         for step in self.steps:
             state = step.run(state)
+
+        # --- DECREASE DEPTH AFTER CHILDREN FINISH ---
+        state.depth -= 1
 
         if self.debug:
             self._log_boundary(f"=== Exiting Module: {self.module_name} ===")
