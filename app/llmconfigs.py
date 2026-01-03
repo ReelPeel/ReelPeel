@@ -1,7 +1,7 @@
 import openai
 
 OPENAI_BASE_URL   = "http://localhost:11434/v1"
-BASE_MODEL        = "meditron:7b"     
+BASE_MODEL        = "gemma3:27b"     
 BASE_API_KEY    = "ollama" 
 BASE_TEMP        = 0.7
 # ────────────────────────────────────────────────────────────────────
@@ -53,7 +53,7 @@ CLIENT_6 = openai.OpenAI(
     api_key=BASE_API_KEY
 )
 
-MODEL_6 = BASE_MODEL
+MODEL_6 = "gemma3:1b"
 TEMP_6 = BASE_TEMP
 MAX_TOKENS_6 = 512
 
