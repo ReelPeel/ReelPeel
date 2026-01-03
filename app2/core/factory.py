@@ -3,6 +3,7 @@ from typing import Dict, Any
 # Import your concrete steps here (BUT NOT PipelineModule)
 from ..steps.mocks import MockTranscriptLoader, MockStatementLoader
 from ..steps.extraction import TranscriptToStatementStep
+from ..steps.rerank import RerankEvidenceStep
 from ..steps.research import (
     StatementToQueryStep,
     QueryToLinkStep,
@@ -26,6 +27,7 @@ class StepFactory:
         "fetch_links": QueryToLinkStep,
         "summarize_evidence": LinkToSummaryStep,
         "weight_evidence": PubTypeWeightStep,
+        "rerank_evidence": RerankEvidenceStep,
         "filter_evidence": FilterEvidenceStep,
         "truthness": TruthnessStep,
         "scoring": ScoringStep

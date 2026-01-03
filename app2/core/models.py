@@ -1,16 +1,22 @@
 from typing import List, Optional, Union, Dict, Any
-
+from enum import Enum
 from pydantic import BaseModel, Field
 
-
+class Stance(str, Enum):
+    SUPPORTS = "Supports"
+    REFUTES = "Refutes"
+    NEUTRAL = "Neutral"
+    
 class Evidence(BaseModel):
     pubmed_id: Optional[str] = None
     url: Optional[str] = None
     summary: Optional[str] = None
     pub_type: Optional[Union[str, List[str]]] = None
     weight: float = 0.5
-    relevance: Optional[str] = None
-
+    relevance: Optional[float] = None
+    relevance_abstract: Optional[float] = None
+    relevance_summary: Optional[float] = None
+    stance: Optional[Stance] = None
     abstract: Optional[str] = None
 
 
