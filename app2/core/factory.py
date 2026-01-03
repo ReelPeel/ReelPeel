@@ -9,6 +9,11 @@ from ..steps.research import (
     LinkToSummaryStep,
     PubTypeWeightStep
 )
+from ..steps.verification import (
+    FilterEvidenceStep,
+    TruthnessStep,
+    ScoringStep
+)
 
 
 class StepFactory:
@@ -20,6 +25,9 @@ class StepFactory:
         "fetch_links": QueryToLinkStep,
         "summarize_evidence": LinkToSummaryStep,
         "weight_evidence": PubTypeWeightStep,
+        "filter_evidence": FilterEvidenceStep,
+        "truthness": TruthnessStep,
+        "scoring": ScoringStep
     }
 
     @classmethod
