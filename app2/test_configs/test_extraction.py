@@ -1,34 +1,65 @@
-from app.preprompts import PROMPT_TMPL_S2
+from app.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3, PROMPT_TMPL_S5
 
-# This text simulates what Whisper would output
-MOCK_TRANSCRIPT_TEXT = (
-    "Did you know that intermittent fasting can regenerate your immune system? "
-    "Studies show that fasting for 72 hours triggers autophagy which cleans out old cells. "
-    "Also, drinking lemon water every morning cures depression instantly."
-)
+# 1. Define the Research Module (Steps 3, 4, 5, 5.1)
+RESEARCH_MODULE = {
+    "type": "module",
+    "settings": {
+        "name": "PubMed Research Engine",
+        "steps": [
+            {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "base_url": "http://localhost:11434/v1",
+                    "model": "gemma3:12b",
+                    "prompt_template": PROMPT_TMPL_S3
+                }
+            },
+            {
+                "type": "fetch_links",  # Step 4
+                "settings": {"retmax": 3}
+            },
+            {
+                "type": "summarize_evidence",  # Step 5
+                "settings": {
+                    "base_url": "http://localhost:11434/v1",
+                    "model": "gemma3:12b",
+                    "prompt_template": PROMPT_TMPL_S5
+                }
+            },
+            {
+                "type": "weight_evidence",  # Step 5.1
+                "settings": {"default_weight": 0.5}
+            }
+        ]
+    }
+}
 
-TEST_CONFIG_V1 = {
-    "name": "Extraction_Test_Suite_01",
+# 2. Define the Full Pipeline Config
+FULL_PIPELINE_CONFIG = {
+    "name": "Full_End_to_End_Run",
     "steps": [
-        # STEP 1: The Mock Loader (Swapped out the real Whisper step)
+        # STEP 1: Mock Input (Simulating Whisper)
         {
             "type": "mock_transcript",
             "settings": {
-                "transcript_text": MOCK_TRANSCRIPT_TEXT
+                "transcript_text": (
+                    "Fasting for 72 hours triggers autophagy and renews the immune system. "
+                    "Also, drinking celery juice every morning cures all inflammation."
+                )
             }
         },
 
-        # STEP 2: The Real Extraction Step (Running exactly as in production)
+        # STEP 2: Extraction
         {
             "type": "extraction",
             "settings": {
                 "base_url": "http://localhost:11434/v1",
-                "api_key": "ollama",
-                "model": "gemma3:27b",
-                "temperature": 0.1,  # Low temp for factual extraction
-                "max_tokens": 512,
+                "model": "gemma3:12b",
                 "prompt_template": PROMPT_TMPL_S2
             }
-        }
+        },
+
+        # STEP 3-5.1: The Research Module
+        RESEARCH_MODULE
     ]
 }

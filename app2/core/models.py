@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Union
 from datetime import datetime
 
 
@@ -7,6 +7,7 @@ class Evidence(BaseModel):
     pubmed_id: Optional[str] = None
     url: Optional[str] = None
     summary: Optional[str] = None
+    pub_type: Optional[Union[str, List[str]]] = None
     relevance: Optional[str] = None
 
 

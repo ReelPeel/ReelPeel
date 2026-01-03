@@ -22,7 +22,7 @@ class PipelineModule(PipelineStep):
         self.steps: List[PipelineStep] = []
 
         # Internal steps are initialized by the Factory during orchestrator setup
-        from factory import StepFactory
+        from .factory import StepFactory
         for step_def in module_config.get("steps", []):
             self.steps.append(StepFactory.create(step_def))
 
