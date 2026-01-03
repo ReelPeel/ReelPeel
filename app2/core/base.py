@@ -49,8 +49,8 @@ class PipelineStep(ABC):
         try:
             with open(self.log_file, "a", encoding="utf-8") as f:
                 f.write(log_entry)
-        except Exception:
-            pass
+        except (OSError, PermissionError) as e:
+            print(f"[{self.step_name}] Warning: Failed to write to log file '{self.log_file}': {e}")
 
     @abstractmethod
     def execute(self, state: PipelineState) -> PipelineState:
@@ -91,5 +91,5 @@ class PipelineModule(PipelineStep):
         try:
             with open(self.log_file, "a", encoding="utf-8") as f:
                 f.write(f"\n{msg}\n")
-        except Exception:
-            pass
+        except (OSError, PermissionError) as e:
+            print(f"[{self.step_name}] Warning: Failed to write to log file '{self.log_file}': {e}")

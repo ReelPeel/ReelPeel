@@ -71,5 +71,5 @@ class PipelineOrchestrator:
             try:
                 with open(self.log_file, "a", encoding="utf-8") as f:
                     f.write(text)
-            except Exception:
-                pass
+            except (OSError, PermissionError) as e:
+                print(f"[PipelineOrchestrator] Warning: Failed to write to log file '{self.log_file}': {e}")
