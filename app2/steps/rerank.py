@@ -11,7 +11,6 @@ STEP (SCORES): RERANK EVIDENCE WITH BGE RERANKER v2 m3
 from __future__ import annotations
 
 from typing import List, Tuple, Optional, Dict, Any
-import math
 
 from ..core.base import PipelineStep
 from ..core.models import PipelineState

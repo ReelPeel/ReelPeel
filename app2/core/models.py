@@ -3,6 +3,17 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 class Stance(str, Enum):
+    """Represents how a piece of evidence relates to a given statement.
+
+    Values:
+        SUPPORTS: The evidence is consistent with the statement and tends to
+            strengthen or support it.
+        REFUTES: The evidence contradicts the statement or tends to weaken
+            or undermine it.
+        NEUTRAL: The evidence is relevant to the topic but does not clearly
+            support or refute the statement (e.g., mixed, inconclusive, or
+            purely background/contextual information).
+    """
     SUPPORTS = "Supports"
     REFUTES = "Refutes"
     NEUTRAL = "Neutral"

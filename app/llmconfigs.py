@@ -1,11 +1,7 @@
 import openai
 
 OPENAI_BASE_URL   = "http://localhost:11434/v1"
-<<<<<<< HEAD
-BASE_MODEL        = "gemma3:27b"     
-=======
 BASE_MODEL        = "gemma3:12b"     
->>>>>>> origin/main
 BASE_API_KEY    = "ollama" 
 BASE_TEMP        = 0.7
 # ────────────────────────────────────────────────────────────────────
