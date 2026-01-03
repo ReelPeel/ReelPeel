@@ -44,8 +44,13 @@ class PipelineOrchestrator:
 
     def _print_summary(self, state: PipelineState, total_duration: float):
         # Construct the summary string
-        lines = ["\n" + "=" * 60, f" EXECUTION SUMMARY: {self.name}", "=" * 60, f"{'STEP NAME':<40} | {'DURATION':<10}",
-                 "-" * 60]
+        lines = [
+            "\n" + "=" * 60,
+            f" EXECUTION SUMMARY: {self.name}",
+            "=" * 60,
+            f"{'STEP NAME':<40} | {'DURATION':<10}",
+            "-" * 60,
+        ]
 
         for entry in state.execution_log:
             # Ensure we handle both string and float correctly
