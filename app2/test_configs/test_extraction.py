@@ -1,4 +1,4 @@
-from app.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3, PROMPT_TMPL_S5
+from app.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3, PROMPT_TMPL_S5, PROMPT_TMPL_S6, PROMPT_TMPL_S7
 
 # 1. Define the Research Module (Steps 3, 4, 5, 5.1)
 RESEARCH_MODULE = {
@@ -30,9 +30,45 @@ RESEARCH_MODULE = {
     }
 }
 
+VERIFICATION_MODULE = {
+    "type": "module",
+    "settings": {
+        "name": "Verification Engine",
+        "debug": True,
+        "steps": [
+            # Step 6: Filter Irrelevant Evidence
+            {
+                "type": "filter_evidence",
+                "settings": {
+                    "base_url": "http://localhost:11434/v1",
+                    "model": "gemma3:12b",
+                    "prompt_template": PROMPT_TMPL_S6
+                }
+            },
+            # Step 7: Determine Truthness
+            {
+                "type": "truthness",
+                "settings": {
+                    "base_url": "http://localhost:11434/v1",
+                    "model": "gemma3:12b",
+                    "prompt_template": PROMPT_TMPL_S7
+                }
+            },
+            # Step 8: Final Score
+            {
+                "type": "scoring",
+                "settings": {
+                    "threshold": 0.15
+                }
+            }
+        ]
+    }
+}
+
 # 2. Define the Full Pipeline Config
 FULL_PIPELINE_CONFIG = {
     "name": "Full_End_to_End_Run",
+    "debug": True,
     "steps": [
         # STEP 1: Mock Input (Simulating Whisper)
         {
@@ -56,6 +92,8 @@ FULL_PIPELINE_CONFIG = {
         },
 
         # STEP 3-5.1: The Research Module
-        RESEARCH_MODULE
+        RESEARCH_MODULE,
+        # STEP 6-8: The Verification Module
+        VERIFICATION_MODULE
     ]
 }
