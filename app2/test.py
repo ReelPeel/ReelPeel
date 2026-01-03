@@ -1,40 +1,76 @@
-import json
 from app2.core.models import PipelineState
 from app2.core.orchestrator import PipelineOrchestrator
 from app2.test_configs.test_extraction import FULL_PIPELINE_CONFIG
 
 
+def print_report(state: PipelineState):
+    """
+    Helper to pretty-print the final pipeline results.
+    """
+    print("\n" + "=" * 80)
+    print(f" FINAL REPORT | Overall Truthiness: {state.overall_truthiness}")
+    print("=" * 80 + "\n")
+
+    if not state.statements:
+        print("No statements were processed.")
+        return
+
+    for stmt in state.statements:
+        # Determine icon based on verdict
+        icon = "?"
+        if stmt.verdict == "true":
+            icon = "✅"
+        elif stmt.verdict == "false":
+            icon = "❌"
+        elif stmt.verdict == "uncertain":
+            icon = "⚠️"
+
+        print(f"{icon} [ID {stmt.id}] VERDICT: {stmt.verdict.upper()} (Conf: {stmt.confidence})")
+        print(f"   Claim: \"{stmt.text}\"")
+
+        # Print Rationale (optional, usually long)
+        # if stmt.rationale:
+        #    print(f"   Rationale: {stmt.rationale[:150]}...")
+
+        if stmt.evidence:
+            print(f"   Evidence Used ({len(stmt.evidence)}):")
+            for ev in stmt.evidence:
+                # Show PMID, Type, and Weight
+                # Truncate summary to one line
+                summary_snippet = (ev.abstract or ev.summary or "No summary")[:80].replace("\n", " ")
+                print(f"     • PMID {ev.pubmed_id} [{ev.pub_type}] (Wt: {ev.weight})")
+                print(f"       \"{summary_snippet}...\"")
+        else:
+            print("   (No relevant evidence found)")
+
+        print("-" * 60)
+
+
 def main():
-    print("Initializing Pipeline...")
+    print("Initializing Pipeline System...")
 
     # 1. Initialize State
+    # (Optional: Pass metadata or existing transcript if skipping step 1)
     state = PipelineState()
 
-    # 2. Load Orchestrator with the Config
-    orchestrator = PipelineOrchestrator(FULL_PIPELINE_CONFIG)
+    # 2. Boot the Orchestrator
+    try:
+        orchestrator = PipelineOrchestrator(FULL_PIPELINE_CONFIG)
+    except Exception as e:
+        print(f"Configuration Error: {e}")
+        return
 
-    # 3. Run
+    # 3. Run the Pipeline
     try:
         final_state = orchestrator.run(state)
 
-        # 4. Print Summary
-        print("\n" + "=" * 50)
-        print(" FINAL PIPELINE REPORT ")
-        print("=" * 50)
+        # 4. Print the Pretty Report
+        print_report(final_state)
 
-        for stmt in final_state.statements:
-            print(f"\n[Statement {stmt.id}]: {stmt.text}")
-            print(f"   Query Used: {stmt.query}")
-            print(f"   Evidence Found: {len(stmt.evidence)}")
-
-            for idx, ev in enumerate(stmt.evidence, 1):
-                print(f"     {idx}. [PMID {ev.pubmed_id}] (Type: {ev.pub_type}, Weight: {ev.weight})")
-                print(f"        Summary: {ev.summary[:100]}...")
-
-        # 5. Save Full Output
+        # 5. Save Full JSON for Debugging
         with open("final_output.json", "w") as f:
             f.write(final_state.model_dump_json(indent=2))
-            print(f"\nFull results saved to 'final_output.json'")
+        print(f"\nFull structured data saved to 'final_output.json'")
 
     except Exception as e:
         print(f"\nCRITICAL PIPELINE ERROR: {e}")
