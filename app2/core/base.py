@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any
 import time
+import copy
 from datetime import datetime
 from .models import PipelineState
 
@@ -67,11 +68,13 @@ class PipelineModule(PipelineStep):
         parent_debug = self.config.get("debug", False)
 
         for step_def in module_config.get("steps", []):
-            if "settings" not in step_def:
-                step_def["settings"] = {}
-            if "debug" not in step_def["settings"]:
-                step_def["settings"]["debug"] = parent_debug
-            self.steps.append(StepFactory.create(step_def))
+            # Create a deep copy to avoid mutating the original configuration
+            step_def_copy = copy.deepcopy(step_def)
+            if "settings" not in step_def_copy:
+                step_def_copy["settings"] = {}
+            if "debug" not in step_def_copy["settings"]:
+                step_def_copy["settings"]["debug"] = parent_debug
+            self.steps.append(StepFactory.create(step_def_copy))
 
     def execute(self, state: PipelineState) -> PipelineState:
         if self.debug:
