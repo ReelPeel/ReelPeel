@@ -33,5 +33,8 @@ class PipelineState(BaseModel):
 
     execution_log: List[Dict[str, Any]] = Field(default_factory=list)
 
+    # ---  Track recursion depth for pretty printing ---
+    depth: int = 0
+
     def to_json(self):
         return self.model_dump()
