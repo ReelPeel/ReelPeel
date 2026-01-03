@@ -122,8 +122,8 @@ FULL_PIPELINE_CONFIG = {
                 "base_url": "http://localhost:11434/v1",
                 "model": "gemma3:12b",
                 "prompt_template": PROMPT_TMPL_S2,
-                    "temperature": 0.0,
-                    # "max_tokens": 512 # Currently hardcoded in individual step
+                "temperature": 0.0,
+                # "max_tokens": 512 # Currently hardcoded in individual step
             }
         },
 
