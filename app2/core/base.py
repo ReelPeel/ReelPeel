@@ -9,115 +9,99 @@ from .models import PipelineState
 class PipelineStep(ABC):
     def __init__(self, step_config: Dict[str, Any]):
         self.config = step_config
-        # Check for debug flag in step config or default to False
         self.debug = self.config.get("debug", False)
         self.step_name = self.config.get("name", self.__class__.__name__)
-
-        # Define log file path (you can make this configurable if needed)
         self.log_file = "pipeline_debug.log"
 
     def run(self, state: PipelineState) -> PipelineState:
         """
-        The public interface. Wraps the logic with timing and file logging.
-        DO NOT OVERRIDE THIS METHOD IN SUBCLASSES.
+        Wraps logic with timing, logging, and stats tracking.
         """
         start_time = time.time()
 
-        # 1. Run the actual logic
         try:
-            # Execute the subclass's logic
             new_state = self.execute(state)
         except Exception as e:
             print(f"[ERROR] Step {self.step_name} failed: {e}")
             raise e
 
-        # 2. Measure duration
         duration = time.time() - start_time
 
-        # 3. Log results if debug is enabled
+        # --- NEW: Record timing stats in the state ---
+        # We append a simple dict: {"step": name, "duration": seconds}
+        new_state.execution_log.append({
+            "step": self.step_name,
+            "duration": duration
+        })
+
+        # Log to file if debug is enabled
         if self.debug:
             self._write_debug_log(new_state, duration)
 
         return new_state
 
     def _write_debug_log(self, state: PipelineState, duration: float):
-        """Helper to append full state and stats to a log file."""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        # Prepare the log entry
         header = f"[{timestamp}] STEP: {self.step_name} | DURATION: {duration:.4f}s"
         divider = "=" * 80
 
-        # Full JSON state (no truncation)
+        # Using model_dump_json for full details
         state_json = state.model_dump_json(indent=2)
 
-        log_entry = (
-            f"\n{divider}\n"
-            f"{header}\n"
-            f"{divider}\n"
-            f"{state_json}\n"
-        )
+        log_entry = f"\n{divider}\n{header}\n{divider}\n{state_json}\n"
 
-        # Print short summary to console
-        print(f"[DEBUG] Finished {self.step_name} in {duration:.4f}s. (Logged to {self.log_file})")
+        print(f"[DEBUG] Finished {self.step_name} in {duration:.4f}s.")
 
-        # Append to file
         try:
             with open(self.log_file, "a", encoding="utf-8") as f:
                 f.write(log_entry)
-        except Exception as e:
-            print(f"[WARNING] Could not write to log file: {e}")
+        except Exception:
+            pass
 
     @abstractmethod
     def execute(self, state: PipelineState) -> PipelineState:
-        """
-        IMPLEMENT THIS METHOD instead of run().
-        Contains the actual step logic.
-        """
         pass
 
 
 class PipelineModule(PipelineStep):
-    """A container that executes a sequence of internal steps."""
-
     def __init__(self, module_config: Dict[str, Any]):
         super().__init__(module_config)
         self.module_name = module_config.get("name", "Unnamed Module")
         self.steps: List[PipelineStep] = []
 
-        # Use relative import to avoid circular dependency
         from .factory import StepFactory
 
-        # Pass the parent's debug setting down to children
+        # Inherit debug from the module config itself
         parent_debug = self.config.get("debug", False)
 
         for step_def in module_config.get("steps", []):
             if "settings" not in step_def:
                 step_def["settings"] = {}
 
-            # If child doesn't specify debug, inherit from parent
+            # If child doesn't specify debug, enforce parent's setting
+            # (Note: Orchestrator will have already pushed global debug into the module config)
             if "debug" not in step_def["settings"]:
                 step_def["settings"]["debug"] = parent_debug
 
             self.steps.append(StepFactory.create(step_def))
 
     def execute(self, state: PipelineState) -> PipelineState:
+        # We generally don't log module container duration in the list
+        # to avoid double counting, but we can log boundaries.
         if self.debug:
-            self._log_module_boundary(f"=== Entering Module: {self.module_name} ===")
+            self._log_boundary(f"=== Entering Module: {self.module_name} ===")
 
         for step in self.steps:
             state = step.run(state)
 
         if self.debug:
-            self._log_module_boundary(f"=== Exiting Module: {self.module_name} ===")
+            self._log_boundary(f"=== Exiting Module: {self.module_name} ===")
 
         return state
 
-    def _log_module_boundary(self, message: str):
-        """Helper to log module entry/exit to the file."""
-        print(f"[DEBUG] {message}")
+    def _log_boundary(self, msg):
         try:
             with open(self.log_file, "a", encoding="utf-8") as f:
-                f.write(f"\n{message}\n")
-        except Exception:
+                f.write(f"\n{msg}\n")
+        except:
             pass

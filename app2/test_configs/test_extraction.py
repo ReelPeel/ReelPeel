@@ -5,7 +5,6 @@ RESEARCH_MODULE = {
     "type": "module",
     "settings": {
         "name": "PubMed Research Engine",
-        "debug": True,
         "steps": [
             {
                 "type": "generate_query",  # Step 3
@@ -34,6 +33,7 @@ RESEARCH_MODULE = {
 # 2. Define the Full Pipeline Config
 FULL_PIPELINE_CONFIG = {
     "name": "Full_End_to_End_Run",
+    "debug": True,
     "steps": [
         # STEP 1: Mock Input (Simulating Whisper)
         {
