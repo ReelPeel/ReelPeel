@@ -1,6 +1,6 @@
+from typing import List, Optional, Union, Dict, Any
+
 from pydantic import BaseModel, Field
-from typing import List, Optional, Union
-from datetime import datetime
 
 
 class Evidence(BaseModel):
@@ -30,6 +30,8 @@ class PipelineState(BaseModel):
     statements: List[Statement] = Field(default_factory=list)
     overall_truthiness: Optional[float] = None
     generated_at: Optional[str] = None
+
+    execution_log: List[Dict[str, Any]] = Field(default_factory=list)
 
     def to_json(self):
         return self.model_dump()

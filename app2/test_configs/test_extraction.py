@@ -33,6 +33,7 @@ RESEARCH_MODULE = {
 # 2. Define the Full Pipeline Config
 FULL_PIPELINE_CONFIG = {
     "name": "Full_End_to_End_Run",
+    "debug": True,
     "steps": [
         # STEP 1: Mock Input (Simulating Whisper)
         {
