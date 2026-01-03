@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any
-from models import PipelineState
+from .models import PipelineState
 
 
 class PipelineStep(ABC):

@@ -1,8 +1,15 @@
 from typing import Dict, Any
 
+# Import your steps
+from ..steps.extraction import TranscriptToStatementStep
+from ..steps.mocks import MockTranscriptLoader
+
 
 class StepFactory:
-    _registry = {}
+    _registry = {
+        "mock_transcript": MockTranscriptLoader,
+        "extraction": TranscriptToStatementStep
+    }
 
     @classmethod
     def register(cls, name: str, step_class):
@@ -13,12 +20,8 @@ class StepFactory:
         step_type = step_def["type"]
         step_config = step_def.get("settings", {})
 
-        # Handle the special 'module' type
-        if step_type == "module":
-            from base import PipelineModule
-            return PipelineModule(step_def)
-
         step_class = cls._registry.get(step_type)
         if not step_class:
             raise ValueError(f"Step type '{step_type}' not registered.")
+
         return step_class(step_config)
