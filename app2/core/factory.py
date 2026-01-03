@@ -1,7 +1,7 @@
 from typing import Dict, Any
 
 # Import your concrete steps here (BUT NOT PipelineModule)
-from ..steps.mocks import MockTranscriptLoader
+from ..steps.mocks import MockTranscriptLoader, MockStatementLoader
 from ..steps.extraction import TranscriptToStatementStep
 from ..steps.research import (
     StatementToQueryStep,
@@ -9,17 +9,26 @@ from ..steps.research import (
     LinkToSummaryStep,
     PubTypeWeightStep
 )
+from ..steps.verification import (
+    FilterEvidenceStep,
+    TruthnessStep,
+    ScoringStep
+)
 
 
 class StepFactory:
     # Do NOT put "module" in here to avoid circular imports
     _registry = {
         "mock_transcript": MockTranscriptLoader,
+        "mock_statements": MockStatementLoader,
         "extraction": TranscriptToStatementStep,
         "generate_query": StatementToQueryStep,
         "fetch_links": QueryToLinkStep,
         "summarize_evidence": LinkToSummaryStep,
         "weight_evidence": PubTypeWeightStep,
+        "filter_evidence": FilterEvidenceStep,
+        "truthness": TruthnessStep,
+        "scoring": ScoringStep
     }
 
     @classmethod
