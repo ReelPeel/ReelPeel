@@ -44,8 +44,13 @@ class PipelineOrchestrator:
 
     def _print_summary(self, state: PipelineState, total_duration: float):
         # Construct the summary string
-        lines = ["\n" + "=" * 60, f" EXECUTION SUMMARY: {self.name}", "=" * 60, f"{'STEP NAME':<40} | {'DURATION':<10}",
-                 "-" * 60]
+        lines = [
+            "\n" + "=" * 60,
+            f" EXECUTION SUMMARY: {self.name}",
+            "=" * 60,
+            f"{'STEP NAME':<40} | {'DURATION':<10}",
+            "-" * 60,
+        ]
 
         for entry in state.execution_log:
             # Ensure we handle both string and float correctly
@@ -71,5 +76,5 @@ class PipelineOrchestrator:
             try:
                 with open(self.log_file, "a", encoding="utf-8") as f:
                     f.write(text)
-            except Exception:
-                pass
+            except (OSError, PermissionError) as e:
+                print(f"[PipelineOrchestrator] Warning: Failed to write to log file '{self.log_file}': {e}")
