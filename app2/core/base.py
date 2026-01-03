@@ -40,7 +40,7 @@ class PipelineStep(ABC):
             "is_module": is_module
         })
 
-        if self.debug:
+        if self.debug and not is_module:
             self._write_debug_log(new_state, duration)
 
         return new_state
