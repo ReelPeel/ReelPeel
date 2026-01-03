@@ -120,7 +120,7 @@ You are a professional medical fact-checker.
 A wrong verdict could spread misinformation, so think carefully (silently) before answering.
 
 TASK  
-Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim. If evidence is insufficient or contradictory, use the "weights" to guide your decision.
+Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim. If evidence is insufficient or contradictory, use the "weights" to guide your decision in the "EVIDENCE" if available.
 
 CLAIM:
 {claim_text}
