@@ -11,9 +11,11 @@ from .step_5_link_to_summary import link_to_summary
 from .step_6_reduce_to_evidence import reduce_to_evidence
 from .step_7_statement_to_truthness import statement_to_truthness
 from .step_8_statment_to_score import statement_to_score
+from .step_5_1_add_weights import pubtype_to_weight
 
 from .preprompts import *
 from .llmconfigs import *
+
 
 class TeeStream:
     """
@@ -38,7 +40,7 @@ def run_pipeline(tmp_path: str) -> dict:
     """
 
     # ─────────────────────────────────────────────────────────────────────────────
-    # ❶ Log-Datei erzeugen und stdout/stderr „teeben“ (nur Datum + Stunden+Minuten)
+    # Log-Datei erzeugen und stdout/stderr „teeben“ (nur Datum + Stunden+Minuten)
     # ─────────────────────────────────────────────────────────────────────────────
     # Format: YYYYMMDD_HHMM
     timestamp = datetime.now().strftime("%Y%m%d_%H%M")
@@ -53,7 +55,7 @@ def run_pipeline(tmp_path: str) -> dict:
     sys.stderr = tee
 
     # ─────────────────────────────────────────────────────────────────────────────
-    # ❶ Print LLM Configs
+    # Print LLM Configs
     # ─────────────────────────────────────────────────────────────────────────────
     print(" \n\n\n\n\n\n  --------------------------------------------------------------- \n")
     print(" --- LLM Configs --- ")
@@ -97,7 +99,7 @@ def run_pipeline(tmp_path: str) -> dict:
 
 
     # ─────────────────────────────────────────────────────────────────────────────
-    # ❶ Print LLM Preprompts
+    # Print LLM Preprompts
     # ─────────────────────────────────────────────────────────────────────────────
     print(" \n\n\n\n\n\n  --------------------------------------------------------------- \n")
     print(" --- LLM Preprompts --- ")
@@ -128,7 +130,7 @@ def run_pipeline(tmp_path: str) -> dict:
 
 
     # ─────────────────────────────────────────────────────────────────────────────
-    # ❷ Pipeline ausführen (alle print() und Fehlermeldungen gehen jetzt in Terminal UND Logdatei)
+    # Pipeline ausführen (alle print() und Fehlermeldungen gehen jetzt in Terminal UND Logdatei)
     # ─────────────────────────────────────────────────────────────────────────────
     start = time.time()
 
@@ -166,22 +168,28 @@ def run_pipeline(tmp_path: str) -> dict:
     print(" \n\n\n\n\n\n  --------------------------------------------------------------- \n")
     print(" --- Step6 --- ")
     print(" \n --------------------------------------------------------------- \n")
-    evidence = reduce_to_evidence(summary)
+    weighted = pubtype_to_weight(summary, default=0.5)
     t6 = time.time()
 
     print(" \n\n\n\n\n\n  --------------------------------------------------------------- \n")
     print(" --- Step7 --- ")
     print(" \n --------------------------------------------------------------- \n")
-    truthness = statement_to_truthness(evidence)
+    evidence = reduce_to_evidence(weighted)
     t7 = time.time()
 
     print(" \n\n\n\n\n\n  --------------------------------------------------------------- \n")
     print(" --- Step8 --- ")
     print(" \n --------------------------------------------------------------- \n")
-    scores = statement_to_score(truthness)
+    truthness = statement_to_truthness(evidence)
     t8 = time.time()
 
-    elapsed = t8 - start
+    print(" \n\n\n\n\n\n  --------------------------------------------------------------- \n")
+    print(" --- Step9 --- ")
+    print(" \n --------------------------------------------------------------- \n")
+    scores = statement_to_score(truthness)
+    t9 = time.time()
+
+    elapsed = t9 - start
 
     print(" \n\n\n\n\n\n --------------------------------------------------------------- \n")
     print(" --- Runtime Analysis ---")
@@ -191,19 +199,20 @@ def run_pipeline(tmp_path: str) -> dict:
     print(f"update_query: {t3 - t2:.6f} seconds")
     print(f"query_to_link: {t4 - t3:.6f} seconds")
     print(f"link_to_summary: {t5 - t4:.6f} seconds")
-    print(f"reduce_to_evidence: {t6 - t5:.6f} seconds")
-    print(f"statement_to_truthness: {t7 - t6:.6f} seconds")
-    print(f"statement_to_score: {t8 - t7:.6f} seconds")
+    print(f"pubtype_to_weight: {t6 - t5:.6f} seconds")
+    print(f"reduce_to_evidence: {t7 - t6:.6f} seconds")
+    print(f"statement_to_truthness: {t8 - t7:.6f} seconds")
+    print(f"statement_to_score: {t9 - t8:.6f} seconds")
     print(f"Total elapsed time: {elapsed:.6f} seconds")
-
 
     print(" \n\n\n\n\n\n --------------------------------------------------------------- \n")
     print(" --- Final Output (JSON) ---")
     print(" \n --------------------------------------------------------------- \n")
     print(scores)
 
+
     # ─────────────────────────────────────────────────────────────────────────────
-    # ❸ Am Ende: Streams zurücksetzen und Logdatei schließen
+    # Am Ende: Streams zurücksetzen und Logdatei schließen
     # ─────────────────────────────────────────────────────────────────────────────
     sys.stdout = original_stdout
     sys.stderr = original_stderr

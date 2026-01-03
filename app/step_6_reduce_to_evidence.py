@@ -45,13 +45,13 @@ def reduce_to_evidence(data: Dict[str, Any]) -> Dict[str, Any]:
         statement_text = stmt.get("text", "")
 
         for ev in stmt.get("evidence", []):
-            summary_text = ev.get("summary", "").strip()
+            summary_text = ev.get("abstract", "").strip()
             # If there's a summary, only keep if related; if summary is empty, retain for manual review
             if summary_text:
                 if is_related(statement_text, summary_text):
                     filtered.append(ev)
             else:
                 filtered.append(ev)
-        stmt["evidence"] = filtered
+        stmt["abstract"] = filtered
 
     return data

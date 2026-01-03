@@ -22,7 +22,7 @@
 
 ---
 
-## 🗂️ Repository layout
+## 🗂️ Repository layout 
 
 ```
 ├── app/                  # Core source
