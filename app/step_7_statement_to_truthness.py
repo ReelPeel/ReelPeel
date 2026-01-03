@@ -24,7 +24,7 @@ def statement_to_truthness(data: Dict[str, Any]) -> Dict[str, Any]:
         evidence_lines = []
         for ev in evidences:
             pmid = ev.get("pubmed_id") or "N/A"
-            summary = (ev.get("summary") or "").strip().replace("\n", " ")
+            summary = (ev.get("abstract") or "").strip().replace("\n", " ")
             print(" --- Step7 Statement to Truthness --> Evidence Summary: ---")
             print(f"Evidence: {summary}")
             

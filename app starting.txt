@@ -19,7 +19,7 @@ curl "http://im-redstone02.hs-regensburg.de:32311/process" `
 
 
 
-curl -X POST http://localhost:6006/process \
+curl -X POST http://localhost:6001/process \
   -H "Content-Type: application/json" \
   -d '{"url":"https://www.instagram.com/reels/DIRM85ZifdM/","mock":"true"}'
 

@@ -38,35 +38,26 @@ def pubmed_fetch_abstract(pmid: str) -> Optional[str]:
     return abstract or None
 
 
-def summarize_with_gemma(text: str) -> str:
-    "Use Ollama+Gemma3 to generate a summary."
-    print("Print abstract to summarize:")
-    print(text)
-    try:
-        prompt = PROMPT_TMPL_S5.format(abstract=text)
-        res = CLIENT_5.chat.completions.create(
-            model=MODEL_5,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=TEMP_5,
-            max_tokens=MAX_TOKENS_5,
-        )
-        reply: str = res.choices[0].message.content.strip()
-        print(" --- Step5 Link to Summary ---> LLM output --- ")
-        print(f"LLM output (Summary of Abstract): {reply} ")
-        return reply
+def pubmed_fetch_types(pmid: str) -> List[str]:
+    """
+    Fetch PubMed 'Publication Types' for a PMID (returned directly as provided by PubMed).
+    This uses ESummary (retmode=json) and reads the `pubtype` field.
+    """
+    params = {"db": "pubmed", "id": pmid, "retmode": "json"}
+    r = requests.get(f"{NCBI_EUTILS}/esummary.fcgi", params=params, timeout=20)
+    r.raise_for_status()
+    payload = r.json()
 
-    except Exception as exc:
-        print(f"Error during Ollama call Step5: {exc}")
-        return "None"
-
-
-
+    rec = (payload.get("result") or {}).get(pmid) or {}
+    pubtypes = rec.get("pubtype") or []
+    # Ensure list[str]
+    return [str(x) for x in pubtypes if x is not None]
 
 
 def load_json_relaxed(path: str) -> Any:
     """Load JSON file, removing trailing commas to tolerate common mistakes."""
-    raw = open(path, 'r', encoding='utf-8').read()
-    cleaned = TRAILING_COMMAS_RE.sub('', raw)
+    raw = open(path, "r", encoding="utf-8").read()
+    cleaned = TRAILING_COMMAS_RE.sub("", raw)
     return json.loads(cleaned)
 
 
@@ -78,26 +69,37 @@ def link_to_summary(data: Dict[str, Any]) -> Dict[str, Any]:
     # Helper to process a list of evidence items
     def process_evidence_list(ev_list: List[Dict[str, Any]]):
         for ev in ev_list:
-            url = ev.get('url')
+            url = ev.get("url")
             try:
                 pmid = extract_pmid(url)
-                ev['pubmed_id'] = pmid
+                ev["pubmed_id"] = pmid
+
+                #  add publication types directly from PubMed
+                ev["type"] = pubmed_fetch_types(pmid)
+
                 abstract = pubmed_fetch_abstract(pmid)
-                ev['summary'] = summarize_with_gemma(abstract) if abstract else None
+                ev["abstract"] = abstract if abstract else None
+
                 print(f"Processed evidence URL {url} with PMID {pmid}")
             except Exception as e:
-                print(f"Warning: could not process evidence URL {url}: {e}", file=sys.stderr)
-                ev.setdefault('pubmed_id', None)
-                ev.setdefault('summary', None)
+                print(
+                    f"Warning: could not process evidence URL {url}: {e}",
+                    file=sys.stderr,
+                )
+                ev.setdefault("pubmed_id", None)
+                ev.setdefault("type", None)
+                ev.setdefault("abstract", None)
 
     # Process nested evidence under statements
-    for stmt in data.get('statements', []):
-        process_evidence_list(stmt.get('evidence', []))
+    for stmt in data.get("statements", []):
+        process_evidence_list(stmt.get("evidence", []))
 
     # Process top-level evidence list if present
-    if 'evidence' in data:
-        process_evidence_list(data['evidence'])
+    if "evidence" in data:
+        process_evidence_list(data["evidence"])
 
     # Update generated timestamp
-    data['generated_at'] = datetime.datetime.utcnow().replace(microsecond=0).isoformat() + 'Z'
+    data["generated_at"] = (
+        datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    )
     return data

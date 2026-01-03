@@ -1,0 +1,553 @@
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- LLM Configs --- 
+ 
+ --------------------------------------------------------------- 
+
+BASE_URL   : http://localhost:11434/v1
+API_KEY    : ollama
+BASE_MODEL : gemma3:12b
+BASE_TEMP  : 0.7
+
+ STEP2:
+   MODEL      = gemma3:12b
+   TEMP       = 0.7
+   MAX_TOKENS = 128
+
+ STEP3:
+   MODEL      = gemma3:12b
+   TEMP       = 0.7
+   MAX_TOKENS = 1024
+
+ STEP5:
+   MODEL      = gemma3:12b
+   TEMP       = 0.7
+   MAX_TOKENS = 512
+
+ STEP6:
+   MODEL      = gemma3:12b
+   TEMP       = 0.7
+   MAX_TOKENS = 512
+
+ STEP7:
+   MODEL      = gemma3:12b
+   TEMP       = 0.7
+   MAX_TOKENS = 512
+
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- LLM Preprompts --- 
+ 
+ --------------------------------------------------------------- 
+
+Preprompt STEP2:
+
+You are part of a medical fact-checking pipeline.  
+If you propagate a false statement, the app may mislead people.
+
+INPUT TRANSCRIPT
+---------------
+{transcript}
+---------------
+
+TASK  
+Extract **medical claims** suitable for fact-checking.
+
+SELECTION RULES  
+1. Return **exactly three** distinct claims.  
+2. Prefer clinically relevant, novel, or potentially harmful claims.  
+3. Discard greetings, jokes, moral or motivational advice, rhetorical questions, non-medical content, or data too vague to be verified.  
+4. Merge duplicate / near-duplicate claims into one concise statement.
+
+STRICT OUTPUT  
+A valid JSON array with 1–3 strings.  
+No commentary, no extra keys, no markdown.
+
+
+
+
+Prepromt STEP3:
+
+You are a biomedical librarian inside a fact‐checking app.  
+If the claim is too vague, non‐medical, or otherwise unlikely to be indexed in PubMed, output the single word: NONE
+
+Otherwise, **think quickly (silently)** about the core PICO concepts in the claim, identify appropriate MeSH headings (in quotes with [MeSH]) and text‐word synonyms (with [tiab]), and produce ONE PubMed Boolean query string that:
+Example:
+(
+  "Smoking"[MeSH] 
+  OR smoking[tiab] 
+  OR smokers[tiab] 
+  OR "tobacco use"[tiab]
+)
+AND
+(
+  "Lung Function Tests"[MeSH] 
+  OR "pulmonary function"[tiab] 
+  OR "lung function"[tiab] 
+  OR FEV1[tiab] 
+  OR FVC[tiab]
+)
+AND
+(
+  "Inflammation"[MeSH] 
+  OR inflammation[tiab] 
+  OR "mucus hypersecretion"[tiab] 
+  OR mucus[tiab]
+)
+AND
+(
+  "Proanthocyanidins"[MeSH] 
+  OR proanthocyanidin*[tiab] 
+  OR OPC[tiab] 
+  OR "Traumotein"[tiab] 
+  OR "pine bark extract"[tiab] 
+  OR Pycnogenol[tiab]
+)
+
+
+• Is exactly one line (no line breaks).  
+• Uses uppercase AND/OR to combine concepts.  
+• Wraps MeSH terms in quotes followed by [MeSH] (e.g., "Smoking"[MeSH]).  
+• Marks synonym or free‐text terms with [tiab] (e.g., smoking[tiab]).  
+• Groups synonyms with parentheses; groups PICO domains by combining with AND.  
+• Does not include field tags other than [MeSH] and [tiab].  
+• Does not include quotation marks around free‐text terms (other than MeSH).  
+• Begins with a letter (A–Z or a–z) and contains no leading/trailing spaces.  
+• Contains no line breaks or extra whitespace.
+
+CLAIM:
+{claim}
+
+
+
+
+Preprompt STEP5:
+
+You are summarising evidence for a medical fact-checker.  
+Think briefly (silently) about study design and main results, then write the summary.
+
+GUIDELINES  
+• ≤ 300 words, plain text.  
+• Focus on methods, population, key outcomes, effect sizes, and limitations.  
+• Do NOT add interpretation beyond the abstract itself.
+
+TEXT TO SUMMARISE
+-----------------
+{abstract}
+-----------------
+
+
+
+
+Preprompt STEP6:
+
+You are verifying whether the summary actually addresses the claim.  
+Think (silently) first; then answer in exactly one word.
+
+STATEMENT: {statement}
+
+EVIDENCE SUMMARY: {evidence_summary}
+
+Does the summary *directly relate to or support* the statement?
+Respond with only: yes   |   no
+
+
+
+
+Prepromt STEP7:
+
+You are a professional medical fact-checker.  
+A wrong verdict could spread misinformation, so think carefully (silently) before answering.
+
+TASK  
+Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim.
+
+CLAIM:
+{claim_text}
+
+EVIDENCE:
+{evidence_block}
+
+Inclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
+{transcript}
+
+give the final response in the following format:
+
+STRICT OUTPUT – exactly two lines, nothing else:
+VERDICT: true|false|uncertain
+FINALSCORE: <probability 0.00–1.00>
+
+
+
+
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step1 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting transcribing: estimated time: 10 - 20 seconds
+...
+...
+ --- Step1 Audio to Transcript ---> LLM Output: ---
+Give your kid butter before bed. It's the epic bedtime hack you've probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night's sleep. It was a game changer, all because of butter. Now, why is this helpful? It's not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry. Since they can't communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they'll love. Now, if you've already tried it and it worked for you, please share your experience in the comments below. I love hearing from other moms sharing their tips with each other. Just a reminder, every child's different. You know your baby best. Trust your instincts. And if it doesn't work for you, then we could try something else. Something.
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step2 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step2: Transcript to Medical Statements
+...
+...
+ --- Step2 Transcript to Statements ---> LLM Output: ---
+[
+  "Giving a child butter before bed can resolve nighttime awakenings.",
+  "Babies wake up at night due to low blood sugar from insufficient daytime calorie intake.",
+  "Butter, peanut butter, avocado, or coconut milk can be given to infants to resolve nighttime hunger."
+]
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step3 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step3: Statement to PubMed Query
+...
+...
+ --- Step3 Statement to Query ---> LLM Output: ---
+NONE
+ --- Step3 Statement to Query ---> LLM Output: ---
+NONE
+ --- Step3 Statement to Query ---> LLM Output: ---
+NONE
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step4 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step4: Query to PubMed Links
+...
+...
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41482607/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41482562/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41482475/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41482472/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41482607/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41482562/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41482475/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41482472/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41482607/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41482562/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41482475/
+ --- Step4 Query to Link ---> PubmedLink --- 
+PubmedLink: https://pubmed.ncbi.nlm.nih.gov/41482472/
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step5 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step5: Link to Summary
+...
+...
+Print abstract to summarize:
+1. Int Endod J. 2026 Jan 2. doi: 10.1111/iej.70087. Online ahead of print. Histopathology, Diagnosis, Management and Treatment Outcomes of Cemental Tears: A Retrospective Observational Cohort Study. Lee AHC(1), Ting MZ(1), Wong MCM(1), Zhang C(1). Author information: (1)Faculty of Dentistry, The University of Hong Kong, Sai Ying Pun, Hong Kong INTRODUCTION: Diagnosing cemental tears remains challenging, and treatment outcomes can be unpredictable; recommendations for their diagnosis and management are primarily based on case reports and anecdotal experience. Although a classification has been developed for cemental tears, its clinical applicability and importance have yet to be investigated and validated. AIMS AND OBJECTIVES: This study aims to deepen our understanding of cemental tears through a comprehensive examination of a patient cohort, focusing on: (i) evaluating the cases based on the classification for cemental tears; (ii) assessing clinical presentations, radiographic features, and histopathological characteristics; and (iii) identifying factors that influence diagnosis, treatment approaches, and clinical outcomes. MATERIALS AND METHODS: This retrospective cohort study evaluated teeth diagnosed with cemental tears at the university's endodontic clinic from September 2019 to June 2024. The review included case histories, clinical, radiographic and histopathological findings, as well as the treatments performed and their outcomes. Descriptive statistics were used. RESULTS: Thirty-seven patients with 45 teeth diagnosed with cemental tears were included. Majority of affected teeth (68.9%) had received previous treatment or undergone previously initiated therapy. Among those root treated, most (84.6%) exhibited adequate obturation. Pain, swelling and/or sinus tracts, as well as significant crestal bone loss, were detected in approximately half of the cases. Cone-beam computed tomography (CBCT) scans and direct inspection successfully identified all affected teeth, whereas periapical radiographs (PR) only detected 60.0%. Histopathological analysis revealed cementum in all 37 cases comprising 45 teeth, bone in 11 cases, and cystic lesions in 5 cases. Unfavourable treatment outcomes were observed in 78.9% of teeth classified as Class 4-6. Across all classes, regenerative approaches using enamel matrix derivatives (EMD) achieved favourable outcomes in 44.4% of teeth treated, xenografts in 38.1%, and collagen membranes in 55.6%. Notably, none of the teeth in Classes 4-6 treated with EMD or xenografts demonstrated favourable outcomes. CONCLUSION: CBCT scans, direct inspection, and histopathological examination demonstrated a higher detection rate compared to PR. Classification is a critical prognostic factor, with Classes 4-6 exhibiting poorer outcomes than others. The impacts of regenerative approaches on periradicular healing appear questionable. © 2026 The Author(s). International Endodontic Journal published by John Wiley & Sons Ltd on behalf of British Endodontic Society. DOI: 10.1111/iej.70087
+ --- Step5 Link to Summary ---> LLM output --- 
+LLM output (Summary of Abstract): This retrospective observational cohort study evaluated 45 teeth in 37 patients diagnosed with cemental tears at a university endodontic clinic between September 2019 and June 2024. The study aimed to assess clinical presentations, radiographic features, histopathological characteristics, and treatment outcomes, utilizing a pre-existing classification system for cemental tears. Data were extracted from patient case histories, clinical and radiographic findings (periapical radiographs and cone-beam computed tomography), and histopathological analyses. Descriptive statistics were used to summarize the findings.
+
+Key findings included that 68.9% of affected teeth had previous treatment. CBCT and direct inspection successfully identified all affected teeth, while periapical radiographs detected 60.0%. Histopathology revealed cementum, bone, and cystic lesions. Unfavourable treatment outcomes were prevalent in teeth classified as Classes 4-6 (78.9%). Regenerative approaches (EMD, xenografts, collagen membranes) showed varied outcomes (44.4%, 38.1%, and 55.6% favorable, respectively), with no favorable outcomes observed with EMD or xenografts in Classes 4-6. A limitation is the retrospective nature of the study, potentially introducing bias. 
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41482607/ with PMID 41482607
+Print abstract to summarize:
+1. Nat Med. 2026 Jan 2. doi: 10.1038/s41591-025-04042-6. Online ahead of print. Generative AI-based low-dose digital subtraction angiography for intra-operative radiation dose reduction: a randomized controlled trial. Zhao H(#)(1)(2), Bai Y(#)(3), Chen L(#)(3), Ma J(#)(3), Lei Y(3), Sun T(4), Wu L(3), Zhang R(5), Xu Z(6), Liang X(7), Li Y(7), Huang Y(8), Feng Y(9), Hong C(10), Miao Z(11), Long L(12), Zhu H(13), Zheng J(14), Fan L(15), Fang Z(16), Dong P(17), Zhang L(5), Han X(3), Wang B(18), Liang B(3), Xia X(3), Kan X(19), Zhu C(20), Du B(21), Wang X(22), Zheng C(23). Author information: (1)School of Computer Science, Wuhan University, Wuhan, China. zhao_huangxuan@sina.com. (2)Department of Radiology, Union Hospital, Tongji Medical College, Huazhong University of Science and Technology, Wuhan, China. zhao_huangxuan@sina.com. (3)Department of Radiology, Union Hospital, Tongji Medical College, Huazhong University of Science and Technology, Wuhan, China. (4)Department of Interventional Radiology, The First Affiliated Hospital of University of Science and Technology of China, Hefei, China. (5)School of Computer Science, Wuhan University, Wuhan, China. (6)School of Electronic Information and Communications, Huazhong University of Science and Technology, Wuhan, China. (7)Institute of Research and Clinical Innovations, Neusoft Medical Systems, Shanghai, China. (8)CV Business Unit, Neusoft Medical Systems, Shenyang, China. (9)Center for Biological Imaging, Institute of Biophysics, Chinese Academy of Sciences, Beijing, China. (10)The First Affiliated Hospital of Guangzhou Medical University, Guangzhou, China. (11)Department of Interventional Neuroradiology, Beijing Tiantan Hospital, Capital Medical University, Beijing, China. (12)Department of Interventional and Vascular Surgery, Hunan Provincial People's Hospital, Hunan Normal University, Changsha, China. (13)Center of Interventional Radiology Vascular Surgery, Department of Radiology, Zhongda Hospital, Medical School, Southeast University, Nanjing, China. (14)Department of Radiology, Shengjing Hospital of China Medical University, Shenyang, China. (15)Department of Cardiology, Union Hospital, Fujian Medical University, Fuzhou, China. (16)Department of Interventional Radiology, Fujian Provincial Hospital, Shengli Clinical Medical College of Fujian Medical University, Fuzhou, China. (17)Department of Cardiology, The Affiliated Hospital of Hangzhou Normal University, Hangzhou, China. (18)School of Public Health, Tongji Medical College, Huazhong University of Science and Technology, Wuhan, China. (19)Department of Radiology, Union Hospital, Tongji Medical College, Huazhong University of Science and Technology, Wuhan, China. xkliulang1314@163.com. (20)Department of Radiology, University of Washington, Seattle, WA, USA. zhucheng@uw.edu. (21)School of Computer Science, Wuhan University, Wuhan, China. dubo@whu.edu.cn. (22)School of Electronic Information and Communications, Huazhong University of Science and Technology, Wuhan, China. xgwang@hust.edu.cn. (23)Department of Radiology, Union Hospital, Tongji Medical College, Huazhong University of Science and Technology, Wuhan, China. hqzcsxh@sina.com. (#)Contributed equally Digital subtraction angiography (DSA) devices guide procedures across numerous diseases, performed on more than 100,000 patients daily worldwide. However, these procedures expose patients and healthcare providers to radiation, increasing the risk of health issues. Despite many low-dose DSA imaging methods proposed, none have been prospectively clinically validated. In this study, 46,829 patients (over 5 million DSA images) from 70 centers were used to iterate our previously developed generative artificial intelligence system (named GenDSA-V2). A total of 1,068 patients (533 in intervention arm and 535 in control arm), with suspected cerebral aneurysms (n = 435), lung cancer (n = 417) or advanced liver cancer (n = 216), meeting surgical criteria, were enrolled to validate the GenDSA-V2. The primary outcome was radiation dose, while secondary outcomes included efficiency, operation time and intraoperative complications. Group assignments were blinded to patients, surgeons and investigators, while technicians were aware but not involved in data collection or analysis. The GenDSA-V2 group showed substantially reduced radiation exposure, with an air kerma (AK) of 151.3 ± 125.1 mGy compared to 457.4 ± 407.4 mGy in the standard clinical protocols (SCP) group (mean difference = -306.1 mGy, 95% confidence interval (CI) = -342.3 to -269.9, P < 0.001 for superiority) and a dose-area product (DAP) of 4009.7 ± 2767.9 μGy m2 versus 12531.6 ± 9145.9 μGy m2 (mean difference = -8521.9 μGy m2, 95% CI = -9333.1 to -7710.7, P < 0.001 for superiority). Mean operation time was 33.1 ± 10.8 min in the SCP group and 34.8 ± 11.8 min in the GenDSA-V2 group (mean difference = 1.7 min, 95% CI = 0.3 to 3.1, P < 0.001 for noninferiority). Complication rates were similar (SCP = 8.1%, GenDSA-V2 = 7.5%, mean difference = -0.6%, 95% CI = -3.8% to 2.6%, P < 0.001 for noninferiority). The GenDSA system reduces radiation exposure to both physicians and patients by approximately two-thirds during DSA-guided procedures, demonstrating substantial clinical and translational value. Chinese Clinical Trial Registry: ChiCTR2400084789 . © 2026. The Author(s), under exclusive licence to Springer Nature America, Inc. DOI: 10.1038/s41591-025-04042-6 Conflict of interest statement: Competing interests: X.L. and Y. Li are employees of the Institute of Research and Clinical Innovations, Neusoft Medical Systems. Y.H. serves as Vice President of Neusoft Medical Systems. The other authors declare no competing interests.
+ --- Step5 Link to Summary ---> LLM output --- 
+LLM output (Summary of Abstract): This randomized controlled trial evaluated a generative artificial intelligence (AI) system, GenDSA-V2, for reducing radiation exposure during digital subtraction angiography (DSA) procedures. A total of 1,068 patients (533 in the GenDSA-V2 group and 95% CI = -342.3 to -269.9, P < 0.001 for superiority) and a dose-area product (DAP) of 4009.7 ± 2767.9 μGy m2 versus 12531.6 ± 9145.9 μGy m2 (mean difference = -8521.9 μGy m2, 95% CI = -9333.1 to -7710.7, P < 0.001 for superiority). Operation time was 33.1 ± 10.8 min in the standard clinical protocol (SCP) group versus 34.8 ± 11.8 min in the GenDSA-V2 group (mean difference = 1.7 min, 95% CI = 0.3 to 3.1, P < 0.001 for noninferiority). Complication rates were similar between groups (SCP = 8.1%, GenDSA-V2 = 7.5%, mean difference = -0.6%, 95% CI = -3.8% to 2.6%, P < 0.001 for noninferiority). The study included data from 46,829 patients across 70 centers and was registered as ChiCTR2400084789. 
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41482562/ with PMID 41482562
+Print abstract to summarize:
+1. Pract Neurol. 2026 Jan 2:pn-2025-004950. doi: 10.1136/pn-2025-004950. Online ahead of print. Hereditary transthyretin amyloidosis with hand weakness and bulbar involvement. Bernsen S(1)(2), Weydt P(3)(4). Author information: (1)University Hospital Bonn Neurology Centre, Bonn, Germany. (2)ALS Clinic, Charité-Universitätsmedizin Berlin, Berlin, BE, Germany. (3)University Hospital Bonn Neurology Centre, Bonn, Germany patrick.weydt@ukbonn.de. (4)Clinical Research, Deutsches Zentrum für Neurodegenerative Erkrankungen, Bonn, NRW, Germany. A 76-year-old man developed progressive motor weakness, bulbar symptoms and hand muscle atrophy, initially suspected to be due to motor neurone disease. Unexpected findings on cardiological evaluation identified amyloidosis, and genetic testing confirmed the TTR p.Val50Met mutation, indicating late-onset hereditary transthyretin amyloidosis with a mixed neuropathic and cardiac phenotype. The diagnosis was delayed and complicated by minimal sensory symptoms and the atypical presentation. © Author(s) (or their employer(s)) 2026. No commercial re-use. See rights and permissions. Published by BMJ Group. DOI: 10.1136/pn-2025-004950 Conflict of interest statement: Competing interests: None declared.
+ --- Step5 Link to Summary ---> LLM output --- 
+LLM output (Summary of Abstract): This case report describes a 76-year-old man diagnosed with late-onset hereditary transthyretin amyloidosis (hATTR) following an initial misdiagnosis of motor neuron disease. The patient presented with progressive motor weakness, bulbar symptoms, and hand muscle atrophy. Amyloidosis was initially detected through cardiological evaluation, and genetic testing confirmed the presence of the TTR p.Val50Met mutation. The patient exhibited a mixed neuropathic and cardiac phenotype. Notably, the diagnosis was delayed due to minimal sensory symptoms and an atypical presentation. The study reports on a single case and therefore does not provide data on effect sizes or allow for generalizability. The limitation is the absence of a control group and the single-patient nature of the report. 
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41482475/ with PMID 41482475
+Print abstract to summarize:
+1. Med Humanit. 2026 Jan 2:medhum-2025-013641. doi: 10.1136/medhum-2025-013641. Online ahead of print. Reading literature on kinship in a clinical context: a qualitative study of a reading group for nurses. Schoenau MN(1), Missel M(2)(3), Synnes O(4). Author information: (1)Copenhagen University Hospital Heart Centre, Copenhagen, Denmark mai.nanna.schoenau@regionh.dk. (2)Copenhagen University Hospital Heart Centre, Copenhagen, Denmark. (3)Copenhagen University, Copenhagen, Denmark. (4)Centre for Diaconia and Professional Practice, VID Specialized University, Oslo, Norway. Family members, relatives and friends are all affected when someone is hospitalised with a life-threatening illness. However, they often feel neglected and sometimes ignored by healthcare professionals. To address this, the reading of literature has been used in various clinical contexts in an attempt to humanise the care of patients and their relatives. Reading fiction enables healthcare professionals to imaginatively enter relatives' perspectives, fostering a deeper understanding of their experiences, which may in turn enhance family-centred care in clinical practice. However, research on how healthcare professionals engage with the reading of literary texts and what they discuss in such contexts has not yet been explored. This article presents findings from a qualitative study exploring a reading group for nurses at a hospital ward in Denmark, where literature on kinship was read and discussed. We examined the following specific research question: What takes place when nurses join a reading group in a clinical context to read and discuss literature on kinship?Based on a hermeneutical analysis of four audio-recorded reading group sessions, we identified the following three themes: (1) awareness of kinship and the negotiation of norms, (2) engagement with various perspectives and (3) acknowledgement of emotions when caring for family members. These themes are discussed in light of Felski's concept of recognition as knowing and acknowledgement. Additionally, by applying Meretoja's theory of narrative agency, we demonstrate how reading literature in a clinical setting can foster narrative agency, enabling nurses to expand and clarify their understandings and assumptions of kinship based on their ability to navigate and influence what Meretoja terms their 'narrative environment' in a clinical context. © Author(s) (or their employer(s)) 2026. No commercial re-use. See rights and permissions. Published by BMJ Group. DOI: 10.1136/medhum-2025-013641 Conflict of interest statement: Competing interests: None declared.
+ --- Step5 Link to Summary ---> LLM output --- 
+LLM output (Summary of Abstract): This qualitative study explored nurses’ experiences participating in a reading group focused on kinship literature within a hospital setting in Denmark. The study aimed to understand what occurs when nurses engage with such a group. Data were collected through a hermeneutical analysis of audio recordings from four reading group sessions. The population consisted of nurses participating in the reading group; specific numbers are not provided.
+
+The analysis identified three key themes: (1) awareness of kinship and negotiation of norms, (2) engagement with diverse perspectives, and (3) acknowledgement of emotions related to family member care.  The findings were interpreted using Felski’s concept of recognition and Meretoja’s theory of narrative agency, suggesting the reading group fostered nurses' ability to understand and influence their professional environment.
+
+A limitation is the small sample size (four sessions) and the single hospital ward setting, limiting the generalizability of the findings. The study does not report demographic information about the participating nurses. 
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41482472/ with PMID 41482472
+Print abstract to summarize:
+1. Int Endod J. 2026 Jan 2. doi: 10.1111/iej.70087. Online ahead of print. Histopathology, Diagnosis, Management and Treatment Outcomes of Cemental Tears: A Retrospective Observational Cohort Study. Lee AHC(1), Ting MZ(1), Wong MCM(1), Zhang C(1). Author information: (1)Faculty of Dentistry, The University of Hong Kong, Sai Ying Pun, Hong Kong INTRODUCTION: Diagnosing cemental tears remains challenging, and treatment outcomes can be unpredictable; recommendations for their diagnosis and management are primarily based on case reports and anecdotal experience. Although a classification has been developed for cemental tears, its clinical applicability and importance have yet to be investigated and validated. AIMS AND OBJECTIVES: This study aims to deepen our understanding of cemental tears through a comprehensive examination of a patient cohort, focusing on: (i) evaluating the cases based on the classification for cemental tears; (ii) assessing clinical presentations, radiographic features, and histopathological characteristics; and (iii) identifying factors that influence diagnosis, treatment approaches, and clinical outcomes. MATERIALS AND METHODS: This retrospective cohort study evaluated teeth diagnosed with cemental tears at the university's endodontic clinic from September 2019 to June 2024. The review included case histories, clinical, radiographic and histopathological findings, as well as the treatments performed and their outcomes. Descriptive statistics were used. RESULTS: Thirty-seven patients with 45 teeth diagnosed with cemental tears were included. Majority of affected teeth (68.9%) had received previous treatment or undergone previously initiated therapy. Among those root treated, most (84.6%) exhibited adequate obturation. Pain, swelling and/or sinus tracts, as well as significant crestal bone loss, were detected in approximately half of the cases. Cone-beam computed tomography (CBCT) scans and direct inspection successfully identified all affected teeth, whereas periapical radiographs (PR) only detected 60.0%. Histopathological analysis revealed cementum in all 37 cases comprising 45 teeth, bone in 11 cases, and cystic lesions in 5 cases. Unfavourable treatment outcomes were observed in 78.9% of teeth classified as Class 4-6. Across all classes, regenerative approaches using enamel matrix derivatives (EMD) achieved favourable outcomes in 44.4% of teeth treated, xenografts in 38.1%, and collagen membranes in 55.6%. Notably, none of the teeth in Classes 4-6 treated with EMD or xenografts demonstrated favourable outcomes. CONCLUSION: CBCT scans, direct inspection, and histopathological examination demonstrated a higher detection rate compared to PR. Classification is a critical prognostic factor, with Classes 4-6 exhibiting poorer outcomes than others. The impacts of regenerative approaches on periradicular healing appear questionable. © 2026 The Author(s). International Endodontic Journal published by John Wiley & Sons Ltd on behalf of British Endodontic Society. DOI: 10.1111/iej.70087
+ --- Step5 Link to Summary ---> LLM output --- 
+LLM output (Summary of Abstract): This retrospective observational cohort study evaluated 37 patients (45 teeth) diagnosed with cemental tears at a university endodontic clinic between September 2019 and June 2024. The study aimed to characterize clinical, radiographic, and histopathological features, assess the utility of a cemental tear classification system, and evaluate treatment outcomes. Data were extracted from existing patient records, and descriptive statistics were used for analysis.
+
+Radiographic assessment demonstrated that cone-beam computed tomography (CBCT) and direct inspection were successful in identifying all affected teeth, while periapical radiographs detected 60.0% of cases. Histopathological examination revealed cementum, bone, and cystic lesions in affected teeth. A significant proportion of teeth (68.9%) had prior treatment. Unfavourable treatment outcomes were observed in 78.9% of teeth classified as Classes 4-6. Regenerative approaches using enamel matrix derivatives (EMD), xenografts, and collagen membranes resulted in favourable outcomes in 44.4%, 38.1%, and 55.6% of teeth, respectively, across all classes; however, no teeth in Classes 4-6 treated with EMD or xenografts achieved favourable outcomes. The study's limitations include its retrospective nature and reliance on existing patient data. 
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41482607/ with PMID 41482607
+Print abstract to summarize:
+1. Nat Med. 2026 Jan 2. doi: 10.1038/s41591-025-04042-6. Online ahead of print. Generative AI-based low-dose digital subtraction angiography for intra-operative radiation dose reduction: a randomized controlled trial. Zhao H(#)(1)(2), Bai Y(#)(3), Chen L(#)(3), Ma J(#)(3), Lei Y(3), Sun T(4), Wu L(3), Zhang R(5), Xu Z(6), Liang X(7), Li Y(7), Huang Y(8), Feng Y(9), Hong C(10), Miao Z(11), Long L(12), Zhu H(13), Zheng J(14), Fan L(15), Fang Z(16), Dong P(17), Zhang L(5), Han X(3), Wang B(18), Liang B(3), Xia X(3), Kan X(19), Zhu C(20), Du B(21), Wang X(22), Zheng C(23). Author information: (1)School of Computer Science, Wuhan University, Wuhan, China. zhao_huangxuan@sina.com. (2)Department of Radiology, Union Hospital, Tongji Medical College, Huazhong University of Science and Technology, Wuhan, China. zhao_huangxuan@sina.com. (3)Department of Radiology, Union Hospital, Tongji Medical College, Huazhong University of Science and Technology, Wuhan, China. (4)Department of Interventional Radiology, The First Affiliated Hospital of University of Science and Technology of China, Hefei, China. (5)School of Computer Science, Wuhan University, Wuhan, China. (6)School of Electronic Information and Communications, Huazhong University of Science and Technology, Wuhan, China. (7)Institute of Research and Clinical Innovations, Neusoft Medical Systems, Shanghai, China. (8)CV Business Unit, Neusoft Medical Systems, Shenyang, China. (9)Center for Biological Imaging, Institute of Biophysics, Chinese Academy of Sciences, Beijing, China. (10)The First Affiliated Hospital of Guangzhou Medical University, Guangzhou, China. (11)Department of Interventional Neuroradiology, Beijing Tiantan Hospital, Capital Medical University, Beijing, China. (12)Department of Interventional and Vascular Surgery, Hunan Provincial People's Hospital, Hunan Normal University, Changsha, China. (13)Center of Interventional Radiology Vascular Surgery, Department of Radiology, Zhongda Hospital, Medical School, Southeast University, Nanjing, China. (14)Department of Radiology, Shengjing Hospital of China Medical University, Shenyang, China. (15)Department of Cardiology, Union Hospital, Fujian Medical University, Fuzhou, China. (16)Department of Interventional Radiology, Fujian Provincial Hospital, Shengli Clinical Medical College of Fujian Medical University, Fuzhou, China. (17)Department of Cardiology, The Affiliated Hospital of Hangzhou Normal University, Hangzhou, China. (18)School of Public Health, Tongji Medical College, Huazhong University of Science and Technology, Wuhan, China. (19)Department of Radiology, Union Hospital, Tongji Medical College, Huazhong University of Science and Technology, Wuhan, China. xkliulang1314@163.com. (20)Department of Radiology, University of Washington, Seattle, WA, USA. zhucheng@uw.edu. (21)School of Computer Science, Wuhan University, Wuhan, China. dubo@whu.edu.cn. (22)School of Electronic Information and Communications, Huazhong University of Science and Technology, Wuhan, China. xgwang@hust.edu.cn. (23)Department of Radiology, Union Hospital, Tongji Medical College, Huazhong University of Science and Technology, Wuhan, China. hqzcsxh@sina.com. (#)Contributed equally Digital subtraction angiography (DSA) devices guide procedures across numerous diseases, performed on more than 100,000 patients daily worldwide. However, these procedures expose patients and healthcare providers to radiation, increasing the risk of health issues. Despite many low-dose DSA imaging methods proposed, none have been prospectively clinically validated. In this study, 46,829 patients (over 5 million DSA images) from 70 centers were used to iterate our previously developed generative artificial intelligence system (named GenDSA-V2). A total of 1,068 patients (533 in intervention arm and 535 in control arm), with suspected cerebral aneurysms (n = 435), lung cancer (n = 417) or advanced liver cancer (n = 216), meeting surgical criteria, were enrolled to validate the GenDSA-V2. The primary outcome was radiation dose, while secondary outcomes included efficiency, operation time and intraoperative complications. Group assignments were blinded to patients, surgeons and investigators, while technicians were aware but not involved in data collection or analysis. The GenDSA-V2 group showed substantially reduced radiation exposure, with an air kerma (AK) of 151.3 ± 125.1 mGy compared to 457.4 ± 407.4 mGy in the standard clinical protocols (SCP) group (mean difference = -306.1 mGy, 95% confidence interval (CI) = -342.3 to -269.9, P < 0.001 for superiority) and a dose-area product (DAP) of 4009.7 ± 2767.9 μGy m2 versus 12531.6 ± 9145.9 μGy m2 (mean difference = -8521.9 μGy m2, 95% CI = -9333.1 to -7710.7, P < 0.001 for superiority). Mean operation time was 33.1 ± 10.8 min in the SCP group and 34.8 ± 11.8 min in the GenDSA-V2 group (mean difference = 1.7 min, 95% CI = 0.3 to 3.1, P < 0.001 for noninferiority). Complication rates were similar (SCP = 8.1%, GenDSA-V2 = 7.5%, mean difference = -0.6%, 95% CI = -3.8% to 2.6%, P < 0.001 for noninferiority). The GenDSA system reduces radiation exposure to both physicians and patients by approximately two-thirds during DSA-guided procedures, demonstrating substantial clinical and translational value. Chinese Clinical Trial Registry: ChiCTR2400084789 . © 2026. The Author(s), under exclusive licence to Springer Nature America, Inc. DOI: 10.1038/s41591-025-04042-6 Conflict of interest statement: Competing interests: X.L. and Y. Li are employees of the Institute of Research and Clinical Innovations, Neusoft Medical Systems. Y.H. serves as Vice President of Neusoft Medical Systems. The other authors declare no competing interests.
+ --- Step5 Link to Summary ---> LLM output --- 
+LLM output (Summary of Abstract): This randomized controlled trial evaluated a generative artificial intelligence system (GenDSA-V2) for reducing radiation exposure during digital subtraction angiography (DSA). Researchers utilized data from 46,829 patients across 70 centers to develop and then clinically validate GenDSA-V2. A total of 1,068 patients (533 in the GenDSA-V2 group and 535 in the standard clinical protocol [SCP] group) undergoing surgery for suspected cerebral aneurysms (n=435), lung cancer (n=417), or advanced liver cancer (n=216) were enrolled. The primary outcome was radiation dose, measured by air kerma (AK) and dose-area product (DAP). Secondary outcomes included efficiency (operation time) and intraoperative complications.
+
+Results showed a substantial reduction in radiation exposure with GenDSA-V2: mean AK was 151.3 ± 125.1 mGy versus 457.4 ± 407.4 mGy in the SCP group (mean difference = -306.1 mGy, 95% CI -342.3 to -269.9, p < 0.001), and mean DAP was 4009.7 ± 2767.9 μGy m2 versus 12531.6 ± 9145.9 μGy m2 (mean difference = -8521.9 μGy m2, 95% CI -9333.1 to -7710.7, p < 0.001). Operation time was similar between groups (mean difference = 1.7 min, 95% CI 0.3 to 3.1, p < 0.001). Complication rates were also comparable (SCP = 8.1%, GenDSA-V2 = 7.5%, mean difference = -0.6%, 95% CI -3.8% to 2.6%, p < 0.001). The study was registered as ChiCTR2400084789. 
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41482562/ with PMID 41482562
+Print abstract to summarize:
+1. Pract Neurol. 2026 Jan 2:pn-2025-004950. doi: 10.1136/pn-2025-004950. Online ahead of print. Hereditary transthyretin amyloidosis with hand weakness and bulbar involvement. Bernsen S(1)(2), Weydt P(3)(4). Author information: (1)University Hospital Bonn Neurology Centre, Bonn, Germany. (2)ALS Clinic, Charité-Universitätsmedizin Berlin, Berlin, BE, Germany. (3)University Hospital Bonn Neurology Centre, Bonn, Germany patrick.weydt@ukbonn.de. (4)Clinical Research, Deutsches Zentrum für Neurodegenerative Erkrankungen, Bonn, NRW, Germany. A 76-year-old man developed progressive motor weakness, bulbar symptoms and hand muscle atrophy, initially suspected to be due to motor neurone disease. Unexpected findings on cardiological evaluation identified amyloidosis, and genetic testing confirmed the TTR p.Val50Met mutation, indicating late-onset hereditary transthyretin amyloidosis with a mixed neuropathic and cardiac phenotype. The diagnosis was delayed and complicated by minimal sensory symptoms and the atypical presentation. © Author(s) (or their employer(s)) 2026. No commercial re-use. See rights and permissions. Published by BMJ Group. DOI: 10.1136/pn-2025-004950 Conflict of interest statement: Competing interests: None declared.
+ --- Step5 Link to Summary ---> LLM output --- 
+LLM output (Summary of Abstract): This case report describes a 76-year-old man who presented with progressive motor weakness, bulbar symptoms, and hand muscle atrophy, initially suspected to be amyotrophic lateral sclerosis (ALS). Diagnostic investigations, prompted by unexpected findings during cardiological evaluation, revealed hereditary transthyretin amyloidosis (hATTR) caused by the TTR p.Val50Met mutation. Genetic testing confirmed the diagnosis, revealing a mixed neuropathic and cardiac phenotype. The report highlights a diagnostic delay and complexity due to minimal sensory symptoms and an atypical clinical presentation. This is a single case report; therefore, no effect sizes or population data are available. A limitation is the inability to generalise findings beyond this individual case. 
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41482475/ with PMID 41482475
+Print abstract to summarize:
+1. Med Humanit. 2026 Jan 2:medhum-2025-013641. doi: 10.1136/medhum-2025-013641. Online ahead of print. Reading literature on kinship in a clinical context: a qualitative study of a reading group for nurses. Schoenau MN(1), Missel M(2)(3), Synnes O(4). Author information: (1)Copenhagen University Hospital Heart Centre, Copenhagen, Denmark mai.nanna.schoenau@regionh.dk. (2)Copenhagen University Hospital Heart Centre, Copenhagen, Denmark. (3)Copenhagen University, Copenhagen, Denmark. (4)Centre for Diaconia and Professional Practice, VID Specialized University, Oslo, Norway. Family members, relatives and friends are all affected when someone is hospitalised with a life-threatening illness. However, they often feel neglected and sometimes ignored by healthcare professionals. To address this, the reading of literature has been used in various clinical contexts in an attempt to humanise the care of patients and their relatives. Reading fiction enables healthcare professionals to imaginatively enter relatives' perspectives, fostering a deeper understanding of their experiences, which may in turn enhance family-centred care in clinical practice. However, research on how healthcare professionals engage with the reading of literary texts and what they discuss in such contexts has not yet been explored. This article presents findings from a qualitative study exploring a reading group for nurses at a hospital ward in Denmark, where literature on kinship was read and discussed. We examined the following specific research question: What takes place when nurses join a reading group in a clinical context to read and discuss literature on kinship?Based on a hermeneutical analysis of four audio-recorded reading group sessions, we identified the following three themes: (1) awareness of kinship and the negotiation of norms, (2) engagement with various perspectives and (3) acknowledgement of emotions when caring for family members. These themes are discussed in light of Felski's concept of recognition as knowing and acknowledgement. Additionally, by applying Meretoja's theory of narrative agency, we demonstrate how reading literature in a clinical setting can foster narrative agency, enabling nurses to expand and clarify their understandings and assumptions of kinship based on their ability to navigate and influence what Meretoja terms their 'narrative environment' in a clinical context. © Author(s) (or their employer(s)) 2026. No commercial re-use. See rights and permissions. Published by BMJ Group. DOI: 10.1136/medhum-2025-013641 Conflict of interest statement: Competing interests: None declared.
+ --- Step5 Link to Summary ---> LLM output --- 
+LLM output (Summary of Abstract): This qualitative study explored nurses' engagement with a reading group focused on kinship literature within a hospital setting in Denmark. The study aimed to understand what occurs when nurses participate in such a group. Data were collected through a hermeneutical analysis of audio recordings from four reading group sessions. The population consisted of nurses participating in the reading group. Key themes identified were: (1) increased awareness of kinship and negotiation of related norms, (2) engagement with diverse perspectives, and (3) acknowledgement of emotions experienced when caring for family members. The authors used Felski’s concept of recognition and Meretoja’s theory of narrative agency to frame the findings, suggesting that reading literature can foster narrative agency and influence nurses' understanding of kinship within a clinical context. A limitation is the small sample size (only four sessions were analyzed), which limits the generalizability of the findings. 
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41482472/ with PMID 41482472
+Print abstract to summarize:
+1. Int Endod J. 2026 Jan 2. doi: 10.1111/iej.70087. Online ahead of print. Histopathology, Diagnosis, Management and Treatment Outcomes of Cemental Tears: A Retrospective Observational Cohort Study. Lee AHC(1), Ting MZ(1), Wong MCM(1), Zhang C(1). Author information: (1)Faculty of Dentistry, The University of Hong Kong, Sai Ying Pun, Hong Kong INTRODUCTION: Diagnosing cemental tears remains challenging, and treatment outcomes can be unpredictable; recommendations for their diagnosis and management are primarily based on case reports and anecdotal experience. Although a classification has been developed for cemental tears, its clinical applicability and importance have yet to be investigated and validated. AIMS AND OBJECTIVES: This study aims to deepen our understanding of cemental tears through a comprehensive examination of a patient cohort, focusing on: (i) evaluating the cases based on the classification for cemental tears; (ii) assessing clinical presentations, radiographic features, and histopathological characteristics; and (iii) identifying factors that influence diagnosis, treatment approaches, and clinical outcomes. MATERIALS AND METHODS: This retrospective cohort study evaluated teeth diagnosed with cemental tears at the university's endodontic clinic from September 2019 to June 2024. The review included case histories, clinical, radiographic and histopathological findings, as well as the treatments performed and their outcomes. Descriptive statistics were used. RESULTS: Thirty-seven patients with 45 teeth diagnosed with cemental tears were included. Majority of affected teeth (68.9%) had received previous treatment or undergone previously initiated therapy. Among those root treated, most (84.6%) exhibited adequate obturation. Pain, swelling and/or sinus tracts, as well as significant crestal bone loss, were detected in approximately half of the cases. Cone-beam computed tomography (CBCT) scans and direct inspection successfully identified all affected teeth, whereas periapical radiographs (PR) only detected 60.0%. Histopathological analysis revealed cementum in all 37 cases comprising 45 teeth, bone in 11 cases, and cystic lesions in 5 cases. Unfavourable treatment outcomes were observed in 78.9% of teeth classified as Class 4-6. Across all classes, regenerative approaches using enamel matrix derivatives (EMD) achieved favourable outcomes in 44.4% of teeth treated, xenografts in 38.1%, and collagen membranes in 55.6%. Notably, none of the teeth in Classes 4-6 treated with EMD or xenografts demonstrated favourable outcomes. CONCLUSION: CBCT scans, direct inspection, and histopathological examination demonstrated a higher detection rate compared to PR. Classification is a critical prognostic factor, with Classes 4-6 exhibiting poorer outcomes than others. The impacts of regenerative approaches on periradicular healing appear questionable. © 2026 The Author(s). International Endodontic Journal published by John Wiley & Sons Ltd on behalf of British Endodontic Society. DOI: 10.1111/iej.70087
+ --- Step5 Link to Summary ---> LLM output --- 
+LLM output (Summary of Abstract): This retrospective cohort study evaluated 45 teeth (in 37 patients) diagnosed with cemental tears at a university endodontic clinic between September 2019 and June 2024. Data were extracted from patient case histories, clinical and radiographic findings, and histopathological analyses. The study aimed to assess clinical presentations, radiographic features, histopathological characteristics, and treatment outcomes, evaluating the applicability of a classification system for cemental tears.
+
+Key findings included that 68.9% of affected teeth had prior treatment. CBCT and direct inspection successfully identified all affected teeth, while periapical radiographs detected 60.0%. Histopathological analysis revealed cementum, bone, and cystic lesions in affected teeth. Unfavorable treatment outcomes were observed in 78.9% of teeth classified as Class 4-6. Regenerative approaches (EMD, xenografts, collagen membranes) showed varying success rates (44.4%, 38.1%, and 55.6% respectively), but no teeth in Classes 4-6 treated with EMD or xenografts demonstrated favorable outcomes. The study concludes that classification is a prognostic factor and questions the efficacy of certain regenerative approaches in more severe cases. A limitation is the retrospective nature of the study, potentially introducing bias. 
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41482607/ with PMID 41482607
+Print abstract to summarize:
+1. Nat Med. 2026 Jan 2. doi: 10.1038/s41591-025-04042-6. Online ahead of print. Generative AI-based low-dose digital subtraction angiography for intra-operative radiation dose reduction: a randomized controlled trial. Zhao H(#)(1)(2), Bai Y(#)(3), Chen L(#)(3), Ma J(#)(3), Lei Y(3), Sun T(4), Wu L(3), Zhang R(5), Xu Z(6), Liang X(7), Li Y(7), Huang Y(8), Feng Y(9), Hong C(10), Miao Z(11), Long L(12), Zhu H(13), Zheng J(14), Fan L(15), Fang Z(16), Dong P(17), Zhang L(5), Han X(3), Wang B(18), Liang B(3), Xia X(3), Kan X(19), Zhu C(20), Du B(21), Wang X(22), Zheng C(23). Author information: (1)School of Computer Science, Wuhan University, Wuhan, China. zhao_huangxuan@sina.com. (2)Department of Radiology, Union Hospital, Tongji Medical College, Huazhong University of Science and Technology, Wuhan, China. zhao_huangxuan@sina.com. (3)Department of Radiology, Union Hospital, Tongji Medical College, Huazhong University of Science and Technology, Wuhan, China. (4)Department of Interventional Radiology, The First Affiliated Hospital of University of Science and Technology of China, Hefei, China. (5)School of Computer Science, Wuhan University, Wuhan, China. (6)School of Electronic Information and Communications, Huazhong University of Science and Technology, Wuhan, China. (7)Institute of Research and Clinical Innovations, Neusoft Medical Systems, Shanghai, China. (8)CV Business Unit, Neusoft Medical Systems, Shenyang, China. (9)Center for Biological Imaging, Institute of Biophysics, Chinese Academy of Sciences, Beijing, China. (10)The First Affiliated Hospital of Guangzhou Medical University, Guangzhou, China. (11)Department of Interventional Neuroradiology, Beijing Tiantan Hospital, Capital Medical University, Beijing, China. (12)Department of Interventional and Vascular Surgery, Hunan Provincial People's Hospital, Hunan Normal University, Changsha, China. (13)Center of Interventional Radiology Vascular Surgery, Department of Radiology, Zhongda Hospital, Medical School, Southeast University, Nanjing, China. (14)Department of Radiology, Shengjing Hospital of China Medical University, Shenyang, China. (15)Department of Cardiology, Union Hospital, Fujian Medical University, Fuzhou, China. (16)Department of Interventional Radiology, Fujian Provincial Hospital, Shengli Clinical Medical College of Fujian Medical University, Fuzhou, China. (17)Department of Cardiology, The Affiliated Hospital of Hangzhou Normal University, Hangzhou, China. (18)School of Public Health, Tongji Medical College, Huazhong University of Science and Technology, Wuhan, China. (19)Department of Radiology, Union Hospital, Tongji Medical College, Huazhong University of Science and Technology, Wuhan, China. xkliulang1314@163.com. (20)Department of Radiology, University of Washington, Seattle, WA, USA. zhucheng@uw.edu. (21)School of Computer Science, Wuhan University, Wuhan, China. dubo@whu.edu.cn. (22)School of Electronic Information and Communications, Huazhong University of Science and Technology, Wuhan, China. xgwang@hust.edu.cn. (23)Department of Radiology, Union Hospital, Tongji Medical College, Huazhong University of Science and Technology, Wuhan, China. hqzcsxh@sina.com. (#)Contributed equally Digital subtraction angiography (DSA) devices guide procedures across numerous diseases, performed on more than 100,000 patients daily worldwide. However, these procedures expose patients and healthcare providers to radiation, increasing the risk of health issues. Despite many low-dose DSA imaging methods proposed, none have been prospectively clinically validated. In this study, 46,829 patients (over 5 million DSA images) from 70 centers were used to iterate our previously developed generative artificial intelligence system (named GenDSA-V2). A total of 1,068 patients (533 in intervention arm and 535 in control arm), with suspected cerebral aneurysms (n = 435), lung cancer (n = 417) or advanced liver cancer (n = 216), meeting surgical criteria, were enrolled to validate the GenDSA-V2. The primary outcome was radiation dose, while secondary outcomes included efficiency, operation time and intraoperative complications. Group assignments were blinded to patients, surgeons and investigators, while technicians were aware but not involved in data collection or analysis. The GenDSA-V2 group showed substantially reduced radiation exposure, with an air kerma (AK) of 151.3 ± 125.1 mGy compared to 457.4 ± 407.4 mGy in the standard clinical protocols (SCP) group (mean difference = -306.1 mGy, 95% confidence interval (CI) = -342.3 to -269.9, P < 0.001 for superiority) and a dose-area product (DAP) of 4009.7 ± 2767.9 μGy m2 versus 12531.6 ± 9145.9 μGy m2 (mean difference = -8521.9 μGy m2, 95% CI = -9333.1 to -7710.7, P < 0.001 for superiority). Mean operation time was 33.1 ± 10.8 min in the SCP group and 34.8 ± 11.8 min in the GenDSA-V2 group (mean difference = 1.7 min, 95% CI = 0.3 to 3.1, P < 0.001 for noninferiority). Complication rates were similar (SCP = 8.1%, GenDSA-V2 = 7.5%, mean difference = -0.6%, 95% CI = -3.8% to 2.6%, P < 0.001 for noninferiority). The GenDSA system reduces radiation exposure to both physicians and patients by approximately two-thirds during DSA-guided procedures, demonstrating substantial clinical and translational value. Chinese Clinical Trial Registry: ChiCTR2400084789 . © 2026. The Author(s), under exclusive licence to Springer Nature America, Inc. DOI: 10.1038/s41591-025-04042-6 Conflict of interest statement: Competing interests: X.L. and Y. Li are employees of the Institute of Research and Clinical Innovations, Neusoft Medical Systems. Y.H. serves as Vice President of Neusoft Medical Systems. The other authors declare no competing interests.
+ --- Step5 Link to Summary ---> LLM output --- 
+LLM output (Summary of Abstract): This randomized controlled trial evaluated a generative artificial intelligence system (GenDSA-V2) to reduce radiation exposure during digital subtraction angiography (DSA). The study included 46,829 patients across 70 centers, with 1,068 patients (533 in the GenDSA-V2 group and 535 in the standard clinical protocol [SCP] group) undergoing procedures for suspected cerebral aneurysms (n=435), lung cancer (n=417), or advanced liver cancer (n=216). The primary outcome was radiation dose, measured by air kerma (AK) and dose-area product (DAP). Secondary outcomes included efficiency (operation time) and intraoperative complications.
+
+The GenDSA-V2 group demonstrated a substantial reduction in radiation exposure compared to the SCP group: mean AK was 151.3 ± 125.1 mGy versus 457.4 ± 407.4 mGy (mean difference = -306.1 mGy, 95% CI -342.3 to -269.9, p < 0.001), and mean DAP was 4009.7 ± 2767.9 μGy m2 versus 12531.6 ± 9145.9 μGy m2 (mean difference = -8521.9 μGy m2, 95% CI -9333.1 to -7710.7, p < 0.001). Operation time was similar between groups (mean difference 1.7 min, 95% CI 0.3 to 3.1, p < 0.001 for noninferiority), and complication rates were comparable (SCP = 8.1%, GenDSA-V2 = 7.5%, p < 0.001 for noninferiority).  The study was registered as ChiCTR2400084789. 
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41482562/ with PMID 41482562
+Print abstract to summarize:
+1. Pract Neurol. 2026 Jan 2:pn-2025-004950. doi: 10.1136/pn-2025-004950. Online ahead of print. Hereditary transthyretin amyloidosis with hand weakness and bulbar involvement. Bernsen S(1)(2), Weydt P(3)(4). Author information: (1)University Hospital Bonn Neurology Centre, Bonn, Germany. (2)ALS Clinic, Charité-Universitätsmedizin Berlin, Berlin, BE, Germany. (3)University Hospital Bonn Neurology Centre, Bonn, Germany patrick.weydt@ukbonn.de. (4)Clinical Research, Deutsches Zentrum für Neurodegenerative Erkrankungen, Bonn, NRW, Germany. A 76-year-old man developed progressive motor weakness, bulbar symptoms and hand muscle atrophy, initially suspected to be due to motor neurone disease. Unexpected findings on cardiological evaluation identified amyloidosis, and genetic testing confirmed the TTR p.Val50Met mutation, indicating late-onset hereditary transthyretin amyloidosis with a mixed neuropathic and cardiac phenotype. The diagnosis was delayed and complicated by minimal sensory symptoms and the atypical presentation. © Author(s) (or their employer(s)) 2026. No commercial re-use. See rights and permissions. Published by BMJ Group. DOI: 10.1136/pn-2025-004950 Conflict of interest statement: Competing interests: None declared.
+ --- Step5 Link to Summary ---> LLM output --- 
+LLM output (Summary of Abstract): This case report describes a single patient with late-onset hereditary transthyretin amyloidosis (hATTR) presenting with progressive motor weakness, bulbar symptoms, and hand muscle atrophy. The patient, a 76-year-old man, initially had a suspected diagnosis of motor neuron disease. Diagnostic delay occurred due to minimal sensory symptoms and atypical presentation. Cardiological evaluation revealed amyloidosis, which, combined with genetic testing confirming the TTR p.Val50Met mutation, established the final diagnosis of hATTR with a mixed neuropathic and cardiac phenotype. The report highlights the challenges in diagnosing this condition given its potential for atypical presentation. Limitations include the single-patient design, preventing generalizability of findings or quantification of effect sizes. No competing interests were declared. 
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41482475/ with PMID 41482475
+Print abstract to summarize:
+1. Med Humanit. 2026 Jan 2:medhum-2025-013641. doi: 10.1136/medhum-2025-013641. Online ahead of print. Reading literature on kinship in a clinical context: a qualitative study of a reading group for nurses. Schoenau MN(1), Missel M(2)(3), Synnes O(4). Author information: (1)Copenhagen University Hospital Heart Centre, Copenhagen, Denmark mai.nanna.schoenau@regionh.dk. (2)Copenhagen University Hospital Heart Centre, Copenhagen, Denmark. (3)Copenhagen University, Copenhagen, Denmark. (4)Centre for Diaconia and Professional Practice, VID Specialized University, Oslo, Norway. Family members, relatives and friends are all affected when someone is hospitalised with a life-threatening illness. However, they often feel neglected and sometimes ignored by healthcare professionals. To address this, the reading of literature has been used in various clinical contexts in an attempt to humanise the care of patients and their relatives. Reading fiction enables healthcare professionals to imaginatively enter relatives' perspectives, fostering a deeper understanding of their experiences, which may in turn enhance family-centred care in clinical practice. However, research on how healthcare professionals engage with the reading of literary texts and what they discuss in such contexts has not yet been explored. This article presents findings from a qualitative study exploring a reading group for nurses at a hospital ward in Denmark, where literature on kinship was read and discussed. We examined the following specific research question: What takes place when nurses join a reading group in a clinical context to read and discuss literature on kinship?Based on a hermeneutical analysis of four audio-recorded reading group sessions, we identified the following three themes: (1) awareness of kinship and the negotiation of norms, (2) engagement with various perspectives and (3) acknowledgement of emotions when caring for family members. These themes are discussed in light of Felski's concept of recognition as knowing and acknowledgement. Additionally, by applying Meretoja's theory of narrative agency, we demonstrate how reading literature in a clinical setting can foster narrative agency, enabling nurses to expand and clarify their understandings and assumptions of kinship based on their ability to navigate and influence what Meretoja terms their 'narrative environment' in a clinical context. © Author(s) (or their employer(s)) 2026. No commercial re-use. See rights and permissions. Published by BMJ Group. DOI: 10.1136/medhum-2025-013641 Conflict of interest statement: Competing interests: None declared.
+ --- Step5 Link to Summary ---> LLM output --- 
+LLM output (Summary of Abstract): This qualitative study explored nurses’ experiences participating in a reading group focused on kinship literature within a hospital ward in Denmark. The study addressed the question: What takes place when nurses join a reading group in a clinical context to read and discuss literature on kinship? Data were collected through a hermeneutical analysis of four audio-recorded reading group sessions. The study population consisted of nurses participating in the reading group; specific numbers are not provided. Three themes emerged from the analysis: (1) awareness of kinship and negotiation of norms, (2) engagement with diverse perspectives, and (3) acknowledgement of emotions related to family member care. The researchers applied theoretical frameworks by Felski (recognition) and Meretoja (narrative agency) to further examine the nurses’ engagement with the literature and its potential impact on their understanding of kinship and clinical practice. A limitation is the small sample size (four sessions) and the specific context of a single hospital ward, which may limit generalizability. 
+Processed evidence URL https://pubmed.ncbi.nlm.nih.gov/41482472/ with PMID 41482472
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step6 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step6: Reduce to Evidence
+...
+...
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Giving a child butter before bed can resolve nighttime awakenings. 
+ Evidence Summary: This retrospective observational cohort study evaluated 45 teeth in 37 patients diagnosed with cemental tears at a university endodontic clinic between September 2019 and June 2024. The study aimed to assess clinical presentations, radiographic features, histopathological characteristics, and treatment outcomes, utilizing a pre-existing classification system for cemental tears. Data were extracted from patient case histories, clinical and radiographic findings (periapical radiographs and cone-beam computed tomography), and histopathological analyses. Descriptive statistics were used to summarize the findings.
+
+Key findings included that 68.9% of affected teeth had previous treatment. CBCT and direct inspection successfully identified all affected teeth, while periapical radiographs detected 60.0%. Histopathology revealed cementum, bone, and cystic lesions. Unfavourable treatment outcomes were prevalent in teeth classified as Classes 4-6 (78.9%). Regenerative approaches (EMD, xenografts, collagen membranes) showed varied outcomes (44.4%, 38.1%, and 55.6% favorable, respectively), with no favorable outcomes observed with EMD or xenografts in Classes 4-6. A limitation is the retrospective nature of the study, potentially introducing bias. 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Giving a child butter before bed can resolve nighttime awakenings. 
+ Evidence Summary: This randomized controlled trial evaluated a generative artificial intelligence (AI) system, GenDSA-V2, for reducing radiation exposure during digital subtraction angiography (DSA) procedures. A total of 1,068 patients (533 in the GenDSA-V2 group and 95% CI = -342.3 to -269.9, P < 0.001 for superiority) and a dose-area product (DAP) of 4009.7 ± 2767.9 μGy m2 versus 12531.6 ± 9145.9 μGy m2 (mean difference = -8521.9 μGy m2, 95% CI = -9333.1 to -7710.7, P < 0.001 for superiority). Operation time was 33.1 ± 10.8 min in the standard clinical protocol (SCP) group versus 34.8 ± 11.8 min in the GenDSA-V2 group (mean difference = 1.7 min, 95% CI = 0.3 to 3.1, P < 0.001 for noninferiority). Complication rates were similar between groups (SCP = 8.1%, GenDSA-V2 = 7.5%, mean difference = -0.6%, 95% CI = -3.8% to 2.6%, P < 0.001 for noninferiority). The study included data from 46,829 patients across 70 centers and was registered as ChiCTR2400084789. 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Giving a child butter before bed can resolve nighttime awakenings. 
+ Evidence Summary: This case report describes a 76-year-old man diagnosed with late-onset hereditary transthyretin amyloidosis (hATTR) following an initial misdiagnosis of motor neuron disease. The patient presented with progressive motor weakness, bulbar symptoms, and hand muscle atrophy. Amyloidosis was initially detected through cardiological evaluation, and genetic testing confirmed the presence of the TTR p.Val50Met mutation. The patient exhibited a mixed neuropathic and cardiac phenotype. Notably, the diagnosis was delayed due to minimal sensory symptoms and an atypical presentation. The study reports on a single case and therefore does not provide data on effect sizes or allow for generalizability. The limitation is the absence of a control group and the single-patient nature of the report. 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Giving a child butter before bed can resolve nighttime awakenings. 
+ Evidence Summary: This qualitative study explored nurses’ experiences participating in a reading group focused on kinship literature within a hospital setting in Denmark. The study aimed to understand what occurs when nurses engage with such a group. Data were collected through a hermeneutical analysis of audio recordings from four reading group sessions. The population consisted of nurses participating in the reading group; specific numbers are not provided.
+
+The analysis identified three key themes: (1) awareness of kinship and negotiation of norms, (2) engagement with diverse perspectives, and (3) acknowledgement of emotions related to family member care.  The findings were interpreted using Felski’s concept of recognition and Meretoja’s theory of narrative agency, suggesting the reading group fostered nurses' ability to understand and influence their professional environment.
+
+A limitation is the small sample size (four sessions) and the single hospital ward setting, limiting the generalizability of the findings. The study does not report demographic information about the participating nurses. 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Babies wake up at night due to low blood sugar from insufficient daytime calorie intake. 
+ Evidence Summary: This retrospective observational cohort study evaluated 37 patients (45 teeth) diagnosed with cemental tears at a university endodontic clinic between September 2019 and June 2024. The study aimed to characterize clinical, radiographic, and histopathological features, assess the utility of a cemental tear classification system, and evaluate treatment outcomes. Data were extracted from existing patient records, and descriptive statistics were used for analysis.
+
+Radiographic assessment demonstrated that cone-beam computed tomography (CBCT) and direct inspection were successful in identifying all affected teeth, while periapical radiographs detected 60.0% of cases. Histopathological examination revealed cementum, bone, and cystic lesions in affected teeth. A significant proportion of teeth (68.9%) had prior treatment. Unfavourable treatment outcomes were observed in 78.9% of teeth classified as Classes 4-6. Regenerative approaches using enamel matrix derivatives (EMD), xenografts, and collagen membranes resulted in favourable outcomes in 44.4%, 38.1%, and 55.6% of teeth, respectively, across all classes; however, no teeth in Classes 4-6 treated with EMD or xenografts achieved favourable outcomes. The study's limitations include its retrospective nature and reliance on existing patient data. 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Babies wake up at night due to low blood sugar from insufficient daytime calorie intake. 
+ Evidence Summary: This randomized controlled trial evaluated a generative artificial intelligence system (GenDSA-V2) for reducing radiation exposure during digital subtraction angiography (DSA). Researchers utilized data from 46,829 patients across 70 centers to develop and then clinically validate GenDSA-V2. A total of 1,068 patients (533 in the GenDSA-V2 group and 535 in the standard clinical protocol [SCP] group) undergoing surgery for suspected cerebral aneurysms (n=435), lung cancer (n=417), or advanced liver cancer (n=216) were enrolled. The primary outcome was radiation dose, measured by air kerma (AK) and dose-area product (DAP). Secondary outcomes included efficiency (operation time) and intraoperative complications.
+
+Results showed a substantial reduction in radiation exposure with GenDSA-V2: mean AK was 151.3 ± 125.1 mGy versus 457.4 ± 407.4 mGy in the SCP group (mean difference = -306.1 mGy, 95% CI -342.3 to -269.9, p < 0.001), and mean DAP was 4009.7 ± 2767.9 μGy m2 versus 12531.6 ± 9145.9 μGy m2 (mean difference = -8521.9 μGy m2, 95% CI -9333.1 to -7710.7, p < 0.001). Operation time was similar between groups (mean difference = 1.7 min, 95% CI 0.3 to 3.1, p < 0.001). Complication rates were also comparable (SCP = 8.1%, GenDSA-V2 = 7.5%, mean difference = -0.6%, 95% CI -3.8% to 2.6%, p < 0.001). The study was registered as ChiCTR2400084789. 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Babies wake up at night due to low blood sugar from insufficient daytime calorie intake. 
+ Evidence Summary: This case report describes a 76-year-old man who presented with progressive motor weakness, bulbar symptoms, and hand muscle atrophy, initially suspected to be amyotrophic lateral sclerosis (ALS). Diagnostic investigations, prompted by unexpected findings during cardiological evaluation, revealed hereditary transthyretin amyloidosis (hATTR) caused by the TTR p.Val50Met mutation. Genetic testing confirmed the diagnosis, revealing a mixed neuropathic and cardiac phenotype. The report highlights a diagnostic delay and complexity due to minimal sensory symptoms and an atypical clinical presentation. This is a single case report; therefore, no effect sizes or population data are available. A limitation is the inability to generalise findings beyond this individual case. 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Babies wake up at night due to low blood sugar from insufficient daytime calorie intake. 
+ Evidence Summary: This qualitative study explored nurses' engagement with a reading group focused on kinship literature within a hospital setting in Denmark. The study aimed to understand what occurs when nurses participate in such a group. Data were collected through a hermeneutical analysis of audio recordings from four reading group sessions. The population consisted of nurses participating in the reading group. Key themes identified were: (1) increased awareness of kinship and negotiation of related norms, (2) engagement with diverse perspectives, and (3) acknowledgement of emotions experienced when caring for family members. The authors used Felski’s concept of recognition and Meretoja’s theory of narrative agency to frame the findings, suggesting that reading literature can foster narrative agency and influence nurses' understanding of kinship within a clinical context. A limitation is the small sample size (only four sessions were analyzed), which limits the generalizability of the findings. 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Butter, peanut butter, avocado, or coconut milk can be given to infants to resolve nighttime hunger. 
+ Evidence Summary: This retrospective cohort study evaluated 45 teeth (in 37 patients) diagnosed with cemental tears at a university endodontic clinic between September 2019 and June 2024. Data were extracted from patient case histories, clinical and radiographic findings, and histopathological analyses. The study aimed to assess clinical presentations, radiographic features, histopathological characteristics, and treatment outcomes, evaluating the applicability of a classification system for cemental tears.
+
+Key findings included that 68.9% of affected teeth had prior treatment. CBCT and direct inspection successfully identified all affected teeth, while periapical radiographs detected 60.0%. Histopathological analysis revealed cementum, bone, and cystic lesions in affected teeth. Unfavorable treatment outcomes were observed in 78.9% of teeth classified as Class 4-6. Regenerative approaches (EMD, xenografts, collagen membranes) showed varying success rates (44.4%, 38.1%, and 55.6% respectively), but no teeth in Classes 4-6 treated with EMD or xenografts demonstrated favorable outcomes. The study concludes that classification is a prognostic factor and questions the efficacy of certain regenerative approaches in more severe cases. A limitation is the retrospective nature of the study, potentially introducing bias. 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Butter, peanut butter, avocado, or coconut milk can be given to infants to resolve nighttime hunger. 
+ Evidence Summary: This randomized controlled trial evaluated a generative artificial intelligence system (GenDSA-V2) to reduce radiation exposure during digital subtraction angiography (DSA). The study included 46,829 patients across 70 centers, with 1,068 patients (533 in the GenDSA-V2 group and 535 in the standard clinical protocol [SCP] group) undergoing procedures for suspected cerebral aneurysms (n=435), lung cancer (n=417), or advanced liver cancer (n=216). The primary outcome was radiation dose, measured by air kerma (AK) and dose-area product (DAP). Secondary outcomes included efficiency (operation time) and intraoperative complications.
+
+The GenDSA-V2 group demonstrated a substantial reduction in radiation exposure compared to the SCP group: mean AK was 151.3 ± 125.1 mGy versus 457.4 ± 407.4 mGy (mean difference = -306.1 mGy, 95% CI -342.3 to -269.9, p < 0.001), and mean DAP was 4009.7 ± 2767.9 μGy m2 versus 12531.6 ± 9145.9 μGy m2 (mean difference = -8521.9 μGy m2, 95% CI -9333.1 to -7710.7, p < 0.001). Operation time was similar between groups (mean difference 1.7 min, 95% CI 0.3 to 3.1, p < 0.001 for noninferiority), and complication rates were comparable (SCP = 8.1%, GenDSA-V2 = 7.5%, p < 0.001 for noninferiority).  The study was registered as ChiCTR2400084789. 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Butter, peanut butter, avocado, or coconut milk can be given to infants to resolve nighttime hunger. 
+ Evidence Summary: This case report describes a single patient with late-onset hereditary transthyretin amyloidosis (hATTR) presenting with progressive motor weakness, bulbar symptoms, and hand muscle atrophy. The patient, a 76-year-old man, initially had a suspected diagnosis of motor neuron disease. Diagnostic delay occurred due to minimal sensory symptoms and atypical presentation. Cardiological evaluation revealed amyloidosis, which, combined with genetic testing confirming the TTR p.Val50Met mutation, established the final diagnosis of hATTR with a mixed neuropathic and cardiac phenotype. The report highlights the challenges in diagnosing this condition given its potential for atypical presentation. Limitations include the single-patient design, preventing generalizability of findings or quantification of effect sizes. No competing interests were declared. 
+ Response: no 
+ --- Step6 Reduce Evidence ---> Response ---
+ Statement Text: Butter, peanut butter, avocado, or coconut milk can be given to infants to resolve nighttime hunger. 
+ Evidence Summary: This qualitative study explored nurses’ experiences participating in a reading group focused on kinship literature within a hospital ward in Denmark. The study addressed the question: What takes place when nurses join a reading group in a clinical context to read and discuss literature on kinship? Data were collected through a hermeneutical analysis of four audio-recorded reading group sessions. The study population consisted of nurses participating in the reading group; specific numbers are not provided. Three themes emerged from the analysis: (1) awareness of kinship and negotiation of norms, (2) engagement with diverse perspectives, and (3) acknowledgement of emotions related to family member care. The researchers applied theoretical frameworks by Felski (recognition) and Meretoja (narrative agency) to further examine the nurses’ engagement with the literature and its potential impact on their understanding of kinship and clinical practice. A limitation is the small sample size (four sessions) and the specific context of a single hospital ward, which may limit generalizability. 
+ Response: no 
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step7 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step7: Statement to Truthness
+...
+...
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Giving a child butter before bed can resolve nighttime awakenings.
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+VERDICT: uncertain
+FINALSCORE: 0.1  
+ --- Extracted Information from prompt: ---
+Parsed verdict: uncertain 
+Parsed score: 0.1
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Babies wake up at night due to low blood sugar from insufficient daytime calorie intake.
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+VERDICT: uncertain
+FINALSCORE: 0.4  
+ --- Extracted Information from prompt: ---
+Parsed verdict: uncertain 
+Parsed score: 0.4
+ --- Step7 Statement to Truthness --> Evidence-Block and claim_text: ---
+Claim Text: Butter, peanut butter, avocado, or coconut milk can be given to infants to resolve nighttime hunger.
+Evidence: No evidence provided.
+ --- Step7-Statement to Truthness --> Model output --- 
+Model output:
+VERDICT: uncertain
+FINALSCORE: 0.3  
+ --- Extracted Information from prompt: ---
+Parsed verdict: uncertain 
+Parsed score: 0.3
+ 
+
+
+
+
+
+  --------------------------------------------------------------- 
+
+ --- Step8 --- 
+ 
+ --------------------------------------------------------------- 
+
+Starting Step8: Statement to Score
+...
+...
+Overall truthiness score: 0.2
+ 
+
+
+
+
+
+ --------------------------------------------------------------- 
+
+ --- Runtime Analysis ---
+ 
+ --------------------------------------------------------------- 
+
+update_transcript: 15.424658 seconds
+update_statements: 1.859920 seconds
+update_query: 10.265666 seconds
+query_to_link: 1.273778 seconds
+link_to_summary: 95.913381 seconds
+reduce_to_evidence: 24.334519 seconds
+statement_to_truthness: 13.473797 seconds
+statement_to_score: 0.000118 seconds
+Total elapsed time: 162.545853 seconds
+ 
+
+
+
+
+
+ --------------------------------------------------------------- 
+
+ --- Final Output (JSON) ---
+ 
+ --------------------------------------------------------------- 
+
+{'transcript': "Give your kid butter before bed. It's the epic bedtime hack you've probably never heard of. Does your little one wake up multiple times a night? Yep, that was my life when my son was 12 months old. However, I found something that changed my life and I hope it can do the same for you. Alright, ready? Before bed, I started offering my son a spoonful of butter. I know it sounds crazy, but hear me out. I felt like he was still hungry and I wanted to make sure he was getting enough calories before bedtime. And guess what? It worked like a charm. He went from waking up multiple times a night to a full night's sleep. It was a game changer, all because of butter. Now, why is this helpful? It's not uncommon for our growing babies to need more calories. Brains are rapidly developing and bodies growing bigger. If kids don't get enough calories during the day, their blood sugar can drop overnight and they'll wake up hungry and cry. Since they can't communicate their hunger, they will simply just cry. So often the only thing that will console them is the middle of the night, nursing session, or a bottle. Does that make sense? Alright, now, I can't guarantee that this will work for every child, but it's worth a try if you're feeling desperate for some sleep. And no, it does not need to be butter. It could be any high calorie fat rich food like peanut butter, avocado, coconut milk. Get creative. Choose something that is easy, that your child will eat and they'll love. Now, if you've already tried it and it worked for you, please share your experience in the comments below. I love hearing from other moms sharing their tips with each other. Just a reminder, every child's different. You know your baby best. Trust your instincts. And if it doesn't work for you, then we could try something else. Something.", 'statements': [{'id': 1, 'text': 'Giving a child butter before bed can resolve nighttime awakenings.', 'verdict': 'uncertain', 'rationale': 'VERDICT: uncertain\nFINALSCORE: 0.1', 'confidence': 0.1, 'query': 'NONE', 'evidence': []}, {'id': 2, 'text': 'Babies wake up at night due to low blood sugar from insufficient daytime calorie intake.', 'verdict': 'uncertain', 'rationale': 'VERDICT: uncertain\nFINALSCORE: 0.4', 'confidence': 0.4, 'query': 'NONE', 'evidence': []}, {'id': 3, 'text': 'Butter, peanut butter, avocado, or coconut milk can be given to infants to resolve nighttime hunger.', 'verdict': 'uncertain', 'rationale': 'VERDICT: uncertain\nFINALSCORE: 0.3', 'confidence': 0.3, 'query': 'NONE', 'evidence': []}], 'overall_truthiness': 0.2, 'generated_at': '2026-01-03T12:17:48Z'}

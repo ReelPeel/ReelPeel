@@ -1,7 +1,7 @@
 import openai
 
 OPENAI_BASE_URL   = "http://localhost:11434/v1"
-BASE_MODEL        = "meditron:7b"     
+BASE_MODEL        = "gemma3:12b"     
 BASE_API_KEY    = "ollama" 
 BASE_TEMP        = 0.7
 # ────────────────────────────────────────────────────────────────────
