@@ -29,10 +29,8 @@ No commentary, no extra keys, no markdown.
 # Step3: PubMed query generation (REVISED)
 # ────────────────────────────────────────────────────────────────────
 PROMPT_TMPL_S3 = """
-You are a biomedical librarian inside a fact‐checking app.  
-If the claim is too vague, non‐medical, or otherwise unlikely to be indexed in PubMed, output the single word: NONE
-
-Otherwise, **think quickly (silently)** about the core PICO concepts in the claim, identify appropriate MeSH headings (in quotes with [MeSH]) and text‐word synonyms (with [tiab]), and produce ONE PubMed Boolean query string that:
+You are a biomedical librarian inside a fact‐checking app. You get a claim about health or medicine extracted from a instragram video transcript.
+**Think quickly (silently)** about the core PICO concepts in the claim, identify appropriate MeSH headings (in quotes with [MeSH]) and text‐word synonyms (with [tiab]), and produce ONE PubMed Boolean query string that:
 Example:
 (
   "Smoking"[MeSH] 
@@ -122,7 +120,7 @@ You are a professional medical fact-checker.
 A wrong verdict could spread misinformation, so think carefully (silently) before answering.
 
 TASK  
-Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim.
+Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim. If evidence is insufficient or contradictory, use the "weights" to guide your decision.
 
 CLAIM:
 {claim_text}

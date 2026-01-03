@@ -52,7 +52,7 @@ def query_to_link(data: Dict[str, Any],) -> Dict[str, Any]:
             ev_list.append({
                 "pubmed_id": pmid,
                 "url": url,
-                "summary": "",
+                "abstract": "",
                 "relevance": ""
             })
     return data
