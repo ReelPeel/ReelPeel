@@ -2,3 +2,7 @@
 venv
 .venv
 __pycache__
+
+*.txt
+*.wav
+*.json
