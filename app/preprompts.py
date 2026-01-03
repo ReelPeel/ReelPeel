@@ -137,3 +137,17 @@ STRICT OUTPUT – exactly two lines, nothing else:
 VERDICT: true|false|uncertain
 FINALSCORE: <probability 0.00–1.00>
 """
+
+# ────────────────────────────────────────────────────────────────────
+# Step7: Statement rating
+# ────────────────────────────────────────────────────────────────────
+PROMPT_TMPL_RAW = """
+You are a professional medical fact-checker.  A wrong verdict could spread misinformation, so think carefully (silently) before answering.
+
+Decide whether the CLAIM is SUPPORTED, REFUTED, or UNCERTAIN. 
+Give the final response in the following format. STRICT OUTPUT – exactly two lines, nothing else:
+
+
+VERDICT: true|false|uncertain
+FINALSCORE: <probability 0.00–1.00>
+"""

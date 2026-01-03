@@ -71,7 +71,13 @@ def ollama_generate_statement(
     text = (data.get("response") or "").strip()
 
     # Safety cleanup: remove wrapping quotes or leading "A:" if the model includes it.
-    text = text.strip().lstrip("A:").strip()
+    text = (data.get("response") or "").strip()
+
+    for prefix in ("A:", "A :", "Answer:", "Answer :"):
+        if text.startswith(prefix):
+            text = text[len(prefix):].lstrip()
+            break
+
     if (text.startswith('"') and text.endswith('"')) or (text.startswith("'") and text.endswith("'")):
         text = text[1:-1].strip()
 

@@ -1,7 +1,7 @@
 import openai
 
 OPENAI_BASE_URL   = "http://localhost:11434/v1"
-BASE_MODEL        = "gemma3:12b"     
+BASE_MODEL        = "gemma3:27b"     
 BASE_API_KEY    = "ollama" 
 BASE_TEMP        = 0.7
 # ────────────────────────────────────────────────────────────────────
@@ -39,7 +39,7 @@ CLIENT_5 = openai.OpenAI(
     api_key=BASE_API_KEY
 )
 
-MODEL_5 = "gemma3:12b"
+MODEL_5 = "gemma3:27b"
 TEMP_5 = BASE_TEMP
 MAX_TOKENS_5 = 512
 
