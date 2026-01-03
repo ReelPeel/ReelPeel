@@ -13,7 +13,7 @@ from ..core.models import PipelineState, Evidence
 # STEP 3: Statement to Query
 # -------------------------------------------------------------------------
 class StatementToQueryStep(PipelineStep):
-    def run(self, state: PipelineState) -> PipelineState:
+    def execute(self, state: PipelineState) -> PipelineState:
         print(f"[{self.__class__.__name__}] Generating PubMed queries...")
 
         client = openai.OpenAI(
@@ -61,7 +61,7 @@ class StatementToQueryStep(PipelineStep):
 # STEP 4: Query to Link
 # -------------------------------------------------------------------------
 class QueryToLinkStep(PipelineStep):
-    def run(self, state: PipelineState) -> PipelineState:
+    def execute(self, state: PipelineState) -> PipelineState:
         print(f"[{self.__class__.__name__}] Fetching PubMed links...")
 
         retmax = self.config.get("retmax", 3)
@@ -111,7 +111,7 @@ class LinkToSummaryStep(PipelineStep):
     NCBI_EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
     PUBMED_URL_RE = re.compile(r"pubmed\.ncbi\.nlm\.nih\.gov/(\d+)/?")
 
-    def run(self, state: PipelineState) -> PipelineState:
+    def execute(self, state: PipelineState) -> PipelineState:
         print(f"[{self.__class__.__name__}] Fetching PubMed metadata (Abstracts & Types)...")
 
         for stmt in state.statements:
@@ -199,7 +199,7 @@ class PubTypeWeightStep(PipelineStep):
         (re.compile(r"\beditorial\b|\bletter\b"), 0.35, "opinion"),
     ]
 
-    def run(self, state: PipelineState) -> PipelineState:
+    def execute(self, state: PipelineState) -> PipelineState:
         print(f"[{self.__class__.__name__}] Calculating evidence weights...")
         default_weight = self.config.get("default_weight", 0.5)
 

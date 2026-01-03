@@ -5,6 +5,7 @@ RESEARCH_MODULE = {
     "type": "module",
     "settings": {
         "name": "PubMed Research Engine",
+        "debug": True,
         "steps": [
             {
                 "type": "generate_query",  # Step 3

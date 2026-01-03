@@ -11,7 +11,7 @@ class TranscriptToStatementStep(PipelineStep):
     Refactored Step 2: Extracts medical claims from a transcript using an LLM.
     """
 
-    def run(self, state: PipelineState) -> PipelineState:
+    def execute(self, state: PipelineState) -> PipelineState:
         transcript = state.transcript
         if not transcript or not transcript.strip():
             print(f"[{self.__class__.__name__}] Warning: No transcript found in state.")

@@ -9,7 +9,7 @@ class MockTranscriptLoader(PipelineStep):
     Used for testing downstream steps without needing audio files.
     """
 
-    def run(self, state: PipelineState) -> PipelineState:
+    def execute(self, state: PipelineState) -> PipelineState:
         print(f"[{self.__class__.__name__}] Loading mock transcript...")
 
         # Get text from the config 'settings'
