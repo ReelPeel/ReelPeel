@@ -20,11 +20,7 @@ RESEARCH_MODULE = {
             },
             {
                 "type": "summarize_evidence",  # Step 5
-                "settings": {
-                    "base_url": "http://localhost:11434/v1",
-                    "model": "gemma3:12b",
-                    "prompt_template": PROMPT_TMPL_S5
-                }
+                "settings": {}
             },
             {
                 "type": "weight_evidence",  # Step 5.1

@@ -8,7 +8,10 @@ class Evidence(BaseModel):
     url: Optional[str] = None
     summary: Optional[str] = None
     pub_type: Optional[Union[str, List[str]]] = None
+    weight: float = 0.5
     relevance: Optional[str] = None
+
+    abstract: Optional[str] = None
 
 
 class Statement(BaseModel):

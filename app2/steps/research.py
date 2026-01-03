@@ -101,55 +101,84 @@ class QueryToLinkStep(PipelineStep):
 
 
 # -------------------------------------------------------------------------
-# STEP 5: Link to Summary
+# STEP 5: Link to Summary (Refactored: Fetch Abstract & Types)
 # -------------------------------------------------------------------------
 class LinkToSummaryStep(PipelineStep):
-    def run(self, state: PipelineState) -> PipelineState:
-        print(f"[{self.__class__.__name__}] Summarizing abstracts...")
+    """
+    Step 5: Fetches PubMed abstract and publication types for evidence URLs.
+    Does NOT perform LLM summarization (based on new user requirements).
+    """
+    NCBI_EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
+    PUBMED_URL_RE = re.compile(r"pubmed\.ncbi\.nlm\.nih\.gov/(\d+)/?")
 
-        client = openai.OpenAI(
-            base_url=self.config.get('base_url'),
-            api_key=self.config.get('api_key', 'ollama')
-        )
+    def run(self, state: PipelineState) -> PipelineState:
+        print(f"[{self.__class__.__name__}] Fetching PubMed metadata (Abstracts & Types)...")
 
         for stmt in state.statements:
             for ev in stmt.evidence:
-                if ev.summary or not ev.pubmed_id:
+                url = ev.url
+                if not url:
                     continue
 
-                abstract_text = self._fetch_abstract(ev.pubmed_id)
-                if not abstract_text:
-                    ev.summary = "Abstract not available."
-                    continue
-
-                # Run Summarization LLM
-                prompt = self.config.get('prompt_template').format(abstract=abstract_text)
                 try:
-                    resp = client.chat.completions.create(
-                        model=self.config.get('model'),
-                        temperature=self.config.get('temperature', 0.5),
-                        max_tokens=self.config.get('max_tokens', 256),
-                        messages=[{"role": "user", "content": prompt}],
-                    )
-                    ev.summary = resp.choices[0].message.content.strip()
-                    # Note: Real fetchers should also grab 'pub_type' here if possible
-                except Exception as e:
-                    print(f"   [Error] Summarization failed for {ev.pubmed_id}: {e}")
+                    # 1. Extract PMID
+                    pmid = self._extract_pmid(url)
+                    ev.pubmed_id = pmid
 
+                    # 2. Fetch Publication Types
+                    pub_types = self._pubmed_fetch_types(pmid)
+                    ev.pub_type = pub_types
+
+                    # 3. Fetch Abstract
+                    abstract = self._pubmed_fetch_abstract(pmid)
+                    ev.abstract = abstract
+
+                    # Optional: Map abstract to summary if summary is empty
+                    if not ev.summary and abstract:
+                        ev.summary = abstract[:500] + "..."  # Fallback for display
+
+                    print(
+                        f"   Processed {url} -> PMID: {pmid}, Types: {len(pub_types)}, Abstract Len: {len(abstract) if abstract else 0}")
+
+                except Exception as e:
+                    print(f"   [Warning] Could not process {url}: {e}")
+                    # Keep defaults if failed
+
+        # Update timestamp
+        state.generated_at = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         return state
 
-    def _fetch_abstract(self, pmid: str) -> Optional[str]:
-        url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+    def _extract_pmid(self, url: str) -> str:
+        """Extract numeric PMID from a PubMed URL or accept raw PMIDs."""
+        if url.isdigit():
+            return url
+        match = self.PUBMED_URL_RE.search(url)
+        if match:
+            return match.group(1)
+        raise ValueError(f"Unable to extract PMID from URL: {url}")
+
+    def _pubmed_fetch_types(self, pmid: str) -> List[str]:
+        """Fetch PubMed 'Publication Types' using ESummary."""
+        params = {"db": "pubmed", "id": pmid, "retmode": "json"}
+        r = requests.get(f"{self.NCBI_EUTILS}/esummary.fcgi", params=params, timeout=20)
+        r.raise_for_status()
+        payload = r.json()
+
+        rec = (payload.get("result") or {}).get(pmid) or {}
+        pubtypes = rec.get("pubtype") or []
+        # Ensure list[str]
+        return [str(x) for x in pubtypes if x is not None]
+
+    def _pubmed_fetch_abstract(self, pmid: str) -> Optional[str]:
+        """Fetch abstract text using EFetch."""
         params = {"db": "pubmed", "id": pmid, "rettype": "abstract", "retmode": "text"}
-        try:
-            r = requests.get(url, params=params, timeout=10)
-            r.raise_for_status()
-            lines = [line.strip() for line in r.text.splitlines() if line.strip()]
-            # Simple heuristic to remove caps headers/metadata
-            abstract = " ".join(line for line in lines if not line.isupper())
-            return abstract
-        except Exception:
-            return None
+        r = requests.get(f"{self.NCBI_EUTILS}/efetch.fcgi", params=params, timeout=20)
+        r.raise_for_status()
+
+        lines = [line.strip() for line in r.text.splitlines() if line.strip()]
+        # Filter out uppercase metadata lines loosely
+        abstract = " ".join(line for line in lines if not line.isupper())
+        return abstract or None
 
 
 # -------------------------------------------------------------------------
