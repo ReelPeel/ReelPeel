@@ -47,7 +47,7 @@ SCORES_MODULE = {
                     "normalize": True,
                     "batch_size": 16,
                     "max_length": 4096,
-                    "passage_fields": ["abstract", "summary"],
+                    "score_fields": ["abstract", "summary"],
                     "empty_relevance": 0.0,
                     "debug": True,
                 },
