@@ -10,12 +10,15 @@ import uvicorn
 
 # SAFETY CONFIG:
 # We limit to 3 requests every 1.5 seconds to account for network bursts.
-# (Standard is 3/1.0s, but that is often too tight).
 limiter = AsyncLimiter(3, 1.5)
 
 last_request_time = time.time()
 IDLE_TIMEOUT = 300  # 5 minutes
 NCBI_BASE = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
+
+# SIMPLE IN-MEMORY CACHE
+# Key: (util_name, sorted_params_tuple) | Value: (content, status, media_type)
+PROXY_CACHE = {}
 
 
 async def monitor_idle():
@@ -29,7 +32,7 @@ async def monitor_idle():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Initializing PubMed Proxy (Safe Mode)...")
+    print("Initializing PubMed Proxy (Safe Mode + Caching)...")
     monitor_task = asyncio.create_task(monitor_idle())
     yield
     print("Shutting down PubMed Proxy...")
@@ -45,23 +48,40 @@ async def proxy_pubmed(util: str, request: Request):
     last_request_time = time.time()
 
     target_url = f"{NCBI_BASE}/{util}"
+    # Convert query params to a sorted tuple so it can be used as a dictionary key
+    # (Sorting ensures 'a=1&b=2' hits the same cache as 'b=2&a=1')
     params = dict(request.query_params)
+    cache_key = (util, tuple(sorted(params.items())))
 
-    # RETRY LOGIC: Try up to 3 times if we get a 429
+    # 1. CHECK CACHE (Fast Path)
+    if cache_key in PROXY_CACHE:
+        # Debug print to show it's working
+        print(f"CACHE HIT: {util} (Params: {len(params)})")
+        content, status, media = PROXY_CACHE[cache_key]
+        return Response(content=content, status_code=status, media_type=media)
+
+    # 2. FETCH FROM UPSTREAM (Slow Path)
     async with httpx.AsyncClient() as client:
         for attempt in range(3):
+            # Only use the rate limiter for actual network calls
             async with limiter:
                 try:
                     resp = await client.get(target_url, params=params)
 
                     if resp.status_code == 429:
-                        # We hit the limit despite our limiter. Wait and retry.
                         wait_time = 2 * (attempt + 1)
-                        print(f"⚠️ NCBI 429 Rate Limit hit. Retrying in {wait_time}s...")
+                        print(f"NCBI 429 Rate Limit hit. Retrying in {wait_time}s...")
                         await asyncio.sleep(wait_time)
-                        continue  # Try loop again
+                        continue
 
-                    # Success (or other error like 404/500 that we shouldn't retry)
+                    # 3. SAVE TO CACHE (If successful)
+                    if resp.status_code == 200:
+                        PROXY_CACHE[cache_key] = (
+                            resp.content,
+                            resp.status_code,
+                            resp.headers.get("content-type")
+                        )
+
                     return Response(
                         content=resp.content,
                         status_code=resp.status_code,
@@ -70,10 +90,8 @@ async def proxy_pubmed(util: str, request: Request):
 
                 except httpx.RequestError as e:
                     print(f"Request Error: {e}")
-                    # On network error, maybe just fail or retry? Let's fail for now.
                     return Response(content=str(e), status_code=502)
 
-    # If we exhausted retries
     return Response(content="NCBI Rate Limit Exceeded (Retries failed)", status_code=429)
 
 
