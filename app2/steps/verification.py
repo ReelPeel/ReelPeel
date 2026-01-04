@@ -98,6 +98,8 @@ class TruthnessStep(PipelineStep):
                 )
                 reply = res.choices[0].message.content.strip()
 
+                self.log_artifact(f"Raw Output for Statement {stmt.id}", reply)
+
                 # 3. Parse Output
                 self._parse_verdict(stmt, reply)
 
