@@ -98,6 +98,46 @@ class PipelineStep(ABC):
         except (OSError, PermissionError) as e:
             print(f"[{self.step_name}] Warning: Failed to write to log file '{self.log_file}': {e}")
 
+    def log_artifact(self, label: str, data: Any):
+        """
+        Call this INSIDE your execute() method to log intermediate data.
+        """
+        if not self.debug:
+            return
+
+        timestamp = datetime.now().strftime("%H:%M:%S")
+
+        # 1. Intelligent Formatting
+        if isinstance(data, (dict, list)):
+            try:
+                formatted_data = json.dumps(data, indent=2, default=str)
+                # Hack to visually indent JSON newlines
+                formatted_data = formatted_data.replace("\\n", "\n")
+            except Exception:
+                formatted_data = str(data)
+        else:
+            formatted_data = str(data)
+
+        # 2. APPLY INDENTATION TO EVERY LINE (The Fix)
+        # This ensures the content looks "inside" the log block
+        prefix = "      "  # 6 spaces
+        formatted_data = "\n".join([f"{prefix}{line}" for line in formatted_data.split("\n")])
+
+        # 3. Construct Log Entry
+        log_entry = (
+            f"\n   >>> [ARTIFACT] {self.step_name} @ {timestamp}\n"
+            f"   LABEL: {label}\n"
+            f"   --------------------------------------------------\n"
+            f"{formatted_data}\n"
+            f"   --------------------------------------------------\n"
+        )
+
+        try:
+            with open(self.log_file, "a", encoding="utf-8") as f:
+                f.write(log_entry)
+        except Exception as e:
+            print(f"[WARNING] Could not log artifact: {e}")
+
     @abstractmethod
     def execute(self, state: PipelineState) -> PipelineState:
         pass
