@@ -6,6 +6,10 @@ from app2.test_configs.test_extraction import RESEARCH_MODULE, VERIFICATION_MODU
 FULL_PIPELINE_CONFIG = {
     "name": "Full_End_to_End_Run",
     "debug": True,
+    "llm_settings" : {
+        "base_url": "http://localhost:11434/v1",
+        "api_key" : "ollama",
+    },
     "steps": [
         # STEP 1: Mock Input (Simulating Whisper)
         {
@@ -22,7 +26,6 @@ FULL_PIPELINE_CONFIG = {
         {
             "type": "extraction",
             "settings": {
-                "base_url": "http://localhost:11434/v1",
                 "model": "gemma3:12b",
                 "prompt_template": PROMPT_TMPL_S2
             }
@@ -30,7 +33,6 @@ FULL_PIPELINE_CONFIG = {
         {
                 "type": "generate_query",  # Step 3
                 "settings": {
-                    "base_url": "http://localhost:11434/v1",
                     "model": "gemma3:12b",
                     "prompt_template": PROMPT_TMPL_S3_NARROW_QUERY
                 }
@@ -38,7 +40,6 @@ FULL_PIPELINE_CONFIG = {
         {
                 "type": "generate_query",  # Step 3
                 "settings": {
-                    "base_url": "http://localhost:11434/v1",
                     "model": "gemma3:12b",
                     "prompt_template": PROMPT_TMPL_S3_BROAD_QUERY
                 }
@@ -46,7 +47,6 @@ FULL_PIPELINE_CONFIG = {
         {
                 "type": "generate_query",  # Step 3
                 "settings": {
-                    "base_url": "http://localhost:11434/v1",
                     "model": "gemma3:12b",
                     "prompt_template": PROMPT_TMPL_S3_SYNONYMS_QUERY
                 }
@@ -66,7 +66,6 @@ FULL_PIPELINE_CONFIG = {
         {
                 "type": "truthness",
                 "settings": {
-                    "base_url": "http://localhost:11434/v1",
                     "model": "gemma3:12b",
                     "prompt_template": PROMPT_TMPL_S7
                 }
