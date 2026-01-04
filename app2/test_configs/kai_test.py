@@ -1,4 +1,5 @@
-from app2.core.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3, PROMPT_TMPL_S5, PROMPT_TMPL_S6, PROMPT_TMPL_S7
+from app2.core.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S6, PROMPT_TMPL_S3_BROAD_QUERY, PROMPT_TMPL_S3_NARROW_QUERY, PROMPT_TMPL_S3_SYNONYMS_QUERY, PROMPT_TMPL_S7
+from app2.test_configs.test_extraction import RESEARCH_MODULE, VERIFICATION_MODULE
 
 # 1. Define the Research Module (Steps 3, 4, 5, 5.1)
 RESEARCH_MODULE = {
@@ -9,16 +10,27 @@ RESEARCH_MODULE = {
             {
                 "type": "generate_query",  # Step 3
                 "settings": {
-                    "base_url": "http://localhost:11434/v1",
                     "model": "gemma3:12b",
-                    "prompt_template": PROMPT_TMPL_S3,
-                    "temperature": 0.0,
-                    # "max_tokens": 512 # Currently hardcoded in individual step
+                    "prompt_template": PROMPT_TMPL_S3_NARROW_QUERY
+                }
+            },
+        {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": "gemma3:12b",
+                    "prompt_template": PROMPT_TMPL_S3_BROAD_QUERY
+                }
+            },
+        {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": "gemma3:12b",
+                    "prompt_template": PROMPT_TMPL_S3_SYNONYMS_QUERY
                 }
             },
             {
                 "type": "fetch_links",  # Step 4
-                "settings": {"retmax": 3}
+                "settings": {"retmax": 5}
             },
             {
                 "type": "summarize_evidence",  # Step 5
@@ -63,7 +75,7 @@ SCORES_MODULE = {
                     # "top_m_by_relevance": 5,
 
                     # optional: if both support/refute are weak, force "neutral"
-                    "threshold_decisive": 0.2,
+                    "threshold_decisive": 0.3,
                 }
                 },
             # {"type": "similarity_penalty", "settings": {...}},
@@ -82,7 +94,6 @@ VERIFICATION_MODULE = {
             {
                 "type": "filter_evidence",
                 "settings": {
-                    "base_url": "http://localhost:11434/v1",
                     "model": "gemma3:12b",
                     "prompt_template": PROMPT_TMPL_S6,
                     "temperature": 0.0,
@@ -93,7 +104,6 @@ VERIFICATION_MODULE = {
             {
                 "type": "truthness",
                 "settings": {
-                    "base_url": "http://localhost:11434/v1",
                     "model": "gemma3:12b",
                     "prompt_template": PROMPT_TMPL_S7,
                     "temperature": 0.0,
@@ -131,7 +141,6 @@ FULL_PIPELINE_CONFIG = {
         {
             "type": "extraction",
             "settings": {
-                "base_url": "http://localhost:11434/v1",
                 "model": "gemma3:12b",
                 "prompt_template": PROMPT_TMPL_S2,
                 "temperature": 0.0,

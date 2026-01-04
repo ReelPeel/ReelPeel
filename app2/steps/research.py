@@ -103,7 +103,7 @@ class QueryToLinkStep(PipelineStep):
 
                         url = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
                         stmt.evidence.append(Evidence(pubmed_id=pmid, url=url))
-                    time.sleep(random.uniform(2, 5))
+                    # time.sleep(random.uniform(2, 5))
                     print(f"   Statement {stmt.id}: Found {len(id_list)} links.")
 
                 except Exception as e:
@@ -149,7 +149,7 @@ class LinkToSummaryStep(PipelineStep):
                     if not ev.summary and abstract:
                         ev.summary = abstract[:500] + "..."  # Fallback for display
                     # random sleep to avoid rate limits
-                    time.sleep(random.uniform(2, 5))
+                    # time.sleep(random.uniform(2, 5))
                     print(
                         f"   Processed {url} -> PMID: {pmid}, Types: {len(pub_types)}, Abstract Len: {len(abstract) if abstract else 0}")
 
