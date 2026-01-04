@@ -177,7 +177,7 @@ class RerankEvidenceStep(PipelineStep):
             # Write per-field scores back
             for score, (ev_idx, field) in zip(all_scores, mapping):
                 ev = stmt.evidence[ev_idx]
-                fs = float(score)
+                fs = round(float(score), 2)
 
                 if field == "abstract" and hasattr(ev, "relevance_abstract"):
                     ev.relevance_abstract = fs

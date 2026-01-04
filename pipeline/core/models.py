@@ -4,7 +4,7 @@ from typing import List, Optional, Union, Dict, Any
 from pydantic import BaseModel, Field
 
 
-class Stance_label(str, Enum):
+class StanceLabel(str, Enum):
     """Represents how a piece of evidence relates to a given statement.
 
     Values:
@@ -22,11 +22,11 @@ class Stance_label(str, Enum):
 
 class Stance(BaseModel):
     """Represents the stance of a piece of evidence towards a statement."""
-    abstract_label: Optional[Stance_label] = None
+    abstract_label: Optional[StanceLabel] = None
     abstract_p_supports: Optional[float] = None
     abstract_p_refutes: Optional[float] = None
     abstract_p_neutral: Optional[float] = None
-    summary_label: Optional[Stance_label] = None
+    summary_label: Optional[StanceLabel] = None
     summary_p_supports: Optional[float] = None
     summary_p_refutes: Optional[float] = None
     summary_p_neutral: Optional[float] = None
@@ -35,6 +35,7 @@ class Stance(BaseModel):
 class Evidence(BaseModel):
     pubmed_id: Optional[str] = None
     url: Optional[str] = None
+    queries: List[str] = Field(default_factory=list)
     abstract: Optional[str] = None
     summary: Optional[str] = None
     pub_type: Optional[Union[str, List[str]]] = None
@@ -49,7 +50,7 @@ class Statement(BaseModel):
     text: str
     verdict: Optional[str] = None
     rationale: Optional[str] = None
-    confidence: Optional[float] = None
+    score: Optional[float] = None
     queries: List[str] = Field(default_factory=list)
     evidence: List[Evidence] = Field(default_factory=list)
 
