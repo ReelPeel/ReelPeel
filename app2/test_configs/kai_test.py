@@ -1,4 +1,4 @@
-from app2.core.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_NARROW_QUERY, PROMPT_TMPL_S5, PROMPT_TMPL_S6, PROMPT_TMPL_S7
+from app2.core.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3, PROMPT_TMPL_S5, PROMPT_TMPL_S6, PROMPT_TMPL_S7
 
 # 1. Define the Research Module (Steps 3, 4, 5, 5.1)
 RESEARCH_MODULE = {
@@ -9,15 +9,16 @@ RESEARCH_MODULE = {
             {
                 "type": "generate_query",  # Step 3
                 "settings": {
+                    "base_url": "http://localhost:11434/v1",
                     "model": "gemma3:12b",
-                    "prompt_template": PROMPT_TMPL_S3_NARROW_QUERY,
+                    "prompt_template": PROMPT_TMPL_S3,
                     "temperature": 0.0,
                     # "max_tokens": 512 # Currently hardcoded in individual step
                 }
             },
             {
                 "type": "fetch_links",  # Step 4
-                "settings": {"retmax": 5}
+                "settings": {"retmax": 3}
             },
             {
                 "type": "summarize_evidence",  # Step 5
@@ -40,7 +41,7 @@ SCORES_MODULE = {
             {
                 "type": "rerank_evidence",
                 "settings": {
-                    "model_name": "BAAI/bge-reranker-v2-m3",
+                    "model_name": "BAAI/bge-reranker-v2-m3", # BAAI/bge-reranker-v2-gemma bigger but slower
                     "use_fp16": True,
                     "normalize": True,
                     "batch_size": 16,
@@ -49,8 +50,22 @@ SCORES_MODULE = {
                     "empty_relevance": 0.0,
                 },
             },
-            # später:
-            # {"type": "stance", "settings": {...}},
+            {
+                "type": "stance_evidence",
+                "settings": {
+                    "model_name": "cnut1648/biolinkbert-mednli",
+                    "use_fp16": True,
+                    "batch_size": 16,
+                    "max_length": 512,
+                    "evidence_fields": ["abstract", "summary"],
+
+                    # optional: only compute stance on Top-M evidence per statement (by ev.relevance)
+                    # "top_m_by_relevance": 5,
+
+                    # optional: if both support/refute are weak, force "neutral"
+                    "threshold_decisive": 0.2,
+                }
+                },
             # {"type": "similarity_penalty", "settings": {...}},
         ]
     }
@@ -61,15 +76,16 @@ VERIFICATION_MODULE = {
     "type": "module",
     "settings": {
         "name": "MODULE! Verification Engine",
+        "debug": True,
         "steps": [
             # Step 6: Filter Irrelevant Evidence
             {
                 "type": "filter_evidence",
                 "settings": {
+                    "base_url": "http://localhost:11434/v1",
                     "model": "gemma3:12b",
                     "prompt_template": PROMPT_TMPL_S6,
-     
-               "temperature": 0.0,
+                    "temperature": 0.0,
                     # "max_tokens": 512 # Currently hardcoded in individual step
                 }
             },
@@ -77,6 +93,7 @@ VERIFICATION_MODULE = {
             {
                 "type": "truthness",
                 "settings": {
+                    "base_url": "http://localhost:11434/v1",
                     "model": "gemma3:12b",
                     "prompt_template": PROMPT_TMPL_S7,
                     "temperature": 0.0,
@@ -96,12 +113,8 @@ VERIFICATION_MODULE = {
 
 # 2. Define the Full Pipeline Config
 FULL_PIPELINE_CONFIG = {
-    "name": "Full_End_to_End_Run",
+    "name": "MODULE! Full_End_to_End_Run",
     "debug": True,
-    "llm_settings" : {
-        "base_url": "http://localhost:11434/v1",
-        "api_key" : "ollama",
-    },
     "steps": [
         # STEP 1: Mock Input (Simulating Whisper)
         {
@@ -118,6 +131,7 @@ FULL_PIPELINE_CONFIG = {
         {
             "type": "extraction",
             "settings": {
+                "base_url": "http://localhost:11434/v1",
                 "model": "gemma3:12b",
                 "prompt_template": PROMPT_TMPL_S2,
                 "temperature": 0.0,
@@ -128,7 +142,7 @@ FULL_PIPELINE_CONFIG = {
         # STEP 3-5.1: The Research Module
         RESEARCH_MODULE,
         
-        # Step 5.99: The Reranking Module
+        # Step 5.99: Scores Module
         SCORES_MODULE,
         
         # STEP 6-8: The Verification Module

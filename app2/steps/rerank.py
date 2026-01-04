@@ -15,13 +15,8 @@ from typing import List, Tuple, Optional, Dict, Any
 from ..core.base import PipelineStep
 from ..core.models import PipelineState
 
-try:
-    import torch
-    from transformers import AutoTokenizer, AutoModelForSequenceClassification
-except Exception:  # pragma: no cover
-    torch = None
-    AutoTokenizer = None
-    AutoModelForSequenceClassification = None
+import torch
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 _MODEL_CACHE: Dict[Tuple[str, str, bool], Tuple[Any, Any]] = {}
 
@@ -101,7 +96,6 @@ class RerankEvidenceStep(PipelineStep):
             - "summary_first": summary if exists else abstract
 
       - empty_relevance: float (default: 0.0)
-      - debug: bool (default: False)
     """
 
     def execute(self, state: PipelineState) -> PipelineState:
@@ -115,18 +109,12 @@ class RerankEvidenceStep(PipelineStep):
         score_fields = self.config.get("score_fields", ["abstract", "summary"])
         combine_strategy = self.config.get("combine_strategy", "max")
         empty_relevance = float(self.config.get("empty_relevance", 0.0))
-        debug = bool(self.config.get("debug", False))
 
         if torch is None:
             raise RuntimeError("torch/transformers not available for reranking.")
 
         tokenizer, model = _load_model(model_name=model_name, device=device, use_fp16=use_fp16)
 
-        if debug:
-            print(
-                f"[{self.__class__.__name__}] model={model_name} device={device} "
-                f"fp16={use_fp16} normalize={normalize} score_fields={score_fields} combine={combine_strategy}"
-            )
 
         for stmt in state.statements:
             claim = (stmt.text or "").strip()
@@ -211,19 +199,5 @@ class RerankEvidenceStep(PipelineStep):
                     combined = float(ev.relevance) if ev.relevance is not None else float(empty_relevance)
 
                 ev.relevance = float(combined)
-
-            if debug:
-                preview = []
-                for ev in stmt.evidence:
-                    preview.append(
-                        (
-                            getattr(ev, "pubmed_id", None),
-                            float(getattr(ev, "relevance", 0.0) or 0.0),
-                            getattr(ev, "relevance_abstract", None),
-                            getattr(ev, "relevance_summary", None),
-                        )
-                    )
-                preview = sorted(preview, key=lambda x: x[1], reverse=True)[:5]
-                print(f"  Statement {getattr(stmt, 'id', '?')}: top relevance preview (pmid, rel, abs, sum): {preview}")
 
         return state
