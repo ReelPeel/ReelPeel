@@ -31,7 +31,6 @@ RESEARCH_MODULE = {
     }
 }
 
-
 SCORES_MODULE = {
     "type": "module",
     "settings": {
@@ -56,7 +55,6 @@ SCORES_MODULE = {
     }
 }
 
-
 VERIFICATION_MODULE = {
     "type": "module",
     "settings": {
@@ -68,8 +66,8 @@ VERIFICATION_MODULE = {
                 "settings": {
                     "model": "gemma3:12b",
                     "prompt_template": PROMPT_TMPL_S6,
-     
-               "temperature": 0.0,
+
+                    "temperature": 0.0,
                     # "max_tokens": 512 # Currently hardcoded in individual step
                 }
             },
@@ -98,9 +96,9 @@ VERIFICATION_MODULE = {
 FULL_PIPELINE_CONFIG = {
     "name": "Full_End_to_End_Run",
     "debug": True,
-    "llm_settings" : {
+    "llm_settings": {
         "base_url": "http://localhost:11434/v1",
-        "api_key" : "ollama",
+        "api_key": "ollama",
     },
     "steps": [
         # STEP 1: Mock Input (Simulating Whisper)
@@ -127,10 +125,10 @@ FULL_PIPELINE_CONFIG = {
 
         # STEP 3-5.1: The Research Module
         RESEARCH_MODULE,
-        
+
         # Step 5.99: The Reranking Module
         SCORES_MODULE,
-        
+
         # STEP 6-8: The Verification Module
         VERIFICATION_MODULE
     ]
