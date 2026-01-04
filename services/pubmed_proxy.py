@@ -13,7 +13,7 @@ import uvicorn
 limiter = AsyncLimiter(3, 1.5)
 
 last_request_time = time.time()
-IDLE_TIMEOUT = 300  # 5 minutes
+IDLE_TIMEOUT = 600  # 5 minutes
 NCBI_BASE = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 
 # SIMPLE IN-MEMORY CACHE
