@@ -1,6 +1,7 @@
+from datetime import datetime
+
 from ..core.base import PipelineStep
 from ..core.models import PipelineState, Statement
-from datetime import datetime
 
 
 class MockTranscriptLoader(PipelineStep):

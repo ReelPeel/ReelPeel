@@ -1,8 +1,10 @@
-from abc import ABC, abstractmethod
-from typing import List, Dict, Any
-import time
 import json
+import time
+from abc import ABC, abstractmethod
 from datetime import datetime
+from typing import List, Dict, Any
+
+from .llm import LLMService
 from .models import PipelineState
 
 
@@ -12,6 +14,14 @@ class PipelineStep(ABC):
         self.debug = self.config.get("debug", False)
         self.step_name = self.config.get("name", self.__class__.__name__)
         self.log_file = self.config.get("log_file", "pipeline_debug.log")
+
+        self._llm_service = None
+
+    @property
+    def llm(self) -> LLMService:
+        if self._llm_service is None:
+            self._llm_service = LLMService(self.config.get("llm_settings", {}))
+        return self._llm_service
 
     def run(self, state: PipelineState) -> PipelineState:
         """
