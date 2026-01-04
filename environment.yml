@@ -361,4 +361,5 @@ dependencies:
       - yt-dlp==2025.10.14
   - transformers
   - rich
+  - loguru
 prefix: /data/home/jak38842/opt/miniconda3/envs/factchecker

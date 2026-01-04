@@ -133,6 +133,9 @@ class QueryToLinkStep(PipelineStep):
 
                         # Create new evidence
                         url = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
+                        stmt.evidence.append(Evidence(pubmed_id=pmid, url=url))
+                  
+                    print(f"   Statement {stmt.id}: Found {len(id_list)} links.")
                         ev = Evidence(pubmed_id=pmid, url=url)
 
                         # Attach provenance (works whether or not Evidence formally defines queries)
@@ -142,7 +145,7 @@ class QueryToLinkStep(PipelineStep):
 
                         stmt.evidence.append(ev)
 
-                    time.sleep(random.uniform(2, 5))
+                    time.sleep(random.uniform(0.5, 0.5))
                     print(f"   Statement {stmt.id}: Query '{q}' -> {len(id_list)} PMIDs.")
 
                 except Exception as e:
@@ -189,7 +192,7 @@ class LinkToSummaryStep(PipelineStep):
                     if not ev.summary and abstract:
                         ev.summary = abstract[:500] + "..."  # Fallback for display
                     # random sleep to avoid rate limits
-                    time.sleep(random.uniform(2, 5))
+                    time.sleep(random.uniform(0.5,0.5))
                     print(
                         f"   Processed {url} -> PMID: {pmid}, Types: {len(pub_types)}, Abstract Len: {len(abstract) if abstract else 0}")
 
