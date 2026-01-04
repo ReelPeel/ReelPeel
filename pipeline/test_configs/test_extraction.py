@@ -1,4 +1,4 @@
-from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_NARROW_QUERY, PROMPT_TMPL_S6, PROMPT_TMPL_S7
+from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_BALANCED, PROMPT_TMPL_S6, PROMPT_TMPL_S7
 
 # 1. Define the Research Module (Steps 3, 4, 5, 5.1)
 RESEARCH_MODULE = {
@@ -10,7 +10,7 @@ RESEARCH_MODULE = {
                 "type": "generate_query",  # Step 3
                 "settings": {
                     "model": "gemma3:12b",
-                    "prompt_template": PROMPT_TMPL_S3_NARROW_QUERY,
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED,
                     "temperature": 0.0,
                     # "max_tokens": 512 # Currently hardcoded in individual step
                 }

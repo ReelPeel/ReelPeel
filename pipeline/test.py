@@ -1,6 +1,6 @@
 from pipeline.core.models import PipelineState
 from pipeline.core.orchestrator import PipelineOrchestrator
-from pipeline.test_configs.multiple_query_config import FULL_PIPELINE_CONFIG
+from pipeline.test_configs.kai_test import FULL_PIPELINE_CONFIG
 
 
 def print_report(state: PipelineState):

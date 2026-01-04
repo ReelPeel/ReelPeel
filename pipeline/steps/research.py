@@ -33,7 +33,7 @@ class StatementToQueryStep(PipelineStep):
                     prompt=prompt,
                 )
                 raw = resp.replace("\n", " ")  # collapse to one line
-                q = self._clean_query(raw, stmt.text)
+                q = self.clean_pubmed_query(raw)
 
                 # Append if not duplicate
                 if q and q.lower() not in {x.lower() for x in stmt.queries}:
@@ -48,13 +48,37 @@ class StatementToQueryStep(PipelineStep):
                     stmt.queries.append(fb)
 
         return state
+    _ALLOWED_TAGS = {"mh", "tiab"}
+    def clean_pubmed_query(self, raw: str) -> str:
+        q = raw.strip()
 
-    def _clean_query(self, raw: str, fallback: str) -> str:
-        # Regex to find the first line starting with a letter
-        m = re.search(r"^(?!\s*$).+", raw, re.MULTILINE)
-        if m:
-            return m.group(0).strip("`'\" ").replace("\n", " ").strip()
-        return self._fallback_query(fallback)
+        # If model wrapped the whole thing in quotes/backticks, remove
+        q = q.strip("`").strip()
+        q = q.strip('"').strip("'").strip()
+
+        # Normalize common MeSH tag variants -> [mh]
+        q = re.sub(r"\[(?:MeSH|mesh|MeSH Terms|MeSH terms|MH|mh)\]", "[mh]", q)
+
+        # Remove quotes directly around tagged terms: "foo bar"[tiab] -> foo bar[tiab]
+        q = re.sub(r'"([^"]+)"\[(mh|tiab)\]', r"\1[\2]", q)
+
+        # Collapse whitespace to single spaces
+        q = re.sub(r"\s+", " ", q).strip()
+
+        # Uppercase boolean ops (cheap, pragmatic)
+        q = re.sub(r"\band\b", "AND", q, flags=re.I)
+        q = re.sub(r"\bor\b", "OR", q, flags=re.I)
+
+        # Validate tags used
+        tags = set(re.findall(r"\[([^\]]+)\]", q))
+        if not tags.issubset(self._ALLOWED_TAGS):
+            raise ValueError(f"Invalid tags in query: {tags - self._ALLOWED_TAGS}")
+
+        # Basic paren balance check
+        if q.count("(") != q.count(")"):
+            raise ValueError("Unbalanced parentheses in query")
+
+        return q
 
     def _fallback_query(self, text: str) -> str:
         # Simple keyword extraction fallback
@@ -81,7 +105,6 @@ class QueryToLinkStep(PipelineStep):
                 continue
 
             for q in queries:
-                
                 try:
                     params = {
                         "db": "pubmed",
@@ -95,21 +118,38 @@ class QueryToLinkStep(PipelineStep):
 
                     id_list = resp.json().get("esearchresult", {}).get("idlist", [])
 
-                    # Append new evidence items
                     for pmid in id_list:
-                        # Check duplicates
-                        if any(e.pubmed_id == pmid for e in stmt.evidence):
+                        # Try to find existing evidence (same PMID)
+                        existing = next((e for e in stmt.evidence if e.pubmed_id == pmid), None)
+
+                        if existing is not None:
+                            # Ensure queries list exists
+                            if not hasattr(existing, "queries") or existing.queries is None:
+                                existing.queries = []
+                            # Add provenance if not already present
+                            if q.lower() not in {x.lower() for x in existing.queries}:
+                                existing.queries.append(q)
                             continue
 
+                        # Create new evidence
                         url = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
-                        stmt.evidence.append(Evidence(pubmed_id=pmid, url=url))
+                        ev = Evidence(pubmed_id=pmid, url=url)
+
+                        # Attach provenance (works whether or not Evidence formally defines queries)
+                        if not hasattr(ev, "queries") or ev.queries is None:
+                            ev.queries = []
+                        ev.queries.append(q)
+
+                        stmt.evidence.append(ev)
+
                     time.sleep(random.uniform(2, 5))
-                    print(f"   Statement {stmt.id}: Found {len(id_list)} links.")
+                    print(f"   Statement {stmt.id}: Query '{q}' -> {len(id_list)} PMIDs.")
 
                 except Exception as e:
                     print(f"   [Error] Failed to fetch links for '{q}': {e}")
 
         return state
+
 
 
 # -------------------------------------------------------------------------

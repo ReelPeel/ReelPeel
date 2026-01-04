@@ -1,5 +1,5 @@
 # 2. Define the Full Pipeline Config
-from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_BROAD_QUERY, PROMPT_TMPL_S3_NARROW_QUERY, PROMPT_TMPL_S3_SYNONYMS_QUERY, PROMPT_TMPL_S7
+from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_SPECIFIC, PROMPT_TMPL_S3_BALANCED, PROMPT_TMPL_S3_ATM_ASSISTED, PROMPT_TMPL_S7
 
 FULL_PIPELINE_CONFIG = {
     "name": "Full_End_to_End_Run",
@@ -32,21 +32,21 @@ FULL_PIPELINE_CONFIG = {
                 "type": "generate_query",  # Step 3
                 "settings": {
                     "model": "gemma3:12b",
-                    "prompt_template": PROMPT_TMPL_S3_NARROW_QUERY
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED
                 }
             },
         {
                 "type": "generate_query",  # Step 3
                 "settings": {
                     "model": "gemma3:12b",
-                    "prompt_template": PROMPT_TMPL_S3_BROAD_QUERY
+                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC
                 }
             },
         {
                 "type": "generate_query",  # Step 3
                 "settings": {
                     "model": "gemma3:12b",
-                    "prompt_template": PROMPT_TMPL_S3_SYNONYMS_QUERY
+                    "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED
                 }
             },
             {
