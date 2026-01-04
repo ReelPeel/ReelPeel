@@ -29,23 +29,20 @@ class PipelineLogger:
         if self.debug:
             log_file = f"pipeline_debug_{run_id}.log"
 
-            # Simplified format: We handle the multi-line indentation manually in _log()
-            # The <green> tag colors the time in console, but is stripped in files usually.
-            fmt = "<green>{time:H:mm:ss}</green> | {message}\n"
+            # Simple format: Time | Message
+            # We handle indentation manually in _log()
+            fmt = "<green>{time:H:mm:ss}</green>\n{message}\n"
 
             logger.add(log_file, format=fmt, level="DEBUG")
             logger.add(sys.stderr, format=fmt, level="ERROR")
 
     def _format_json(self, data: Any) -> str:
         """
-        Dumps JSON and un-escapes newlines so prompts appear as actual text blocks.
+        Dumps JSON and formats newlines for readability.
         """
         try:
-            # indent=2 gives the nice JSON tree structure
             s = json.dumps(data, indent=2, default=str)
-            # visual fix: replace escaped newlines (\\n) with real newlines (\n)
-            # This ensures prompts don't look like "Line1\\nLine2"
-            s = s.replace("\\n", "\n")
+            s = s.replace("\\n", "\n      ")
             return s
         except Exception:
             return str(data)
@@ -70,7 +67,7 @@ class PipelineLogger:
         """
         if not self.debug: return
 
-        # 1. Hierarchy Indentation (3 spaces per depth level)
+        # 1. Calculate indent based on depth (3 spaces per level)
         step_indent = "   " * depth
 
         # 2. Split into lines to process alignment
@@ -78,10 +75,10 @@ class PipelineLogger:
         if not lines: return
 
         # 3. Timestamp Padding (11 chars for "HH:MM:SS | ")
-        ts_pad = " " * 11
+        ts_pad = "" * 11
 
         # 4. Construct Final Message
-        # Line 1: Just the step indent (Loguru provides the timestamp)
+        # Line 1: Indent only (Loguru adds timestamp)
         final_msg = f"{step_indent}{lines[0]}"
 
         # Line 2+: Timestamp Pad + Step Indent + Content
@@ -105,20 +102,15 @@ class PipelineLogger:
         safe_conf = {k: v for k, v in config.items() if k not in ["debug", "llm_settings"]}
         conf_str = self._format_json(safe_conf)
 
-        # 2. Build Block String with Explicit Newlines
-        # The structure you requested:
-        # START STEP: ...
-        # --- SETTINGS ---
-        # { ... }
-        # ----------------
+        # 2. Build Block (Header, Newline, Settings)
         msg = (
             f"START STEP: {step_name}\n"
             f"--- SETTINGS ---\n"
             f"{conf_str}\n"
             f"----------------"
         )
-
-        self._log(msg, depth)
+        # Use hierarchy depth for START block so we see nesting
+        self._log(msg, 0)
 
     def on_step_end(self, step_name: str, duration: float, tokens: int, state_json: str, depth: int):
         # 1. Parse & Truncate State
@@ -129,14 +121,14 @@ class PipelineLogger:
         except Exception:
             clean_json_str = state_json
 
-        # 2. Build Footer Info
+        # 2. Build Footer
         stats = f"DURATION: {duration:.4f}s"
         if tokens > 0:
             stats += f" | TOKENS: {tokens}"
 
-        # 3. Build Block String
-        # The structure you requested (Divider above and below FINISHED):
         divider = "=" * 80
+
+        # 3. Build Block
         msg = (
             f"--- OUTPUT STATE ---\n"
             f"{clean_json_str}\n"
@@ -145,7 +137,7 @@ class PipelineLogger:
             f"{divider}"
         )
 
-        self._log(msg, depth)
+        self._log(msg, 0)
 
     def on_artifact(self, label: str, data: Any, depth: int):
         if isinstance(data, (dict, list)):
@@ -153,12 +145,11 @@ class PipelineLogger:
         else:
             content = str(data)
 
-        # Artifacts get +1 depth to look "inside" the step
         msg = (
             f">>> [ARTIFACT] {label}\n"
             f"{content}"
         )
-        self._log(msg, depth + 1)
+        self._log(msg, depth=1)
 
     def on_run_end(self, duration: float):
         divider = "=" * 80
@@ -168,7 +159,6 @@ class PipelineLogger:
     def log_summary(self, summary_text: str):
         if not self.debug: return
         try:
-            # Direct append for the summary table (bypass formatter)
             with open(f"pipeline_debug_{self.run_id}.log", "a", encoding="utf-8") as f:
                 f.write("\n" + summary_text + "\n")
         except Exception as e:
