@@ -1,6 +1,6 @@
 from app2.core.models import PipelineState
 from app2.core.orchestrator import PipelineOrchestrator
-from app2.test_configs.multiple_query_config import FULL_PIPELINE_CONFIG
+from app2.test_configs.test_extraction import FULL_PIPELINE_CONFIG
 
 
 def print_report(state: PipelineState):

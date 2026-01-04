@@ -4,9 +4,11 @@ import json
 import openai
 from typing import List, Tuple, Any, Optional
 from datetime import datetime
-
+import time
+import random
 from ..core.base import PipelineStep
 from ..core.models import PipelineState, Evidence
+import xml.etree.ElementTree as ET
 
 
 # -------------------------------------------------------------------------
@@ -116,11 +118,11 @@ class QueryToLinkStep(PipelineStep):
 
                         url = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
                         stmt.evidence.append(Evidence(pubmed_id=pmid, url=url))
-
+                    time.sleep(random.uniform(2, 5))
                     print(f"   Statement {stmt.id}: Found {len(id_list)} links.")
 
                 except Exception as e:
-                    print(f"   [Error] Failed to fetch links for '{stmt.query}': {e}")
+                    print(f"   [Error] Failed to fetch links for '{q}': {e}")
 
         return state
 
@@ -161,7 +163,8 @@ class LinkToSummaryStep(PipelineStep):
                     # Optional: Map abstract to summary if summary is empty
                     if not ev.summary and abstract:
                         ev.summary = abstract[:500] + "..."  # Fallback for display
-
+                    # random sleep to avoid rate limits
+                    time.sleep(random.uniform(2, 5))
                     print(
                         f"   Processed {url} -> PMID: {pmid}, Types: {len(pub_types)}, Abstract Len: {len(abstract) if abstract else 0}")
 
@@ -195,14 +198,30 @@ class LinkToSummaryStep(PipelineStep):
         return [str(x) for x in pubtypes if x is not None]
 
     def _pubmed_fetch_abstract(self, pmid: str) -> Optional[str]:
-        """Fetch abstract text using EFetch."""
-        params = {"db": "pubmed", "id": pmid, "rettype": "abstract", "retmode": "text"}
+        params = {"db": "pubmed", "id": pmid, "retmode": "xml"}
         r = requests.get(f"{self.NCBI_EUTILS}/efetch.fcgi", params=params, timeout=20)
         r.raise_for_status()
 
-        lines = [line.strip() for line in r.text.splitlines() if line.strip()]
-        # Filter out uppercase metadata lines loosely
-        abstract = " ".join(line for line in lines if not line.isupper())
+        root = ET.fromstring(r.text)
+
+        def collect(xpath: str) -> List[str]:
+            parts = []
+            for el in root.findall(xpath):
+                txt = "".join(el.itertext()).strip()
+                if not txt:
+                    continue
+                label = el.attrib.get("Label") or el.attrib.get("NlmCategory")
+                parts.append(f"{label}: {txt}" if label else txt)
+            return parts
+
+        parts = collect(".//Abstract/AbstractText")
+        if not parts:
+            parts = collect(".//OtherAbstract/AbstractText")
+
+        abstract = " ".join(parts).strip()
+        if abstract.lower().startswith("abstract available from the publisher"):
+            return None
+
         return abstract or None
 
 
