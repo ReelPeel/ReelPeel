@@ -1,9 +1,7 @@
-import random
 import re
-import time
 import xml.etree.ElementTree as ET
 from datetime import datetime
-from typing import List, Tuple, Any, Optional
+from typing import List, Tuple, Any, Optional, Dict
 
 import requests
 
@@ -29,7 +27,7 @@ class StatementToQueryStep(PipelineStep):
                 resp = self.llm.call(
                     model=self.config.get("model"),
                     temperature=self.config.get("temperature", 0.2),
-                    #stop=self.config.get("stop", ["\n"]),  # fine if 1 query/line
+                    # stop=self.config.get("stop", ["\n"]),  # fine if 1 query/line
                     prompt=prompt,
                 )
                 raw = resp.replace("\n", " ")  # collapse to one line
@@ -60,8 +58,6 @@ class StatementToQueryStep(PipelineStep):
         # Simple keyword extraction fallback
         words = re.findall(r"[A-Za-z']+", text)
         return " ".join(list(set(words))[:6])
-    
-    
 
 
 # -------------------------------------------------------------------------
@@ -73,7 +69,11 @@ class QueryToLinkStep(PipelineStep):
 
         retmax = self.config.get("retmax", 3)
         sort = self.config.get("sort", "relevance")
-        base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+
+        # USE PROXY: Default to local service port 8080
+        # (Local variable is fine here, no 'self' needed)
+        proxy_base = self.config.get("proxy_url", "http://127.0.0.1:8080/proxy")
+        search_url = f"{proxy_base}/esearch.fcgi"
 
         for stmt in state.statements:
             queries = getattr(stmt, "queries", []) or []
@@ -81,7 +81,6 @@ class QueryToLinkStep(PipelineStep):
                 continue
 
             for q in queries:
-                
                 try:
                     params = {
                         "db": "pubmed",
@@ -90,7 +89,8 @@ class QueryToLinkStep(PipelineStep):
                         "retmode": "json",
                         "sort": sort,
                     }
-                    resp = requests.get(base_url, params=params, timeout=10)
+                    # Send request to Proxy
+                    resp = requests.get(search_url, params=params, timeout=10)
                     resp.raise_for_status()
 
                     id_list = resp.json().get("esearchresult", {}).get("idlist", [])
@@ -103,7 +103,7 @@ class QueryToLinkStep(PipelineStep):
 
                         url = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
                         stmt.evidence.append(Evidence(pubmed_id=pmid, url=url))
-                    time.sleep(random.uniform(0.5,0.5))
+
                     print(f"   Statement {stmt.id}: Found {len(id_list)} links.")
 
                 except Exception as e:
@@ -118,13 +118,19 @@ class QueryToLinkStep(PipelineStep):
 class LinkToSummaryStep(PipelineStep):
     """
     Step 5: Fetches PubMed abstract and publication types for evidence URLs.
-    Does NOT perform LLM summarization (based on new user requirements).
     """
-    NCBI_EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
     PUBMED_URL_RE = re.compile(r"pubmed\.ncbi\.nlm\.nih\.gov/(\d+)/?")
+
+    def __init__(self, step_config: Dict[str, Any]):
+        # Call parent init to set self.config
+        super().__init__(step_config)
+        # Initialize the proxy URL once at startup
+        self.proxy_base = self.config.get("proxy_url", "http://127.0.0.1:8080/proxy")
 
     def execute(self, state: PipelineState) -> PipelineState:
         print(f"[{self.__class__.__name__}] Fetching PubMed metadata (Abstracts & Types)...")
+
+        # self.proxy_base is now available from __init__
 
         for stmt in state.statements:
             for ev in stmt.evidence:
@@ -148,8 +154,7 @@ class LinkToSummaryStep(PipelineStep):
                     # Optional: Map abstract to summary if summary is empty
                     if not ev.summary and abstract:
                         ev.summary = abstract[:500] + "..."  # Fallback for display
-                    # random sleep to avoid rate limits
-                    time.sleep(random.uniform(0.5,0.5))
+
                     print(
                         f"   Processed {url} -> PMID: {pmid}, Types: {len(pub_types)}, Abstract Len: {len(abstract) if abstract else 0}")
 
@@ -171,9 +176,10 @@ class LinkToSummaryStep(PipelineStep):
         raise ValueError(f"Unable to extract PMID from URL: {url}")
 
     def _pubmed_fetch_types(self, pmid: str) -> List[str]:
-        """Fetch PubMed 'Publication Types' using ESummary."""
+        """Fetch PubMed 'Publication Types' using ESummary via Proxy."""
         params = {"db": "pubmed", "id": pmid, "retmode": "json"}
-        r = requests.get(f"{self.NCBI_EUTILS}/esummary.fcgi", params=params, timeout=20)
+        # Use self.proxy_base initialized in __init__
+        r = requests.get(f"{self.proxy_base}/esummary.fcgi", params=params, timeout=20)
         r.raise_for_status()
         payload = r.json()
 
@@ -183,8 +189,10 @@ class LinkToSummaryStep(PipelineStep):
         return [str(x) for x in pubtypes if x is not None]
 
     def _pubmed_fetch_abstract(self, pmid: str) -> Optional[str]:
+        """Fetch Abstract using EFetch via Proxy."""
         params = {"db": "pubmed", "id": pmid, "retmode": "xml"}
-        r = requests.get(f"{self.NCBI_EUTILS}/efetch.fcgi", params=params, timeout=20)
+        # Use self.proxy_base initialized in __init__
+        r = requests.get(f"{self.proxy_base}/efetch.fcgi", params=params, timeout=20)
         r.raise_for_status()
 
         root = ET.fromstring(r.text)
