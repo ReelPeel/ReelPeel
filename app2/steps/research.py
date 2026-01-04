@@ -1,9 +1,8 @@
 import re
-import requests
-import json
-import openai
-from typing import List, Tuple, Any, Optional
 from datetime import datetime
+from typing import List, Tuple, Any, Optional
+
+import requests
 
 from ..core.base import PipelineStep
 from ..core.models import PipelineState, Evidence
@@ -16,11 +15,6 @@ class StatementToQueryStep(PipelineStep):
     def execute(self, state: PipelineState) -> PipelineState:
         print(f"[{self.__class__.__name__}] Generating PubMed queries...")
 
-        client = openai.OpenAI(
-            base_url=self.config.get('base_url'),
-            api_key=self.config.get('api_key', 'ollama')
-        )
-
         for stmt in state.statements:
             if stmt.query:
                 continue  # Skip if already exists
@@ -28,15 +22,14 @@ class StatementToQueryStep(PipelineStep):
             prompt = self.config.get('prompt_template').format(claim=stmt.text)
 
             try:
-                resp = client.chat.completions.create(
+                resp = self.llm.call(
                     model=self.config.get('model'),
                     temperature=self.config.get('temperature', 0.2),
                     max_tokens=self.config.get('max_tokens', 64),
+                    prompt=prompt,
                     stop=["\n"],
-                    messages=[{"role": "user", "content": prompt}],
                 )
-                raw = resp.choices[0].message.content.strip()
-                stmt.query = self._clean_query(raw, stmt.text)
+                stmt.query = self._clean_query(resp, stmt.text)
                 print(f"   Query for ID {stmt.id}: {stmt.query}")
             except Exception as e:
                 print(f"   [Error] ID {stmt.id}: {e}")
