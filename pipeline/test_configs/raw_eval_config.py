@@ -1,4 +1,4 @@
-from pipeline.test_configs.preprompts import PROMPT_TMPL_RAW, PROMPT_TMPL_S3_NARROW_QUERY, PROMPT_TMPL_S6, PROMPT_TMPL_S7
+from pipeline.test_configs.preprompts import PROMPT_TMPL_RAW, PROMPT_TMPL_S3_BALANCED, PROMPT_TMPL_S6, PROMPT_TMPL_S7
 from .test_extraction import RESEARCH_MODULE
 
 RAW_PIPELINE_CONFIG = {
@@ -97,7 +97,7 @@ PUBMED_PIPELINE_CONFIG_NO_WEIGHTS = {
                 "settings": {
                     "base_url": "http://localhost:11434/v1",
                     "model": "gemma3:27b",
-                    "prompt_template": PROMPT_TMPL_S3_NARROW_QUERY
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED
                 }
             },
             {

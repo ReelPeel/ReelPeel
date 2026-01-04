@@ -35,6 +35,7 @@ class Stance(BaseModel):
 class Evidence(BaseModel):
     pubmed_id: Optional[str] = None
     url: Optional[str] = None
+    queries: List[str] = Field(default_factory=list)
     abstract: Optional[str] = None
     summary: Optional[str] = None
     pub_type: Optional[Union[str, List[str]]] = None
