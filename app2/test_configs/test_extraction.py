@@ -69,7 +69,8 @@ VERIFICATION_MODULE = {
                 "settings": {
                     "model": "gemma3:12b",
                     "prompt_template": PROMPT_TMPL_S6,
-                    "temperature": 0.0,
+     
+               "temperature": 0.0,
                     # "max_tokens": 512 # Currently hardcoded in individual step
                 }
             },

@@ -39,7 +39,7 @@ class StatementToQueryStep(PipelineStep):
                 if q and q.lower() not in {x.lower() for x in stmt.queries}:
                     stmt.queries.append(q)
 
-                print(f"   Statement {stmt.id}: +query({generator_name or 'default'}): {q}")
+                print(f"   Statement {stmt.id}: + query: {q}")
 
             except Exception as e:
                 print(f"   [Error] ID {stmt.id}: {e}")

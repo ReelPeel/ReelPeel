@@ -27,14 +27,14 @@ class LLMService:
              prompt: str,
              model: str,
              temperature: float,
-             max_tokens: int,
+             max_tokens: Optional[int] = None,
              stop: Optional[Union[str, List[str]]] = None
              ) -> str:
 
         user_msg: ChatCompletionUserMessageParam = {"role": "user", "content": prompt}
         messages: List[ChatCompletionMessageParam] = [user_msg]
 
-        if max_tokens is None or max_tokens <= 0:
+        if max_tokens is not None and max_tokens <= 0:
             raise ValueError("max_tokens must be a positive integer")
         if temperature is None or temperature < 0:
             raise ValueError("temperature must be a positive float")
@@ -46,11 +46,11 @@ class LLMService:
                 "model": model,
                 "messages": messages,
                 "temperature": temperature,
-                "max_tokens": max_tokens,
             }
 
             if stop is not None:
                 kwargs["stop"] = stop
+                kwargs["max_tokens"] = max_tokens
 
             response = self.client.chat.completions.create(**kwargs)
 
