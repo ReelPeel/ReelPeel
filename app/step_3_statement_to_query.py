@@ -16,7 +16,7 @@ import sys
 from typing import Any, Dict, List
 
 import openai
-from .preprompts import *
+from ..app2.core.preprompts import *
 from .llmconfigs import *
 # ───────── config ─────────
 
@@ -80,7 +80,7 @@ def clean_query(raw: str, fallback_source: str) -> str:
 
 
 def make_query(claim: str, client: openai.OpenAI) -> str:
-    prompt = PROMPT_TMPL_S3.format(claim=claim)
+    prompt = PROMPT_TMPL_S3_NARROW_QUERY.format(claim=claim)
     try:
         resp = CLIENT_3.chat.completions.create(
             model=MODEL_3,

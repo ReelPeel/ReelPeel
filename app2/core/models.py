@@ -20,7 +20,7 @@ class Statement(BaseModel):
     verdict: Optional[str] = None
     rationale: Optional[str] = None
     confidence: Optional[float] = None
-    query: Optional[str] = None
+    queries: List[str] = Field(default_factory=list)
     evidence: List[Evidence] = Field(default_factory=list)
 
 

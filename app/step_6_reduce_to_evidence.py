@@ -1,7 +1,7 @@
 import subprocess
 from typing import Dict, Any
 
-from .preprompts import *
+from ..app2.core.preprompts import *
 from .llmconfigs import *
 
 def is_related(statement_text: str, evidence_summary: str) -> bool:

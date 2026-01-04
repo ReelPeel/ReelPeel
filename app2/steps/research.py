@@ -17,30 +17,47 @@ class StatementToQueryStep(PipelineStep):
         print(f"[{self.__class__.__name__}] Generating PubMed queries...")
 
         client = openai.OpenAI(
-            base_url=self.config.get('base_url'),
-            api_key=self.config.get('api_key', 'ollama')
+            base_url=self.config.get("base_url"),
+            api_key=self.config.get("api_key", "ollama"),
         )
 
-        for stmt in state.statements:
-            if stmt.query:
-                continue  # Skip if already exists
+        generator_name = self.config.get("generator_name")  # optional provenance
+        system_prompt = self.config.get("system_prompt")    # optional
 
-            prompt = self.config.get('prompt_template').format(claim=stmt.text)
+        for stmt in state.statements:
+            # Ensure list exists (in case of older states)
+            if not hasattr(stmt, "queries") or stmt.queries is None:
+                stmt.queries = []
+
+            prompt = self.config.get("prompt_template").format(claim=stmt.text)
 
             try:
+                messages = []
+                if system_prompt:
+                    messages.append({"role": "system", "content": system_prompt})
+                messages.append({"role": "user", "content": prompt})
+
                 resp = client.chat.completions.create(
-                    model=self.config.get('model'),
-                    temperature=self.config.get('temperature', 0.2),
-                    max_tokens=self.config.get('max_tokens', 64),
-                    stop=["\n"],
-                    messages=[{"role": "user", "content": prompt}],
+                    model=self.config.get("model"),
+                    temperature=self.config.get("temperature", 0.2),
+                    stop=self.config.get("stop", ["\n"]),  # fine if 1 query/line
+                    messages=messages,
                 )
-                raw = resp.choices[0].message.content.strip()
-                stmt.query = self._clean_query(raw, stmt.text)
-                print(f"   Query for ID {stmt.id}: {stmt.query}")
+
+                raw = (resp.choices[0].message.content or "").strip()
+                q = self._clean_query(raw, stmt.text)
+
+                # Append if not duplicate
+                if q and q.lower() not in {x.lower() for x in stmt.queries}:
+                    stmt.queries.append(q)
+
+                print(f"   Statement {stmt.id}: +query({generator_name or 'default'}): {q}")
+
             except Exception as e:
                 print(f"   [Error] ID {stmt.id}: {e}")
-                stmt.query = self._fallback_query(stmt.text)
+                fb = self._fallback_query(stmt.text)
+                if fb.lower() not in {x.lower() for x in stmt.queries}:
+                    stmt.queries.append(fb)
 
         return state
 
@@ -55,6 +72,8 @@ class StatementToQueryStep(PipelineStep):
         # Simple keyword extraction fallback
         words = re.findall(r"[A-Za-z']+", text)
         return " ".join(list(set(words))[:6])
+    
+    
 
 
 # -------------------------------------------------------------------------
@@ -65,37 +84,42 @@ class QueryToLinkStep(PipelineStep):
         print(f"[{self.__class__.__name__}] Fetching PubMed links...")
 
         retmax = self.config.get("retmax", 3)
+        sort = self.config.get("sort", "relevance")
         base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
 
         for stmt in state.statements:
-            if not stmt.query:
+            queries = getattr(stmt, "queries", []) or []
+            if not queries:
                 continue
 
-            try:
-                params = {
-                    "db": "pubmed",
-                    "term": stmt.query,
-                    "retmax": retmax,
-                    "retmode": "json"
-                }
-                resp = requests.get(base_url, params=params, timeout=10)
-                resp.raise_for_status()
+            for q in queries:
+                
+                try:
+                    params = {
+                        "db": "pubmed",
+                        "term": q,
+                        "retmax": retmax,
+                        "retmode": "json",
+                        "sort": sort,
+                    }
+                    resp = requests.get(base_url, params=params, timeout=10)
+                    resp.raise_for_status()
 
-                id_list = resp.json().get("esearchresult", {}).get("idlist", [])
+                    id_list = resp.json().get("esearchresult", {}).get("idlist", [])
 
-                # Append new evidence items
-                for pmid in id_list:
-                    # Check duplicates
-                    if any(e.pubmed_id == pmid for e in stmt.evidence):
-                        continue
+                    # Append new evidence items
+                    for pmid in id_list:
+                        # Check duplicates
+                        if any(e.pubmed_id == pmid for e in stmt.evidence):
+                            continue
 
-                    url = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
-                    stmt.evidence.append(Evidence(pubmed_id=pmid, url=url))
+                        url = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
+                        stmt.evidence.append(Evidence(pubmed_id=pmid, url=url))
 
-                print(f"   Statement {stmt.id}: Found {len(id_list)} links.")
+                    print(f"   Statement {stmt.id}: Found {len(id_list)} links.")
 
-            except Exception as e:
-                print(f"   [Error] Failed to fetch links for '{stmt.query}': {e}")
+                except Exception as e:
+                    print(f"   [Error] Failed to fetch links for '{stmt.query}': {e}")
 
         return state
 

@@ -28,9 +28,9 @@ No commentary, no extra keys, no markdown.
 # ────────────────────────────────────────────────────────────────────
 # Step3: PubMed query generation (REVISED)
 # ────────────────────────────────────────────────────────────────────
-PROMPT_TMPL_S3 = """
-You are a biomedical librarian inside a fact‐checking app. You get a claim about health or medicine extracted from a instragram video transcript.
-**Think quickly (silently)** about the core PICO concepts in the claim, identify appropriate MeSH headings (in quotes with [MeSH]) and text‐word synonyms (with [tiab]), and produce ONE PubMed Boolean query string that:
+PROMPT_TMPL_S3_NARROW_QUERY = """
+You are a biomedical librarian inside a fact‐checking app. You get a CLAIM about health or medicine extracted from a instragram video transcript.
+**Think quickly (silently)** about the PICO concepts in the CLAIM, identify appropriate MeSH headings (in quotes with [MeSH]) and text‐word synonyms (with [tiab]), and produce ONE PubMed Boolean query string that:
 Example:
 (
   "Smoking"[MeSH] 
@@ -64,7 +64,8 @@ AND
 )
 
 
-• Is exactly one line (no line breaks).  
+• Is exactly one line (no line breaks). 
+• Is very precise and specific to the CLAIM.  
 • Uses uppercase AND/OR to combine concepts.  
 • Wraps MeSH terms in quotes followed by [MeSH] (e.g., "Smoking"[MeSH]).  
 • Marks synonym or free‐text terms with [tiab] (e.g., smoking[tiab]).  
@@ -73,6 +74,114 @@ AND
 • Does not include quotation marks around free‐text terms (other than MeSH).  
 • Begins with a letter (A–Z or a–z) and contains no leading/trailing spaces.  
 • Contains no line breaks or extra whitespace.
+
+
+CLAIM:
+{claim}
+"""
+
+# ────────────────────────────────────────────────────────────────────
+# Step3: PubMed query generation (REVISED)
+# ────────────────────────────────────────────────────────────────────
+PROMPT_TMPL_S3_BROAD_QUERY = """
+You are a biomedical librarian inside a fact‐checking app. You get a CLAIM about health or medicine extracted from a instragram video transcript.
+**Think quickly (silently)** about the PICO concepts in the CLAIM, identify appropriate MeSH headings (in quotes with [MeSH]) and text‐word synonyms (with [tiab]), and produce ONE PubMed Boolean query string that:
+Example:
+(
+  "Smoking"[MeSH] 
+  OR smoking[tiab] 
+  OR smokers[tiab] 
+  OR "tobacco use"[tiab]
+)
+AND
+(
+  "Lung Function Tests"[MeSH] 
+  OR "pulmonary function"[tiab] 
+  OR "lung function"[tiab] 
+  OR FEV1[tiab] 
+  OR FVC[tiab]
+)
+AND
+(
+  "Inflammation"[MeSH] 
+  OR inflammation[tiab] 
+  OR "mucus hypersecretion"[tiab] 
+  OR mucus[tiab]
+)
+AND
+(
+  "Proanthocyanidins"[MeSH] 
+  OR proanthocyanidin*[tiab] 
+  OR OPC[tiab] 
+  OR "Traumotein"[tiab] 
+  OR "pine bark extract"[tiab] 
+  OR Pycnogenol[tiab]
+)
+
+
+• Is exactly one line (no line breaks). 
+• Is broad on the topic but still relevant to the CLAIM. 
+• Uses uppercase AND/OR to combine concepts.  
+• Wraps MeSH terms in quotes followed by [MeSH] (e.g., "Smoking"[MeSH]).  
+• Marks synonym or free‐text terms with [tiab] (e.g., smoking[tiab]).  
+• Groups synonyms with parentheses; groups PICO domains by combining with AND.  
+• Does not include field tags other than [MeSH] and [tiab].  
+• Does not include quotation marks around free‐text terms (other than MeSH).  
+• Begins with a letter (A–Z or a–z) and contains no leading/trailing spaces.  
+• Contains no line breaks or extra whitespace.
+
+
+CLAIM:
+{claim}
+"""
+
+PROMPT_TMPL_S3_SYNONYMS_QUERY = """
+You are a biomedical librarian inside a fact‐checking app. You get a CLAIM about health or medicine extracted from a instragram video transcript.
+**Think quickly (silently)** about the PICO concepts in the CLAIM, identify appropriate MeSH headings (in quotes with [MeSH]) and text‐word synonyms (with [tiab]), and produce ONE PubMed Boolean query string that:
+Example:
+(
+  "Smoking"[MeSH] 
+  OR smoking[tiab] 
+  OR smokers[tiab] 
+  OR "tobacco use"[tiab]
+)
+AND
+(
+  "Lung Function Tests"[MeSH] 
+  OR "pulmonary function"[tiab] 
+  OR "lung function"[tiab] 
+  OR FEV1[tiab] 
+  OR FVC[tiab]
+)
+AND
+(
+  "Inflammation"[MeSH] 
+  OR inflammation[tiab] 
+  OR "mucus hypersecretion"[tiab] 
+  OR mucus[tiab]
+)
+AND
+(
+  "Proanthocyanidins"[MeSH] 
+  OR proanthocyanidin*[tiab] 
+  OR OPC[tiab] 
+  OR "Traumotein"[tiab] 
+  OR "pine bark extract"[tiab] 
+  OR Pycnogenol[tiab]
+)
+
+
+• Is exactly one line (no line breaks). 
+• Use a variety of synonyms to cover the CLAIM comprehensively.
+• Uses uppercase AND/OR to combine concepts.  
+• Wraps MeSH terms in quotes followed by [MeSH] (e.g., "Smoking"[MeSH]).  
+• Marks synonym or free‐text terms with [tiab] (e.g., smoking[tiab]).  
+• Groups synonyms with parentheses; groups PICO domains by combining with AND.  
+• Does not include field tags other than [MeSH] and [tiab].  
+• Does not include quotation marks around free‐text terms (other than MeSH).  
+• Begins with a letter (A–Z or a–z) and contains no leading/trailing spaces.  
+• Contains no line breaks or extra whitespace.
+
 
 CLAIM:
 {claim}

@@ -19,7 +19,7 @@ from typing import Any, Dict, List
 
 import openai
 
-from .preprompts import *
+from ..app2.core.preprompts import *
 from .llmconfigs import *
 
 

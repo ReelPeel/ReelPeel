@@ -2,7 +2,7 @@
 import requests
 import re
 from typing import Any, Dict, List
-from .preprompts import *
+from ..app2.core.preprompts import *
 from .llmconfigs import *
 
 def query_to_link(data: Dict[str, Any],) -> Dict[str, Any]:
