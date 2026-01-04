@@ -366,4 +366,5 @@ dependencies:
       - watchfiles==1.0.5
       - websockets==15.0.1
       - yt-dlp==2025.10.14
+  - transformers
 prefix: /data/home/jak38842/opt/miniconda3/envs/factchecker
