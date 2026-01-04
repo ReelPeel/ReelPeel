@@ -117,6 +117,7 @@ class QueryToLinkStep(PipelineStep):
                     resp.raise_for_status()
 
                     id_list = resp.json().get("esearchresult", {}).get("idlist", [])
+                    print(f"   Statement {stmt.id}: Query '{q}' -> {len(id_list)} PMIDs.")
 
                     for pmid in id_list:
                         # Try to find existing evidence (same PMID)
@@ -136,17 +137,10 @@ class QueryToLinkStep(PipelineStep):
                         stmt.evidence.append(Evidence(pubmed_id=pmid, url=url))
                   
                         print(f"   Statement {stmt.id}: Found {len(id_list)} links.")
-                        ev = Evidence(pubmed_id=pmid, url=url)
+                        
 
-                        # Attach provenance (works whether or not Evidence formally defines queries)
-                        if not hasattr(ev, "queries") or ev.queries is None:
-                            ev.queries = []
-                        ev.queries.append(q)
-
-                        stmt.evidence.append(ev)
-
-                    time.sleep(random.uniform(0.5, 0.5))
-                    print(f"   Statement {stmt.id}: Query '{q}' -> {len(id_list)} PMIDs.")
+                        time.sleep(random.uniform(0.5, 0.5))
+                        
 
                 except Exception as e:
                     print(f"   [Error] Failed to fetch links for '{q}': {e}")
