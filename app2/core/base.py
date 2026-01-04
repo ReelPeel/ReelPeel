@@ -20,7 +20,12 @@ class PipelineStep(ABC):
     @property
     def llm(self) -> LLMService:
         if self._llm_service is None:
-            self._llm_service = LLMService(self.config.get("llm_settings", {}))
+            # Inject debug settings into the service
+            self._llm_service = LLMService(
+                self.config.get("llm_settings", {}),
+                debug=self.debug,
+                log_file=self.log_file
+            )
         return self._llm_service
 
     def run(self, state: PipelineState) -> PipelineState:
@@ -43,12 +48,17 @@ class PipelineStep(ABC):
 
         is_module = isinstance(self, PipelineModule)
 
+        tokens = 0
+        if self._llm_service:
+            tokens = self._llm_service.token_usage["total_tokens"]
+
         # 3. Record timing stats
         new_state.execution_log.append({
             "step": self.step_name,
             "duration": duration,
             "indent": state.depth,
-            "is_module": is_module
+            "is_module": is_module,
+            "tokens": tokens
         })
 
         if self.debug and not is_module:
@@ -71,6 +81,10 @@ class PipelineStep(ABC):
             header_parts.insert(1, f"MODEL: {self.config['model']}")
         if "temperature" in self.config:
             header_parts.insert(2, f"TEMP: {self.config['temperature']}")
+        if self._llm_service:
+            used = self._llm_service.token_usage['total_tokens']
+            if used > 0:
+                header_parts.append(f"TOKENS: {used}")
 
         header_str = " | ".join(header_parts)
         divider = "=" * 80
