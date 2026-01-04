@@ -31,6 +31,8 @@ class TranscriptToStatementStep(PipelineStep):
                 prompt=prompt,
             )
 
+            self.log_artifact(f"Raw Output for Transcript Extraction", resp)
+
             cleaned_content = self._clean_json(resp)
             claims = json.loads(cleaned_content)
 

@@ -32,6 +32,7 @@ class StatementToQueryStep(PipelineStep):
                     #stop=self.config.get("stop", ["\n"]),  # fine if 1 query/line
                     prompt=prompt,
                 )
+                self.log_artifact(f"Raw Output for Statement {stmt.id} Query Generation", resp)
                 raw = resp.replace("\n", " ")  # collapse to one line
                 q = self.clean_pubmed_query(raw)
 
@@ -145,7 +146,7 @@ class QueryToLinkStep(PipelineStep):
 
                         stmt.evidence.append(ev)
 
-                    time.sleep(random.uniform(0.5, 0.5))
+                    # time.sleep(random.uniform(0.5, 0.5))
                     print(f"   Statement {stmt.id}: Query '{q}' -> {len(id_list)} PMIDs.")
 
                 except Exception as e:
@@ -192,9 +193,8 @@ class LinkToSummaryStep(PipelineStep):
                     if not ev.summary and abstract:
                         ev.summary = abstract[:500] + "..."  # Fallback for display
                     # random sleep to avoid rate limits
-                    time.sleep(random.uniform(0.5,0.5))
-                    print(
-                        f"   Processed {url} -> PMID: {pmid}, Types: {len(pub_types)}, Abstract Len: {len(abstract) if abstract else 0}")
+                    # time.sleep(random.uniform(2, 5))
+                    print(f"   Processed {url} -> PMID: {pmid}, Types: {len(pub_types)}, Abstract Len: {len(abstract) if abstract else 0}")
 
                 except Exception as e:
                     print(f"   [Warning] Could not process {url}: {e}")

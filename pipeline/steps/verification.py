@@ -44,6 +44,7 @@ class FilterEvidenceStep(PipelineStep):
                 temperature=self.config.get('temperature', 0.1),
                 max_tokens=self.config.get('max_tokens', 128),
             )
+            self.log_artifact(f"Raw Output for Verification", res)
             return res.startswith("yes")
         except Exception as e:
             print(f"[ERROR] Step 6 Filter failed: {e}")
@@ -93,7 +94,7 @@ class TruthnessStep(PipelineStep):
             except Exception as e:
                 stmt.verdict = "error"
                 stmt.rationale = f"LLM Call Failed: {e}"
-                stmt.confidence = 0.0
+                stmt.score = 0.0
 
         return state
 
@@ -104,11 +105,11 @@ class TruthnessStep(PipelineStep):
 
         if verdict_match and score_match:
             stmt.verdict = verdict_match.group(1).lower()
-            stmt.confidence = float(score_match.group(1))
+            stmt.score = float(score_match.group(1))
             stmt.rationale = reply  # Store full reasoning
         else:
             stmt.verdict = "uncertain"
-            stmt.confidence = 0.0
+            stmt.score = 0.0
             stmt.rationale = f"Unparsable output:\n{reply}"
 
 
@@ -119,16 +120,16 @@ class ScoringStep(PipelineStep):
     def execute(self, state: PipelineState) -> PipelineState:
         threshold = self.config.get("threshold", 0.15)
 
-        confidences = [s.confidence for s in state.statements if s.confidence is not None]
+        scores = [s.score for s in state.statements if s.score is not None]
 
-        if not confidences:
+        if not scores:
             state.overall_truthiness = 0.0
             return state
 
-        # Weight logic: Triple weight if confidence is below threshold
-        weights = [3 if c < threshold else 1 for c in confidences]
+        # Weight logic: Triple weight if score is below threshold
+        weights = [3 if c < threshold else 1 for c in scores]
 
-        weighted_sum = sum(c * w for c, w in zip(confidences, weights))
+        weighted_sum = sum(c * w for c, w in zip(scores, weights))
         total_weight = sum(weights)
 
         if total_weight > 0:
