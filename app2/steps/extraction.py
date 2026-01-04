@@ -1,7 +1,7 @@
 import json
 import re
 from datetime import datetime
-import openai
+
 from ..core.base import PipelineStep
 from ..core.models import PipelineState, Statement
 
@@ -19,25 +19,19 @@ class TranscriptToStatementStep(PipelineStep):
 
         print(f"[{self.__class__.__name__}] Starting extraction of medical claims...")
 
-        # Initialize client with settings from the config dictionary
-        client = openai.OpenAI(
-            base_url=self.config.get('base_url'),
-            api_key=self.config.get('api_key', 'ollama')
-        )
 
         # Use the prompt provided in the config
         prompt = self.config.get('prompt_template').format(transcript=transcript.strip())
 
         try:
-            resp = client.chat.completions.create(
+            resp = self.llm.call(
                 model=self.config.get('model'),
                 temperature=self.config.get('temperature', 0.7),
                 max_tokens=self.config.get('max_tokens', 128),
-                messages=[{"role": "user", "content": prompt}],
+                prompt=prompt,
             )
 
-            raw_content = resp.choices[0].message.content.strip()
-            cleaned_content = self._clean_json(raw_content)
+            cleaned_content = self._clean_json(resp)
             claims = json.loads(cleaned_content)
 
             # Map strings to Statement models

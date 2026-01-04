@@ -62,7 +62,6 @@ VERIFICATION_MODULE = {
     "type": "module",
     "settings": {
         "name": "MODULE! Verification Engine",
-        "debug": True,
         "steps": [
             # Step 6: Filter Irrelevant Evidence
             {
@@ -99,8 +98,12 @@ VERIFICATION_MODULE = {
 
 # 2. Define the Full Pipeline Config
 FULL_PIPELINE_CONFIG = {
-    "name": "MODULE! Full_End_to_End_Run",
+    "name": "Full_End_to_End_Run",
     "debug": True,
+    "llm_settings" : {
+        "base_url": "http://localhost:11434/v1",
+        "api_key" : "ollama",
+    },
     "steps": [
         # STEP 1: Mock Input (Simulating Whisper)
         {
