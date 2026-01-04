@@ -3,7 +3,8 @@ venv
 .venv
 __pycache__
 
-*.txt
+*.txtS
 *.wav
 *.json
 *.log
+evaluation/deberta_runs/

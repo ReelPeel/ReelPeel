@@ -111,7 +111,7 @@ def run_pipeline(tmp_path: str) -> dict:
     print("\n\n")
     # STEP3
     print("Prepromt STEP3:")
-    print(PROMPT_TMPL_S3)
+    print(PROMPT_TMPL_S3_NARROW_QUERY)
     print("\n\n")
     # STEP5
     print("Preprompt STEP5:")

@@ -20,6 +20,18 @@ def allocate_counts(n, ratios):
         base[idx] += 1
     return base  # sums to n
 
+def add_ids(data, id_field="id", start=1, overwrite=False):
+    """
+    Add a stable integer ID to each item in-place.
+    If overwrite=False, items that already have id_field are left unchanged.
+    """
+    next_id = start
+    for item in data:
+        if overwrite or id_field not in item:
+            item[id_field] = next_id
+        next_id += 1
+    return data
+
 def stratified_split(data, train_ratio, test_ratio, seed=42):
     if train_ratio + test_ratio <= 0:
         raise ValueError("Ratios must sum to a positive number.")
@@ -60,14 +72,24 @@ def label_counts(items):
 def main():
     ap = argparse.ArgumentParser(description="Stratified train/test split for JSON-list data.")
     ap.add_argument("--input", default="claims_statements.txt", help="Input file (JSON list).")
-    ap.add_argument("--train", type=float, default=0.8, help="Train ratio (default: 0.8).")
-    ap.add_argument("--test", type=float, default=0.1, help="Test ratio (default: 0.1).")
+    ap.add_argument("--train", type=float, default=0.7, help="Train ratio (default: 0.7).")
+    ap.add_argument("--test", type=float, default=0.3, help="Test ratio (default: 0.3).")
     ap.add_argument("--seed", type=int, default=42, help="Random seed (default: 42).")
     ap.add_argument("--out_prefix", default="claims_statements", help="Output prefix (default: claims_statements).")
+
+    # ID options
+    ap.add_argument("--id_field", default="id", help="Field name to store the ID (default: id).")
+    ap.add_argument("--id_start", type=int, default=1, help="Starting ID number (default: 1).")
+    ap.add_argument("--overwrite_ids", action="store_true",
+                    help="Overwrite existing IDs if present (default: False).")
+
     args = ap.parse_args()
 
     with open(args.input, "r", encoding="utf-8") as f:
         data = json.load(f)
+
+    # Add stable IDs before split/shuffle
+    add_ids(data, id_field=args.id_field, start=args.id_start, overwrite=args.overwrite_ids)
 
     train, test = stratified_split(data, args.train, args.test, seed=args.seed)
 

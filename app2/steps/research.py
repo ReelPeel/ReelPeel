@@ -1,11 +1,14 @@
 import re
 from datetime import datetime
+import time
+import random
 from typing import List, Tuple, Any, Optional
 
 import requests
 
 from ..core.base import PipelineStep
 from ..core.models import PipelineState, Evidence
+import xml.etree.ElementTree as ET
 
 
 # -------------------------------------------------------------------------
@@ -16,24 +19,33 @@ class StatementToQueryStep(PipelineStep):
         print(f"[{self.__class__.__name__}] Generating PubMed queries...")
 
         for stmt in state.statements:
-            if stmt.query:
-                continue  # Skip if already exists
+            # Ensure list exists (in case of older states)
+            if not hasattr(stmt, "queries") or stmt.queries is None:
+                stmt.queries = []
 
-            prompt = self.config.get('prompt_template').format(claim=stmt.text)
+            prompt = self.config.get("prompt_template").format(claim=stmt.text)
 
             try:
                 resp = self.llm.call(
-                    model=self.config.get('model'),
-                    temperature=self.config.get('temperature', 0.2),
-                    max_tokens=self.config.get('max_tokens', 64),
+                    model=self.config.get("model"),
+                    temperature=self.config.get("temperature", 0.2),
+                    #stop=self.config.get("stop", ["\n"]),  # fine if 1 query/line
                     prompt=prompt,
-                    stop=["\n"],
                 )
-                stmt.query = self._clean_query(resp, stmt.text)
-                print(f"   Query for ID {stmt.id}: {stmt.query}")
+                raw = resp.replace("\n", " ")  # collapse to one line
+                q = self._clean_query(raw, stmt.text)
+
+                # Append if not duplicate
+                if q and q.lower() not in {x.lower() for x in stmt.queries}:
+                    stmt.queries.append(q)
+
+                print(f"   Statement {stmt.id}: + query: {q}")
+
             except Exception as e:
                 print(f"   [Error] ID {stmt.id}: {e}")
-                stmt.query = self._fallback_query(stmt.text)
+                fb = self._fallback_query(stmt.text)
+                if fb.lower() not in {x.lower() for x in stmt.queries}:
+                    stmt.queries.append(fb)
 
         return state
 
@@ -48,6 +60,8 @@ class StatementToQueryStep(PipelineStep):
         # Simple keyword extraction fallback
         words = re.findall(r"[A-Za-z']+", text)
         return " ".join(list(set(words))[:6])
+    
+    
 
 
 # -------------------------------------------------------------------------
@@ -58,37 +72,42 @@ class QueryToLinkStep(PipelineStep):
         print(f"[{self.__class__.__name__}] Fetching PubMed links...")
 
         retmax = self.config.get("retmax", 3)
+        sort = self.config.get("sort", "relevance")
         base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
 
         for stmt in state.statements:
-            if not stmt.query:
+            queries = getattr(stmt, "queries", []) or []
+            if not queries:
                 continue
 
-            try:
-                params = {
-                    "db": "pubmed",
-                    "term": stmt.query,
-                    "retmax": retmax,
-                    "retmode": "json"
-                }
-                resp = requests.get(base_url, params=params, timeout=10)
-                resp.raise_for_status()
+            for q in queries:
+                
+                try:
+                    params = {
+                        "db": "pubmed",
+                        "term": q,
+                        "retmax": retmax,
+                        "retmode": "json",
+                        "sort": sort,
+                    }
+                    resp = requests.get(base_url, params=params, timeout=10)
+                    resp.raise_for_status()
 
-                id_list = resp.json().get("esearchresult", {}).get("idlist", [])
+                    id_list = resp.json().get("esearchresult", {}).get("idlist", [])
 
-                # Append new evidence items
-                for pmid in id_list:
-                    # Check duplicates
-                    if any(e.pubmed_id == pmid for e in stmt.evidence):
-                        continue
+                    # Append new evidence items
+                    for pmid in id_list:
+                        # Check duplicates
+                        if any(e.pubmed_id == pmid for e in stmt.evidence):
+                            continue
 
-                    url = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
-                    stmt.evidence.append(Evidence(pubmed_id=pmid, url=url))
+                        url = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
+                        stmt.evidence.append(Evidence(pubmed_id=pmid, url=url))
+                    time.sleep(random.uniform(2, 5))
+                    print(f"   Statement {stmt.id}: Found {len(id_list)} links.")
 
-                print(f"   Statement {stmt.id}: Found {len(id_list)} links.")
-
-            except Exception as e:
-                print(f"   [Error] Failed to fetch links for '{stmt.query}': {e}")
+                except Exception as e:
+                    print(f"   [Error] Failed to fetch links for '{q}': {e}")
 
         return state
 
@@ -129,7 +148,8 @@ class LinkToSummaryStep(PipelineStep):
                     # Optional: Map abstract to summary if summary is empty
                     if not ev.summary and abstract:
                         ev.summary = abstract[:500] + "..."  # Fallback for display
-
+                    # random sleep to avoid rate limits
+                    time.sleep(random.uniform(2, 5))
                     print(
                         f"   Processed {url} -> PMID: {pmid}, Types: {len(pub_types)}, Abstract Len: {len(abstract) if abstract else 0}")
 
@@ -163,14 +183,30 @@ class LinkToSummaryStep(PipelineStep):
         return [str(x) for x in pubtypes if x is not None]
 
     def _pubmed_fetch_abstract(self, pmid: str) -> Optional[str]:
-        """Fetch abstract text using EFetch."""
-        params = {"db": "pubmed", "id": pmid, "rettype": "abstract", "retmode": "text"}
+        params = {"db": "pubmed", "id": pmid, "retmode": "xml"}
         r = requests.get(f"{self.NCBI_EUTILS}/efetch.fcgi", params=params, timeout=20)
         r.raise_for_status()
 
-        lines = [line.strip() for line in r.text.splitlines() if line.strip()]
-        # Filter out uppercase metadata lines loosely
-        abstract = " ".join(line for line in lines if not line.isupper())
+        root = ET.fromstring(r.text)
+
+        def collect(xpath: str) -> List[str]:
+            parts = []
+            for el in root.findall(xpath):
+                txt = "".join(el.itertext()).strip()
+                if not txt:
+                    continue
+                label = el.attrib.get("Label") or el.attrib.get("NlmCategory")
+                parts.append(f"{label}: {txt}" if label else txt)
+            return parts
+
+        parts = collect(".//Abstract/AbstractText")
+        if not parts:
+            parts = collect(".//OtherAbstract/AbstractText")
+
+        abstract = " ".join(parts).strip()
+        if abstract.lower().startswith("abstract available from the publisher"):
+            return None
+
         return abstract or None
 
 
