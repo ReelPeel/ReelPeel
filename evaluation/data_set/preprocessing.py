@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
+import argparse
 import json
 import random
-import argparse
 from collections import defaultdict, Counter
+
 
 def allocate_counts(n, ratios):
     """

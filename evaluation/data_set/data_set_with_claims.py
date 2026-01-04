@@ -3,11 +3,10 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List
 
 import pandas as pd
 import requests
-
 
 OLLAMA_DEFAULT_URL = "http://localhost:11434"
 OLLAMA_GENERATE_ENDPOINT = "/api/generate"
