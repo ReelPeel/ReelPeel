@@ -7,4 +7,5 @@ __pycache__
 *.wav
 *.json
 *.log
+*.pdf
 evaluation/deberta_runs/
