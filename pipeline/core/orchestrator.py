@@ -12,6 +12,7 @@ from rich.text import Text
 from .factory import StepFactory
 from .models import PipelineState
 from .logging import PipelineLogger
+from .service_manager import ensure_pubmed_proxy
 
 
 class PipelineOrchestrator:
@@ -23,6 +24,7 @@ class PipelineOrchestrator:
 
         # 1. Initialize the Logger Service
         self.logger = PipelineLogger(self.run_id, debug=self.debug)
+        ensure_pubmed_proxy()
 
         # 2. Build Steps
         self.steps = []

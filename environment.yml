@@ -362,4 +362,5 @@ dependencies:
   - transformers
   - rich
   - loguru
+  - aiolimiter
 prefix: /data/home/jak38842/opt/miniconda3/envs/factchecker
