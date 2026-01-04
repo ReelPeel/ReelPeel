@@ -34,25 +34,30 @@ class PipelineStep(ABC):
         DO NOT OVERRIDE THIS METHOD IN SUBCLASSES.
         """
         start_time = time.time()
+        is_module = isinstance(self, PipelineModule)
 
-        # 1. Run the actual logic
+        # 1. START LOG (Settings & Header)
+        # We write this BEFORE execution so that any artifacts (LLM calls)
+        # generated during execution appear physically inside this step's block.
+        if self.debug and not is_module:
+            self._write_start_log()
+
+        # 2. Run the actual logic
         try:
-            # Execute the subclass's logic
             new_state = self.execute(state)
         except Exception as e:
             print(f"[ERROR] Step {self.step_name} failed: {e}")
             raise e
 
-        # 2. Measure duration
+        # 3. Measure duration
         duration = time.time() - start_time
 
-        is_module = isinstance(self, PipelineModule)
-
+        # 4. Capture Tokens
         tokens = 0
         if self._llm_service:
             tokens = self._llm_service.token_usage["total_tokens"]
 
-        # 3. Record timing stats
+        # 5. Record timing stats
         new_state.execution_log.append({
             "step": self.step_name,
             "duration": duration,
@@ -61,66 +66,69 @@ class PipelineStep(ABC):
             "tokens": tokens
         })
 
+        # 6. END LOG (State & Stats)
+        # We write this AFTER execution to close the block.
         if self.debug and not is_module:
-            self._write_debug_log(new_state, duration)
+            self._write_end_log(new_state, duration, tokens)
 
         return new_state
 
-    def _write_debug_log(self, state: PipelineState, duration: float):
+    def _write_start_log(self):
+        """Writes the Header and Settings block."""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        divider = "=" * 160
 
-        # --- 1. BUILD ENHANCED HEADER ---
-        # Start with standard info
-        header_parts = [
-            f"[{timestamp}] STEP: {self.step_name}",
-            f"DURATION: {duration:.4f}s"
-        ]
+        # Header Info
+        header_parts = [f"[{timestamp}] START STEP: {self.step_name}"]
 
-        # Extract LLM details if available
         if "model" in self.config:
-            header_parts.insert(1, f"MODEL: {self.config['model']}")
+            header_parts.append(f"MODEL: {self.config['model']}")
         if "temperature" in self.config:
-            header_parts.insert(2, f"TEMP: {self.config['temperature']}")
-        if self._llm_service:
-            used = self._llm_service.token_usage['total_tokens']
-            if used > 0:
-                header_parts.append(f"TOKENS: {used}")
+            header_parts.append(f"TEMP: {self.config['temperature']}")
 
         header_str = " | ".join(header_parts)
-        divider = "=" * 80
 
-        # --- 2. FORMAT SETTINGS (Prompts & Config) ---
-        # We copy config to avoid mutating the actual object if we needed to filter
+        # Clean Config for display (remove internal keys)
         config_to_log = self.config.copy()
         config_to_log.pop("debug", None)
         config_to_log.pop("log_file", None)
 
-        # Dump to string first
         settings_dump = json.dumps(config_to_log, indent=2, default=str)
-
-        # --- VISUAL FORMATTING ---
-        # Replace the escaped JSON newline "\n" with a real newline and indentation.
-        # This makes prompts appear as blocks of text in the log.
+        # Visual formatting for prompts
         settings_dump = settings_dump.replace("\\n", "\n      ")
-
-        # --- 3. FORMAT STATE ---
-        state_json = state.model_dump_json(indent=2)
 
         log_entry = (
             f"\n{divider}\n"
             f"{header_str}\n"
             f"{divider}\n"
-            f"--- STEP SETTINGS & PROMPT ---\n"
-            f"{settings_dump}\n\n"
-            f"--- OUTPUT STATE ---\n"
-            f"{state_json}\n"
+            f"--- STEP SETTINGS ---\n"
+            f"{settings_dump}\n"
+            f"{divider}\n"  # Closes settings block, ready for artifacts
         )
+        self._append_to_file(log_entry)
 
-        try:
-            with open(self.log_file, "a", encoding="utf-8") as f:
-                f.write(log_entry)
-        except (OSError, PermissionError) as e:
-            print(f"[{self.step_name}] Warning: Failed to write to log file '{self.log_file}': {e}")
+    def _write_end_log(self, state: PipelineState, duration: float, tokens: int):
+        """Writes the Footer and Output State block."""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        divider = "=" * 160
+
+        # Build Stats Line
+        stats_parts = [f"DURATION: {duration:.4f}s"]
+        if tokens > 0:
+            stats_parts.append(f"TOKENS: {tokens}")
+        stats_line = " | ".join(stats_parts)
+
+        # Format State
+        state_json = state.model_dump_json(indent=2)
+
+        log_entry = (
+            f"\n--- OUTPUT STATE ---\n"
+            f"{state_json}\n"
+            f"{divider}\n"
+            f"[{timestamp}] FINISHED STEP: {self.step_name} | {stats_line}\n"
+            f"{divider}\n"
+        )
+        self._append_to_file(log_entry)
 
     def log_artifact(self, label: str, data: Any):
         """
@@ -131,7 +139,7 @@ class PipelineStep(ABC):
 
         timestamp = datetime.now().strftime("%H:%M:%S")
 
-        # 1. Intelligent Formatting
+        # Intelligent Formatting
         if isinstance(data, (dict, list)):
             try:
                 formatted_data = json.dumps(data, indent=2, default=str)
@@ -142,12 +150,10 @@ class PipelineStep(ABC):
         else:
             formatted_data = str(data)
 
-        # 2. APPLY INDENTATION TO EVERY LINE (The Fix)
-        # This ensures the content looks "inside" the log block
+        # Apply indentation to make it look "inside" the log block
         prefix = "      "  # 6 spaces
         formatted_data = "\n".join([f"{prefix}{line}" for line in formatted_data.split("\n")])
 
-        # 3. Construct Log Entry
         log_entry = (
             f"\n   >>> [ARTIFACT] {self.step_name} @ {timestamp}\n"
             f"   LABEL: {label}\n"
@@ -155,12 +161,14 @@ class PipelineStep(ABC):
             f"{formatted_data}\n"
             f"   --------------------------------------------------\n"
         )
+        self._append_to_file(log_entry)
 
+    def _append_to_file(self, text: str):
         try:
             with open(self.log_file, "a", encoding="utf-8") as f:
-                f.write(log_entry)
-        except Exception as e:
-            print(f"[WARNING] Could not log artifact: {e}")
+                f.write(text)
+        except (OSError, PermissionError) as e:
+            print(f"[{self.step_name}] Warning: Failed to write to log file '{self.log_file}': {e}")
 
     @abstractmethod
     def execute(self, state: PipelineState) -> PipelineState:
@@ -206,8 +214,4 @@ class PipelineModule(PipelineStep):
         return state
 
     def _log_boundary(self, msg):
-        try:
-            with open(self.log_file, "a", encoding="utf-8") as f:
-                f.write(f"\n{msg}\n")
-        except Exception:
-            pass
+        self._append_to_file(f"\n{msg}\n")
