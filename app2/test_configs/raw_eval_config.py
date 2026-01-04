@@ -1,4 +1,4 @@
-from app.preprompts import PROMPT_TMPL_S7
+from app2.core.preprompts import PROMPT_TMPL_S7
 
 RAW_PIPELINE_CONFIG = {
     "name": "Full_End_to_End_Run",

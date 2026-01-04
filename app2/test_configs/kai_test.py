@@ -41,7 +41,7 @@ SCORES_MODULE = {
             {
                 "type": "rerank_evidence",
                 "settings": {
-                    "model_name": "BAAI/bge-reranker-v2-m3",
+                    "model_name": "BAAI/bge-reranker-v2-m3", # BAAI/bge-reranker-v2-gemma bigger but slower
                     "use_fp16": True,
                     "normalize": True,
                     "batch_size": 16,
@@ -50,8 +50,22 @@ SCORES_MODULE = {
                     "empty_relevance": 0.0,
                 },
             },
-            # später:
-            # {"type": "stance", "settings": {...}},
+            {
+                "type": "stance_evidence",
+                "settings": {
+                    "model_name": "cnut1648/biolinkbert-mednli",
+                    "use_fp16": True,
+                    "batch_size": 16,
+                    "max_length": 512,
+                    "evidence_fields": ["abstract", "summary"],
+
+                    # optional: only compute stance on Top-M evidence per statement (by ev.relevance)
+                    # "top_m_by_relevance": 5,
+
+                    # optional: if both support/refute are weak, force "neutral"
+                    # "threshold_decisive": 0.55,
+                }
+                },
             # {"type": "similarity_penalty", "settings": {...}},
         ]
     }
@@ -128,7 +142,7 @@ FULL_PIPELINE_CONFIG = {
         # STEP 3-5.1: The Research Module
         RESEARCH_MODULE,
         
-        # Step 5.99: The Reranking Module
+        # Step 5.99: Scores Module
         SCORES_MODULE,
         
         # STEP 6-8: The Verification Module

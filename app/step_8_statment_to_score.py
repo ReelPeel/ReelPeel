@@ -1,6 +1,6 @@
 from typing import Dict, Any
 
-from .preprompts import *
+from ..app2.core.preprompts import *
 from .llmconfigs import *
 
 threshold = 0.15

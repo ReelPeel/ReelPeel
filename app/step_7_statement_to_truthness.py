@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Dict, Any
 import openai
 
-from .preprompts import *
+from ..app2.core.preprompts import *
 from .llmconfigs import *
 
 

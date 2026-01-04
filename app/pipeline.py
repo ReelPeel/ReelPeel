@@ -13,7 +13,7 @@ from .step_7_statement_to_truthness import statement_to_truthness
 from .step_8_statment_to_score import statement_to_score
 from .step_5_1_add_weights import pubtype_to_weight
 
-from .preprompts import *
+from ..app2.core.preprompts import *
 from .llmconfigs import *
 
 
