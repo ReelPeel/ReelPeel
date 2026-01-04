@@ -65,15 +65,21 @@ class PipelineOrchestrator:
         # Calculate Total Tokens (summing leaves only to avoid double counting modules)
         total_tokens = sum(e.get("tokens", 0) for e in state.execution_log if not e.get("is_module"))
 
+        # Define Layout Widths
+        w_name = 50
+        w_dur = 15
+        w_tok = 10
+        total_width = w_name + w_dur + w_tok + 6  # +6 for separators " | "
+
         # Construct the summary string
         lines = [
-            "\n" + "=" * 75,
+            "\n" + "=" * total_width,
             f" EXECUTION SUMMARY: {self.name}",
             f" Run ID: {self.run_id}",
-            "=" * 75,
-            # Updated Header with Tokens
-            f"{'STEP NAME':<40} | {'DURATION':<10} | {'TOKENS'}",
-            "-" * 75,
+            "=" * total_width,
+            # Header
+            f"{'STEP NAME':<{w_name}} | {'DURATION':<{w_dur}} | {'TOKENS':<{w_tok}}",
+            "-" * total_width,
         ]
 
         for entry in ordered_log:
@@ -83,22 +89,26 @@ class PipelineOrchestrator:
             indent = entry.get("indent", 0)
             is_module = entry.get("is_module", False)
 
-            # Formatting
+            # Formatting Name
             prefix = "   " * indent
-
             if is_module:
-                # Module Header Style
                 display_name = f"{prefix}>> {name.upper()}"
-                token_str = ""  # Blank for modules
+                token_str = ""
             else:
                 display_name = f"{prefix}{name}"
                 token_str = f"{tokens}" if tokens > 0 else "-"
 
-            lines.append(f"{display_name:<40} | {dur:.4f}s   | {token_str}")
+            # Formatting Duration
+            dur_str = f"{dur:.4f}s"
 
-        lines.append("-" * 75)
-        lines.append(f"{'TOTAL PIPELINE TIME':<40} | {total_duration:.4f}s   | {total_tokens}")
-        lines.append("=" * 75 + "\n")
+            lines.append(f"{display_name:<{w_name}} | {dur_str:<{w_dur}} | {token_str:<{w_tok}}")
+
+        lines.append("-" * total_width)
+
+        # Footer
+        total_dur_str = f"{total_duration:.4f}s"
+        lines.append(f"{'TOTAL PIPELINE TIME':<{w_name}} | {total_dur_str:<{w_dur}} | {total_tokens:<{w_tok}}")
+        lines.append("=" * total_width + "\n")
 
         final_output = "\n".join(lines)
 
@@ -110,33 +120,23 @@ class PipelineOrchestrator:
         Transforms the flat execution log (where parents appear AFTER children)
         into a list where parents appear BEFORE children.
         """
-        # Buckets for each depth level
         levels = {}
 
         for entry in original_log:
             depth = entry.get("indent", 0)
             is_module = entry.get("is_module", False)
 
-            # Ensure list exists for this depth
             if depth not in levels:
                 levels[depth] = []
 
             if is_module:
-                # This is a Parent closing its block.
-                # 1. Retrieve all items currently accumulated at the child level (depth + 1)
                 children = levels.get(depth + 1, [])
-
-                # 2. Reset the child level bucket (they have been consumed)
                 levels[depth + 1] = []
-
-                # 3. Add the Parent (this entry) BEFORE the children
-                levels[depth].append(entry)  # Parent first
-                levels[depth].extend(children)  # Then Children
+                levels[depth].append(entry)
+                levels[depth].extend(children)
             else:
-                # Normal step, just append to current level
                 levels[depth].append(entry)
 
-        # The result is whatever is at depth 0 (the root)
         return levels.get(0, [])
 
     def _append_to_log(self, text: str):
