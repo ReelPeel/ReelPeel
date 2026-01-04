@@ -1,8 +1,15 @@
+import io
+import time
 from datetime import datetime
 from typing import Dict, List, Any
-import time
-from .models import PipelineState
+
+from rich import box
+from rich.console import Console
+from rich.table import Table
+from rich.text import Text
+
 from .factory import StepFactory
+from .models import PipelineState
 
 
 class PipelineOrchestrator:
@@ -60,60 +67,79 @@ class PipelineOrchestrator:
         return state
 
     def _print_summary(self, state: PipelineState, total_duration: float):
+        # --- 1. PREPARE THE DATA ---
+        rows = []
+        # Ensure we are using the full log
         ordered_log = self._reorder_logs_header_style(state.execution_log)
-
-        # Calculate Total Tokens (summing leaves only to avoid double counting modules)
-        total_tokens = sum(e.get("tokens", 0) for e in state.execution_log if not e.get("is_module"))
-
-        # Define Layout Widths
-        w_name = 50
-        w_dur = 15
-        w_tok = 10
-        total_width = w_name + w_dur + w_tok + 6  # +6 for separators " | "
-
-        # Construct the summary string
-        lines = [
-            "\n" + "=" * total_width,
-            f" EXECUTION SUMMARY: {self.name}",
-            f" Run ID: {self.run_id}",
-            "=" * total_width,
-            # Header
-            f"{'STEP NAME':<{w_name}} | {'DURATION':<{w_dur}} | {'TOKENS':<{w_tok}}",
-            "-" * total_width,
-        ]
+        total_tokens = 0
 
         for entry in ordered_log:
-            name = str(entry.get("step", "Unknown"))
-            dur = float(entry.get("duration", 0.0))
-            tokens = entry.get("tokens", 0)
             indent = entry.get("indent", 0)
+            name = str(entry.get("step", "Unknown"))
             is_module = entry.get("is_module", False)
+            tokens = entry.get("tokens", 0)
+            duration = float(entry.get("duration", 0.0))
 
-            # Formatting Name
-            prefix = "   " * indent
+            # Visual Indentation
+            padding = "   " * indent
+
+            # Format Rows
             if is_module:
-                display_name = f"{prefix}>> {name.upper()}"
-                token_str = ""
+                display_name = Text(f"{padding}>> MODULE! {name.upper()}", style="bold magenta")
+                token_display = ""
             else:
-                display_name = f"{prefix}{name}"
-                token_str = f"{tokens}" if tokens > 0 else "-"
+                display_name = f"{padding}{name}"
+                token_display = str(tokens) if tokens > 0 else "-"
+                total_tokens += tokens
 
-            # Formatting Duration
-            dur_str = f"{dur:.4f}s"
+            rows.append([display_name, f"{duration:.4f}s", token_display])
 
-            lines.append(f"{display_name:<{w_name}} | {dur_str:<{w_dur}} | {token_str:<{w_tok}}")
+        # --- 2. TABLE FACTORY ---
+        # We pass the 'box_style' in so Terminal gets fancy curves, File gets safe ASCII lines
+        def create_table(box_style, width=None):
+            table = Table(
+                title=f"EXECUTION SUMMARY: {self.name}",
+                title_justify="left",
+                box=box_style,
+                width=width,
+                show_header=True
+            )
+            table.add_column("Step Name", justify="left", no_wrap=True)
+            table.add_column("Duration", justify="right")
+            table.add_column("Tokens", justify="right")
 
-        lines.append("-" * total_width)
+            for row in rows:
+                table.add_row(*row)
 
-        # Footer
-        total_dur_str = f"{total_duration:.4f}s"
-        lines.append(f"{'TOTAL PIPELINE TIME':<{w_name}} | {total_dur_str:<{w_dur}} | {total_tokens:<{w_tok}}")
-        lines.append("=" * total_width + "\n")
+            table.add_section()
+            table.add_row("TOTAL PIPELINE TIME", f"{total_duration:.4f}s", str(total_tokens))
+            return table
 
-        final_output = "\n".join(lines)
+        # --- 3. PRINT TO TERMINAL (Fancy) ---
+        term_console = Console()
+        # Use ROUNDED for nice look on screen
+        term_table = create_table(box_style=box.ROUNDED)
 
-        print(final_output)
-        self._append_to_log(final_output)
+        # Add colors only for the terminal version
+        term_table.columns[0].style = "cyan"
+        term_table.columns[1].style = "magenta"
+        term_table.columns[2].style = "green"
+
+        term_console.print(term_table)
+
+        # --- 4. PRINT TO LOG FILE (Safe & Wide) ---
+        # Use ASCII to ensure borders appear in simple text files (like .log or .txt)
+        string_buffer = io.StringIO()
+        file_console = Console(file=string_buffer, no_color=True, width=200)
+
+        # box.ASCII ensures you see the grid lines in the file
+        file_table = create_table(box_style=box.ROUNDED)
+        file_console.print(file_table)
+
+        clean_output = string_buffer.getvalue()
+
+        # Save
+        self._append_to_log(clean_output)
 
     def _reorder_logs_header_style(self, original_log: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
