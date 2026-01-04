@@ -171,7 +171,7 @@ AND
 )
 
 
-• Is exactly one line (no line breaks). 
+• Return exactly one line (no line breaks). 
 • Use a variety of synonyms to cover the CLAIM comprehensively.
 • Uses uppercase AND/OR to combine concepts.  
 • Wraps MeSH terms in quotes followed by [MeSH] (e.g., "Smoking"[MeSH]).  

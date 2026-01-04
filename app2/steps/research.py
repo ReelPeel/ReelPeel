@@ -40,11 +40,12 @@ class StatementToQueryStep(PipelineStep):
                 resp = client.chat.completions.create(
                     model=self.config.get("model"),
                     temperature=self.config.get("temperature", 0.2),
-                    stop=self.config.get("stop", ["\n"]),  # fine if 1 query/line
+                    #stop=self.config.get("stop", ["\n"]),  # fine if 1 query/line
                     messages=messages,
                 )
 
                 raw = (resp.choices[0].message.content or "").strip()
+                raw = raw.replace("\n", " ")  # collapse to one line
                 q = self._clean_query(raw, stmt.text)
 
                 # Append if not duplicate
