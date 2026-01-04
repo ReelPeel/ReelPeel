@@ -2,7 +2,8 @@ from typing import List, Optional, Union, Dict, Any
 from enum import Enum
 from pydantic import BaseModel, Field
 
-class Stance(str, Enum):
+
+class Stance_label(str, Enum):
     """Represents how a piece of evidence relates to a given statement.
 
     Values:
@@ -17,6 +18,18 @@ class Stance(str, Enum):
     SUPPORTS = "Supports"
     REFUTES = "Refutes"
     NEUTRAL = "Neutral"
+
+class Stance(BaseModel):
+    """Represents the stance of a piece of evidence towards a statement."""
+    abstract_label: Optional[Stance_label] = None
+    abstract_p_supports: Optional[float] = None
+    abstract_p_refutes: Optional[float] = None
+    abstract_p_neutral: Optional[float] = None
+    summary_label: Optional[Stance_label] = None
+    summary_p_supports: Optional[float] = None
+    summary_p_refutes: Optional[float] = None
+    summary_p_neutral: Optional[float] = None
+    
     
 class Evidence(BaseModel):
     pubmed_id: Optional[str] = None
@@ -28,14 +41,7 @@ class Evidence(BaseModel):
     relevance: Optional[float] = None
     relevance_abstract: Optional[float] = None
     relevance_summary: Optional[float] = None
-    stance_abstract_label: Optional[Stance] = None
-    stance_abstract_p_supports: Optional[float] = None
-    stance_abstract_p_refutes: Optional[float] = None
-    stance_abstract_p_neutral: Optional[float] = None
-    stance_summary_label: Optional[Stance] = None
-    stance_summary_p_supports: Optional[float] = None
-    stance_summary_p_refutes: Optional[float] = None
-    stance_summary_p_neutral: Optional[float] = None
+    stance: Optional[Stance] = None
 
 class Statement(BaseModel):
     id: int

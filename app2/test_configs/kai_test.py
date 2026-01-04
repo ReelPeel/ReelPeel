@@ -63,7 +63,7 @@ SCORES_MODULE = {
                     # "top_m_by_relevance": 5,
 
                     # optional: if both support/refute are weak, force "neutral"
-                    # "threshold_decisive": 0.55,
+                    "threshold_decisive": 0.2,
                 }
                 },
             # {"type": "similarity_penalty", "settings": {...}},

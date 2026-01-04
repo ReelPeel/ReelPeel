@@ -3,16 +3,16 @@ STEP (SCORES): COMPUTE STANCE (NLI) FOR EVIDENCE
 ------------------------------------------------
 - Computes the stance of each evidence item relative to a claim using an NLI model.
 - Uses cnut1648/biolinkbert-mednli (BioLinkBERT-large fine-tuned on MedNLI).
-- Writes per-field outputs back into Evidence:
-    - stance_abstract_label / stance_abstract_p_{supports,refutes,neutral}
-    - stance_summary_label  / stance_summary_p_{supports,refutes,neutral}
+- Writes per-field outputs back into Evidence.stance (nested model):
+    - stance.abstract_label / stance.abstract_p_{supports,refutes,neutral}
+    - stance.summary_label  / stance.summary_p_{supports,refutes,neutral}
 
 Label mapping for cnut1648/biolinkbert-mednli:
     id2label = {0: entailment, 1: neutral, 2: contradiction}
 We map:
-    entailment    -> supports
-    contradiction -> refutes
-    neutral       -> neutral
+    entailment    -> Supports
+    contradiction -> Refutes
+    neutral       -> Neutral
 
 NOTE ON LONG ABSTRACTS
 ---------------------
@@ -26,18 +26,18 @@ from __future__ import annotations
 
 from typing import List, Tuple, Optional, Dict, Any
 
-from ..core.base import PipelineStep
-from ..core.models import PipelineState
-
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+from ..core.base import PipelineStep
+from ..core.models import PipelineState, Stance as EvidenceStance, Stance_label
 
 _MODEL_CACHE: Dict[Tuple[str, str, bool], Tuple[Any, Any]] = {}
 
 
 def _pick_device(device_cfg: Optional[str]) -> str:
     # Mirrors rerank.py behavior
-    if device_cfg:
+    if device_cfg and str(device_cfg).lower() != "auto":
         return device_cfg
     if torch is not None and torch.cuda.is_available():
         return "cuda"
@@ -77,15 +77,15 @@ def _infer_nli_indices(model) -> Tuple[int, int, int]:
     Uses model.config.id2label when available. Falls back to common conventions.
     """
     id2label = getattr(getattr(model, "config", None), "id2label", None) or {}
-    norm = {}
+    norm: Dict[int, str] = {}
+
     for k, v in id2label.items():
         try:
             i = int(k)
         except Exception:
-            i = k
-        norm[i] = str(v).strip().lower()
+            i = k  # best-effort
+        norm[int(i)] = str(v).strip().lower()
 
-    # Try semantic match first
     ent = neu = con = None
     for idx, lab in norm.items():
         if "entail" in lab:
@@ -98,9 +98,8 @@ def _infer_nli_indices(model) -> Tuple[int, int, int]:
     if ent is not None and neu is not None and con is not None:
         return int(ent), int(neu), int(con)
 
-    # Fallbacks (best-effort): 3-class NLI is almost always in 0..2
-    # Common training scripts for MedNLI/MNLI use:
-    #   0=entailment, 1=neutral, 2=contradiction  (as on the HF card for this model)
+    # Fallback for typical 3-class NLI heads:
+    #   0=entailment, 1=neutral, 2=contradiction
     return 0, 1, 2
 
 
@@ -121,7 +120,7 @@ class StanceEvidenceStep(PipelineStep):
           selected by ev.relevance (descending). Others are left as-is.
 
       - threshold_decisive: float (default: 0.0)
-          If max(p_supports, p_refutes) < threshold, force label to "neutral".
+          If max(p_supports, p_refutes) < threshold, force label to Neutral.
     """
 
     def execute(self, state: PipelineState) -> PipelineState:
@@ -159,19 +158,25 @@ class StanceEvidenceStep(PipelineStep):
             hypotheses: List[str] = []
             mapping: List[Tuple[int, str]] = []
 
-            # Reset per-run fields for selected evidence
+            # Reset per-run fields for selected evidence (nested stance model)
             for i in ev_indices:
                 ev = stmt.evidence[i]
-                if hasattr(ev, "stance_abstract_label"):
-                    ev.stance_abstract_label = None
-                    ev.stance_abstract_p_supports = None
-                    ev.stance_abstract_p_refutes = None
-                    ev.stance_abstract_p_neutral = None
-                if hasattr(ev, "stance_summary_label"):
-                    ev.stance_summary_label = None
-                    ev.stance_summary_p_supports = None
-                    ev.stance_summary_p_refutes = None
-                    ev.stance_summary_p_neutral = None
+
+                if getattr(ev, "stance", None) is None:
+                    ev.stance = EvidenceStance()
+                else:
+                    # Ensure it's the expected shape; if user loads from dicts, pydantic should coerce
+                    ev.stance = ev.stance  # no-op, explicit for clarity
+
+                # Reset only the fields we may overwrite this run
+                ev.stance.abstract_label = None
+                ev.stance.abstract_p_supports = None
+                ev.stance.abstract_p_refutes = None
+                ev.stance.abstract_p_neutral = None
+                ev.stance.summary_label = None
+                ev.stance.summary_p_supports = None
+                ev.stance.summary_p_refutes = None
+                ev.stance.summary_p_neutral = None
 
                 for field in evidence_fields:
                     txt = getattr(ev, field, None)
@@ -180,11 +185,14 @@ class StanceEvidenceStep(PipelineStep):
                         or getattr(ev, "article_title", None)
                         or getattr(ev, "paper_title", None)
                     )
+
                     if title:
                         title = str(title).strip()
                         txt = f"{title}\n\n{txt}"
+
                     if txt:
                         txt = str(txt).strip()
+
                     if not txt:
                         continue
 
@@ -211,32 +219,34 @@ class StanceEvidenceStep(PipelineStep):
                     probs = torch.softmax(logits, dim=-1)
                     all_probs.extend(probs.detach().cpu().tolist())
 
-            # Write results back
+            # Write results back into Evidence.stance
             for probs, (ev_idx, field) in zip(all_probs, mapping):
-                p_ent = float(probs[ent_i])
-                p_neu = float(probs[neu_i])
-                p_con = float(probs[con_i])
+                p_ent = float(probs[ent_i])  # entailment -> Supports
+                p_neu = float(probs[neu_i])  # neutral    -> Neutral
+                p_con = float(probs[con_i])  # contradiction -> Refutes
 
-                # Decide label
+                # Decide label (enum)
                 if max(p_ent, p_con) < threshold_decisive:
-                    label = "neutral"
+                    label = Stance_label.NEUTRAL
                 else:
-                    label = "supports" if p_ent >= p_con else "refutes"
+                    label = Stance_label.SUPPORTS if p_ent >= p_con else Stance_label.REFUTES
 
                 ev = stmt.evidence[ev_idx]
+                if ev.stance is None:
+                    ev.stance = EvidenceStance()
 
                 if field == "abstract":
-                    ev.stance_abstract_label = label
-                    ev.stance_abstract_p_supports = p_ent
-                    ev.stance_abstract_p_refutes = p_con
-                    ev.stance_abstract_p_neutral = p_neu
+                    ev.stance.abstract_label = label
+                    ev.stance.abstract_p_supports = p_ent
+                    ev.stance.abstract_p_refutes = p_con
+                    ev.stance.abstract_p_neutral = p_neu
                 elif field == "summary":
-                    ev.stance_summary_label = label
-                    ev.stance_summary_p_supports = p_ent
-                    ev.stance_summary_p_refutes = p_con
-                    ev.stance_summary_p_neutral = p_neu
+                    ev.stance.summary_label = label
+                    ev.stance.summary_p_supports = p_ent
+                    ev.stance.summary_p_refutes = p_con
+                    ev.stance.summary_p_neutral = p_neu
                 else:
-                    # If you add more fields, extend here.
+                    # If you add more fields to the Stance model, extend handling here.
                     pass
 
         return state
