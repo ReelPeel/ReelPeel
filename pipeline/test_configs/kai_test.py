@@ -1,4 +1,4 @@
-from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_NARROW_QUERY, PROMPT_TMPL_S3_BROAD_QUERY, PROMPT_TMPL_S3_SYNONYMS_QUERY, PROMPT_TMPL_S6, PROMPT_TMPL_S7
+from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_BALANCED, PROMPT_TMPL_S3_SPECIFIC, PROMPT_TMPL_S3_ATM_ASSISTED, PROMPT_TMPL_S6, PROMPT_TMPL_S7
 
 BASE_TEMPERATURE = 0.0
 
@@ -12,7 +12,7 @@ RESEARCH_MODULE = {
                 "type": "generate_query",  # Step 3
                 "settings": {
                     "model": "gemma3:12b",
-                    "prompt_template": PROMPT_TMPL_S3_NARROW_QUERY,
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED,
                     "temperature": BASE_TEMPERATURE,
                 }
             },
@@ -20,7 +20,7 @@ RESEARCH_MODULE = {
                 "type": "generate_query",  # Step 3
                 "settings": {
                     "model": "gemma3:12b",
-                    "prompt_template": PROMPT_TMPL_S3_BROAD_QUERY,
+                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC,
                     "temperature": BASE_TEMPERATURE,
                 }
             },
@@ -28,7 +28,7 @@ RESEARCH_MODULE = {
                 "type": "generate_query",  # Step 3
                 "settings": {
                     "model": "gemma3:12b",
-                    "prompt_template": PROMPT_TMPL_S3_SYNONYMS_QUERY,
+                    "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED,
                     "temperature": BASE_TEMPERATURE,
                 }
             },

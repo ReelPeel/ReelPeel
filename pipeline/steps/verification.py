@@ -94,7 +94,7 @@ class TruthnessStep(PipelineStep):
             except Exception as e:
                 stmt.verdict = "error"
                 stmt.rationale = f"LLM Call Failed: {e}"
-                stmt.confidence = 0.0
+                stmt.score = 0.0
 
         return state
 
@@ -105,11 +105,11 @@ class TruthnessStep(PipelineStep):
 
         if verdict_match and score_match:
             stmt.verdict = verdict_match.group(1).lower()
-            stmt.confidence = float(score_match.group(1))
+            stmt.score = float(score_match.group(1))
             stmt.rationale = reply  # Store full reasoning
         else:
             stmt.verdict = "uncertain"
-            stmt.confidence = 0.0
+            stmt.score = 0.0
             stmt.rationale = f"Unparsable output:\n{reply}"
 
 
@@ -120,16 +120,16 @@ class ScoringStep(PipelineStep):
     def execute(self, state: PipelineState) -> PipelineState:
         threshold = self.config.get("threshold", 0.15)
 
-        confidences = [s.confidence for s in state.statements if s.confidence is not None]
+        scores = [s.score for s in state.statements if s.score is not None]
 
-        if not confidences:
+        if not scores:
             state.overall_truthiness = 0.0
             return state
 
-        # Weight logic: Triple weight if confidence is below threshold
-        weights = [3 if c < threshold else 1 for c in confidences]
+        # Weight logic: Triple weight if score is below threshold
+        weights = [3 if c < threshold else 1 for c in scores]
 
-        weighted_sum = sum(c * w for c, w in zip(confidences, weights))
+        weighted_sum = sum(c * w for c, w in zip(scores, weights))
         total_weight = sum(weights)
 
         if total_weight > 0:

@@ -30,7 +30,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 from ..core.base import PipelineStep
-from ..core.models import PipelineState, Stance as EvidenceStance, Stance_label
+from ..core.models import PipelineState, Stance as EvidenceStance, StanceLabel
 
 _MODEL_CACHE: Dict[Tuple[str, str, bool], Tuple[Any, Any]] = {}
 
@@ -228,9 +228,9 @@ class StanceEvidenceStep(PipelineStep):
 
                 # Decide label (enum)
                 if max(p_ent, p_con) < threshold_decisive:
-                    label = Stance_label.NEUTRAL
+                    label = StanceLabel.NEUTRAL
                 else:
-                    label = Stance_label.SUPPORTS if p_ent >= p_con else Stance_label.REFUTES
+                    label = StanceLabel.SUPPORTS if p_ent >= p_con else StanceLabel.REFUTES
 
                 ev = stmt.evidence[ev_idx]
                 if ev.stance is None:

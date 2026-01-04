@@ -146,7 +146,7 @@ class QueryToLinkStep(PipelineStep):
 
                         stmt.evidence.append(ev)
 
-                    time.sleep(random.uniform(0.5, 0.5))
+                    # time.sleep(random.uniform(0.5, 0.5))
                     print(f"   Statement {stmt.id}: Query '{q}' -> {len(id_list)} PMIDs.")
 
                 except Exception as e:
@@ -194,8 +194,7 @@ class LinkToSummaryStep(PipelineStep):
                         ev.summary = abstract[:500] + "..."  # Fallback for display
                     # random sleep to avoid rate limits
                     # time.sleep(random.uniform(2, 5))
-                    print(
-                        f"   Processed {url} -> PMID: {pmid}, Types: {len(pub_types)}, Abstract Len: {len(abstract) if abstract else 0}")
+                    print(f"   Processed {url} -> PMID: {pmid}, Types: {len(pub_types)}, Abstract Len: {len(abstract) if abstract else 0}")
 
                 except Exception as e:
                     print(f"   [Warning] Could not process {url}: {e}")
