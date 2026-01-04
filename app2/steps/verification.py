@@ -1,7 +1,4 @@
 import re
-import openai
-from typing import List, Dict, Any
-from datetime import datetime
 
 from ..core.base import PipelineStep
 from ..core.models import PipelineState, Statement
@@ -12,10 +9,6 @@ from ..core.models import PipelineState, Statement
 # -------------------------------------------------------------------------
 class FilterEvidenceStep(PipelineStep):
     def execute(self, state: PipelineState) -> PipelineState:
-        client = openai.OpenAI(
-            base_url=self.config.get('base_url'),
-            api_key=self.config.get('api_key', 'ollama')
-        )
 
         prompt_tmpl = self.config.get('prompt_template', "")
 
@@ -31,7 +24,7 @@ class FilterEvidenceStep(PipelineStep):
                     filtered_evidence.append(ev)
                     continue
 
-                if self._is_related(client, stmt.text, text_to_check, prompt_tmpl):
+                if self._is_related(stmt.text, text_to_check, prompt_tmpl):
                     filtered_evidence.append(ev)
                 else:
                     # Optional: Log dropped evidence
@@ -42,17 +35,16 @@ class FilterEvidenceStep(PipelineStep):
 
         return state
 
-    def _is_related(self, client, stmt_text: str, ev_text: str, tmpl: str) -> bool:
+    def _is_related(self, stmt_text: str, ev_text: str, tmpl: str) -> bool:
         try:
             prompt = tmpl.format(statement=stmt_text, evidence_summary=ev_text)
-            res = client.chat.completions.create(
+            res = self.llm.call(
+                prompt=prompt,
                 model=self.config.get('model'),
-                messages=[{"role": "user", "content": prompt}],
                 temperature=self.config.get('temperature', 0.1),
                 max_tokens=self.config.get('max_tokens', 128),
             )
-            reply = res.choices[0].message.content.strip().lower()
-            return reply.startswith("yes")
+            return res.startswith("yes")
         except Exception as e:
             print(f"[ERROR] Step 6 Filter failed: {e}")
             return False
@@ -64,10 +56,6 @@ class FilterEvidenceStep(PipelineStep):
 # -------------------------------------------------------------------------
 class TruthnessStep(PipelineStep):
     def execute(self, state: PipelineState) -> PipelineState:
-        client = openai.OpenAI(
-            base_url=self.config.get('base_url'),
-            api_key=self.config.get('api_key', 'ollama')
-        )
         prompt_tmpl = self.config.get('prompt_template', "")
         transcript = state.transcript or ""
 
@@ -84,24 +72,23 @@ class TruthnessStep(PipelineStep):
 
             # 2. Call LLM
             try:
-                prompt = tmpl = prompt_tmpl.format(
+                prompt = prompt_tmpl.format(
                     claim_text=stmt.text,
                     evidence_block=evidence_block,
                     transcript=transcript
                 )
 
-                res = client.chat.completions.create(
+                res = self.llm.call(
                     model=self.config.get('model'),
-                    messages=[{"role": "user", "content": prompt}],
                     temperature=self.config.get('temperature', 0.1),
                     max_tokens=self.config.get('max_tokens', 512),
+                    prompt=prompt,
                 )
-                reply = res.choices[0].message.content.strip()
 
-                self.log_artifact(f"Raw Output for Statement {stmt.id}", reply)
+                self.log_artifact(f"Raw Output for Statement {stmt.id}", res)
 
                 # 3. Parse Output
-                self._parse_verdict(stmt, reply)
+                self._parse_verdict(stmt, res)
 
             except Exception as e:
                 stmt.verdict = "error"
