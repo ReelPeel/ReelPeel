@@ -37,7 +37,6 @@ SCORES_MODULE = {
     "type": "module",
     "settings": {
         "name": "MODULE! Scores Engine",
-        "debug": True,
         "steps": [
             {
                 "type": "rerank_evidence",
@@ -49,7 +48,6 @@ SCORES_MODULE = {
                     "max_length": 4096,
                     "score_fields": ["abstract", "summary"],
                     "empty_relevance": 0.0,
-                    "debug": True,
                 },
             },
             # später:
