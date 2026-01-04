@@ -1,11 +1,11 @@
 import re
-import requests
-import json
-import openai
-from typing import List, Tuple, Any, Optional
 from datetime import datetime
 import time
 import random
+from typing import List, Tuple, Any, Optional
+
+import requests
+
 from ..core.base import PipelineStep
 from ..core.models import PipelineState, Evidence
 import xml.etree.ElementTree as ET
@@ -18,14 +18,6 @@ class StatementToQueryStep(PipelineStep):
     def execute(self, state: PipelineState) -> PipelineState:
         print(f"[{self.__class__.__name__}] Generating PubMed queries...")
 
-        client = openai.OpenAI(
-            base_url=self.config.get("base_url"),
-            api_key=self.config.get("api_key", "ollama"),
-        )
-
-        generator_name = self.config.get("generator_name")  # optional provenance
-        system_prompt = self.config.get("system_prompt")    # optional
-
         for stmt in state.statements:
             # Ensure list exists (in case of older states)
             if not hasattr(stmt, "queries") or stmt.queries is None:
@@ -34,20 +26,13 @@ class StatementToQueryStep(PipelineStep):
             prompt = self.config.get("prompt_template").format(claim=stmt.text)
 
             try:
-                messages = []
-                if system_prompt:
-                    messages.append({"role": "system", "content": system_prompt})
-                messages.append({"role": "user", "content": prompt})
-
-                resp = client.chat.completions.create(
+                resp = self.llm.call(
                     model=self.config.get("model"),
                     temperature=self.config.get("temperature", 0.2),
                     #stop=self.config.get("stop", ["\n"]),  # fine if 1 query/line
-                    messages=messages,
+                    prompt=prompt,
                 )
-
-                raw = (resp.choices[0].message.content or "").strip()
-                raw = raw.replace("\n", " ")  # collapse to one line
+                raw = resp.replace("\n", " ")  # collapse to one line
                 q = self._clean_query(raw, stmt.text)
 
                 # Append if not duplicate

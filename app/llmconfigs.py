@@ -53,7 +53,7 @@ CLIENT_6 = openai.OpenAI(
     api_key=BASE_API_KEY
 )
 
-MODEL_6 = BASE_MODEL
+MODEL_6 = "gemma3:1b"
 TEMP_6 = BASE_TEMP
 MAX_TOKENS_6 = 512
 

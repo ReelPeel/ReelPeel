@@ -1,16 +1,33 @@
 from typing import List, Optional, Union, Dict, Any
-
+from enum import Enum
 from pydantic import BaseModel, Field
 
+class Stance(str, Enum):
+    """Represents how a piece of evidence relates to a given statement.
 
+    Values:
+        SUPPORTS: The evidence is consistent with the statement and tends to
+            strengthen or support it.
+        REFUTES: The evidence contradicts the statement or tends to weaken
+            or undermine it.
+        NEUTRAL: The evidence is relevant to the topic but does not clearly
+            support or refute the statement (e.g., mixed, inconclusive, or
+            purely background/contextual information).
+    """
+    SUPPORTS = "Supports"
+    REFUTES = "Refutes"
+    NEUTRAL = "Neutral"
+    
 class Evidence(BaseModel):
     pubmed_id: Optional[str] = None
     url: Optional[str] = None
     summary: Optional[str] = None
     pub_type: Optional[Union[str, List[str]]] = None
     weight: float = 0.5
-    relevance: Optional[str] = None
-
+    relevance: Optional[float] = None
+    relevance_abstract: Optional[float] = None
+    relevance_summary: Optional[float] = None
+    stance: Optional[Stance] = None
     abstract: Optional[str] = None
 
 
