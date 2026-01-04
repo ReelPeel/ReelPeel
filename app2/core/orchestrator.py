@@ -85,7 +85,7 @@ class PipelineOrchestrator:
 
             # Format Rows
             if is_module:
-                display_name = Text(f"{padding}>> MODULE! {name.upper()}", style="bold magenta")
+                display_name = Text(f"{padding}>> {name.upper()}", style="bold magenta")
                 token_display = ""
             else:
                 display_name = f"{padding}{name}"
