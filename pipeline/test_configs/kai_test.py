@@ -1,5 +1,7 @@
 from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_NARROW_QUERY, PROMPT_TMPL_S3_BROAD_QUERY, PROMPT_TMPL_S3_SYNONYMS_QUERY, PROMPT_TMPL_S6, PROMPT_TMPL_S7
 
+BASE_TEMPERATURE = 0.0
+
 # 1. Define the Research Module (Steps 3, 4, 5, 5.1)
 RESEARCH_MODULE = {
     "type": "module",
@@ -10,21 +12,24 @@ RESEARCH_MODULE = {
                 "type": "generate_query",  # Step 3
                 "settings": {
                     "model": "gemma3:12b",
-                    "prompt_template": PROMPT_TMPL_S3_NARROW_QUERY
+                    "prompt_template": PROMPT_TMPL_S3_NARROW_QUERY,
+                    "temperature": BASE_TEMPERATURE,
                 }
             },
         {
                 "type": "generate_query",  # Step 3
                 "settings": {
                     "model": "gemma3:12b",
-                    "prompt_template": PROMPT_TMPL_S3_BROAD_QUERY
+                    "prompt_template": PROMPT_TMPL_S3_BROAD_QUERY,
+                    "temperature": BASE_TEMPERATURE,
                 }
             },
         {
                 "type": "generate_query",  # Step 3
                 "settings": {
                     "model": "gemma3:12b",
-                    "prompt_template": PROMPT_TMPL_S3_SYNONYMS_QUERY
+                    "prompt_template": PROMPT_TMPL_S3_SYNONYMS_QUERY,
+                    "temperature": BASE_TEMPERATURE,
                 }
             },
             {
@@ -95,7 +100,7 @@ VERIFICATION_MODULE = {
                 "settings": {
                     "model": "gemma3:12b",
                     "prompt_template": PROMPT_TMPL_S6,
-                    "temperature": 0.0,
+                    "temperature": BASE_TEMPERATURE,
                     # "max_tokens": 512 # Currently hardcoded in individual step
                 }
             },
@@ -103,9 +108,9 @@ VERIFICATION_MODULE = {
             {
                 "type": "truthness",
                 "settings": {
-                    "model": "gemma3:12b",
+                    "model": "hf.co/mradermacher/Meditron3-Phi4-14B-GGUF:Q8_0",
                     "prompt_template": PROMPT_TMPL_S7,
-                    "temperature": 0.0,
+                    "temperature": BASE_TEMPERATURE,
                     # "max_tokens": 512 # Currently hardcoded in individual step
                 }
             },
@@ -142,7 +147,7 @@ FULL_PIPELINE_CONFIG = {
             "settings": {
                 "model": "gemma3:12b",
                 "prompt_template": PROMPT_TMPL_S2,
-                "temperature": 0.0,
+                "temperature": BASE_TEMPERATURE,
                 # "max_tokens": 512 # Currently hardcoded in individual step
             }
         },

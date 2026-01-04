@@ -32,6 +32,7 @@ class StatementToQueryStep(PipelineStep):
                     #stop=self.config.get("stop", ["\n"]),  # fine if 1 query/line
                     prompt=prompt,
                 )
+                self.log_artifact(f"Raw Output for Statement {stmt.id} Query Generation", resp)
                 raw = resp.replace("\n", " ")  # collapse to one line
                 q = self._clean_query(raw, stmt.text)
 

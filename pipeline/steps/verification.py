@@ -44,6 +44,7 @@ class FilterEvidenceStep(PipelineStep):
                 temperature=self.config.get('temperature', 0.1),
                 max_tokens=self.config.get('max_tokens', 128),
             )
+            self.log_artifact(f"Raw Output for Verification", res)
             return res.startswith("yes")
         except Exception as e:
             print(f"[ERROR] Step 6 Filter failed: {e}")
