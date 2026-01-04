@@ -1,6 +1,6 @@
 from pipeline.core.models import PipelineState
 from pipeline.core.orchestrator import PipelineOrchestrator
-from pipeline.test_configs.multiple_query_config import FULL_PIPELINE_CONFIG
+from pipeline.test_configs.kai_test import FULL_PIPELINE_CONFIG
 
 
 def print_report(state: PipelineState):
@@ -15,35 +15,35 @@ def print_report(state: PipelineState):
         print("No statements were processed.")
         return
 
-    # for stmt in state.statements:
-    #     # Determine icon based on verdict
-    #     icon = "?"
-    #     if stmt.verdict == "true":
-    #         icon = "✅"
-    #     elif stmt.verdict == "false":
-    #         icon = "❌"
-    #     elif stmt.verdict == "uncertain":
-    #         icon = "⚠️"
-    #
-    #     print(f"{icon} [ID {stmt.id}] VERDICT: {stmt.verdict.upper()} (Conf: {stmt.confidence})")
-    #     print(f"   Claim: \"{stmt.text}\"")
-    #
-    #     # Print Rationale (optional, usually long)
-    #     # if stmt.rationale:
-    #     #    print(f"   Rationale: {stmt.rationale[:150]}...")
-    #
-    #     if stmt.evidence:
-    #         print(f"   Evidence Used ({len(stmt.evidence)}):")
-    #         for ev in stmt.evidence:
-    #             # Show PMID, Type, and Weight
-    #             # Truncate summary to one line
-    #             summary_snippet = (ev.abstract or ev.summary or "No summary")[:80].replace("\n", " ")
-    #             print(f"     • PMID {ev.pubmed_id} [{ev.pub_type}] (Wt: {ev.weight})")
-    #             print(f"       \"{summary_snippet}...\"")
-    #     else:
-    #         print("   (No relevant evidence found)")
-    #
-    #     print("-" * 60)
+    for stmt in state.statements:
+        # Determine icon based on verdict
+        icon = "?"
+        if stmt.verdict == "true":
+            icon = "✅"
+        elif stmt.verdict == "false":
+            icon = "❌"
+        elif stmt.verdict == "uncertain":
+            icon = "⚠️"
+    
+        print(f"{icon} [ID {stmt.id}] VERDICT: {stmt.verdict.upper()} (Conf: {stmt.confidence})")
+        print(f"   Claim: \"{stmt.text}\"")
+    
+        # Print Rationale (optional, usually long)
+        # if stmt.rationale:
+        #    print(f"   Rationale: {stmt.rationale[:150]}...")
+    
+        if stmt.evidence:
+            print(f"   Evidence Used ({len(stmt.evidence)}):")
+            for ev in stmt.evidence:
+                # Show PMID, Type, and Weight
+                # Truncate summary to one line
+                summary_snippet = (ev.abstract or ev.summary or "No summary")[:80].replace("\n", " ")
+                print(f"     • PMID {ev.pubmed_id} [{ev.pub_type}] (Wt: {ev.weight})")
+                print(f"       \"{summary_snippet}...\"")
+        else:
+            print("   (No relevant evidence found)")
+    
+        print("-" * 60)
 
 
 def main():

@@ -28,165 +28,118 @@ No commentary, no extra keys, no markdown.
 # ────────────────────────────────────────────────────────────────────
 # Step3: PubMed query generation (REVISED)
 # ────────────────────────────────────────────────────────────────────
-PROMPT_TMPL_S3_NARROW_QUERY = """
-You are a biomedical librarian inside a fact‐checking app. You get a CLAIM about health or medicine extracted from a instragram video transcript.
-**Think quickly (silently)** about the PICO concepts in the CLAIM, identify appropriate MeSH headings (in quotes with [MeSH]) and text‐word synonyms (with [tiab]), and produce ONE PubMed Boolean query string that:
-Example:
-(
-  "Smoking"[MeSH] 
-  OR smoking[tiab] 
-  OR smokers[tiab] 
-  OR "tobacco use"[tiab]
-)
-AND
-(
-  "Lung Function Tests"[MeSH] 
-  OR "pulmonary function"[tiab] 
-  OR "lung function"[tiab] 
-  OR FEV1[tiab] 
-  OR FVC[tiab]
-)
-AND
-(
-  "Inflammation"[MeSH] 
-  OR inflammation[tiab] 
-  OR "mucus hypersecretion"[tiab] 
-  OR mucus[tiab]
-)
-AND
-(
-  "Proanthocyanidins"[MeSH] 
-  OR proanthocyanidin*[tiab] 
-  OR OPC[tiab] 
-  OR "Traumotein"[tiab] 
-  OR "pine bark extract"[tiab] 
-  OR Pycnogenol[tiab]
-)
+PROMPT_TMPL_S3_BALANCED = """
+You are a biomedical information specialist generating PubMed searches for a medical fact-checking pipeline. The input CLAIM comes from an Instagram reel and may be informal or exaggerated. Translate informal wording into scientifically standard terminology suitable for PubMed searching (use clinical/scientific equivalents where applicable).
 
+TASK
+Return ONE PubMed Boolean query (single line) that retrieves papers relevant to evaluating the claim.
 
-• Is exactly one line (no line breaks). 
-• Is very precise and specific to the CLAIM.  
-• Uses uppercase AND/OR to combine concepts.  
-• Wraps MeSH terms in quotes followed by [MeSH] (e.g., "Smoking"[MeSH]).  
-• Marks synonym or free‐text terms with [tiab] (e.g., smoking[tiab]).  
-• Groups synonyms with parentheses; groups PICO domains by combining with AND.  
-• Does not include field tags other than [MeSH] and [tiab].  
-• Does not include quotation marks around free‐text terms (other than MeSH).  
-• Begins with a letter (A–Z or a–z) and contains no leading/trailing spaces.  
-• Contains no line breaks or extra whitespace.
+OUTPUT RULES (strict)
+- Output ONLY the query string. No explanations. Exactly one line.
+- Use uppercase AND/OR/NOT.
+- Use parentheses to group synonyms.
+- Allowed field tags: [mh] and [tiab] only.
+- Do NOT use quotation marks (including curly quotes) anywhere.
+- Multi-word phrases must be written as: word1 word2[tiab] (no quotes).
+- Ensure parentheses are balanced; no leading/trailing whitespace.
+- Do not tag groups of synonyms with a single field tag.
+- all words must be tagged. 
+- Do not use generalic domian words as filters, like molecular biology, homeostasis, wellness, detox, etc.
 
+SEMANTIC RULES
+1) Identify 2–4 core CONCEPTS from the claim (e.g., condition/population, intervention/exposure, outcome/mechanism).
+2) Build one synonym group per concept:
+   - Include 1–2 MeSH headings as term[mh] ONLY if you are confident they exist as MeSH.
+   - Include 2–6 scientific free-text terms as term[tiab]. Prefer standard medical equivalents over colloquial wording.
+   - Avoid vague influencer language unless it is a common scientific term.
+3) Combine concept groups with AND.
+4) ANCHOR RULE: The primary topic anchor (main condition or intervention/exposure) must apply to the whole query. Do not create an OR branch that omits the anchor.
+5) Handle absolutes: If the claim uses “cures”, “guarantees”, “all”, “detox”, convert into testable research language (treat*, reduc*, decreas*, improv*, efficacy, symptom*, biomarker*). Do NOT include words like cure, curative, healing, miracle.
+6) If the outcome is overly broad (e.g., inflammation), operationalize it with scientific endpoints where appropriate (e.g., inflammat*, anti-inflammatory, cytokine*, C-reactive protein/CRP, interleukin-6/IL-6, tumor necrosis factor/TNF) and/or specific disease terms if the claim names them.
+7) Keep concise: max 4 concept groups; max ~8 terms per group; avoid unnecessary dose/time constraints unless essential AND likely to appear in title/abstract.
 
 CLAIM:
 {claim}
-"""
 
+"""
 # ────────────────────────────────────────────────────────────────────
 # Step3: PubMed query generation (REVISED)
 # ────────────────────────────────────────────────────────────────────
-PROMPT_TMPL_S3_BROAD_QUERY = """
-You are a biomedical librarian inside a fact‐checking app. You get a CLAIM about health or medicine extracted from a instragram video transcript.
-**Think quickly (silently)** about the PICO concepts in the CLAIM, identify appropriate MeSH headings (in quotes with [MeSH]) and text‐word synonyms (with [tiab]), and produce ONE PubMed Boolean query string that:
-Example:
-(
-  "Smoking"[MeSH] 
-  OR smoking[tiab] 
-  OR smokers[tiab] 
-  OR "tobacco use"[tiab]
-)
-AND
-(
-  "Lung Function Tests"[MeSH] 
-  OR "pulmonary function"[tiab] 
-  OR "lung function"[tiab] 
-  OR FEV1[tiab] 
-  OR FVC[tiab]
-)
-AND
-(
-  "Inflammation"[MeSH] 
-  OR inflammation[tiab] 
-  OR "mucus hypersecretion"[tiab] 
-  OR mucus[tiab]
-)
-AND
-(
-  "Proanthocyanidins"[MeSH] 
-  OR proanthocyanidin*[tiab] 
-  OR OPC[tiab] 
-  OR "Traumotein"[tiab] 
-  OR "pine bark extract"[tiab] 
-  OR Pycnogenol[tiab]
-)
+PROMPT_TMPL_S3_SPECIFIC = """
+You are a biomedical information specialist generating PubMed searches for a medical fact-checking pipeline. The input CLAIM comes from an Instagram reel and may be informal or exaggerated. Translate informal wording into scientifically standard terminology suitable for PubMed searching (use clinical/scientific equivalents where applicable).
 
+TASK
+Return ONE PubMed Boolean query (single line) that prioritizes clinically informative human evidence with HIGH RECALL (sensitive), while staying on-topic for the claim.
 
-• Is exactly one line (no line breaks). 
-• Is broad on the topic but still relevant to the CLAIM. 
-• Uses uppercase AND/OR to combine concepts.  
-• Wraps MeSH terms in quotes followed by [MeSH] (e.g., "Smoking"[MeSH]).  
-• Marks synonym or free‐text terms with [tiab] (e.g., smoking[tiab]).  
-• Groups synonyms with parentheses; groups PICO domains by combining with AND.  
-• Does not include field tags other than [MeSH] and [tiab].  
-• Does not include quotation marks around free‐text terms (other than MeSH).  
-• Begins with a letter (A–Z or a–z) and contains no leading/trailing spaces.  
-• Contains no line breaks or extra whitespace.
+OUTPUT RULES (strict)
+- Output ONLY the query string. No explanations. Exactly one line.
+- Use uppercase AND/OR/NOT.
+- Use parentheses to group synonyms.
+- Allowed field tags: [mh] and [tiab] only.
+- Do NOT use quotation marks (including curly quotes) anywhere.
+- Multi-word phrases must be written as: word1 word2[tiab] (no quotes).
+- Ensure parentheses are balanced; no leading/trailing whitespace.
+- Do not tag groups of synonyms with a single field tag.
+- Do not use generalic domian words as filters, like molecular biology, homeostasis, wellness, detox, etc.
+- all words must be tagged.
+- End with a final AND group that boosts clinical/human evidence recall, e.g., 
+  (humans[mh] OR clinical trial[tiab] OR randomized[tiab] OR randomised[tiab] OR trial[tiab] OR cohort[tiab] OR case control[tiab] OR observational[tiab] OR systematic review[tiab] OR meta analysis[tiab])
 
+SEMANTIC RULES
+1) Build a TOPIC QUERY from 2–4 core concepts (condition/population, intervention/exposure, outcome/mechanism).
+2) One synonym group per concept:
+   - 1–2 confident MeSH headings as term[mh] (only if confident).
+   - 2–6 scientific free-text terms as term[tiab] using clinical/scientific equivalents.
+3) Combine topic concept groups with AND.
+4) Add ONE final AND group that boosts clinical/human evidence recall (do not put these terms inside the topic groups):
+   (humans[mh] OR clinical trial[tiab] OR randomized[tiab] OR randomised[tiab] OR trial[tiab] OR cohort[tiab] OR case control[tiab] OR observational[tiab] OR systematic review[tiab] OR meta analysis[tiab])
+5) ANCHOR RULE: The primary topic anchor must apply to the whole query; do not create an OR branch that omits the anchor.
+6) Handle absolutes and broad outcomes exactly as follows:
+   - Replace cure/curative/healing/miracle language with testable terms (treat*, reduc*, improv*, efficacy, outcome*, symptom*, biomarker*).
+   - For broad outcomes (e.g., inflammation), use scientific endpoints (inflammat*, anti-inflammatory, CRP, cytokine*, IL-6, TNF) and/or named diseases when present.
+7) Avoid low-value terms: never include study[tiab]. Avoid generic “homeostasis”, “wellness”, “detox” unless the claim specifically requires it.
+8) Keep concise: max 4 topic concept groups; max ~8 terms per group.
 
 CLAIM:
 {claim}
+
+
 """
+PROMPT_TMPL_S3_ATM_ASSISTED = """
+You are a biomedical information specialist generating PubMed searches for a medical fact-checking pipeline. The input CLAIM comes from an Instagram reel and may be informal or exaggerated. Translate informal wording into scientifically standard terminology suitable for PubMed searching (use clinical/scientific equivalents where applicable).
 
-PROMPT_TMPL_S3_SYNONYMS_QUERY = """
-You are a biomedical librarian inside a fact‐checking app. You get a CLAIM about health or medicine extracted from a instragram video transcript.
-**Think quickly (silently)** about the PICO concepts in the CLAIM, identify appropriate MeSH headings (in quotes with [MeSH]) and text‐word synonyms (with [tiab]), and produce ONE PubMed Boolean query string that:
-Example:
-(
-  "Smoking"[MeSH] 
-  OR smoking[tiab] 
-  OR smokers[tiab] 
-  OR "tobacco use"[tiab]
-)
-AND
-(
-  "Lung Function Tests"[MeSH] 
-  OR "pulmonary function"[tiab] 
-  OR "lung function"[tiab] 
-  OR FEV1[tiab] 
-  OR FVC[tiab]
-)
-AND
-(
-  "Inflammation"[MeSH] 
-  OR inflammation[tiab] 
-  OR "mucus hypersecretion"[tiab] 
-  OR mucus[tiab]
-)
-AND
-(
-  "Proanthocyanidins"[MeSH] 
-  OR proanthocyanidin*[tiab] 
-  OR OPC[tiab] 
-  OR "Traumotein"[tiab] 
-  OR "pine bark extract"[tiab] 
-  OR Pycnogenol[tiab]
-)
+TASK
+Return ONE PubMed Boolean query (single line) optimized for HIGH RECALL by allowing PubMed’s automatic mapping to help, while maintaining a structured query.
 
+OUTPUT RULES (strict)
+- Output ONLY the query string. No explanations. Exactly one line.
+- Use uppercase AND/OR/NOT.
+- Use parentheses to group synonyms.
+- Allowed field tags: [mh] and [tiab] only, EXCEPT you may include EXACTLY one untagged scientific anchor term or phrase (no tag) inside the anchor group.
+- Do NOT use quotation marks (including curly quotes) anywhere.
+- Multi-word phrases must be written as: word1 word2[tiab] (no quotes) when tagged.
+- Ensure parentheses are balanced; no leading/trailing whitespace.
+- Do not tag groups of synonyms with a single field tag.
+- all words must be tagged, except for the single untagged scientific anchor term/phrase.
+- Do not use generalic domian words as filters, like molecular biology, homeostasis, wellness, detox, etc.
 
-• Return exactly one line (no line breaks). 
-• Use a variety of synonyms to cover the CLAIM comprehensively.
-• Uses uppercase AND/OR to combine concepts.  
-• Wraps MeSH terms in quotes followed by [MeSH] (e.g., "Smoking"[MeSH]).  
-• Marks synonym or free‐text terms with [tiab] (e.g., smoking[tiab]).  
-• Groups synonyms with parentheses; groups PICO domains by combining with AND.  
-• Does not include field tags other than [MeSH] and [tiab].  
-• Does not include quotation marks around free‐text terms (other than MeSH).  
-• Begins with a letter (A–Z or a–z) and contains no leading/trailing spaces.  
-• Contains no line breaks or extra whitespace.
-
+SEMANTIC RULES
+1) Identify the single most important TOPIC ANCHOR (primary intervention/exposure or primary condition).
+2) Start with an ANCHOR GROUP that includes:
+   - Exactly ONE untagged scientific anchor term/phrase (no [mh]/[tiab]) to enable automatic mapping.
+   - Plus 1–2 confident MeSH headings as term[mh] (only if confident) and 1–3 variants as term[tiab].
+   Example pattern: (untagged_anchor OR anchor[mh] OR anchor[tiab] OR ...)
+3) Add 1–3 additional concept groups using only [mh] and [tiab] (outcome/mechanism/population). Each group: 1–2 confident MeSH + 2–5 scientific [tiab] terms.
+4) Combine groups with AND.
+5) ANCHOR RULE: The anchor group must apply to the whole query; do not create an OR branch that omits the anchor group.
+6) Handle absolutes: replace cure/curative/healing/miracle wording with testable research terms (treat*, reduc*, improv*, efficacy, symptom*, biomarker*). Do NOT include cure/curative/healing/miracle.
+7) If the outcome is broad (e.g., inflammation), operationalize with scientific endpoints (inflammat*, anti-inflammatory, cytokine*, CRP, IL-6, TNF) and/or named diseases when present.
+8) Keep concise: max 4 concept groups total; avoid unnecessary dose/time constraints unless essential AND likely to appear in title/abstract.
 
 CLAIM:
 {claim}
-"""
 
+"""
 # ────────────────────────────────────────────────────────────────────
 # Step5: Summarise PubMed search results
 # ────────────────────────────────────────────────────────────────────
