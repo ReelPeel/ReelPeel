@@ -7,7 +7,7 @@ import re
 from typing import Optional, List, Dict, Any
 import datetime
 
-from .preprompts import *
+from ..app2.core.preprompts import *
 from .llmconfigs import *
 
 # Base URL for NCBI E-utilities

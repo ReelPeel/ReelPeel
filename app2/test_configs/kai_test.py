@@ -41,7 +41,7 @@ SCORES_MODULE = {
             {
                 "type": "rerank_evidence",
                 "settings": {
-                    "model_name": "BAAI/bge-reranker-v2-m3",
+                    "model_name": "BAAI/bge-reranker-v2-m3", # BAAI/bge-reranker-v2-gemma bigger but slower
                     "use_fp16": True,
                     "normalize": True,
                     "batch_size": 16,
@@ -50,8 +50,22 @@ SCORES_MODULE = {
                     "empty_relevance": 0.0,
                 },
             },
-            # später:
-            # {"type": "stance", "settings": {...}},
+            {
+                "type": "stance_evidence",
+                "settings": {
+                    "model_name": "cnut1648/biolinkbert-mednli",
+                    "use_fp16": True,
+                    "batch_size": 16,
+                    "max_length": 512,
+                    "evidence_fields": ["abstract", "summary"],
+
+                    # optional: only compute stance on Top-M evidence per statement (by ev.relevance)
+                    # "top_m_by_relevance": 5,
+
+                    # optional: if both support/refute are weak, force "neutral"
+                    "threshold_decisive": 0.2,
+                }
+                },
             # {"type": "similarity_penalty", "settings": {...}},
         ]
     }
@@ -62,6 +76,7 @@ VERIFICATION_MODULE = {
     "type": "module",
     "settings": {
         "name": "MODULE! Verification Engine",
+        "debug": True,
         "steps": [
             # Step 6: Filter Irrelevant Evidence
             {
@@ -98,12 +113,8 @@ VERIFICATION_MODULE = {
 
 # 2. Define the Full Pipeline Config
 FULL_PIPELINE_CONFIG = {
-    "name": "Full_End_to_End_Run",
+    "name": "MODULE! Full_End_to_End_Run",
     "debug": True,
-    "llm_settings" : {
-        "base_url": "http://localhost:11434/v1",
-        "api_key" : "ollama",
-    },
     "steps": [
         # STEP 1: Mock Input (Simulating Whisper)
         {
@@ -131,7 +142,7 @@ FULL_PIPELINE_CONFIG = {
         # STEP 3-5.1: The Research Module
         RESEARCH_MODULE,
         
-        # Step 5.99: The Reranking Module
+        # Step 5.99: Scores Module
         SCORES_MODULE,
         
         # STEP 6-8: The Verification Module

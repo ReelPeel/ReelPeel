@@ -4,6 +4,7 @@ from typing import Dict, Any
 from ..steps.mocks import MockTranscriptLoader, MockStatementLoader
 from ..steps.extraction import TranscriptToStatementStep
 from ..steps.rerank import RerankEvidenceStep
+from ..steps.stance import StanceEvidenceStep
 from ..steps.research import (
     StatementToQueryStep,
     QueryToLinkStep,
@@ -28,6 +29,7 @@ class StepFactory:
         "summarize_evidence": LinkToSummaryStep,
         "weight_evidence": PubTypeWeightStep,
         "rerank_evidence": RerankEvidenceStep,
+        "stance_evidence": StanceEvidenceStep,
         "filter_evidence": FilterEvidenceStep,
         "truthness": TruthnessStep,
         "scoring": ScoringStep
