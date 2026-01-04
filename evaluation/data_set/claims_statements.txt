@@ -1,0 +1,3002 @@
+[
+  {
+    "statement": "Masks can reduce corona infections when worn by a large proportion of the population.",
+    "label": 0
+  },
+  {
+    "statement": "Homeopathic preparations with Anamirta cocculus can help against dizziness.",
+    "label": 1
+  },
+  {
+    "statement": "Zeolite can alleviate or prevent health problems.",
+    "label": 1
+  },
+  {
+    "statement": "Paxlovid protects unvaccinated people with risk factors from severe or even fatal covid 19 disease.",
+    "label": 0
+  },
+  {
+    "statement": "Starting school later improves health, learning success, and quality of life in adolescents.",
+    "label": 1
+  },
+  {
+    "statement": "The F.X. Mayr cure has health benefits and can prevent diseases or treat them.",
+    "label": 1
+  },
+  {
+    "statement": "The consumption of soy foods or soy isoflavones affects the appearance of acne skin.",
+    "label": 1
+  },
+  {
+    "statement": "Extract from the Damiana plant (Turnera diffusa) helps with erectile dysfunction.",
+    "label": 1
+  },
+  {
+    "statement": "The homeopathic remedy Neradin is effective for erectile dysfunction.",
+    "label": 1
+  },
+  {
+    "statement": "Regular HPV testing in addition to the recommended Pap smear detects more precancerous lesions than just the Pap smear alone.",
+    "label": 0
+  },
+  {
+    "statement": "Monk's pepper can reduce PMS symptoms, where PMS is the abbreviation for premenstrual syndrome and refers to complaints that occur in the days before menstruation.",
+    "label": 0
+  },
+  {
+    "statement": "Olive leaf extract can reduce high blood pressure.",
+    "label": 1
+  },
+  {
+    "statement": "Green-lipped mussel preparations improve the symptoms of osteoarthritis.",
+    "label": 1
+  },
+  {
+    "statement": "Probiotics can lower blood sugar in type 2 diabetes.",
+    "label": 0
+  },
+  {
+    "statement": "The so-called Tupler technique can help against rectus diastasis.",
+    "label": 1
+  },
+  {
+    "statement": "CBD (cannabidiol) can help with migraines or other headaches.",
+    "label": 1
+  },
+  {
+    "statement": "Laser irradiation of blood by infusion needle (hemolaser treatment) can relieve discomfort or help with diseases.",
+    "label": 1
+  },
+  {
+    "statement": "In everyday life, when breathing with an FFP2 mask or ordinary mouth-nose protection, you get as much oxygen as without a mask.",
+    "label": 0
+  },
+  {
+    "statement": "CBD can help with period pain.",
+    "label": 1
+  },
+  {
+    "statement": "A bioresonance device like \"Bioscan\" or \"Vieva Vital Analyser\" can measure mineral and vitamin deficiencies or detect health problems.",
+    "label": 2
+  },
+  {
+    "statement": "Arthroscopy (joint endoscopy) helps with osteoarthritis of the knee joint.",
+    "label": 2
+  },
+  {
+    "statement": "Dietary supplements containing silicon (e.g. as \"organic silicon\" or silica) have health benefits.",
+    "label": 1
+  },
+  {
+    "statement": "Regular intake of cranberry juice or cranberry extract can prevent recurrent cystitis in women.",
+    "label": 0
+  },
+  {
+    "statement": "Women who have recurrent bladder infections will get rid of them faster if they take cranberry products only after the disease is already there.",
+    "label": 1
+  },
+  {
+    "statement": "Extract from St. John's wort can relieve the symptoms of depression and is similarly effective as drugs against depression (antidepressants).",
+    "label": 0
+  },
+  {
+    "statement": "The Zisano bracelet strengthens the immune system, increases endurance and performance, or reduces fatigue.",
+    "label": 1
+  },
+  {
+    "statement": "Microimmunotherapy improves symptoms of allergies, cancer, joint inflammation, autoimmune diseases, dementia or various viral infections.",
+    "label": 1
+  },
+  {
+    "statement": "Ginkgo extract can improve mental performance in dementia patients.",
+    "label": 0
+  },
+  {
+    "statement": "Pine wood improves sleep.",
+    "label": 1
+  },
+  {
+    "statement": "Spermidine supplements or a spermidine-rich diet reduce the risk of Alzheimer's disease and other forms of dementia and help with existing dementia.",
+    "label": 1
+  },
+  {
+    "statement": "Green-lipped mussel preparations improve the symptoms of rheumatoid arthritis.",
+    "label": 1
+  },
+  {
+    "statement": "Covid vaccination reduces the likelihood of getting long-lasting symptoms (long covid) in case of corona infection.",
+    "label": 0
+  },
+  {
+    "statement": "The preventive intake of lysine can prevent cold sores (lip herpes) and genital herpes, and lysine can help when the blisters are already there.",
+    "label": 1
+  },
+  {
+    "statement": "Hormonal contraceptives to swallow (the “pill”) affect endurance performance in women.",
+    "label": 0
+  },
+  {
+    "statement": "The pill affects the muscle strength of women.",
+    "label": 2
+  },
+  {
+    "statement": "Whole-body cryotherapy in the cold chamber improves health.",
+    "label": 1
+  },
+  {
+    "statement": "Transcranial pulse stimulation (TPS) improves mental performance in people with Alzheimer's dementia and can improve the quality of life of those affected.",
+    "label": 1
+  },
+  {
+    "statement": "Low-level laser therapy can reduce pain from knee or hip osteoarthritis.",
+    "label": 1
+  },
+  {
+    "statement": "Low-level laser therapy can reduce wrist osteoarthritis pain.",
+    "label": 2
+  },
+  {
+    "statement": "Blood type affects the likelihood that Covid 19 disease will take a severe course or lead to death.",
+    "label": 1
+  },
+  {
+    "statement": "Mouth rinses with hydroxyapatite, for example the products \"Linola sept mouth rinse\" and \"Karex Abwehr\", protect against SARS-CoV-2 infection.",
+    "label": 1
+  },
+  {
+    "statement": "CBD (cannabidiol) relieves symptoms of mild to moderate covid-19 disease.",
+    "label": 2
+  },
+  {
+    "statement": "CBD or cannabis use does protect against covid-19 disease.",
+    "label": 1
+  },
+  {
+    "statement": "Sedatives and sleeping pills such as benzodiazepines and related substances increase the risk of Alzheimer's disease or other forms of dementia.",
+    "label": 1
+  },
+  {
+    "statement": "Taking polyunsaturated fatty acids, such as omega-3 and omega-6, reduces ADHD symptoms in children.",
+    "label": 2
+  },
+  {
+    "statement": "Infusions of vitamin C relieve symptoms of chronic fatigue or long covid.",
+    "label": 1
+  },
+  {
+    "statement": "Taking probiotics shortens the duration of acute infectious diarrhea.",
+    "label": 2
+  },
+  {
+    "statement": "High-dose vitamin D slows down the course of disease in multiple sclerosis (MS).",
+    "label": 1
+  },
+  {
+    "statement": "Taking taiga root extract strengthens the immune system and can make vaccinations more effective or tolerable.",
+    "label": 1
+  },
+  {
+    "statement": "Ozone therapy, in which autologous blood is treated with ozone and recycled, can favorably influence the course of COVID-19 disease.",
+    "label": 1
+  },
+  {
+    "statement": "Dimenhydrinate relieves travel nausea better than a placebo.",
+    "label": 1
+  },
+  {
+    "statement": "Dimenhydrinate relieves travel nausea as well as the proven drug scopolamine.",
+    "label": 1
+  },
+  {
+    "statement": "Short-term fasting improves quality of life in cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Short-term fasting reduces the side effects of chemotherapy for cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Extracts of Artemisa annua (annual mugwort) or the active ingredient artemisinin obtained from it are effective against coronavirus.",
+    "label": 1
+  },
+  {
+    "statement": "Zinc can mitigate the progression of Covid-19.",
+    "label": 2
+  },
+  {
+    "statement": "Zinc preventively protects against covid-19 disease.",
+    "label": 1
+  },
+  {
+    "statement": "A cold spray with trypsin protects against colds or covid-19 and reduces symptoms and duration of illness.",
+    "label": 1
+  },
+  {
+    "statement": "Injecting low-dose Corona vaccine into the skin (mesotherapy vaccination, microvaccination) protects against Covid-19 as well as proven full-dose vaccination into muscle.",
+    "label": 1
+  },
+  {
+    "statement": "Herbal remedies with nasturtium and horseradish (Kren) prevent recurrent cystitis.",
+    "label": 2
+  },
+  {
+    "statement": "Herbal remedies with nasturtium and horseradish alleviate the symptoms of cystitis as well as an antibiotic.",
+    "label": 1
+  },
+  {
+    "statement": "Mistletoe therapy helps against cancer or can improve the quality of life of cancer patients.",
+    "label": 1
+  },
+  {
+    "statement": "Homeopathic remedies can prevent colds in children.",
+    "label": 2
+  },
+  {
+    "statement": "Homeopathic remedies can relieve colds in children.",
+    "label": 2
+  },
+  {
+    "statement": "Agents containing uridine and/or cytidine improve the symptoms of polyneuropathy.",
+    "label": 1
+  },
+  {
+    "statement": "Treatments with ultrasound can relieve the pain of osteoarthritis.",
+    "label": 1
+  },
+  {
+    "statement": "Regular exercise reduces the severity and duration of colds and other respiratory infections.",
+    "label": 0
+  },
+  {
+    "statement": "Regular exercise can prevent you from getting a cold or other respiratory infections.",
+    "label": 2
+  },
+  {
+    "statement": "Cold showers, cold baths, or cold water treading according to Kneipp can prevent colds and respiratory infections in adults.",
+    "label": 1
+  },
+  {
+    "statement": "The Wim Hof method - consisting of breathing training, meditation and acclimatization to cold - can strengthen the immune system of healthy people and thus prevent infectious diseases.",
+    "label": 1
+  },
+  {
+    "statement": "Saw palmetto preparations improve the symptoms of benign enlarged prostate (benign prostatic hyperplasia) in the longer term compared to placebo.",
+    "label": 2
+  },
+  {
+    "statement": "Honey helps against acute cough in children.",
+    "label": 0
+  },
+  {
+    "statement": "Artemisia tea can cure malaria as well as drugs.",
+    "label": 1
+  },
+  {
+    "statement": "Thyme helps against cough.",
+    "label": 1
+  },
+  {
+    "statement": "Coenzyme Q10 relieves muscle discomfort during treatment with statins.",
+    "label": 1
+  },
+  {
+    "statement": "Chaga mushroom helps against cancer or other diseases.",
+    "label": 1
+  },
+  {
+    "statement": "Filtering out blue light using blue filter glasses or night mode settings on smartphone, tablet or laptop screens can have a beneficial effect on sleep.",
+    "label": 2
+  },
+  {
+    "statement": "Strophanthin is an effective cardiovascular drug.",
+    "label": 1
+  },
+  {
+    "statement": "Regular intake of vitamin C can prevent colds.",
+    "label": 2
+  },
+  {
+    "statement": "Taking vitamin C after the onset of a cold can relieve symptoms or shorten the illness.",
+    "label": 2
+  },
+  {
+    "statement": "Saline nasal rinses and nasal sprays or inhaling with steam from saline solution help with colds.",
+    "label": 1
+  },
+  {
+    "statement": "Remedies with ginseng help with erectile dysfunction.",
+    "label": 2
+  },
+  {
+    "statement": "Taking spermidine can prolong life and it can prevent diseases.",
+    "label": 1
+  },
+  {
+    "statement": "Capsules or tablets with lactase can improve the symptoms of lactose intolerance and make dairy products more tolerable.",
+    "label": 0
+  },
+  {
+    "statement": "Weighted blankets can help with sleep disorders.",
+    "label": 1
+  },
+  {
+    "statement": "The drug remdesivir prevents COVID-19 deaths.",
+    "label": 2
+  },
+  {
+    "statement": "Magnetic resonance therapy improves complaints of knee osteoarthritis or herniated discs (e.g. pain).",
+    "label": 2
+  },
+  {
+    "statement": "Oral zinc supplements are effective for treating a cold (chill).",
+    "label": 0
+  },
+  {
+    "statement": "Oral zinc supplements prevent a cold.",
+    "label": 1
+  },
+  {
+    "statement": "Colloidal gold is good for health.",
+    "label": 1
+  },
+  {
+    "statement": "Probiotics alleviate the symptoms of irritable bowel syndrome.",
+    "label": 0
+  },
+  {
+    "statement": "You get a stomach ache if you eat cherries or other stone fruit and then drink water.",
+    "label": 1
+  },
+  {
+    "statement": "Acoustic CR ® neuromodulation according to Tass can help with tinnitus.",
+    "label": 1
+  },
+  {
+    "statement": "Ivermectin is an effective drug for treating covid 19 disease.",
+    "label": 2
+  },
+  {
+    "statement": "Ivermectin lowers the risk of death in covid-19.",
+    "label": 1
+  },
+  {
+    "statement": "Green tea can protect against coronavirus infection or help treat covid-19.",
+    "label": 1
+  },
+  {
+    "statement": "Vitamin D alleviates autism symptoms in children.",
+    "label": 1
+  },
+  {
+    "statement": "Glutathione improves the tolerability of chemotherapy for cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Carnosine relieves autism symptoms in children.",
+    "label": 2
+  },
+  {
+    "statement": "Echinacea can protect against Sars-CoV-2 infection or help treat covid-19.",
+    "label": 1
+  },
+  {
+    "statement": "Amygdalin, the toxin from the seeds of apricots and other stone fruits, helps against cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Ginkgo extract can relieve the symptoms of tinnitus.",
+    "label": 2
+  },
+  {
+    "statement": "Remedies with ginkgo help against tinnitus in people with dementia.",
+    "label": 1
+  },
+  {
+    "statement": "Garlic protects against corona infections.",
+    "label": 1
+  },
+  {
+    "statement": "Garlic protects against a cold (chill).",
+    "label": 1
+  },
+  {
+    "statement": "Dietary supplements with magnesium and/or zinc improve symptoms in children with ADHD.",
+    "label": 1
+  },
+  {
+    "statement": "A nasal spray with carrageenan from red algae relieves discomfort from a cold (\"chill\").",
+    "label": 2
+  },
+  {
+    "statement": "A nasal spray with carrageenan from red algae prevents colds.",
+    "label": 1
+  },
+  {
+    "statement": "The \"Miracle Mineral Supplement\" MMS (sodium chlorite) can cure diseases or alleviate ailments.",
+    "label": 1
+  },
+  {
+    "statement": "MMS helps with an infection with the coronavirus (Covid-19).",
+    "label": 1
+  },
+  {
+    "statement": "Colloidal silver (\"silver water\") works against infection with the coronavirus or other pathogens and it has any other health benefits.",
+    "label": 1
+  },
+  {
+    "statement": "Whole-body vibration therapy is effective in preventing bone fractures in osteoporosis sufferers.",
+    "label": 1
+  },
+  {
+    "statement": "Regular gargling with antimicrobial mouthwashes protects against contracting coronavirus and helps get better faster if you have Covid 19 disease.",
+    "label": 1
+  },
+  {
+    "statement": "Inhalation with budesonide spray can relieve symptoms of covid-19.",
+    "label": 0
+  },
+  {
+    "statement": "Budesonide spray inhalation for covid-19 can reduce the risk of hospitalization, severe or even fatal outcome.",
+    "label": 1
+  },
+  {
+    "statement": "A nasal spray with carrageenan from red algae prevents infection with coronavirus and can alleviate a covid 19 disease that has already broken out.",
+    "label": 1
+  },
+  {
+    "statement": "The product \"BestProvita Diabetin\" improves blood glucose levels in type 2 diabetes or prevents secondary diseases.",
+    "label": 1
+  },
+  {
+    "statement": "Blueberries improve blood sugar levels in type 2 diabetes or they prevent secondary diseases.",
+    "label": 1
+  },
+  {
+    "statement": "Self-performed nasal drill tests in symptom-free individuals detect coronavirus infection as reliably as professionally performed rapid tests using swabs from the nasopharynx.",
+    "label": 1
+  },
+  {
+    "statement": "Rapid antigen tests are as reliable as slower PCR tests, and a negative rapid test result reliably excludes an infection with the coronavirus.",
+    "label": 2
+  },
+  {
+    "statement": "CBD helps with sleep disorders.",
+    "label": 1
+  },
+  {
+    "statement": "Heavy (ex-)smokers are less likely to die of lung cancer if they regularly participate in lung cancer screening by computed tomography (CT).",
+    "label": 0
+  },
+  {
+    "statement": "Lung cancer screening by computed tomography (CT) can also do harm.",
+    "label": 0
+  },
+  {
+    "statement": "Hydroxychloroquine reduces the likelihood of dying from covid-19 disease.",
+    "label": 2
+  },
+  {
+    "statement": "Hydroxychloroquine prevents covid-19 infection.",
+    "label": 2
+  },
+  {
+    "statement": "Preparations containing rockrose have a preventive or soothing effect on colds (chills) and other upper respiratory tract infections and they can protect against infections with the coronavirus.",
+    "label": 1
+  },
+  {
+    "statement": "Medistus Antivirus Lozenges can protect against colds, flu, covid-19, or other respiratory infections.",
+    "label": 1
+  },
+  {
+    "statement": "Spirulina helps with obesity.",
+    "label": 1
+  },
+  {
+    "statement": "Spirulina has a health-promoting effect.",
+    "label": 1
+  },
+  {
+    "statement": "Gargling with hydrogen peroxide (H2O2) helps against coronavirus or others in throat infections.",
+    "label": 1
+  },
+  {
+    "statement": "Gargling with hydrogen peroxide has health risks.",
+    "label": 1
+  },
+  {
+    "statement": "Vitamin C can prevent infection with coronavirus or prevent deaths from covid-19.",
+    "label": 1
+  },
+  {
+    "statement": "Vitamin D prevents covid-19 disease and vitamin D mitigates the course of Covid 19 disease.",
+    "label": 1
+  },
+  {
+    "statement": "Plasma therapy for covid-19 is effective in preventing deaths.",
+    "label": 1
+  },
+  {
+    "statement": "Treatment with cortisone-like drugs such as dexamethasone ensures that more critically ill patients survive Covid 19 disease.",
+    "label": 0
+  },
+  {
+    "statement": "Contact with holy water can make you sick.",
+    "label": 1
+  },
+  {
+    "statement": "Echinacea can protect against colds.",
+    "label": 0
+  },
+  {
+    "statement": "Echinacea can relieve the discomfort of colds.",
+    "label": 1
+  },
+  {
+    "statement": "Taking LaVita promotes health or physical and mental performance.",
+    "label": 1
+  },
+  {
+    "statement": "Dental care products with nanoparticles of hydroxyapatite help pain-sensitive teeth and can prevent caries or repair already affected, decayed tooth enamel.",
+    "label": 1
+  },
+  {
+    "statement": "Light therapy with light lamps can relieve the symptoms of autumn-winter depression.",
+    "label": 0
+  },
+  {
+    "statement": "Vitamin B3 protects against severe covid-19 events.",
+    "label": 1
+  },
+  {
+    "statement": "Taking coenzyme Q10 improves movement disorders in Parkinson's disease.",
+    "label": 2
+  },
+  {
+    "statement": "Treatment with focused high-intensity ultrasound (HIFU) reduces abdominal girth.",
+    "label": 0
+  },
+  {
+    "statement": "Sugar substitution increases the risk of developing or dying from cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Ozonated vegetable oil helps against athlete's foot or nail fungus.",
+    "label": 1
+  },
+  {
+    "statement": "Ozonated vegetable oil helps against vaginal fungus.",
+    "label": 1
+  },
+  {
+    "statement": "Health checks of symptom-free individuals (screening) are effective in containing the pandemic.",
+    "label": 1
+  },
+  {
+    "statement": "Melatonin helps against jet lag.",
+    "label": 0
+  },
+  {
+    "statement": "Sunscreen reduces the likelihood of skin cancer.",
+    "label": 1
+  },
+  {
+    "statement": "International travel restrictions and border health checks are effective in curbing the spread of covid-19.",
+    "label": 0
+  },
+  {
+    "statement": "Hypnosis helps with smoking cessation.",
+    "label": 1
+  },
+  {
+    "statement": "Denosumab (Prolia) reduces the risk of vertebral fractures in osteoporosis.",
+    "label": 0
+  },
+  {
+    "statement": "Discontinuation of denosumab increases the risk of vertebral fractures.",
+    "label": 1
+  },
+  {
+    "statement": "Taking magnesium improves the symptoms of depression.",
+    "label": 1
+  },
+  {
+    "statement": "Focused ultrasound (HIFU) treatment reduces wrinkles and sagging of the skin.",
+    "label": 1
+  },
+  {
+    "statement": "A ketogenic diet helps against cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Curd compresses have an analgesic effect for muscle and joint pain, an antipyretic effect, and they help breastfeeding women with lactation congestion.",
+    "label": 1
+  },
+  {
+    "statement": "Deuterium-reduced water prevents cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Deuterium-reduced water improves disease progression in cancer.",
+    "label": 1
+  },
+  {
+    "statement": "A special mattress can relieve nighttime rheumatism symptoms and thus improve sleep.",
+    "label": 1
+  },
+  {
+    "statement": "People with blood group AB have a higher risk of developing dementia.",
+    "label": 2
+  },
+  {
+    "statement": "Therapeutic dancing helps people with Parkinson's improve their movement problems.",
+    "label": 0
+  },
+  {
+    "statement": "It is possible to reliably detect coronavirus infection based only on symptoms but without laboratory testing.",
+    "label": 2
+  },
+  {
+    "statement": "Home coronavirus self-tests are as reliable as tests performed by trained healthcare professionals.",
+    "label": 1
+  },
+  {
+    "statement": "Biotin helps with hair loss and biotin makes hair grow faster.",
+    "label": 1
+  },
+  {
+    "statement": "Induction of labor can prevent infant deaths in pregnancies that go beyond the estimated due date and it reduces the number of neonatal intensive care unit stays.",
+    "label": 0
+  },
+  {
+    "statement": "Induction of labor makes cesarean sections less necessary than observational waiting.",
+    "label": 0
+  },
+  {
+    "statement": "The number of deliveries with a vacuum cup and forceps remains similar with induction and observational waiting.",
+    "label": 0
+  },
+  {
+    "statement": "Taking supplements with omega-3 fatty acids reduces the risk of heart attack, stroke or other sudden cardiovascular problems and lowers the risk of dying prematurely.",
+    "label": 2
+  },
+  {
+    "statement": "Taking dietary supplements with omega-3 fatty acids can prevent further heart attacks or strokes if one has already had a heart attack, and it lowers the risk of dying prematurely.",
+    "label": 2
+  },
+  {
+    "statement": "Cosmetic products with caffeine for hair and scalp can help against hereditary hair loss.",
+    "label": 1
+  },
+  {
+    "statement": "Music therapy with rhythmic training is helpful for people with Parkinson's who have trouble walking.",
+    "label": 0
+  },
+  {
+    "statement": "Preparations with unsaponifiable components of avocado and soybean oils (ASU) help against limitations and pain in osteoarthritis of the knee joint.",
+    "label": 0
+  },
+  {
+    "statement": "Preparations with unsaponifiable components of avocado and soybean oils (ASU) help against limitations and pain in osteoarthritis of the hip joint.",
+    "label": 2
+  },
+  {
+    "statement": "It is safe to take preparations containing unsaponifiable components of avocado and soybean oils (ASU).",
+    "label": 0
+  },
+  {
+    "statement": "Taking chondroitin can relieve osteoarthritis pain or improve mobility in the long term.",
+    "label": 2
+  },
+  {
+    "statement": "Taking arginine benefits existing cardiovascular disease or arginine prevents it from developing.",
+    "label": 1
+  },
+  {
+    "statement": "\"Detoxic\" works against tapeworms and other parasites and helps with health complaints.",
+    "label": 1
+  },
+  {
+    "statement": "Mannose is as good as or better than antibiotics for preventing recurrent cystitis.",
+    "label": 1
+  },
+  {
+    "statement": "Taking vitamin K lowers the risk of spinal fractures in older women.",
+    "label": 2
+  },
+  {
+    "statement": "Taking vitamin K lowers the risk of other bone fractures in older women.",
+    "label": 0
+  },
+  {
+    "statement": "Smartsleep provides better or more restful sleep.",
+    "label": 1
+  },
+  {
+    "statement": "Supplemental tryptophan, taken as a dietary supplement or with food, can help with depression.",
+    "label": 1
+  },
+  {
+    "statement": "Neuro-Socks can relieve pain or improve balance and stability.",
+    "label": 1
+  },
+  {
+    "statement": "Taking blood pressure medication in the evening prevents more heart attacks, strokes, and other acute cardiovascular diseases.",
+    "label": 1
+  },
+  {
+    "statement": "In Covid-19, nicotine or smoking have a protective effect, i.e., they prevent severe progression or death.",
+    "label": 1
+  },
+  {
+    "statement": "Red mold rice products can lower blood cholesterol levels.",
+    "label": 0
+  },
+  {
+    "statement": "Products made from red mold rice have fewer side effects than cholesterol-lowering drugs called statins.",
+    "label": 2
+  },
+  {
+    "statement": "Disinfectants containing highly diluted sodium hypochlorite (below 0.1%) can render corona and other viruses harmless and thus protect against infection.",
+    "label": 1
+  },
+  {
+    "statement": "Cat's claw improves joint disease symptoms.",
+    "label": 1
+  },
+  {
+    "statement": "Essential oils protect against corona infections and other viral infections like colds or flu.",
+    "label": 1
+  },
+  {
+    "statement": "Air purifiers help relieve symptoms of allergic asthma.",
+    "label": 2
+  },
+  {
+    "statement": "Special baby water is better for infants than tap water.",
+    "label": 1
+  },
+  {
+    "statement": "Platelet-rich plasma therapy (autologous blood therapy) reduces pain in osteoarthritis of the knee joint.",
+    "label": 0
+  },
+  {
+    "statement": "Platelet-rich plasma therapy (autologous blood therapy) reduces pain in osteoarthritis of the hip joint.",
+    "label": 2
+  },
+  {
+    "statement": "Vitamin D supplements can prevent colds, flu, colds, and other viral respiratory illnesses when there is no or only a mild deficiency of vitamin D.",
+    "label": 2
+  },
+  {
+    "statement": "ACE inhibitors like ramipril increase the risk of lung cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Propolis has a preventive or soothing effect against infection with coronavirus, colds or flu.",
+    "label": 1
+  },
+  {
+    "statement": "DAILY administration of HIGH-dose atropine (0.5 - 1%) sustainably inhibits the progression of myopia in children.",
+    "label": 2
+  },
+  {
+    "statement": "Monthly administered high-dose atropine (1%) sustainably inhibits the progression of myopia in children.",
+    "label": 0
+  },
+  {
+    "statement": "LOW dose atropine (0.05% or less) sustainably inhibits the progression of myopia in children.",
+    "label": 1
+  },
+  {
+    "statement": "Quarantining persons who have had contact with infected persons or who enter from high-risk areas is an effective measure to reduce the number of COVID-19 infections and deaths.",
+    "label": 0
+  },
+  {
+    "statement": "Homeopathic globules can protect against infection with the novel coronavirus.",
+    "label": 1
+  },
+  {
+    "statement": "The osteoporosis drug teriparatide increases the risk of bone cancer as a side effect.",
+    "label": 1
+  },
+  {
+    "statement": "Therapy with EMDR (Eye Movement Desensitization and Reprocessing) can alleviate the symptoms of people with post-traumatic stress disorder.",
+    "label": 0
+  },
+  {
+    "statement": "EMDR works similarly to exposure therapy, another well-studied form of psychotherapy for the symptoms of post-traumatic stress disorder.",
+    "label": 0
+  },
+  {
+    "statement": "Filling with hydrogel helps with chronic back pain caused by a worn disc.",
+    "label": 1
+  },
+  {
+    "statement": "Taking hyaluronic acid in capsule form improves the symptoms of knee osteoarthritis.",
+    "label": 1
+  },
+  {
+    "statement": "Taking chlorella provides better performance, more resilience, and promotes health.",
+    "label": 1
+  },
+  {
+    "statement": "Going to the sauna several times a week prolongs men's lives.",
+    "label": 0
+  },
+  {
+    "statement": "Going to the sauna several times a week prolongs women's lives.",
+    "label": 1
+  },
+  {
+    "statement": "The additional offer of HIV self-testing causes more people to take an HIV test.",
+    "label": 0
+  },
+  {
+    "statement": "The combination of propolis, xyloglucan, gelatin and hibiscus (product \"Utipro Plus\") can relieve the symptoms of cystitis or prevent cystitis.",
+    "label": 1
+  },
+  {
+    "statement": "PEMF noticeably improves pain in osteoarthritis and the method improves mobility and quality of life in sufferers.",
+    "label": 1
+  },
+  {
+    "statement": "Oil pulling promotes dental health.",
+    "label": 1
+  },
+  {
+    "statement": "Injecting stem cells into the knee joint can relieve pain and limitations associated with osteoarthritis.",
+    "label": 1
+  },
+  {
+    "statement": "An extract of Desmodium can promote liver health or relieve other ailments.",
+    "label": 1
+  },
+  {
+    "statement": "The balsam apple helps against infection with the human immunodeficiency virus (HIV).",
+    "label": 1
+  },
+  {
+    "statement": "Healing clay with the clay mineral smectite helps when children have diarrhea.",
+    "label": 0
+  },
+  {
+    "statement": "A herbal combination preparation of rosemary, lovage, and centaury effectively relieves symptoms of uncomplicated cystitis.",
+    "label": 0
+  },
+  {
+    "statement": "A herbal combination preparation of rosemary, lovage and centaury can prevent recurrent cystitis in women.",
+    "label": 1
+  },
+  {
+    "statement": "Healing clay can help with gastritis.",
+    "label": 1
+  },
+  {
+    "statement": "The Indian spice paste Chyawanprash has a positive effect on adult health.",
+    "label": 1
+  },
+  {
+    "statement": "Ginger works against breast cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Theta Healing can help with physical ailments and mental problems.",
+    "label": 1
+  },
+  {
+    "statement": "Taking Bacopa extract improves memory performance.",
+    "label": 2
+  },
+  {
+    "statement": "Remedies containing the trifoliate fruit alleviate the symptoms of rheumatoid arthritis (\"rheumatism\").",
+    "label": 0
+  },
+  {
+    "statement": "Thyme strengthens memory or prevents mental decline.",
+    "label": 1
+  },
+  {
+    "statement": "Regular consumption of chia seeds reduces body weight, blood sugar levels or cholesterol.",
+    "label": 2
+  },
+  {
+    "statement": "Heat patches that heat themselves or heat pads help with pain in the neck.",
+    "label": 1
+  },
+  {
+    "statement": "Heat patches containing capsaicin help with neck pain.",
+    "label": 2
+  },
+  {
+    "statement": "Heat patches help with lower back pain.",
+    "label": 0
+  },
+  {
+    "statement": "Ginger helps with period pain.",
+    "label": 0
+  },
+  {
+    "statement": "The state of health can be assessed as reliably with a \"cell check\" analysis as with other diagnostic tests (for example, blood or urine analyses).",
+    "label": 1
+  },
+  {
+    "statement": "Pain from osteoarthritis (joint wear) can be relieved by arnica ointment or arnica gel.",
+    "label": 0
+  },
+  {
+    "statement": "Pain from a sprained ankle can be relieved by arnica ointment or arnica gel.",
+    "label": 1
+  },
+  {
+    "statement": "Sore muscles can be relieved by arnica ointment or arnica gel.",
+    "label": 2
+  },
+  {
+    "statement": "Carbon dioxide in mineral water and other sparkling drinks can damage teeth or cause tooth decay.",
+    "label": 1
+  },
+  {
+    "statement": "Bark extract from maritime pine (also: \"pine bark extract\") improves the symptoms of osteoarthritis.",
+    "label": 1
+  },
+  {
+    "statement": "Brown millet is effective in favorably influencing the course of the disease in rheumatism (rheumatoid arthritis).",
+    "label": 1
+  },
+  {
+    "statement": "Cannabis or substances derived from cannabis are effective and safe anti-cancer agents.",
+    "label": 1
+  },
+  {
+    "statement": "Additional injections with PCSK9 antibodies succeed in reducing elevated cholesterol levels to a healthy level with tablets and thus minimizing the risk of heart attack or stroke when it is not always possible to do so with tablets alone.",
+    "label": 0
+  },
+  {
+    "statement": "Vaginal suppositories containing the active ingredient imiquimod cause precancerous stages of cervical cancer to recede or disappear.",
+    "label": 0
+  },
+  {
+    "statement": "Blue light treatment is as effective as UV light or other established therapies for psoriasis.",
+    "label": 1
+  },
+  {
+    "statement": "Frequent consumption of potatoes increases the risk of dying from cancer.",
+    "label": 2
+  },
+  {
+    "statement": "Cancer can be detected by dark field analysis (dark field microscopy) of the blood.",
+    "label": 2
+  },
+  {
+    "statement": "Dark field analysis can indicate other health problems.",
+    "label": 1
+  },
+  {
+    "statement": "Kombucha has a positive effect on health.",
+    "label": 1
+  },
+  {
+    "statement": "Graviola is an effective and safe treatment for cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Taking preparations with fenugreek extract improves sex life or satisfaction with it.",
+    "label": 1
+  },
+  {
+    "statement": "Disulfiram improves the effectiveness of chemotherapy for cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Binaural beats can relieve stress or anxiety before surgery and medical treatments.",
+    "label": 1
+  },
+  {
+    "statement": "A vegan diet is healthier than a vegetarian diet.",
+    "label": 1
+  },
+  {
+    "statement": "Taking chlorophyll can change mouth or body odor.",
+    "label": 1
+  },
+  {
+    "statement": "Taking chlorophyll can affect the odor of urine in catheter wearers or stool in people with an artificial bowel outlet.",
+    "label": 2
+  },
+  {
+    "statement": "The risk of bacterial or fungal infection is comparable when using menstrual cups or pads.",
+    "label": 0
+  },
+  {
+    "statement": "Laboratory experiments indicate that leoligin and other substances from edelweiss have a medicinal effect, but this has not been researched in humans.",
+    "label": 1
+  },
+  {
+    "statement": "A straight bar can improve harmless tension and pain in the neck and back.",
+    "label": 1
+  },
+  {
+    "statement": "Ultrasound examinations during pregnancy are safe for the health of the child.",
+    "label": 0
+  },
+  {
+    "statement": "Oregano oil can relieve discomfort or disease.",
+    "label": 1
+  },
+  {
+    "statement": "Bach flower remedies are effective in helping with test anxiety.",
+    "label": 2
+  },
+  {
+    "statement": "Capsules with diamine oxidase can alleviate or prevent symptoms of histamine intolerance.",
+    "label": 1
+  },
+  {
+    "statement": "Magnesium helps with period pain.",
+    "label": 1
+  },
+  {
+    "statement": "Cannabis improves symptoms of Parkinson's disease, for example movement disorders.",
+    "label": 1
+  },
+  {
+    "statement": "The dietary supplement nattokinase is effective and safe as a blood thinner.",
+    "label": 1
+  },
+  {
+    "statement": "The Feldenkrais Method is effective against pain and tension in the neck, shoulders and back.",
+    "label": 1
+  },
+  {
+    "statement": "An alkaline bath helps with neurodermatitis.",
+    "label": 1
+  },
+  {
+    "statement": "Birch water, also called birch sap, helps with health problems.",
+    "label": 1
+  },
+  {
+    "statement": "Oolong tea is an effective way to lose weight.",
+    "label": 1
+  },
+  {
+    "statement": "Waveex and similar products reduce exposure to electromagnetic fields, for example when using a cell phone or smartphone.",
+    "label": 1
+  },
+  {
+    "statement": "Ingredients in deodorants like aluminum salts can cause breast cancer.",
+    "label": 1
+  },
+  {
+    "statement": "The intake of black cumin improves the symptoms of asthma, e.g. shortness of breath.",
+    "label": 1
+  },
+  {
+    "statement": "Specially trained dogs reliably warn of dangerous hypoglycemia.",
+    "label": 1
+  },
+  {
+    "statement": "Taking proton pump inhibitors (PPI) increases the risk of bone fractures.",
+    "label": 0
+  },
+  {
+    "statement": "Matrix therapy (also: matrix rhythm therapy) can alleviate complaints of muscles and joints.",
+    "label": 1
+  },
+  {
+    "statement": "Hyposensitization by injections with allergy-causing pollen components can help with hay fever.",
+    "label": 0
+  },
+  {
+    "statement": "Hyposensitization by means of drops or tablets administered under the tongue can help with hay fever.",
+    "label": 0
+  },
+  {
+    "statement": "Blushwood berries help against skin cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Relaxation exercises and a reduction in stress can slow the progression of glaucoma.",
+    "label": 1
+  },
+  {
+    "statement": "Dementia can be prevented by years of orange juice consumption.",
+    "label": 1
+  },
+  {
+    "statement": "Remedies from papaya can improve digestion or relieve gastrointestinal discomfort.",
+    "label": 1
+  },
+  {
+    "statement": "Kinesiotapes are effective for chronic non-specific lower back pain (\"low back pain\").",
+    "label": 2
+  },
+  {
+    "statement": "Early detection of lung cancer by trained sniffer dogs provides significant benefits to those affected.",
+    "label": 1
+  },
+  {
+    "statement": "Snoring sprays or gargle solutions help against snoring.",
+    "label": 1
+  },
+  {
+    "statement": "Maca helps with sexual problems such as erectile dysfunction or sexual aversion in men and women.",
+    "label": 1
+  },
+  {
+    "statement": "Glacier milk powder can prevent hangover or relieve hangover symptoms.",
+    "label": 1
+  },
+  {
+    "statement": "Ingredients from pomegranate can lower elevated blood pressure or reduce the risk of cardiovascular disease.",
+    "label": 1
+  },
+  {
+    "statement": "Regular consumption of red meat or processed meat products increases the risk of colorectal cancer.",
+    "label": 0
+  },
+  {
+    "statement": "Stool transplantation helps with ulcerative colitis.",
+    "label": 0
+  },
+  {
+    "statement": "Stool transplantation helps in Crohn's disease.",
+    "label": 1
+  },
+  {
+    "statement": "Remedies from the iambul tree can improve blood glucose control in diabetes or precursors of diabetes (\"pre-diabetes\").",
+    "label": 1
+  },
+  {
+    "statement": "HPV vaccination reduces the risk of cervical cancer in girls.",
+    "label": 0
+  },
+  {
+    "statement": "Stool transplantation is effective against recurrent Clostridium difficile infections.",
+    "label": 0
+  },
+  {
+    "statement": "The juice of the aronia berry helps against cystitis.",
+    "label": 1
+  },
+  {
+    "statement": "Intermittent Fasting is suitable for reducing excess weight as well as a conventional low calorie diet.",
+    "label": 0
+  },
+  {
+    "statement": "The risk for the brain inflammation SSPE as a consequence of measles disease is greater than long assumed, and out of every 100,000 people infected with measles, more than one person develops SSPE later in life.",
+    "label": 0
+  },
+  {
+    "statement": "Acupuncture for labor induction can trigger the onset of labor.",
+    "label": 2
+  },
+  {
+    "statement": "Switching to a higher fiber diet can prevent colorectal cancer.",
+    "label": 2
+  },
+  {
+    "statement": "Perineal massage during pregnancy can help prevent birth injury in first-time mothers.",
+    "label": 0
+  },
+  {
+    "statement": "Cancer can be effectively treated with vitamin C infusions.",
+    "label": 1
+  },
+  {
+    "statement": "Detox cures are good for health.",
+    "label": 1
+  },
+  {
+    "statement": "Sweeteners increase the risk of type 2 diabetes or sugar metabolism disorders.",
+    "label": 1
+  },
+  {
+    "statement": "Flu vaccination reduces the likelihood of getting the flu (influenza).",
+    "label": 0
+  },
+  {
+    "statement": "Therapy with the radioactive gas radon can noticeably alleviate pain in rheumatism-related joint inflammation (rheumatoid arthritis).",
+    "label": 2
+  },
+  {
+    "statement": "Frankincense helps with painful joint wear (osteoarthritis).",
+    "label": 0
+  },
+  {
+    "statement": "The extract of the plant Salacia reticulata in combination with vitamin D (\"Exadipin\") helps to lose weight.",
+    "label": 1
+  },
+  {
+    "statement": "Yoga reduces the impairment in everyday life caused by persistent (chronic) back pain.",
+    "label": 0
+  },
+  {
+    "statement": "Yoga alleviates the severity of persistent back pain.",
+    "label": 2
+  },
+  {
+    "statement": "Laughter yoga or laughter therapy have positive health effects.",
+    "label": 1
+  },
+  {
+    "statement": "A height-adjustable desk can reduce sitting time in the office.",
+    "label": 0
+  },
+  {
+    "statement": "A diet that includes as many organic foods as possible lowers the risk of cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Cinnamon lowers blood sugar levels in diabetes.",
+    "label": 2
+  },
+  {
+    "statement": "Sitting for long periods shortens the lifespan.",
+    "label": 0
+  },
+  {
+    "statement": "Mammography screening reduces the risk of dying from breast cancer in certain age groups.",
+    "label": 0
+  },
+  {
+    "statement": "Wisdom teeth that have not or not completely grown out of the jaw and gums should be removed as a precaution, even if the \"impacted\" teeth are not causing any symptoms at the moment and no pathological changes are to be expected immediately.",
+    "label": 1
+  },
+  {
+    "statement": "Turmeric preparations alleviate the symptoms of knee osteoarthritis (\"joint wear\") better than a placebo.",
+    "label": 1
+  },
+  {
+    "statement": "Turmeric preparations relieve the symptoms of rheumatoid arthritis (\"rheumatism\") better than a placebo or painkiller.",
+    "label": 1
+  },
+  {
+    "statement": "The intake of omega-3 fatty acids improves the clinical picture in multiple sclerosis (MS) or inhibits progression of the disease.",
+    "label": 2
+  },
+  {
+    "statement": "Taking vitamin A or following certain diets improves or halts the progression of multiple sclerosis (MS).",
+    "label": 1
+  },
+  {
+    "statement": "Botox injections can prevent migraine attacks.",
+    "label": 0
+  },
+  {
+    "statement": "Taking probiotics facilitates weight loss to any significant degree.",
+    "label": 2
+  },
+  {
+    "statement": "The full moon has a negative effect on sleep duration.",
+    "label": 2
+  },
+  {
+    "statement": "Lemon juice can prevent or effectively treat gastrointestinal illness caused by norovirus.",
+    "label": 1
+  },
+  {
+    "statement": "For knee osteoarthritis, rubbing DMSO into the knee brings less pain and more mobility than rubbing a placebo.",
+    "label": 2
+  },
+  {
+    "statement": "In case of osteoarthritis of the knee, rubbing DMSO brings less pain and more mobility than the recognized painkiller diclofenac.",
+    "label": 1
+  },
+  {
+    "statement": "Taking vitamin D improves symptoms in the most common form of psoriasis.",
+    "label": 2
+  },
+  {
+    "statement": "Taking fish oil with omega-3 fatty acids improves the symptoms of various forms of psoriasis more than a placebo.",
+    "label": 2
+  },
+  {
+    "statement": "Following a Mediterranean diet decreases the likelihood of cardiovascular disease in people at high risk.",
+    "label": 0
+  },
+  {
+    "statement": "The probability of dying from cardiovascular disease decreases in people who have already had a heart attack.",
+    "label": 0
+  },
+  {
+    "statement": "Grander water has health benefits compared to untreated drinking water.",
+    "label": 1
+  },
+  {
+    "statement": "Astaxanthin protects against cardiovascular disease, cancer or prolongs life.",
+    "label": 1
+  },
+  {
+    "statement": "Products from the noni fruit promote health.",
+    "label": 1
+  },
+  {
+    "statement": "Spending time at waterfalls on a regular basis can provide lasting improvement in asthma symptoms.",
+    "label": 1
+  },
+  {
+    "statement": "Goji helps with serious diseases like cancer or prevents heart attacks.",
+    "label": 1
+  },
+  {
+    "statement": "Amla supplements are effective and safe in lowering high cholesterol.",
+    "label": 1
+  },
+  {
+    "statement": "Inhaling hive air has health benefits for asthma, allergies or other conditions.",
+    "label": 1
+  },
+  {
+    "statement": "Chlorinated water from baby swimming can cause asthma or allergies later in childhood.",
+    "label": 1
+  },
+  {
+    "statement": "A lot of sunlight in childhood and adolescence is a cause of age-related macular degeneration.",
+    "label": 1
+  },
+  {
+    "statement": "Wearing sunglasses in childhood and adolescence protects against macular degeneration in old age.",
+    "label": 1
+  },
+  {
+    "statement": "Water from jugs with semi-precious stones has a positive health effect.",
+    "label": 1
+  },
+  {
+    "statement": "Calcium from Japanese coral is safe and effective in preventing disease.",
+    "label": 1
+  },
+  {
+    "statement": "The observance of feng shui design rules helps against bad sleep.",
+    "label": 1
+  },
+  {
+    "statement": "Taking vitamin C prevents motion sickness.",
+    "label": 1
+  },
+  {
+    "statement": "Lifewave patches improve health or athletic and mental performance.",
+    "label": 1
+  },
+  {
+    "statement": "There are differences in hair removal effectiveness between IPL and diode laser.",
+    "label": 2
+  },
+  {
+    "statement": "Carbonic acid causes cancer.",
+    "label": 2
+  },
+  {
+    "statement": "Carbonic acid has health effects on the digestive tract.",
+    "label": 1
+  },
+  {
+    "statement": "Wearing compression stockings on a long-haul flight prevents thrombosis (blood clots) and the associated symptoms.",
+    "label": 0
+  },
+  {
+    "statement": "Extracorporeal shock wave therapy can relieve heel pain if the cause is tendonitis or a heel spur.",
+    "label": 0
+  },
+  {
+    "statement": "An extract from the African black bean (active ingredient 5-hydroxytryptophan) helps against lovesickness.",
+    "label": 1
+  },
+  {
+    "statement": "A mixture of hops and other natural remedies helps with sleep problems.",
+    "label": 2
+  },
+  {
+    "statement": "Hops as a single active ingredient help with sleep problems.",
+    "label": 1
+  },
+  {
+    "statement": "Taking a mushroom called reishi benefits cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Labor pain during childbirth can be relieved by aromatherapy with lavender oil.",
+    "label": 0
+  },
+  {
+    "statement": "The duration of childbirth can be reduced by aromatherapy with lavender oil.",
+    "label": 1
+  },
+  {
+    "statement": "A patch with high-dose capsaicin relieves pain after shingles.",
+    "label": 0
+  },
+  {
+    "statement": "A patch with high-dose capsaicin relieves pain in diabetes mellitus or infection with HIV.",
+    "label": 1
+  },
+  {
+    "statement": "Industrially highly processed food increases the risk of cancer.",
+    "label": 0
+  },
+  {
+    "statement": "Propolis has a healing or soothing effect on inflammation in the mouth in otherwise healthy people.",
+    "label": 1
+  },
+  {
+    "statement": "Amalgam fillings affect the mental development of school children compared to plastic dental fillings.",
+    "label": 2
+  },
+  {
+    "statement": "Curcumin protects healthy people from mental impairment or even from developing dementia.",
+    "label": 1
+  },
+  {
+    "statement": "Curcumin protects people with already diagnosed dementia from further decline in mental abilities.",
+    "label": 2
+  },
+  {
+    "statement": "Preparations with humic acids help with diseases or complaints of the stomach and intestines.",
+    "label": 1
+  },
+  {
+    "statement": "An extract from grapefruit seeds works against fungal diseases such as athlete's foot or nail fungus.",
+    "label": 1
+  },
+  {
+    "statement": "Taking rosehip powder for rheumatoid arthritis improves symptoms.",
+    "label": 2
+  },
+  {
+    "statement": "Taking rosehip powder for osteoarthritis alleviates the symptoms.",
+    "label": 1
+  },
+  {
+    "statement": "The genetic blood test for Down syndrome (trisomy 21) can predict whether the unborn child is affected in pregnant women at increased risk.",
+    "label": 0
+  },
+  {
+    "statement": "Preparations with rose root have an effect against stress and its consequences, e.g. exhaustion.",
+    "label": 1
+  },
+  {
+    "statement": "Microwave therapy is effective and safe for long-term reduction of excessive sweating (primary hyperhidrosis) in adults.",
+    "label": 1
+  },
+  {
+    "statement": "Ointment with comfrey helps against back pain and knee pain better than a placebo.",
+    "label": 0
+  },
+  {
+    "statement": "Ointment with comfrey helps with ankle sprains and sore muscles.",
+    "label": 1
+  },
+  {
+    "statement": "Chlorhexidine in the form of dental varnish can prevent the formation of caries in adults.",
+    "label": 2
+  },
+  {
+    "statement": "Chlorhexidine in the form of mouth rinses and gels for home use in children and adults, and as a dental varnish in children, can prevent the formation of caries.",
+    "label": 1
+  },
+  {
+    "statement": "A legal smoking ban reduces the likelihood of cardiovascular disease in nonsmokers.",
+    "label": 0
+  },
+  {
+    "statement": "Pregnant women who take vitamin D have a lower risk of preterm birth.",
+    "label": 0
+  },
+  {
+    "statement": "Pregnant women who take vitamin D in combination with calcium have a lower risk of preterm birth.",
+    "label": 2
+  },
+  {
+    "statement": "Aromatherapy has a calming effect on agitation and aggression typical of dementia.",
+    "label": 1
+  },
+  {
+    "statement": "Aromatherapy has other positive effects for dementia patients.",
+    "label": 1
+  },
+  {
+    "statement": "Tomato extract reduces the risk of cardiovascular disease.",
+    "label": 1
+  },
+  {
+    "statement": "Quitting smoking prolongs life.",
+    "label": 0
+  },
+  {
+    "statement": "Eating eggs increases the risk of cardiovascular disease.",
+    "label": 2
+  },
+  {
+    "statement": "Oseltamivir (brand name \"Tamiflu\") reduces the severity and duration of influenza in otherwise healthy adults.",
+    "label": 0
+  },
+  {
+    "statement": "Active surveillance of patients with low-risk prostate cancer is associated with increased prostate cancer mortality risk in the long term.",
+    "label": 1
+  },
+  {
+    "statement": "Active Surveillance reduces the likelihood of becoming impotent or incontinence, i.e. unintentional urine leakage.",
+    "label": 0
+  },
+  {
+    "statement": "Extracts of prickly pear (Opuntia ficus-indica) help with hangover symptoms after alcohol consumption.",
+    "label": 1
+  },
+  {
+    "statement": "Statins help older people suffering from cardiovascular disease to live longer and reduce the risk of heart attack and stroke.",
+    "label": 0
+  },
+  {
+    "statement": "Statins are useful in preventing cardiovascular disease in people 75 years and older.",
+    "label": 1
+  },
+  {
+    "statement": "Traumeel gel or ointment is effective for sports injuries such as sprains, bruises and strains.",
+    "label": 1
+  },
+  {
+    "statement": "Weather phenomena and weather changes are triggers of migraine attacks.",
+    "label": 1
+  },
+  {
+    "statement": "Artichoke preparation helps with gastrointestinal problems.",
+    "label": 1
+  },
+  {
+    "statement": "Prickly pear helps with long-term weight loss.",
+    "label": 1
+  },
+  {
+    "statement": "Turmeric can relieve the symptoms of depression.",
+    "label": 1
+  },
+  {
+    "statement": "Phthalates affect semen quality in men.",
+    "label": 0
+  },
+  {
+    "statement": "Phthalates reduce the likelihood of pregnancy in women.",
+    "label": 1
+  },
+  {
+    "statement": "Ginseng improves mental performance in healthy individuals and patients with Alzheimer's dementia.",
+    "label": 1
+  },
+  {
+    "statement": "Leaky gut syndrome causes health complaints or diseases.",
+    "label": 1
+  },
+  {
+    "statement": "The Alexander Technique helps with back pain and neck pain.",
+    "label": 0
+  },
+  {
+    "statement": "The components of the Moringa oleifera tree have a positive effect on health.",
+    "label": 1
+  },
+  {
+    "statement": "An extract from the root of the Cape geranium (Pelargonium sidoides, Umckaloabo) works against bronchitis.",
+    "label": 0
+  },
+  {
+    "statement": "Geranium extract helps against colds and sinusitis.",
+    "label": 1
+  },
+  {
+    "statement": "Taking DHEA has an anti-aging effect by increasing the physical and mental well-being of older people.",
+    "label": 2
+  },
+  {
+    "statement": "DHEA can prolong life or improve health in old age.",
+    "label": 1
+  },
+  {
+    "statement": "The proper use of fluoride toothpaste can cause serious long-term health problems.",
+    "label": 1
+  },
+  {
+    "statement": "Fluoride toothpaste prevents tooth decay.",
+    "label": 0
+  },
+  {
+    "statement": "Products with the tropical fruit mangosteen promote health.",
+    "label": 1
+  },
+  {
+    "statement": "Topical agents containing acids and oils, such as Excilor and Nailner, are effective for nail fungus.",
+    "label": 1
+  },
+  {
+    "statement": "Weight loss programs can reduce obesity in children and adolescents.",
+    "label": 0
+  },
+  {
+    "statement": "Valerian helps with sleep disorders.",
+    "label": 1
+  },
+  {
+    "statement": "Milk thistle extract is an effective treatment for liver disease.",
+    "label": 1
+  },
+  {
+    "statement": "Dietary supplements with amino acids and proteins help against muscle atrophy in old age (sarcopenia).",
+    "label": 1
+  },
+  {
+    "statement": "Music therapy can help people affected by stroke learn to walk normally again.",
+    "label": 0
+  },
+  {
+    "statement": "Music therapy can help stroke victims with other problems.",
+    "label": 1
+  },
+  {
+    "statement": "Plant or animal protein has an influence on lifespan.",
+    "label": 0
+  },
+  {
+    "statement": "Chicken soup helps with colds.",
+    "label": 1
+  },
+  {
+    "statement": "Herbal remedies containing an extract of Chinese tragacanth root, such as Lectranal or Allvent, help against allergies.",
+    "label": 1
+  },
+  {
+    "statement": "Alkaline water keeps you healthy or can prevent disease.",
+    "label": 1
+  },
+  {
+    "statement": "Remedies with hops or valerian help with anxiety disorders.",
+    "label": 1
+  },
+  {
+    "statement": "Extracts of African devil's claw (Harpagophytum procumbens) relieve pain in patients with osteoarthritis.",
+    "label": 1
+  },
+  {
+    "statement": "Probiotics can prevent diarrhea after treatment with antibiotics.",
+    "label": 0
+  },
+  {
+    "statement": "Exercise is an effective measure to combat depression.",
+    "label": 0
+  },
+  {
+    "statement": "A tantrum can trigger a heart attack.",
+    "label": 0
+  },
+  {
+    "statement": "Anger over a long period of time can increase the risk of heart attack.",
+    "label": 1
+  },
+  {
+    "statement": "Capsules with omega-3 fatty acids from fish oil can relieve depression.",
+    "label": 1
+  },
+  {
+    "statement": "Regular consumption of coffee increases the risk of heart disease such as heart attack or stroke.",
+    "label": 2
+  },
+  {
+    "statement": "Cesarean babies have a higher risk of becoming overweight later in life.",
+    "label": 0
+  },
+  {
+    "statement": "Cesarean babies have a higher risk of asthma and allergies later in life and they have an increased risk of type 1 diabetes.",
+    "label": 1
+  },
+  {
+    "statement": "The pregnancy hormone hCG helps with weight loss.",
+    "label": 2
+  },
+  {
+    "statement": "Cupping relieves chronic neck and back pain.",
+    "label": 1
+  },
+  {
+    "statement": "Eating broccoli or broccoli sprouts can improve gastritis symptoms.",
+    "label": 1
+  },
+  {
+    "statement": "Schuessler salts work.",
+    "label": 1
+  },
+  {
+    "statement": "Pelvic floor training helps women with stress-related urinary incontinence.",
+    "label": 0
+  },
+  {
+    "statement": "Methadone can enhance the effects of chemotherapy or other cancer treatments and help cure cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Treatment with tea tree oil can relieve pimples (acne).",
+    "label": 0
+  },
+  {
+    "statement": "Sugar consumption impairs memory or other mental performance.",
+    "label": 1
+  },
+  {
+    "statement": "Extra folic acid in men helps prevent birth defects in children.",
+    "label": 1
+  },
+  {
+    "statement": "Taking ginger reduces nausea and vomiting during pregnancy.",
+    "label": 1
+  },
+  {
+    "statement": "Taking ginger prevents motion sickness.",
+    "label": 1
+  },
+  {
+    "statement": "Electric cigarettes are less harmful than tobacco smoking.",
+    "label": 1
+  },
+  {
+    "statement": "Parents licking the pacifier protects children from allergic diseases.",
+    "label": 1
+  },
+  {
+    "statement": "Calcium helps with allergy.",
+    "label": 1
+  },
+  {
+    "statement": "Taking vitamin D can relieve chronic pain.",
+    "label": 1
+  },
+  {
+    "statement": "Aloe vera relieves discomfort caused by psoriasis.",
+    "label": 1
+  },
+  {
+    "statement": "Aloe vera helps with neurodermatitis, poorly healing or fresh wounds.",
+    "label": 1
+  },
+  {
+    "statement": "Electromagnetic radiation from cell phone towers causes health problems such as headaches or sleep disorders.",
+    "label": 2
+  },
+  {
+    "statement": "Antibiotic-resistant germs from animal husbandry can be transferred to humans.",
+    "label": 0
+  },
+  {
+    "statement": "The use of antibiotics in animal husbandry harms human health.",
+    "label": 1
+  },
+  {
+    "statement": "Regular vitamin D intake lowers the risk of cancer in adults.",
+    "label": 2
+  },
+  {
+    "statement": "Regular consumption of ground flaxseed harms health.",
+    "label": 1
+  },
+  {
+    "statement": "MMR vaccination can cause autism.",
+    "label": 2
+  },
+  {
+    "statement": "Vaccination against rotavirus increases the risk of intestinal intussusception in infants.",
+    "label": 0
+  },
+  {
+    "statement": "Ozone is suitable for the treatment of tooth decay.",
+    "label": 1
+  },
+  {
+    "statement": "The so-called blood group diet has any health benefits.",
+    "label": 1
+  },
+  {
+    "statement": "Pumpkin seeds or preparations from them can help women and men with irritable bladder, bladder weakness or incontinence.",
+    "label": 1
+  },
+  {
+    "statement": "Products from bees like honey, propolis, royal jelly or bee venom help against cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Pumpkin seed preparations improve symptoms caused by a benign enlarged prostate.",
+    "label": 2
+  },
+  {
+    "statement": "Gels and ointments containing arnica, hawthorn, cypress, butcher's broom, Asian (or Indian) pennywort, and heparin, such as VaricoFix, can relieve discomfort and secondary symptoms of varicose veins.",
+    "label": 1
+  },
+  {
+    "statement": "Putting onion bags helps with acute otitis media.",
+    "label": 1
+  },
+  {
+    "statement": "Serious problems can occur after stopping antidepressants.",
+    "label": 0
+  },
+  {
+    "statement": "Self urine helps with health problems.",
+    "label": 1
+  },
+  {
+    "statement": "Unsaturated fats (from plants and fish) reduce cardiovascular disease compared to saturated fats (from meat and dairy products).",
+    "label": 0
+  },
+  {
+    "statement": "A vegetarian diet including eggs and dairy products is healthier than a diet that includes meat.",
+    "label": 0
+  },
+  {
+    "statement": "Washing hands with antibacterial soaps or wash lotions containing triclosan or triclocarban can prevent the risk of contracting diseases in the household.",
+    "label": 2
+  },
+  {
+    "statement": "Hand washing with antibacterial soaps or wash lotions containing other disinfectants can reduce the risk of infection compared to regular soap.",
+    "label": 1
+  },
+  {
+    "statement": "Homeopathy works better than a placebo.",
+    "label": 2
+  },
+  {
+    "statement": "Toothpaste containing xylitol reduces the risk of caries.",
+    "label": 0
+  },
+  {
+    "statement": "Other xylitol-containing products (e.g. chewing gums, sweets, mouth rinses) reduce the risk of caries in addition to normal dental care.",
+    "label": 1
+  },
+  {
+    "statement": "Paper towels or electric dryers are more hygienic after washing hands.",
+    "label": 1
+  },
+  {
+    "statement": "Soy foods are risky for people with unremarkable, or subclinical, hypothyroidism.",
+    "label": 1
+  },
+  {
+    "statement": "Taking vitamin B3 prolongs life.",
+    "label": 1
+  },
+  {
+    "statement": "Taking Ribose can help with heart conditions such as heart failure, narrowing of the coronary arteries (coronary artery disease), or heart attack.",
+    "label": 1
+  },
+  {
+    "statement": "Vitamins and minerals are effective and safe in lowering cholesterol.",
+    "label": 1
+  },
+  {
+    "statement": "Fasting is effective and safe in the long term for arthritis and other diseases.",
+    "label": 1
+  },
+  {
+    "statement": "Green smoothies promote health.",
+    "label": 1
+  },
+  {
+    "statement": "Chocolate has a mood-lifting effect.",
+    "label": 0
+  },
+  {
+    "statement": "Sprouts or buds have a healing effect.",
+    "label": 1
+  },
+  {
+    "statement": "Belly fat or a large abdominal girth is particularly dangerous for health.",
+    "label": 0
+  },
+  {
+    "statement": "Choline ingested with food - alone or in the form of lecithin, for example - can improve memory.",
+    "label": 1
+  },
+  {
+    "statement": "White sugar causes cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Wound care products with sodium hypochlorite such as ActiMaris promote the healing process of wounds.",
+    "label": 1
+  },
+  {
+    "statement": "The dietary supplement MSM helps with osteoarthritis.",
+    "label": 0
+  },
+  {
+    "statement": "Wheat lectin, which is found in high amounts especially in whole wheat, is harmful to health.",
+    "label": 2
+  },
+  {
+    "statement": "Regularly eating large quantities of fish contaminated with dioxins and polychlorinated biphenyls (PCBs) is harmful to health.",
+    "label": 1
+  },
+  {
+    "statement": "The DMPS test is suitable to reliably indicate mercury poisoning.",
+    "label": 1
+  },
+  {
+    "statement": "Stevia can lower high blood pressure.",
+    "label": 0
+  },
+  {
+    "statement": "Eating genetically modified corn is a health concern.",
+    "label": 1
+  },
+  {
+    "statement": "Privately performed IgG tests to clarify food intolerances are meaningful.",
+    "label": 1
+  },
+  {
+    "statement": "A gluten-free diet is recommended for people who do not have celiac disease.",
+    "label": 1
+  },
+  {
+    "statement": "The plant substance nobiletin contained in mandarins protects against weight gain.",
+    "label": 1
+  },
+  {
+    "statement": "Consumption of dairy products in middle and advanced age protects against bone fractures.",
+    "label": 2
+  },
+  {
+    "statement": "The milk of horn-bearing cows is less rich in allergens and more easily tolerated by lactose-intolerant individuals.",
+    "label": 1
+  },
+  {
+    "statement": "Daily flossing protects against tooth decay, periodontitis and tooth loss.",
+    "label": 1
+  },
+  {
+    "statement": "Protein supplements help build muscle.",
+    "label": 1
+  },
+  {
+    "statement": "Music therapy promotes recovery from severe limitations of consciousness after severe brain injury.",
+    "label": 1
+  },
+  {
+    "statement": "Eating grapefruit in combination with some medications can lead to harmful interactions.",
+    "label": 0
+  },
+  {
+    "statement": "Regular consumption of chocolate can prevent cardiovascular disease.",
+    "label": 0
+  },
+  {
+    "statement": "Barley grass is good for health.",
+    "label": 1
+  },
+  {
+    "statement": "Diets with reduced carbohydrate content are better for weight loss than other weight loss programs.",
+    "label": 2
+  },
+  {
+    "statement": "Taking probiotics during pregnancy and early life protects children from atopic dermatitis.",
+    "label": 0
+  },
+  {
+    "statement": "Bulletproof Coffee is recommended.",
+    "label": 1
+  },
+  {
+    "statement": "Apples help with smoking cessation.",
+    "label": 1
+  },
+  {
+    "statement": "Products made from fenugreek seeds help you lose weight.",
+    "label": 1
+  },
+  {
+    "statement": "Skipping breakfast increases heart attack risk.",
+    "label": 1
+  },
+  {
+    "statement": "Wheat makes you fat and sick.",
+    "label": 1
+  },
+  {
+    "statement": "Whole grains lower the likelihood of dying early.",
+    "label": 0
+  },
+  {
+    "statement": "The consumption of dairy products promotes mucus and diseases of the ear, nose and throat.",
+    "label": 1
+  },
+  {
+    "statement": "Regular consumption of energy drinks harms heart health.",
+    "label": 1
+  },
+  {
+    "statement": "Light drinks promote obesity.",
+    "label": 1
+  },
+  {
+    "statement": "Coffee reduces the risk of dementia.",
+    "label": 0
+  },
+  {
+    "statement": "Sugar consumption increases the risk of developing type 2 diabetes regardless of obesity.",
+    "label": 0
+  },
+  {
+    "statement": "A lower salt diet reduces the likelihood of cardiovascular disease.",
+    "label": 0
+  },
+  {
+    "statement": "Less is eaten from red plates.",
+    "label": 0
+  },
+  {
+    "statement": "Red wine protects better against cardiovascular disease than white wine.",
+    "label": 1
+  },
+  {
+    "statement": "Azo food dyes cause attention deficit disorder and hyperactivity in children.",
+    "label": 0
+  },
+  {
+    "statement": "Turmeric prevents or cures cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Breastfeeding reduces the risk of sudden infant death syndrome.",
+    "label": 0
+  },
+  {
+    "statement": "Boron preparations such as borax, boric acid, or calcium fructoborate relieve pain associated with age-related joint wear (osteoarthritis).",
+    "label": 1
+  },
+  {
+    "statement": "Glutamate in food can cause intolerance symptoms.",
+    "label": 1
+  },
+  {
+    "statement": "The Orthopulse device accelerates the orthodontic correction of malocclusions.",
+    "label": 1
+  },
+  {
+    "statement": "It is harmful for the mental development of the unborn child if the mother regularly eats fish contaminated with mercury during pregnancy.",
+    "label": 0
+  },
+  {
+    "statement": "The consumption of caffeine during pregnancy can harm the unborn child.",
+    "label": 1
+  },
+  {
+    "statement": "Vegetables prepared in a microwave oven are less healthy than those prepared in other ways.",
+    "label": 2
+  },
+  {
+    "statement": "Garlic extract can reduce high blood pressure and thus the risk of cardiovascular disease.",
+    "label": 1
+  },
+  {
+    "statement": "Fructose can damage the liver.",
+    "label": 1
+  },
+  {
+    "statement": "Green tea can affect the likelihood of dying early and reduce the risk of cardiovascular disease.",
+    "label": 0
+  },
+  {
+    "statement": "Matcha tea is particularly healthy.",
+    "label": 1
+  },
+  {
+    "statement": "Acupuncture can prevent migraines and tension headaches.",
+    "label": 0
+  },
+  {
+    "statement": "Green tea can reduce the likelihood of dying from cancer.",
+    "label": 2
+  },
+  {
+    "statement": "Plant sterols or foods with them can reduce the risk of cardiovascular disease.",
+    "label": 1
+  },
+  {
+    "statement": "Too much iodine can cause autoimmune thyroid disease and consequently hypothyroidism.",
+    "label": 0
+  },
+  {
+    "statement": "The sweetener aspartame is harmful to health.",
+    "label": 2
+  },
+  {
+    "statement": "Coffee affects cancer death risk.",
+    "label": 2
+  },
+  {
+    "statement": "Diets with primarily or exclusively uncooked foods have health benefits.",
+    "label": 1
+  },
+  {
+    "statement": "Increased water consumption can prevent migraines or other headaches.",
+    "label": 1
+  },
+  {
+    "statement": "Devil's Tongue (Konjac Root), Caralluma fimbriata, Garcinia cambogia, Gymnea sylvestre, Ephedra, Irvinia gabonensis, Fenugreek, Hoodia gordonii, Common Bean, and Bitter Orange offer effective and safe weight loss support.",
+    "label": 1
+  },
+  {
+    "statement": "There are health benefits to screening the general population for chronic obstructive pulmonary disease (COPD) as a precaution.",
+    "label": 2
+  },
+  {
+    "statement": "Cow's milk can cause iron deficiency in babies in the first year of life.",
+    "label": 0
+  },
+  {
+    "statement": "Cow's milk for babies has other health disadvantages.",
+    "label": 1
+  },
+  {
+    "statement": "Drinking breast milk as a baby has a positive effect on later health and development.",
+    "label": 0
+  },
+  {
+    "statement": "Almased helps with excess weight better than other diets.",
+    "label": 1
+  },
+  {
+    "statement": "Products with talc, such as baby powder, increase the risk of ovarian cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Large portions, large plates or glasses, and larger packaging cause us to eat and drink more.",
+    "label": 0
+  },
+  {
+    "statement": "Taking coconut oil improves mental abilities in dementia like Alzheimer's disease.",
+    "label": 1
+  },
+  {
+    "statement": "The preparation \"CAPS immu\" from Ringana reduces the risk of infections in healthy people.",
+    "label": 1
+  },
+  {
+    "statement": "Extracts from grape seeds have a health-promoting effect.",
+    "label": 1
+  },
+  {
+    "statement": "The administration of magnesium through the skin is effective.",
+    "label": 1
+  },
+  {
+    "statement": "Kava kava supplements help with anxiety disorders.",
+    "label": 0
+  },
+  {
+    "statement": "Ultrasound devices help against dust mites.",
+    "label": 1
+  },
+  {
+    "statement": "The risk of food allergy decreases if babies are fed potentially allergenic foods (cow's milk, peanuts, chicken egg) as late as possible for the first time.",
+    "label": 2
+  },
+  {
+    "statement": "Fish, sesame, and wheat are allergens.",
+    "label": 2
+  },
+  {
+    "statement": "Willow bark tea can help with inflammation, pain or fever.",
+    "label": 1
+  },
+  {
+    "statement": "A supposedly \"high acid\" diet can weaken bones.",
+    "label": 2
+  },
+  {
+    "statement": "A supposedly “alkaline-rich” diet prevents chronic diseases.",
+    "label": 1
+  },
+  {
+    "statement": "A blood test can detect mental illness.",
+    "label": 1
+  },
+  {
+    "statement": "Surgery for an anterior cruciate ligament tear (by replacing the broken anterior cruciate ligament with tendon tissue from another part of the leg) followed by physical therapy is better than physical therapy alone.",
+    "label": 2
+  },
+  {
+    "statement": "Motherwort can reduce migraine attacks.",
+    "label": 0
+  },
+  {
+    "statement": "Metal in bed disturbs sleep.",
+    "label": 1
+  },
+  {
+    "statement": "Heat treatment (radiofrequency ablation or radiofrequency heat ablation of benign nodules of the thyroid gland works as well as conventional surgical methods.",
+    "label": 1
+  },
+  {
+    "statement": "Imunoglukan strengthens the immune system.",
+    "label": 1
+  },
+  {
+    "statement": "Cell phones promote the development and growth of tumors in the head.",
+    "label": 1
+  },
+  {
+    "statement": "Wearing bras promotes breast cancer risk.",
+    "label": 1
+  },
+  {
+    "statement": "Tattoo inks are harmful to health.",
+    "label": 1
+  },
+  {
+    "statement": "Plant hormones (phytoestrogens) other than genistein reduce the number and intensity of hot flashes during menopause.",
+    "label": 1
+  },
+  {
+    "statement": "The herbal hormone genistein reduces the number and intensity of hot flashes during menopause.",
+    "label": 0
+  },
+  {
+    "statement": "Bloodletting according to Hildegard von Bingen has health benefits.",
+    "label": 1
+  },
+  {
+    "statement": "FGXpress Power Strips can reduce pain or improve wound healing.",
+    "label": 1
+  },
+  {
+    "statement": "Treatment according to the fascial distortion model helps with chronic shoulder pain.",
+    "label": 0
+  },
+  {
+    "statement": "There are effective alternatives to the breathing mask (CPAP) for sleep apnea.",
+    "label": 2
+  },
+  {
+    "statement": "Closure of the foramen ovale prevents further strokes in people who have had a stroke of unknown cause.",
+    "label": 0
+  },
+  {
+    "statement": "Stimulation current therapy (TENS - Transcutaneous Electrical Nerve Stimulation) helps with worn knee joints (knee osteoarthritis).",
+    "label": 1
+  },
+  {
+    "statement": "Taking magnesium salts decreases the frequency and intensity of muscle cramps with unknown cause.",
+    "label": 2
+  },
+  {
+    "statement": "Taking magnesium salts reduces the frequency and intensity of exercise-induced muscle cramps during sports.",
+    "label": 1
+  },
+  {
+    "statement": "Taking magnesium salts reduces the frequency and intensity of muscle cramps in pregnancy.",
+    "label": 0
+  },
+  {
+    "statement": "The active ingredient rivaroxaban (drug Xarelto) has a higher risk of dangerous bleeding than other anticoagulants.",
+    "label": 2
+  },
+  {
+    "statement": "Vitamin D protects against dementia or memory loss.",
+    "label": 1
+  },
+  {
+    "statement": "Brain training boosts intelligence.",
+    "label": 2
+  },
+  {
+    "statement": "Petroleum helps against cancer.",
+    "label": 1
+  },
+  {
+    "statement": "Lavender scent helps with sleep disorders.",
+    "label": 1
+  },
+  {
+    "statement": "The drug Sovaldi (sofosbuvir) enables high cure rates for chronic hepatitis C.",
+    "label": 0
+  },
+  {
+    "statement": "Alpha lipoic acid helps prevent or treat Alzheimer's disease.",
+    "label": 1
+  },
+  {
+    "statement": "Vemma products are good for health.",
+    "label": 1
+  },
+  {
+    "statement": "Over-the-counter cough medicines relieve cough symptoms.",
+    "label": 1
+  },
+  {
+    "statement": "A diet rich in vitamin K2 protects against diseases of the cardiovascular system.",
+    "label": 1
+  },
+  {
+    "statement": "Shoe insoles can relieve pain in people with high arches.",
+    "label": 0
+  },
+  {
+    "statement": "Shoe insoles can relieve pain in people with foot deformities other than high arch.",
+    "label": 1
+  },
+  {
+    "statement": "Dowsers can find harmful soil zones or water veins.",
+    "label": 2
+  },
+  {
+    "statement": "Bioresonance therapy helps with health complaints.",
+    "label": 2
+  },
+  {
+    "statement": "Irradiations with cold red light help with chronic gingivitis.",
+    "label": 2
+  },
+  {
+    "statement": "The Aspire system helps you lose weight.",
+    "label": 0
+  },
+  {
+    "statement": "FLEXISEQ ointment can relieve osteoarthritis pain.",
+    "label": 1
+  },
+  {
+    "statement": "Butterbur can prevent migraine attacks.",
+    "label": 0
+  },
+  {
+    "statement": "Bisphenol A triggers allergies.",
+    "label": 1
+  },
+  {
+    "statement": "Maggots can accelerate the healing of chronic wounds compared to conventional treatment.",
+    "label": 2
+  },
+  {
+    "statement": "Electric toothbrushes protect oral health better than manual brushes.",
+    "label": 0
+  },
+  {
+    "statement": "Antidepressants from the group of serotonin reuptake inhibitors help with depression.",
+    "label": 0
+  },
+  {
+    "statement": "There is a health risk from metal contaminants in lipsticks.",
+    "label": 1
+  },
+  {
+    "statement": "Topiramate can reduce the frequency of migraine attacks.",
+    "label": 0
+  },
+  {
+    "statement": "Particulate matter pollution increases the risk of heart attack even if the EU limits are complied with.",
+    "label": 0
+  },
+  {
+    "statement": "Endocrine disruptors in cosmetics are a health risk.",
+    "label": 1
+  },
+  {
+    "statement": "A dietary supplement containing omega-3 fatty acids, lipids, vitamins, and nutrients (\"Souvenaid\") can noticeably slow or halt the decline of mental performance in Alzheimer's disease.",
+    "label": 2
+  },
+  {
+    "statement": "Vitamin E supplements increase the likelihood of early death.",
+    "label": 0
+  },
+  {
+    "statement": "Meditation helps against stress.",
+    "label": 0
+  },
+  {
+    "statement": "There are methods that effectively help against hormonal hair loss.",
+    "label": 0
+  },
+  {
+    "statement": "Eye training helps prevent myopia.",
+    "label": 2
+  },
+  {
+    "statement": "Cryolipolysis causes noticeable body fat reduction.",
+    "label": 1
+  },
+  {
+    "statement": "Acupuncture for chronic pain is more effective than placebo acupuncture treatment.",
+    "label": 0
+  },
+  {
+    "statement": "Internet-based self-help training based on cognitive behavioral therapy can reduce the burden of tinnitus.",
+    "label": 0
+  },
+  {
+    "statement": "Probiotic foods have an antidepressant effect or a positive effect on the mind.",
+    "label": 1
+  },
+  {
+    "statement": "Treatment with radioactive agents helps with pain in chronic inflammatory joint disease.",
+    "label": 0
+  },
+  {
+    "statement": "Frequent porn use reduces gray matter volume in the brain.",
+    "label": 1
+  },
+  {
+    "statement": "The active ingredient acetyl salicylic acid (ASA) can protect against cancer.",
+    "label": 0
+  },
+  {
+    "statement": "Tick-borne encephalitis (TBE) is much milder in children than in adults.",
+    "label": 0
+  },
+  {
+    "statement": "Treatment with cyanoacrylate (for example, Sapheon Venaseal™) helps against varicose veins as well or better than other methods.",
+    "label": 1
+  },
+  {
+    "statement": "Oseltamivir (Tamiflu®) or other neuraminidase inhibitors helped reduce deaths from the H1N1 influenza virus (\"swine flu\" virus).",
+    "label": 1
+  },
+  {
+    "statement": "Aluminum intake is responsible for the development of Alzheimer's disease.",
+    "label": 1
+  },
+  {
+    "statement": "Regular exercise can prevent or relieve migraine symptoms.",
+    "label": 0
+  },
+  {
+    "statement": "Less than 7h of sleep daily increases mental performance.",
+    "label": 2
+  },
+  {
+    "statement": "Regular intake of extra virgin olive oil protects against coronary heart disease such as heart attack.",
+    "label": 0
+  },
+  {
+    "statement": "Frequent ejaculations have a protective effect against prostate cancer.",
+    "label": 0
+  },
+  {
+    "statement": "Condom use causes depression in women.",
+    "label": 1
+  },
+  {
+    "statement": "Today's children have a shorter life expectancy than their parents.",
+    "label": 0
+  },
+  {
+    "statement": "Rising temperatures and CO2 levels increase the risk of pollen allergy.",
+    "label": 1
+  },
+  {
+    "statement": "Training on vibration platforms causes a noticeable buildup of muscle strength.",
+    "label": 0
+  },
+  {
+    "statement": "Glucosamine prolongs life.",
+    "label": 0
+  },
+  {
+    "statement": "Kinesio tape helps in the treatment of joint and muscle injuries.",
+    "label": 1
+  },
+  {
+    "statement": "Injections with Botulinum Toxin A (Botox®) help with urinary incontinence.",
+    "label": 0
+  },
+  {
+    "statement": "Apigenin can reduce cancer risk or prevent cancer progression.",
+    "label": 2
+  },
+  {
+    "statement": "Generic drugs work as well as original drugs.",
+    "label": 0
+  },
+  {
+    "statement": "Animal-assisted therapies are effective for mental illness.",
+    "label": 0
+  },
+  {
+    "statement": "Lack of sleep can cause obesity.",
+    "label": 1
+  },
+  {
+    "statement": "Breaking an energy-saving lamp is harmful to health.",
+    "label": 1
+  },
+  {
+    "statement": "Copper intake increases the risk of Alzheimer's disease.",
+    "label": 1
+  },
+  {
+    "statement": "Air ions cause an improvement of allergies.",
+    "label": 1
+  },
+  {
+    "statement": "Air ions cause an improvement of asthma.",
+    "label": 2
+  },
+  {
+    "statement": "Smoking bans lead to fewer preterm births.",
+    "label": 0
+  },
+  {
+    "statement": "Special garments with the active ingredient Liporeductyl help against cellulite.",
+    "label": 1
+  },
+  {
+    "statement": "Alcohol in moderate amounts prolongs life.",
+    "label": 0
+  },
+  {
+    "statement": "Caffeine makes us die sooner.",
+    "label": 1
+  },
+  {
+    "statement": "Light freezing helps with weight loss.",
+    "label": 1
+  },
+  {
+    "statement": "Acupuncture helps against hay fever.",
+    "label": 1
+  },
+  {
+    "statement": "Earrings cause discomfort by destroying acupuncture points or meridians.",
+    "label": 1
+  },
+  {
+    "statement": "The \"Rolfing\" treatment causes an improvement of body malpositions as well as certain pains.",
+    "label": 1
+  },
+  {
+    "statement": "Marijuana use reduces the risk of developing diabetes.",
+    "label": 0
+  },
+  {
+    "statement": "Fish oil capsules promote prostate cancer.",
+    "label": 0
+  },
+  {
+    "statement": "Virgin conception exists.",
+    "label": 1
+  },
+  {
+    "statement": "Movement exercises are useful for back pain.",
+    "label": 0
+  },
+  {
+    "statement": "Taking the birth control pill adversely affects mate choice.",
+    "label": 1
+  },
+  {
+    "statement": "UV light reduces the risk of cardiovascular disease.",
+    "label": 1
+  },
+  {
+    "statement": "The Gynefix® contraceptive necklace is as effective for contraception as the birth control pill or the \"IUD\".",
+    "label": 0
+  },
+  {
+    "statement": "Coenzyme Q10 can lead to a rejuvenation of the skin's appearance.",
+    "label": 1
+  },
+  {
+    "statement": "There is an increased risk of long-term effects on the unborn child with chemotherapy starting in the 2nd trimester of pregnancy.",
+    "label": 0
+  },
+  {
+    "statement": "Regular screening can significantly reduce the risk of dying from prostate cancer.",
+    "label": 2
+  },
+  {
+    "statement": "Removal and examination of the first lymph nodes after the prostate is affected by cancer (sentinel lymph nodes or sentinel lymph nodes) improve the chances of cure.",
+    "label": 1
+  },
+  {
+    "statement": "A treatment with singing bowls can relieve pain.",
+    "label": 2
+  },
+  {
+    "statement": "The HIV saliva self-test, which is about to be approved in the U.S., is as reliable as a laboratory test or a rapid test at the doctor's office.",
+    "label": 0
+  },
+  {
+    "statement": "Religion promotes mental health.",
+    "label": 1
+  },
+  {
+    "statement": "Braces treatments have preventive medical benefits in addition to aesthetic ones.",
+    "label": 1
+  },
+  {
+    "statement": "The advantages and disadvantages of vaccinating infants simultaneously with the usual six-dose vaccine (against diphtheria, tetanus, polio, pertussis, hepatitis B, and Haemophilus influenzae B) and a pneumococcal vaccine are what are being inquired about.",
+    "label": 0
+  },
+  {
+    "statement": "The use of laptops with active WLAN (wireless internet access) affects sperm quality in men.",
+    "label": 1
+  },
+  {
+    "statement": "Phthalates can cause diabetes.",
+    "label": 0
+  },
+  {
+    "statement": "Staining brain tumors with the dye aminolevulinic acid before surgery helps patients survive longer.",
+    "label": 1
+  },
+  {
+    "statement": "Exercise can prevent premature deaths from heart attacks, strokes, heart failure, and pre-diabetes as effectively as medication.",
+    "label": 0
+  },
+  {
+    "statement": "Taking the enzyme diamino oxidase can prevent alcohol-related hangover symptoms.",
+    "label": 1
+  },
+  {
+    "statement": "An anti-oxidant such as pseudocatalase can stop or reverse hair graying.",
+    "label": 1
+  },
+  {
+    "statement": "Sexual activity can relieve headaches.",
+    "label": 1
+  },
+  {
+    "statement": "Transcranial direct current stimulation helps against severe depression.",
+    "label": 1
+  },
+  {
+    "statement": "The success of conventional treatment of a herniated disc is equivalent to that of disc surgery.",
+    "label": 0
+  },
+  {
+    "statement": "Regular use of sleeping pills promotes the risk of death or cancer.",
+    "label": 0
+  },
+  {
+    "statement": "Increased time outdoors inhibits myopia in children.",
+    "label": 0
+  },
+  {
+    "statement": "Household cleaners and room fresheners in spray form cause damage to the heart.",
+    "label": 1
+  },
+  {
+    "statement": "Exercise can improve mental performance impaired by alcohol consumption.",
+    "label": 1
+  },
+  {
+    "statement": "Over-the-counter combination medications can help with tension headache and migraine better than medications containing only single active ingredients.",
+    "label": 0
+  },
+  {
+    "statement": "Hyperthermia treatment supports chemotherapy in fighting cancer.",
+    "label": 0
+  },
+  {
+    "statement": "Stress can promote dementia.",
+    "label": 0
+  },
+  {
+    "statement": "The risk for the unborn child to develop asthma later on increases if the mother is exposed to high pollen concentrations during pregnancy.",
+    "label": 1
+  },
+  {
+    "statement": "Children conceived in May are more likely to be born prematurely than children conceived in other months.",
+    "label": 0
+  },
+  {
+    "statement": "Osteopathy works.",
+    "label": 0
+  },
+  {
+    "statement": "Creams with sterol compounds improve the appearance of cellulite skin.",
+    "label": 1
+  },
+  {
+    "statement": "For women at high risk of breast cancer, a precautionary mastectomy makes more sense than regular participation in intensive screening.",
+    "label": 1
+  },
+  {
+    "statement": "Tocilizumab specifically helps children with rheumatoid arthritis (juvenile idiopathic arthritis).",
+    "label": 0
+  },
+  {
+    "statement": "The Toxoplasma gondii parasite affects suicide rates.",
+    "label": 0
+  },
+  {
+    "statement": "Exemestane is better than other hormone-altering drugs for reducing the risk of breast cancer or treating it.",
+    "label": 0
+  },
+  {
+    "statement": "A newly approved contraceptive pill with the active ingredient combination nomegestrol acetate and 17ß-estradiol has fewer undesirable side effects than other birth control pills.",
+    "label": 2
+  },
+  {
+    "statement": "PrEP reduces the risk of HIV infection.",
+    "label": 0
+  },
+  {
+    "statement": "Exercise, a restricted diet, or both together help prevent excessive weight gain during pregnancy.",
+    "label": 0
+  },
+  {
+    "statement": "Taking antibiotics for acute sinusitis speeds up the healing of the infection.",
+    "label": 0
+  },
+  {
+    "statement": "Colonoscopy reduces mortality from colorectal cancer.",
+    "label": 0
+  },
+  {
+    "statement": "Nicotine replacement products like nicotine gum or nicotine patches help with long-term smoking cessation.",
+    "label": 0
+  },
+  {
+    "statement": "Short, high-intensity training is equally effective as longer, moderate-intensity training.",
+    "label": 0
+  },
+  {
+    "statement": "Behavioral therapy methods help with specific fears (phobias) such as fear of spiders.",
+    "label": 0
+  },
+  {
+    "statement": "Honey can accelerate the healing of second degree burns with pain, redness and blisters.",
+    "label": 0
+  },
+  {
+    "statement": "Honey heals small, fresh wounds faster than the usual wound treatment.",
+    "label": 1
+  },
+  {
+    "statement": "Honey works better than other wound treatments for chronic wounds (open leg, diabetic foot).",
+    "label": 2
+  },
+  {
+    "statement": "Sitting for long periods despite compensatory exercise increasingly leads to type 2 diabetes.",
+    "label": 1
+  },
+  {
+    "statement": "Acupuncture or related smoking cessation methods help you stay smoke-free for at least 6 months.",
+    "label": 0
+  },
+  {
+    "statement": "Gastrointestinal surgeries (bariatric surgeries) improve symptoms of type 2 diabetes.",
+    "label": 0
+  },
+  {
+    "statement": "There is a connection between ADHD and neurodermatitis.",
+    "label": 0
+  },
+  {
+    "statement": "Injections with the enzyme collagenase can straighten fingers bent by Dupuytren's disease without surgery.",
+    "label": 0
+  },
+  {
+    "statement": "Mindfulness-based methods effect improvement in chronic pain.",
+    "label": 1
+  },
+  {
+    "statement": "High air pollution increases the risk for the unborn to develop autism later in life.",
+    "label": 1
+  },
+  {
+    "statement": "It is harmful to health to eat apple cores with the apple.",
+    "label": 2
+  },
+  {
+    "statement": "Taking selenium can prevent cancer.",
+    "label": 2
+  },
+  {
+    "statement": "Mesotherapy helps against pain.",
+    "label": 2
+  },
+  {
+    "statement": "General health checkups lead to longer life.",
+    "label": 2
+  },
+  {
+    "statement": "Dementia can be prevented.",
+    "label": 2
+  },
+  {
+    "statement": "The plant pigment beta-carotene protects against cancer.",
+    "label": 2
+  },
+  {
+    "statement": "Vitamin supplements can protect against life-threatening diseases such as cancer or cardiovascular disease.",
+    "label": 2
+  },
+  {
+    "statement": "Lowering cholesterol does not reduce the risk of cardiovascular disease.",
+    "label": 2
+  },
+  {
+    "statement": "Static magnets help against pain.",
+    "label": 2
+  },
+  {
+    "statement": "Hypnosis helps with chronic bowel problems.",
+    "label": 0
+  },
+  {
+    "statement": "Taking vitamin D supplements during pregnancy increases the risk of food allergy for the unborn child.",
+    "label": 1
+  },
+  {
+    "statement": "Combined hormone therapy with estrogen and progestin is safe for women in late menopause (after the last menstrual period).",
+    "label": 2
+  },
+  {
+    "statement": "Negative expectancy can reduce the effect of pain medications.",
+    "label": 2
+  },
+  {
+    "statement": "Sex is as good an endurance workout as running.",
+    "label": 2
+  },
+  {
+    "statement": "Electrical brain stimulation can reduce the amount of food eaten.",
+    "label": 1
+  },
+  {
+    "statement": "Plastic kitchen boards are more hygienic than wooden ones.",
+    "label": 1
+  },
+  {
+    "statement": "Excessive beer or alcohol consumption leads to obesity.",
+    "label": 1
+  },
+  {
+    "statement": "Omega-3 fatty acids or a diet rich in fish help with rheumatoid arthritis.",
+    "label": 1
+  },
+  {
+    "statement": "Unprocessed red meat increases the risk of cardiovascular disease.",
+    "label": 1
+  },
+  {
+    "statement": "Processed red meat (sausages, ham, bacon) increases the risk of cardiovascular disease.",
+    "label": 0
+  },
+  {
+    "statement": "Hawthorn extract helps patients with heart muscle weakness (heart failure).",
+    "label": 1
+  },
+  {
+    "statement": "Glyphosate is carcinogenic.",
+    "label": 1
+  },
+  {
+    "statement": "Psychotherapy helps with burnout.",
+    "label": 0
+  },
+  {
+    "statement": "Electrical muscle stimulation (EMS) in combination with ordinary fitness training is more efficient than fitness training alone.",
+    "label": 1
+  },
+  {
+    "statement": "Vitamin and nutrient supplements can prevent the eye disease age-related macular degeneration.",
+    "label": 2
+  },
+  {
+    "statement": "They can delay the progression of eye disease.",
+    "label": 0
+  },
+  {
+    "statement": "Milk or dairy products promote colon cancer and rectal cancer.",
+    "label": 2
+  },
+  {
+    "statement": "Yoga changes the genetic makeup.",
+    "label": 1
+  },
+  {
+    "statement": "The three most common laser eye surgeries produce different results and have different numbers of side effects.",
+    "label": 0
+  },
+  {
+    "statement": "Electromagnetic fields with a specific pattern (pulsed electromagnetic fields, PEMF) can heal injuries.",
+    "label": 1
+  },
+  {
+    "statement": "The drug fingolimod reduces the progression of relapsing-remitting multiple sclerosis similarly or better than previous drugs.",
+    "label": 0
+  },
+  {
+    "statement": "Cancer can be successfully fought with intentionally induced fever.",
+    "label": 1
+  },
+  {
+    "statement": "Some forms of headache can be successfully treated with heat.",
+    "label": 1
+  },
+  {
+    "statement": "Electro-acupuncture on the ear helps against pain.",
+    "label": 0
+  },
+  {
+    "statement": "Treatment with the new drug erenumab reduces the number of migraine days per month.",
+    "label": 0
+  },
+  {
+    "statement": "Screening by optical coherence tomography is superior to conventional examinations for the early detection of diabetic macular edema.",
+    "label": 2
+  },
+  {
+    "statement": "The treatment of diabetes-related retinal diseases by injection of VEGF inhibitors provides an advantage compared to conventional laser treatment.",
+    "label": 0
+  },
+  {
+    "statement": "Saw palmetto preparations help with benign prostate enlargement.",
+    "label": 2
+  },
+  {
+    "statement": "Plant extracts of African plum tree, beta-sitosterol or ryegrass pollen extract (Cernilton) help benign prostate enlargement.",
+    "label": 1
+  },
+  {
+    "statement": "Not wearing bras provides medical benefits.",
+    "label": 1
+  },
+  {
+    "statement": "There are medical benefits to wearing a bra.",
+    "label": 1
+  },
+  {
+    "statement": "Oral vein products containing herbal active ingredients such as rutosides, hidrosmin, diosmin, extracts of horse chestnut seed and pine bark, Centella asiatica or grape seed extract or the synthetic substances calcium dobesilate or aminaftone can relieve symptoms such as itching, restless or swollen legs, pain and cramps in people suffering from varicose veins or chronic venous insufficiency.",
+    "label": 0
+  },
+  {
+    "statement": "Vein preparations for external use help with varicose veins or chronic venous insufficiency.",
+    "label": 1
+  },
+  {
+    "statement": "Milk or dairy products promote bladder cancer.",
+    "label": 2
+  },
+  {
+    "statement": "Milk or dairy products promote prostate cancer.",
+    "label": 0
+  },
+  {
+    "statement": "Green tea products provide effective and safe support for weight loss.",
+    "label": 2
+  },
+  {
+    "statement": "Monk's pepper can help with cycle disorders.",
+    "label": 1
+  },
+  {
+    "statement": "Brisk walking lowers mortality and some exercise is better than none at all.",
+    "label": 0
+  },
+  {
+    "statement": "Arthroscopy can reduce pain or improve mobility.",
+    "label": 2
+  },
+  {
+    "statement": "Health benefits increase with duration and intensity of exercise.",
+    "label": 0
+  }
+]
