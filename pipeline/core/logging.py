@@ -149,7 +149,7 @@ class PipelineLogger:
             f">>> [ARTIFACT] {label}\n"
             f"{content}"
         )
-        self._log(msg, depth=1)
+        self._log(msg, depth=depth)
 
     def on_run_end(self, duration: float):
         divider = "=" * 80
