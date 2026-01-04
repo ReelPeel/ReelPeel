@@ -126,12 +126,12 @@ FULL_PIPELINE_CONFIG = {
         },
 
         # STEP 3-5.1: The Research Module
-        RESEARCH_MODULE,
+        # RESEARCH_MODULE,
         
         # Step 5.99: The Reranking Module
-        SCORES_MODULE,
+        # SCORES_MODULE,
         
         # STEP 6-8: The Verification Module
-        VERIFICATION_MODULE
+        # VERIFICATION_MODULE
     ]
 }
