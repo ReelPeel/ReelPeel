@@ -135,7 +135,7 @@ class QueryToLinkStep(PipelineStep):
                         url = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
                         stmt.evidence.append(Evidence(pubmed_id=pmid, url=url))
                   
-                    print(f"   Statement {stmt.id}: Found {len(id_list)} links.")
+                        print(f"   Statement {stmt.id}: Found {len(id_list)} links.")
                         ev = Evidence(pubmed_id=pmid, url=url)
 
                         # Attach provenance (works whether or not Evidence formally defines queries)
