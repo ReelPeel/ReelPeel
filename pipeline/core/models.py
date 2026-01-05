@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Optional, Union, Dict, Any
+from typing import Annotated, Any, Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -20,25 +20,66 @@ class StanceLabel(str, Enum):
     REFUTES = "Refutes"
     NEUTRAL = "Neutral"
 
+
+
 class Stance(BaseModel):
     """Represents the stance of a piece of evidence towards a statement."""
     abstract_label: Optional[StanceLabel] = None
     abstract_p_supports: Optional[float] = None
     abstract_p_refutes: Optional[float] = None
     abstract_p_neutral: Optional[float] = None
-    
-    
-class Evidence(BaseModel):
+
+
+class SourceType(str, Enum):
+    PUBMED = "PubMed"
+    RAG = "RAG"
+    EPISTEMONIKOS = "Epistemonikos"
+
+
+class EvidenceBase(BaseModel):
+    source_type: SourceType
+    weight: float = 0.5
+    relevance: Optional[float] = None
+    relevance_abstract: Optional[float] = None
+    stance: Optional[Stance] = None
+
+
+class PubMedEvidence(EvidenceBase):
+    source_type: Literal[SourceType.PUBMED] = SourceType.PUBMED
     pubmed_id: Optional[str] = None
     url: Optional[str] = None
     title: Optional[str] = None
     queries: List[str] = Field(default_factory=list)
     abstract: Optional[str] = None
     pub_type: Optional[Union[str, List[str]]] = None
-    weight: float = 0.5
-    relevance: Optional[float] = None
-    relevance_abstract: Optional[float] = None
-    stance: Optional[Stance] = None
+
+
+class EpistemonikosEvidence(EvidenceBase):
+    source_type: Literal[SourceType.EPISTEMONIKOS] = SourceType.EPISTEMONIKOS
+    epistemonikos_id: Optional[str] = None
+    url: Optional[str] = None
+    title: Optional[str] = None
+    queries: List[str] = Field(default_factory=list)
+    abstract: Optional[str] = None
+    pub_type: Optional[Union[str, List[str]]] = None
+
+
+class RAGEvidence(EvidenceBase):
+    source_type: Literal[SourceType.RAG] = SourceType.RAG
+    chunk_id: str
+    score: float
+    source_path: str
+    pages: List[int] = Field(default_factory=list)
+    text: str
+    weight: float = 1.0
+
+
+Evidence = Annotated[
+    Union[PubMedEvidence, RAGEvidence, EpistemonikosEvidence],
+    Field(discriminator="source_type"),
+]
+
+
 
 class Statement(BaseModel):
     id: int
@@ -48,6 +89,7 @@ class Statement(BaseModel):
     score: Optional[float] = None
     queries: List[str] = Field(default_factory=list)
     evidence: List[Evidence] = Field(default_factory=list)
+    
 
 
 class PipelineState(BaseModel):

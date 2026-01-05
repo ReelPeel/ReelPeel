@@ -111,7 +111,7 @@ class StanceEvidenceStep(PipelineStep):
       - batch_size: int (default: 16)
       - max_length: int (default: 512)
 
-      - evidence_fields: list[str] (default: ["abstract"])
+      - evidence_fields: list[str] (default: ["abstract", "text"])
           Which Evidence fields to compute stance on.
 
       - top_m_by_relevance: int | None (default: None)
@@ -129,7 +129,9 @@ class StanceEvidenceStep(PipelineStep):
         batch_size = int(self.config.get("batch_size", 16))
         max_length = int(self.config.get("max_length", 512))
 
-        evidence_fields = self.config.get("evidence_fields", ["abstract"])
+        evidence_fields = self.config.get("evidence_fields", ["abstract", "text"])
+        if "abstract" not in evidence_fields and "text" not in evidence_fields:
+            evidence_fields = ["abstract", "text"]
         top_m = self.config.get("top_m_by_relevance", None)
         threshold_decisive = float(self.config.get("threshold_decisive", 0.0))
 
@@ -236,6 +238,12 @@ class StanceEvidenceStep(PipelineStep):
                     ev.stance.abstract_p_supports = p_ent
                     ev.stance.abstract_p_refutes = p_con
                     ev.stance.abstract_p_neutral = p_neu
+                elif field == "text":
+                    if ev.stance.abstract_label is None:
+                        ev.stance.abstract_label = label
+                        ev.stance.abstract_p_supports = p_ent
+                        ev.stance.abstract_p_refutes = p_con
+                        ev.stance.abstract_p_neutral = p_neu
                 else:
                     # If you add more fields to the Stance model, extend handling here.
                     pass

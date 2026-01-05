@@ -10,6 +10,7 @@ from ..steps.research import (
     LinkToAbstractStep,
     PubTypeWeightStep
 )
+from ..steps.retrieve_guideline_facts_RAG import RetrieveGuidelineFactsStep
 from ..steps.stance import StanceEvidenceStep
 from ..steps.verification import (
     FilterEvidenceStep,
@@ -28,6 +29,7 @@ class StepFactory:
         "fetch_links": QueryToLinkStep,
         "summarize_evidence": LinkToAbstractStep,
         "weight_evidence": PubTypeWeightStep,
+        "retrieve_guideline_facts": RetrieveGuidelineFactsStep,
         "rerank_evidence": RerankEvidenceStep,
         "stance_evidence": StanceEvidenceStep,
         "filter_evidence": FilterEvidenceStep,

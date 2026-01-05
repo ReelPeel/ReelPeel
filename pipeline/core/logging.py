@@ -1,6 +1,8 @@
-import sys
 import json
-from typing import Any, Dict, Protocol, Optional
+import os
+import sys
+from typing import Any, Dict, Protocol
+
 from loguru import logger
 
 
@@ -22,24 +24,32 @@ class PipelineLogger:
     def __init__(self, run_id: str, debug: bool = True):
         self.debug = debug
         self.run_id = run_id
+        self.log_file = None
 
         # Reset loguru to clear default handlers
         logger.remove()
 
         if self.debug:
-            log_file = f"pipeline_debug_{run_id}.log"
+            # 1. This file is in: .../pipeline/core/logging.py
+            current_file = os.path.abspath(__file__)
+            core_dir = os.path.dirname(current_file)
+            pipeline_dir = os.path.dirname(core_dir)
+            project_root = os.path.dirname(pipeline_dir)  # .../ (Root)
+
+            # 2. Force logs to be in Root/logs/
+            log_dir = os.path.join(project_root, "logs")
+            os.makedirs(log_dir, exist_ok=True)
+
+            # 3. Set the file path
+            self.log_file = os.path.join(log_dir, f"pipeline_debug_{run_id}.log")
 
             # Simple format: Time | Message
-            # We handle indentation manually in _log()
             fmt = "<green>{time:H:mm:ss}</green>\n{message}\n"
 
-            logger.add(log_file, format=fmt, level="DEBUG")
+            logger.add(self.log_file, format=fmt, level="DEBUG")
             logger.add(sys.stderr, format=fmt, level="ERROR")
 
     def _format_json(self, data: Any) -> str:
-        """
-        Dumps JSON and formats newlines for readability.
-        """
         try:
             s = json.dumps(data, indent=2, default=str)
             s = s.replace("\\n", "\n      ")
@@ -48,7 +58,6 @@ class PipelineLogger:
             return str(data)
 
     def _truncate_large_strings(self, obj: Any, max_len: int = 1000) -> Any:
-        """Recursively truncate massive strings (like abstracts) for cleaner logs."""
         if isinstance(obj, str):
             if len(obj) > max_len:
                 return obj[:max_len] + f"... [truncated {len(obj) - max_len} chars]"
@@ -60,28 +69,15 @@ class PipelineLogger:
         return obj
 
     def _log(self, text: str, depth: int):
-        """
-        Core logging helper.
-        1. Applies hierarchy indentation (depth).
-        2. Aligns all subsequent lines to match the timestamp width (11 chars).
-        """
         if not self.debug: return
 
-        # 1. Calculate indent based on depth (3 spaces per level)
         step_indent = "   " * depth
-
-        # 2. Split into lines to process alignment
         lines = text.splitlines()
         if not lines: return
 
-        # 3. Timestamp Padding (11 chars for "HH:MM:SS | ")
         ts_pad = "" * 11
-
-        # 4. Construct Final Message
-        # Line 1: Indent only (Loguru adds timestamp)
         final_msg = f"{step_indent}{lines[0]}"
 
-        # Line 2+: Timestamp Pad + Step Indent + Content
         for line in lines[1:]:
             final_msg += f"\n{ts_pad}{step_indent}{line}"
 
@@ -157,9 +153,9 @@ class PipelineLogger:
         self._log(msg, 0)
 
     def log_summary(self, summary_text: str):
-        if not self.debug: return
+        if not self.debug or not self.log_file: return
         try:
-            with open(f"pipeline_debug_{self.run_id}.log", "a", encoding="utf-8") as f:
+            with open(self.log_file, "a", encoding="utf-8") as f:
                 f.write("\n" + summary_text + "\n")
         except Exception as e:
             print(f"Logging error: {e}")

@@ -1,7 +1,7 @@
 import re
 
 from ..core.base import PipelineStep
-from ..core.models import PipelineState, Statement
+from ..core.models import PipelineState, SourceType, Statement
 
 
 def _fmt_score(val):
@@ -13,9 +13,27 @@ def _fmt_score(val):
         return None
 
 
-def _format_evidence_line(ev, include_text: bool = True, missing_text: str = "text: [no abstract]") -> str:
-    pmid = ev.pubmed_id or "N/A"
-    parts = [f"PMID {pmid}"]
+def _source_type_value(ev):
+    st = getattr(ev, "source_type", None)
+    return st.value if hasattr(st, "value") else st
+
+
+def _format_evidence_line(ev, include_text: bool = True, missing_text: str = "text: [no content]") -> str:
+    source_type = _source_type_value(ev)
+    if source_type == SourceType.PUBMED.value:
+        source_label = "PMID"
+        source_id = getattr(ev, "pubmed_id", None) or "N/A"
+    elif source_type == SourceType.EPISTEMONIKOS.value:
+        source_label = "EPIST"
+        source_id = getattr(ev, "epistemonikos_id", None) or "N/A"
+    elif source_type == SourceType.RAG.value:
+        source_label = "RAG"
+        source_id = getattr(ev, "chunk_id", None) or "N/A"
+    else:
+        source_label = "SOURCE"
+        source_id = "N/A"
+
+    parts = [f"{source_label} {source_id}"]
 
     w = _fmt_score(getattr(ev, "weight", None))
     if w is not None:
@@ -48,13 +66,41 @@ def _format_evidence_line(ev, include_text: bool = True, missing_text: str = "te
         parts.append(f"stance {'; '.join(stance_info)}")
 
     if include_text:
-        content = (ev.abstract or "").strip().replace("\n", " ")
+        content = (
+            getattr(ev, "abstract", None)
+            or getattr(ev, "text", None)
+            or ""
+        ).strip().replace("\n", " ")
         if content:
             parts.append(f"text: {content}")
         elif missing_text:
             parts.append(missing_text)
 
     return "- " + " | ".join(parts)
+
+
+def _format_rag_chunk(chunk, include_text: bool = True) -> str:
+    source = getattr(chunk, "source_path", None) or "unknown"
+    pages = getattr(chunk, "pages", None) or []
+    if pages:
+        source = f"{source} p.{','.join(str(p) for p in pages)}"
+
+    parts = []
+    score = _fmt_score(getattr(chunk, "score", None))
+    if score is not None:
+        parts.append(f"score {score}")
+    weight = _fmt_score(getattr(chunk, "weight", None))
+    if weight is not None:
+        parts.append(f"w {weight}")
+
+    if include_text:
+        text = (getattr(chunk, "text", "") or "").strip().replace("\n", " ")
+        if text:
+            parts.append(f"text: {text}")
+        else:
+            parts.append("text: [no text]")
+
+    return "- " + source + (" | " + " | ".join(parts) if parts else "")
 
 
 # -------------------------------------------------------------------------
@@ -70,8 +116,12 @@ class FilterEvidenceStep(PipelineStep):
             filtered_evidence = []
 
             for ev in stmt.evidence:
+                if _source_type_value(ev) == SourceType.RAG.value:
+                    filtered_evidence.append(ev)
+                    continue
+
                 # Use abstract if available, otherwise skip filter
-                text_to_check = ev.abstract or ""
+                text_to_check = getattr(ev, "abstract", None) or ""
                 if not text_to_check.strip():
                     # Keep it if there's no text to check (manual review)
                     filtered_evidence.append(ev)
@@ -118,17 +168,24 @@ class TruthnessStep(PipelineStep):
             stmt.evidence.sort(key=lambda ev: float(getattr(ev, "relevance", 0.0) or 0.0))
             # 1. Build Evidence Block
             evidence_lines = []
+            rag_lines = []
             for ev in stmt.evidence:
-                evidence_lines.append(_format_evidence_line(ev, include_text=True))
+                if _source_type_value(ev) == SourceType.RAG.value:
+                    rag_lines.append(_format_rag_chunk(ev, include_text=True))
+                else:
+                    evidence_lines.append(_format_evidence_line(ev, include_text=True))
 
             evidence_block = "\n".join(evidence_lines) or "No evidence provided."
+
+            rag_block = "\n".join(rag_lines) or "No RAG chunks provided."
 
             # 2. Call LLM
             try:
                 prompt = prompt_tmpl.format(
                     claim_text=stmt.text,
                     evidence_block=evidence_block,
-                    transcript=transcript
+                    rag_chunks=rag_block,
+                    transcript=transcript,
                 )
 
                 res = self.llm.call(
