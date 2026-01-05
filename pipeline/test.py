@@ -1,8 +1,6 @@
-from pathlib import Path
-
 from pipeline.core.models import PipelineState, SourceType
 from pipeline.core.orchestrator import PipelineOrchestrator
-from pipeline.test_configs.rag_test import RAG_TEST_CONFIG
+from pipeline.test_configs.kai_test import FULL_PIPELINE_CONFIG
 
 
 def print_report(state: PipelineState):
@@ -27,9 +25,7 @@ def print_report(state: PipelineState):
         elif stmt.verdict == "uncertain":
             icon = "⚠️"
 
-        verdict = (stmt.verdict or "unknown").upper()
-        score_display = stmt.score if stmt.score is not None else "N/A"
-        print(f"{icon} [ID {stmt.id}] VERDICT: {verdict} (Conf: {score_display})")
+        print(f"{icon} [ID {stmt.id}] VERDICT: {stmt.verdict.upper()} (Conf: {stmt.score})")
         print(f"   Claim: \"{stmt.text}\"")
 
         # Print Rationale (optional, usually long)
@@ -39,49 +35,35 @@ def print_report(state: PipelineState):
         if stmt.evidence:
             print(f"   Evidence Used ({len(stmt.evidence)}):")
             for ev in stmt.evidence:
-                # Show PMID, Type, and Weight
-                # Truncate summary to one line
-                summary_text = (
-                    getattr(ev, "abstract", None)
-                    or getattr(ev, "text", None)
-                    or "No summary"
-                )
-                summary_snippet = summary_text[:80].replace("\n", " ")
-                if ev.stance:
-                    stance_label = ev.stance.abstract_label or "N/A"
-                    stance_supports = ev.stance.abstract_p_supports
-                    stance_refutes = ev.stance.abstract_p_refutes
-                    stance_neutral = ev.stance.abstract_p_neutral
-                else:
-                    stance_label = "N/A"
-                    stance_supports = "N/A"
-                    stance_refutes = "N/A"
-                    stance_neutral = "N/A"
+                abstract_snippet = (getattr(ev, "abstract", None) or "No abstract")[:80].replace("\n", " ")
+                stance = getattr(ev, "stance", None)
+                stance_label = getattr(stance, "abstract_label", None) if stance else None
+                stance_s = getattr(stance, "abstract_p_supports", None) if stance else None
+                stance_r = getattr(stance, "abstract_p_refutes", None) if stance else None
+                stance_n = getattr(stance, "abstract_p_neutral", None) if stance else None
 
-                source_type = getattr(ev, "source_type", None)
-                source_value = source_type.value if hasattr(source_type, "value") else source_type
-                if source_value == SourceType.PUBMED.value:
-                    source_label = "PMID"
-                    source_id = getattr(ev, "pubmed_id", None) or "N/A"
-                elif source_value == SourceType.EPISTEMONIKOS.value:
-                    source_label = "EPIST"
-                    source_id = getattr(ev, "epistemonikos_id", None) or "N/A"
-                elif source_value == SourceType.RAG.value:
-                    source_label = "RAG"
-                    source_id = getattr(ev, "chunk_id", None) or "N/A"
-                elif getattr(ev, "url", None):
-                    source_label = "URL"
-                    source_id = Path(ev.url).name
+                if getattr(ev, "source_type", None) == SourceType.RAG:
+                    chunk_id = getattr(ev, "chunk_id", "N/A")
+                    source_path = getattr(ev, "source_path", "unknown")
+                    pages = getattr(ev, "pages", []) or []
+                    pages_txt = f" p.{','.join(str(p) for p in pages)}" if pages else ""
+                    print(
+                        f"     • RAG {chunk_id} [{source_path}{pages_txt}] "
+                        f"(Wt: {ev.weight}, Rel: {ev.relevance}, "
+                        f"Stance: {stance_label}, "
+                        f"Stance_prob (s,r,n): {stance_s}, {stance_r}, {stance_n}):"
+                    )
                 else:
-                    source_label = str(source_value) if source_value is not None else "Unknown"
-                    source_id = "N/A"
-                pub_type = getattr(ev, "pub_type", None) or "n/a"
-                print(
-                    f"     • {source_label} {source_id} [{pub_type}] "
-                    f"(Wt: {ev.weight}, Rel: {ev.relevance}, Stance: {stance_label}, "
-                    f"Stance_prob (s,r,n): {stance_supports}, {stance_refutes}, {stance_neutral}):"
-                )
-                print(f"       \"{summary_snippet}...\"")
+                    pub_id = getattr(ev, "pubmed_id", None) or getattr(ev, "epistemonikos_id", None) or "N/A"
+                    pub_type = getattr(ev, "pub_type", None)
+                    print(
+                        f"     • PMID {pub_id} [{pub_type}] "
+                        f"(Wt: {ev.weight}, Rel: {ev.relevance}, "
+                        f"Stance: {stance_label}, "
+                        f"Stance_prob (s,r,n): {stance_s}, {stance_r}, {stance_n}):"
+                    )
+
+                print(f"       \"{abstract_snippet}...\"")
         else:
             print("   (No relevant evidence found)")
 
@@ -97,7 +79,7 @@ def main():
 
     # 2. Boot the Orchestrator
     try:
-        orchestrator = PipelineOrchestrator(RAG_TEST_CONFIG)
+        orchestrator = PipelineOrchestrator(FULL_PIPELINE_CONFIG)
     except Exception as e:
         print(f"Configuration Error: {e}")
         return

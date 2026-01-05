@@ -7,7 +7,7 @@
 # multiple sources, prior to reranking and stance. This prevents:
 #   - redundant scoring (wasted compute),
 #   - multiple near-identical papers crowding the top of rankings,
-#   - inflated confidence due to duplicates.
+#   - inflated score due to duplicates.
 #
 # Deduplication is applied at two levels:
 #   (1) Hard dedup: exact identity (same PMID/DOI/URL)

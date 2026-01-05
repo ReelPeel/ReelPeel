@@ -66,11 +66,7 @@ def _format_evidence_line(ev, include_text: bool = True, missing_text: str = "te
         parts.append(f"stance {'; '.join(stance_info)}")
 
     if include_text:
-        content = (
-            getattr(ev, "abstract", None)
-            or getattr(ev, "text", None)
-            or ""
-        ).strip().replace("\n", " ")
+        content = (getattr(ev, "abstract", None) or "").strip().replace("\n", " ")
         if content:
             parts.append(f"text: {content}")
         elif missing_text:
@@ -94,11 +90,11 @@ def _format_rag_chunk(chunk, include_text: bool = True) -> str:
         parts.append(f"w {weight}")
 
     if include_text:
-        text = (getattr(chunk, "text", "") or "").strip().replace("\n", " ")
+        text = (getattr(chunk, "abstract", "") or "").strip().replace("\n", " ")
         if text:
-            parts.append(f"text: {text}")
+            parts.append(f"abstract: {text}")
         else:
-            parts.append("text: [no text]")
+            parts.append("abstract: [no abstract]")
 
     return "- " + source + (" | " + " | ".join(parts) if parts else "")
 
@@ -165,6 +161,7 @@ class TruthnessStep(PipelineStep):
         transcript = state.transcript or ""
 
         for stmt in state.statements:
+            stmt.evidence.sort(key=lambda ev: float(getattr(ev, "relevance", 0.0) or 0.0))
             # 1. Build Evidence Block
             evidence_lines = []
             rag_lines = []

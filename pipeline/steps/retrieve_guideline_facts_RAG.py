@@ -4,7 +4,7 @@ retrieve_guideline_facts.py
 
 Given a statement (claim), retrieve relevant guideline content from the SQLite vector DB:
 
-- Loads embeddings and texts for all chunks
+- Loads embeddings and abstracts for all chunks
 - Encodes the statement with the same embedding model (must match DB)
 - Computes cosine similarity (dot product because vectors are normalized)
 - Returns top-k chunks with metadata (doc path + pages)
@@ -45,7 +45,7 @@ def _load_db_metadata(con: sqlite3.Connection) -> Tuple[str, int]:
 def _load_all_chunks(con: sqlite3.Connection, dim: int) -> Tuple[List[Dict[str, Any]], np.ndarray]:
     """
     Returns:
-      chunk_rows: list of dicts with chunk_id, source_path, pages, text
+      chunk_rows: list of dicts with chunk_id, source_path, pages, abstract
       E: (N, dim) normalized embeddings float32
     """
     rows = con.execute(
@@ -74,7 +74,7 @@ def _load_all_chunks(con: sqlite3.Connection, dim: int) -> Tuple[List[Dict[str, 
                 "chunk_id": str(chunk_id),
                 "source_path": str(source_path),
                 "pages": _parse_pages(str(pages_json)),
-                "text": str(text),
+                "abstract": str(text),
             }
         )
 
@@ -127,7 +127,7 @@ def retrieve_chunks_for_statement(
                 score=s,
                 source_path=r["source_path"],
                 pages=r["pages"],
-                text=r["text"],
+                abstract=r["abstract"],
                 weight=1.0,
                 relevance=s,
                 relevance_abstract=s,

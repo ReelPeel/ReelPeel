@@ -70,7 +70,7 @@ class RAGEvidence(EvidenceBase):
     score: float
     source_path: str
     pages: List[int] = Field(default_factory=list)
-    text: str
+    abstract: str
     weight: float = 1.0
 
 
