@@ -6,7 +6,7 @@ from typing import List, Tuple, Any, Dict
 import requests
 
 from ..core.base import PipelineStep
-from ..core.models import PipelineState, Evidence
+from ..core.models import PipelineState, PubMedEvidence, SourceType
 
 
 # -------------------------------------------------------------------------
@@ -119,10 +119,14 @@ class QueryToLinkStep(PipelineStep):
                     resp.raise_for_status()
 
                     id_list = resp.json().get("esearchresult", {}).get("idlist", [])
+                    print(f"   Statement {stmt.id}: Query '{q}' -> {len(id_list)} PMIDs.")
 
                     for pmid in id_list:
                         # Try to find existing evidence (same PMID)
-                        existing = next((e for e in stmt.evidence if e.pubmed_id == pmid), None)
+                        existing = next(
+                            (e for e in stmt.evidence if getattr(e, "pubmed_id", None) == pmid),
+                            None,
+                        )
 
                         if existing is not None:
                             # Ensure queries list exists
@@ -135,7 +139,7 @@ class QueryToLinkStep(PipelineStep):
 
                         # Create new evidence
                         url = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
-                        stmt.evidence.append(Evidence(pubmed_id=pmid, url=url))
+                        stmt.evidence.append(PubMedEvidence(pubmed_id=pmid, url=url))
 
                     print(f"   Statement {stmt.id}: Found {len(id_list)} links.")
 
@@ -167,8 +171,10 @@ class LinkToAbstractStep(PipelineStep):
             # 1. Collect all valid PMIDs for this statement
             evidence_map = {}
             for ev in stmt.evidence:
+                if getattr(ev, "source_type", None) != SourceType.PUBMED:
+                    continue
                 try:
-                    pmid = self._extract_pmid(ev.url)
+                    pmid = self._extract_pmid(ev.url or ev.pubmed_id or "")
                     ev.pubmed_id = pmid
                     evidence_map[pmid] = ev
                 except ValueError:
@@ -298,6 +304,12 @@ class PubTypeWeightStep(PipelineStep):
 
         for stmt in state.statements:
             for ev in stmt.evidence:
+                if getattr(ev, "source_type", None) not in (
+                    SourceType.PUBMED,
+                    SourceType.EPISTEMONIKOS,
+                ):
+                    continue
+
                 # Use the helper to determine weight
                 w = self._weight_from_pubtypes(ev.pub_type, default=default_weight)
                 ev.weight = float(w)

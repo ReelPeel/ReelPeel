@@ -64,7 +64,7 @@ class RerankEvidenceStep(PipelineStep):
       - batch_size: int (default: 16)
       - max_length: int (default: 512)
 
-      - score_fields: list[str] (default: ["abstract"])
+      - score_fields: list[str] (default: ["abstract", "text"])
           Which evidence fields to score individually.
 
       - empty_relevance: float (default: 0.0)
@@ -78,9 +78,9 @@ class RerankEvidenceStep(PipelineStep):
         batch_size = int(self.config.get("batch_size", 16))
         max_length = int(self.config.get("max_length", 512))
 
-        score_fields = self.config.get("score_fields", ["abstract"])
-        if "abstract" not in score_fields:
-            score_fields = ["abstract"]
+        score_fields = self.config.get("score_fields", ["abstract", "text"])
+        if "abstract" not in score_fields and "text" not in score_fields:
+            score_fields = ["abstract", "text"]
         empty_relevance = float(self.config.get("empty_relevance", 0.0))
 
         if torch is None:
@@ -151,6 +151,9 @@ class RerankEvidenceStep(PipelineStep):
 
                 if field == "abstract" and hasattr(ev, "relevance_abstract"):
                     ev.relevance_abstract = fs
+                elif field == "text" and hasattr(ev, "relevance_abstract"):
+                    if ev.relevance_abstract is None:
+                        ev.relevance_abstract = fs
                 else:
                     # If you ever add more fields, you can extend mapping logic here.
                     # For now, silently ignore unknown field targets.

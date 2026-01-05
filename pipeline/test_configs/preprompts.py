@@ -188,6 +188,9 @@ CLAIM:
 EVIDENCE:
 {evidence_block}
 
+RAG CHUNKS (guideline excerpts):
+{rag_chunks}
+
 Including the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
 {transcript}
 
