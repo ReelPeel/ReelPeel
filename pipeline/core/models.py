@@ -26,10 +26,6 @@ class Stance(BaseModel):
     abstract_p_supports: Optional[float] = None
     abstract_p_refutes: Optional[float] = None
     abstract_p_neutral: Optional[float] = None
-    summary_label: Optional[StanceLabel] = None
-    summary_p_supports: Optional[float] = None
-    summary_p_refutes: Optional[float] = None
-    summary_p_neutral: Optional[float] = None
     
     
 class Evidence(BaseModel):
@@ -38,12 +34,10 @@ class Evidence(BaseModel):
     title: Optional[str] = None
     queries: List[str] = Field(default_factory=list)
     abstract: Optional[str] = None
-    summary: Optional[str] = None
     pub_type: Optional[Union[str, List[str]]] = None
     weight: float = 0.5
     relevance: Optional[float] = None
     relevance_abstract: Optional[float] = None
-    relevance_summary: Optional[float] = None
     stance: Optional[Stance] = None
 
 class Statement(BaseModel):

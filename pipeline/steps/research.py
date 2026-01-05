@@ -147,9 +147,9 @@ class QueryToLinkStep(PipelineStep):
 
 
 # -------------------------------------------------------------------------
-# STEP 5: Link to Summary (Refactored: Fetch Abstract & Types)
+# STEP 5: Link to Abstract (Refactored: Fetch Abstract & Types)
 # -------------------------------------------------------------------------
-class LinkToSummaryStep(PipelineStep):
+class LinkToAbstractStep(PipelineStep):
     """
     Step 5: Fetches PubMed metadata (Title, Abstract, Types) in BATCHES.
     Optimized to reduce HTTP calls and extract Titles for the Reranker.
@@ -270,9 +270,6 @@ class LinkToSummaryStep(PipelineStep):
                 full_abstract = " ".join(parts).strip()
                 if full_abstract and not full_abstract.lower().startswith("abstract available from"):
                     ev.abstract = full_abstract
-                    # Default summary if missing
-                    if not ev.summary:
-                        ev.summary = full_abstract[:500] + "..."
 
         except Exception as e:
             print(f"   [Error] Batch efetch failed: {e}")

@@ -9,6 +9,9 @@ ps aux | grep pubmed_proxy.py
 
 ```
 
+kill <process number>
+
+
 **By Port:**
 
 ```bash

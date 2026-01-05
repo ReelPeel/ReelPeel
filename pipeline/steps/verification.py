@@ -4,6 +4,59 @@ from ..core.base import PipelineStep
 from ..core.models import PipelineState, Statement
 
 
+def _fmt_score(val):
+    if val is None:
+        return None
+    try:
+        return f"{float(val):.2f}"
+    except Exception:
+        return None
+
+
+def _format_evidence_line(ev, include_text: bool = True, missing_text: str = "text: [no abstract]") -> str:
+    pmid = ev.pubmed_id or "N/A"
+    parts = [f"PMID {pmid}"]
+
+    w = _fmt_score(getattr(ev, "weight", None))
+    if w is not None:
+        parts.append(f"w {w}")
+
+    rel = _fmt_score(getattr(ev, "relevance", None))
+    if rel is not None:
+        parts.append(f"rel {rel}")
+
+    stance_info = []
+    st = getattr(ev, "stance", None)
+    if st is not None:
+        abs_label = getattr(st, "abstract_label", None)
+        abs_s = _fmt_score(getattr(st, "abstract_p_supports", None))
+        abs_r = _fmt_score(getattr(st, "abstract_p_refutes", None))
+        abs_n = _fmt_score(getattr(st, "abstract_p_neutral", None))
+        if abs_label or any(v is not None for v in [abs_s, abs_r, abs_n]):
+            probs = []
+            if abs_s is not None:
+                probs.append(f"S{abs_s}")
+            if abs_r is not None:
+                probs.append(f"R{abs_r}")
+            if abs_n is not None:
+                probs.append(f"N{abs_n}")
+            label = abs_label.value if abs_label is not None else "NA"
+            prob_txt = f" ({' '.join(probs)})" if probs else ""
+            stance_info.append(f"abs {label}{prob_txt}")
+
+    if stance_info:
+        parts.append(f"stance {'; '.join(stance_info)}")
+
+    if include_text:
+        content = (ev.abstract or "").strip().replace("\n", " ")
+        if content:
+            parts.append(f"text: {content}")
+        elif missing_text:
+            parts.append(missing_text)
+
+    return "- " + " | ".join(parts)
+
+
 # -------------------------------------------------------------------------
 # STEP 6: Filter Evidence (Reduce to relevant)
 # -------------------------------------------------------------------------
@@ -17,14 +70,15 @@ class FilterEvidenceStep(PipelineStep):
             filtered_evidence = []
 
             for ev in stmt.evidence:
-                # Use abstract if available, otherwise fallback (or skip)
-                text_to_check = ev.abstract or ev.summary or ""
+                # Use abstract if available, otherwise skip filter
+                text_to_check = ev.abstract or ""
                 if not text_to_check.strip():
                     # Keep it if there's no text to check (manual review)
                     filtered_evidence.append(ev)
                     continue
 
-                if self._is_related(stmt.text, text_to_check, prompt_tmpl):
+                evidence_line = _format_evidence_line(ev, include_text=True, missing_text=None)
+                if self._is_related(stmt.text, evidence_line, prompt_tmpl):
                     filtered_evidence.append(ev)
                 else:
                     # Optional: Log dropped evidence
@@ -35,9 +89,9 @@ class FilterEvidenceStep(PipelineStep):
 
         return state
 
-    def _is_related(self, stmt_text: str, ev_text: str, tmpl: str) -> bool:
+    def _is_related(self, stmt_text: str, evidence: str, tmpl: str) -> bool:
         try:
-            prompt = tmpl.format(statement=stmt_text, evidence_summary=ev_text)
+            prompt = tmpl.format(statement=stmt_text, evidence=evidence)
             res = self.llm.call(
                 prompt=prompt,
                 model=self.config.get('model'),
@@ -64,10 +118,7 @@ class TruthnessStep(PipelineStep):
             # 1. Build Evidence Block
             evidence_lines = []
             for ev in stmt.evidence:
-                pmid = ev.pubmed_id or "N/A"
-                # Use abstract (preferred) or summary
-                content = (ev.abstract or ev.summary or "").strip().replace("\n", " ")
-                evidence_lines.append(f"- PMID {pmid}: {content}")
+                evidence_lines.append(_format_evidence_line(ev, include_text=True))
 
             evidence_block = "\n".join(evidence_lines) or "No evidence provided."
 

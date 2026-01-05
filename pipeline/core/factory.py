@@ -7,7 +7,7 @@ from ..steps.rerank import RerankEvidenceStep
 from ..steps.research import (
     StatementToQueryStep,
     QueryToLinkStep,
-    LinkToSummaryStep,
+    LinkToAbstractStep,
     PubTypeWeightStep
 )
 from ..steps.stance import StanceEvidenceStep
@@ -26,7 +26,7 @@ class StepFactory:
         "extraction": TranscriptToStatementStep,
         "generate_query": StatementToQueryStep,
         "fetch_links": QueryToLinkStep,
-        "summarize_evidence": LinkToSummaryStep,
+        "summarize_evidence": LinkToAbstractStep,
         "weight_evidence": PubTypeWeightStep,
         "rerank_evidence": RerankEvidenceStep,
         "stance_evidence": StanceEvidenceStep,
