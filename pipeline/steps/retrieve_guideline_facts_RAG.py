@@ -22,7 +22,7 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 
 from ..core.base import PipelineStep
-from ..core.models import Evidence, GuidelineChunk, PipelineState
+from ..core.models import PipelineState, RAGEvidence
 
 
 def _parse_pages(pages_json: str) -> List[int]:
@@ -98,7 +98,7 @@ def retrieve_chunks_for_statement(
     embeddings: np.ndarray,
     top_k: int = 5,
     min_score: float = 0.25,
-) -> List[GuidelineChunk]:
+) -> List[RAGEvidence]:
     if not chunk_rows:
         return []
 
@@ -115,19 +115,22 @@ def retrieve_chunks_for_statement(
     idxs = np.argpartition(-scores, kth=k - 1)[:k]
     idxs = idxs[np.argsort(-scores[idxs])]
 
-    out: List[GuidelineChunk] = []
+    out: List[RAGEvidence] = []
     for i in idxs.tolist():
         s = float(scores[i])
         if s < min_score:
             continue
         r = chunk_rows[i]
         out.append(
-            GuidelineChunk(
+            RAGEvidence(
                 chunk_id=r["chunk_id"],
                 score=s,
                 source_path=r["source_path"],
                 pages=r["pages"],
                 text=r["text"],
+                weight=1.0,
+                relevance=s,
+                relevance_abstract=s,
             )
         )
 
@@ -139,7 +142,7 @@ def retrieve_chunks(
     statement: str,
     top_k: int = 5,
     min_score: float = 0.25,
-) -> Tuple[str, int, List[GuidelineChunk]]:
+) -> Tuple[str, int, List[RAGEvidence]]:
     embed_model, dim, chunk_rows, embeddings = load_guideline_index(db_path)
     model = SentenceTransformer(embed_model)
     chunks = retrieve_chunks_for_statement(
@@ -187,7 +190,6 @@ class RetrieveGuidelineFactsStep(PipelineStep):
         for stmt in state.statements:
             statement_text = (stmt.text or "").strip()
             if not statement_text:
-                stmt.guideline_chunks = []
                 continue
 
             chunks = retrieve_chunks_for_statement(
@@ -198,14 +200,12 @@ class RetrieveGuidelineFactsStep(PipelineStep):
                 top_k=top_k,
                 min_score=min_score,
             )
-            stmt.guideline_chunks = chunks
-
             if stmt.evidence is None:
                 stmt.evidence = []
-            
+            stmt.evidence.extend(chunks)
 
             if self.debug:
-                print(f"   Statement {stmt.id}: {len(stmt.evidence)} chunks.")
+                print(f"   Statement {stmt.id}: +{len(chunks)} RAG chunks.")
 
         return state
 

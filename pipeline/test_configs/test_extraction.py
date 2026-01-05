@@ -17,7 +17,7 @@ RESEARCH_MODULE = {
             },
             {
                 "type": "fetch_links",  # Step 4
-                "settings": {"retmax": 5}
+                "settings": {"retmax": 1}
             },
             {
                 "type": "summarize_evidence",  # Step 5

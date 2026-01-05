@@ -1,3 +1,5 @@
+from .test_extraction import RESEARCH_MODULE, VERIFICATION_MODULE, PROMPT_TMPL_S7
+
 RAG_TEST_CONFIG = {
     "name": "Guideline_RAG_Test",
     "debug": True,
@@ -10,22 +12,18 @@ RAG_TEST_CONFIG = {
                         "id": 1,
                         "text": "Healthy term infants should receive 400 IU of vitamin D daily.",
                     },
-                    {
-                        "id": 2,
-                        "text": "Exclusive breastfeeding is recommended for around the first 6 months of life.",
-                    },
-                    {
-                        "id": 3,
-                        "text": "Early introduction of peanut-containing foods can reduce peanut allergy risk.",
-                    },
+                    
                 ]
             },
         },
+        
+         RESEARCH_MODULE,
+        
         {
             "type": "retrieve_guideline_facts",
             "settings": {
                 "db_path": "pipeline/RAG_vdb/guidelines_vdb.sqlite",
-                "top_k": 5,
+                "top_k": 1,
                 "min_score": 0.25,
             },
         },
@@ -37,5 +35,12 @@ RAG_TEST_CONFIG = {
             "type": "stance_evidence",
             "settings": {},
         },
+        {
+                "type": "truthness",
+                "settings": {
+                    "model": "gemma3:12b",
+                    "prompt_template": PROMPT_TMPL_S7
+                }
+            },
     ],
 }

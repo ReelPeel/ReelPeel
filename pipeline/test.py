@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pipeline.core.models import PipelineState
+from pipeline.core.models import PipelineState, SourceType
 from pipeline.core.orchestrator import PipelineOrchestrator
 from pipeline.test_configs.rag_test import RAG_TEST_CONFIG
 
@@ -41,51 +41,49 @@ def print_report(state: PipelineState):
             for ev in stmt.evidence:
                 # Show PMID, Type, and Weight
                 # Truncate summary to one line
-                summary_snippet = (ev.abstract or ev.summary or "No summary")[:80].replace("\n", " ")
+                summary_text = (
+                    getattr(ev, "abstract", None)
+                    or getattr(ev, "text", None)
+                    or "No summary"
+                )
+                summary_snippet = summary_text[:80].replace("\n", " ")
                 if ev.stance:
-                    stance_label = ev.stance.abstract_label or ev.stance.summary_label or "N/A"
-                    stance_supports = (
-                        ev.stance.abstract_p_supports
-                        if ev.stance.abstract_p_supports is not None
-                        else ev.stance.summary_p_supports
-                    )
-                    stance_refutes = (
-                        ev.stance.abstract_p_refutes
-                        if ev.stance.abstract_p_refutes is not None
-                        else ev.stance.summary_p_refutes
-                    )
-                    stance_neutral = (
-                        ev.stance.abstract_p_neutral
-                        if ev.stance.abstract_p_neutral is not None
-                        else ev.stance.summary_p_neutral
-                    )
+                    stance_label = ev.stance.abstract_label or "N/A"
+                    stance_supports = ev.stance.abstract_p_supports
+                    stance_refutes = ev.stance.abstract_p_refutes
+                    stance_neutral = ev.stance.abstract_p_neutral
                 else:
                     stance_label = "N/A"
                     stance_supports = "N/A"
                     stance_refutes = "N/A"
                     stance_neutral = "N/A"
-                source_value = getattr(ev, "source", "unknown")
-                source_label = source_value.value if hasattr(source_value, "value") else str(source_value)
-                source_id = ev.pubmed_id or (Path(ev.url).name if ev.url else "N/A")
+
+                source_type = getattr(ev, "source_type", None)
+                source_value = source_type.value if hasattr(source_type, "value") else source_type
+                if source_value == SourceType.PUBMED.value:
+                    source_label = "PMID"
+                    source_id = getattr(ev, "pubmed_id", None) or "N/A"
+                elif source_value == SourceType.EPISTEMONIKOS.value:
+                    source_label = "EPIST"
+                    source_id = getattr(ev, "epistemonikos_id", None) or "N/A"
+                elif source_value == SourceType.RAG.value:
+                    source_label = "RAG"
+                    source_id = getattr(ev, "chunk_id", None) or "N/A"
+                elif getattr(ev, "url", None):
+                    source_label = "URL"
+                    source_id = Path(ev.url).name
+                else:
+                    source_label = str(source_value) if source_value is not None else "Unknown"
+                    source_id = "N/A"
+                pub_type = getattr(ev, "pub_type", None) or "n/a"
                 print(
-                    f"     • {source_label} {source_id} [{ev.pub_type}] "
+                    f"     • {source_label} {source_id} [{pub_type}] "
                     f"(Wt: {ev.weight}, Rel: {ev.relevance}, Stance: {stance_label}, "
                     f"Stance_prob (s,r,n): {stance_supports}, {stance_refutes}, {stance_neutral}):"
                 )
                 print(f"       \"{summary_snippet}...\"")
         else:
             print("   (No relevant evidence found)")
-
-        if getattr(stmt, "guideline_chunks", None):
-            print(f"   Guideline Chunks ({len(stmt.guideline_chunks)}):")
-            for ch in stmt.guideline_chunks:
-                source = Path(ch.source_path).name
-                pages = ",".join(str(p) for p in ch.pages) if ch.pages else "n/a"
-                chunk_snippet = ch.text[:140].replace("\n", " ")
-                print(f"     • {source} p.{pages} (Score: {ch.score:.2f})")
-                print(f"       \"{chunk_snippet}...\"")
-        else:
-            print("   (No guideline matches found)")
 
         print("-" * 60)
 
