@@ -172,10 +172,6 @@ class StanceEvidenceStep(PipelineStep):
                 ev.stance.abstract_p_supports = None
                 ev.stance.abstract_p_refutes = None
                 ev.stance.abstract_p_neutral = None
-                ev.stance.summary_label = None
-                ev.stance.summary_p_supports = None
-                ev.stance.summary_p_refutes = None
-                ev.stance.summary_p_neutral = None
 
                 for field in evidence_fields:
                     txt = getattr(ev, field, None)
@@ -240,11 +236,6 @@ class StanceEvidenceStep(PipelineStep):
                     ev.stance.abstract_p_supports = p_ent
                     ev.stance.abstract_p_refutes = p_con
                     ev.stance.abstract_p_neutral = p_neu
-                elif field == "summary":
-                    ev.stance.summary_label = label
-                    ev.stance.summary_p_supports = p_ent
-                    ev.stance.summary_p_refutes = p_con
-                    ev.stance.summary_p_neutral = p_neu
                 else:
                     # If you add more fields to the Stance model, extend handling here.
                     pass

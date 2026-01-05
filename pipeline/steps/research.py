@@ -149,7 +149,7 @@ class QueryToLinkStep(PipelineStep):
 # -------------------------------------------------------------------------
 # STEP 5: Link to Abstract (Refactored: Fetch Abstract & Types)
 # -------------------------------------------------------------------------
-class LinkToSummaryStep(PipelineStep):
+class LinkToAbstractStep(PipelineStep):
     """
     Step 5: Fetches PubMed metadata (Title, Abstract, Types) in BATCHES.
     Optimized to reduce HTTP calls and extract Titles for the Reranker.
