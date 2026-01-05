@@ -7,7 +7,7 @@ from ..steps.rerank import RerankEvidenceStep
 from ..steps.research import (
     StatementToQueryStep,
     QueryToLinkStep,
-    LinkToSummaryStep,
+    LinkToAbstractStep,
     PubTypeWeightStep
 )
 from ..steps.retrieve_guideline_facts_RAG import RetrieveGuidelineFactsStep
@@ -27,7 +27,7 @@ class StepFactory:
         "extraction": TranscriptToStatementStep,
         "generate_query": StatementToQueryStep,
         "fetch_links": QueryToLinkStep,
-        "summarize_evidence": LinkToSummaryStep,
+        "summarize_evidence": LinkToAbstractStep,
         "weight_evidence": PubTypeWeightStep,
         "retrieve_guideline_facts": RetrieveGuidelineFactsStep,
         "rerank_evidence": RerankEvidenceStep,

@@ -9,3 +9,5 @@ __pycache__
 *.log
 *.pdf
 evaluation/deberta_runs/
+
+.idea

@@ -2,10 +2,8 @@
 STEP (SCORES): RERANK EVIDENCE WITH BGE RERANKER v2 m3
 -----------------------------------------------------
 - Scores each evidence item for *relevance to the claim* using BAAI/bge-reranker-v2-m3.
-- Computes separate rerank scores:
-    - ev.relevance_abstract (claim vs abstract)
-    - ev.relevance_summary  (claim vs summary)
-- Also writes ev.relevance as a combined score for downstream sorting.
+- Computes ev.relevance_abstract (claim vs abstract).
+- Also writes ev.relevance for downstream sorting.
 """
 
 from __future__ import annotations
@@ -56,25 +54,6 @@ def _batch(items: List[Any], batch_size: int) -> List[List[Any]]:
     return [items[i : i + batch_size] for i in range(0, len(items), batch_size)]
 
 
-def _combine_scores(a: Optional[float], s: Optional[float], strategy: str) -> Optional[float]:
-    vals = [v for v in [a, s] if v is not None]
-    if not vals:
-        return None
-
-    strategy = (strategy or "max").lower()
-    if strategy == "max":
-        return max(vals)
-    if strategy == "mean":
-        return sum(vals) / len(vals)
-    if strategy == "abstract_first":
-        return a if a is not None else s
-    if strategy == "summary_first":
-        return s if s is not None else a
-
-    # default fallback
-    return max(vals)
-
-
 class RerankEvidenceStep(PipelineStep):
     """
     Config keys:
@@ -85,15 +64,8 @@ class RerankEvidenceStep(PipelineStep):
       - batch_size: int (default: 16)
       - max_length: int (default: 512)
 
-      - score_fields: list[str] (default: ["abstract","summary"])
+      - score_fields: list[str] (default: ["abstract"])
           Which evidence fields to score individually.
-
-      - combine_strategy: str (default: "max")
-          How to compute ev.relevance from the per-field scores:
-            - "max": max(abstract, summary)
-            - "mean": mean of available
-            - "abstract_first": abstract if exists else summary
-            - "summary_first": summary if exists else abstract
 
       - empty_relevance: float (default: 0.0)
     """
@@ -106,8 +78,9 @@ class RerankEvidenceStep(PipelineStep):
         batch_size = int(self.config.get("batch_size", 16))
         max_length = int(self.config.get("max_length", 512))
 
-        score_fields = self.config.get("score_fields", ["abstract", "summary"])
-        combine_strategy = self.config.get("combine_strategy", "max")
+        score_fields = self.config.get("score_fields", ["abstract"])
+        if "abstract" not in score_fields:
+            score_fields = ["abstract"]
         empty_relevance = float(self.config.get("empty_relevance", 0.0))
 
         if torch is None:
@@ -129,9 +102,6 @@ class RerankEvidenceStep(PipelineStep):
                 # reset per-field relevance each run (optional)
                 if hasattr(ev, "relevance_abstract"):
                     ev.relevance_abstract = None
-                if hasattr(ev, "relevance_summary"):
-                    ev.relevance_summary = None
-
                 for field in score_fields:
                     txt = getattr(ev, field, None)
                     title = (
@@ -181,8 +151,6 @@ class RerankEvidenceStep(PipelineStep):
 
                 if field == "abstract" and hasattr(ev, "relevance_abstract"):
                     ev.relevance_abstract = fs
-                elif field == "summary" and hasattr(ev, "relevance_summary"):
-                    ev.relevance_summary = fs
                 else:
                     # If you ever add more fields, you can extend mapping logic here.
                     # For now, silently ignore unknown field targets.
@@ -191,13 +159,10 @@ class RerankEvidenceStep(PipelineStep):
             # Compute combined relevance for each evidence
             for ev in stmt.evidence:
                 a = getattr(ev, "relevance_abstract", None)
-                s = getattr(ev, "relevance_summary", None)
-                combined = _combine_scores(a, s, combine_strategy)
-
-                if combined is None:
+                if a is None:
                     # fallback if nothing was scored
-                    combined = float(ev.relevance) if ev.relevance is not None else float(empty_relevance)
+                    a = float(ev.relevance) if ev.relevance is not None else float(empty_relevance)
 
-                ev.relevance = float(combined)
+                ev.relevance = float(a)
 
         return state

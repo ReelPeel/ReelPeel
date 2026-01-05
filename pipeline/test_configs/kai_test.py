@@ -62,7 +62,7 @@ SCORES_MODULE = {
                     "normalize": True,
                     "batch_size": 16,
                     "max_length": 4096,
-                    "score_fields": ["abstract", "summary"],
+                    "score_fields": ["abstract"],
                     "empty_relevance": 0.0,
                 },
             },
@@ -73,7 +73,7 @@ SCORES_MODULE = {
                     "use_fp16": True,
                     "batch_size": 16,
                     "max_length": 512,
-                    "evidence_fields": ["abstract", "summary"],
+                    "evidence_fields": ["abstract"],
 
                     # optional: only compute stance on Top-M evidence per statement (by ev.relevance)
                     # "top_m_by_relevance": 5,
@@ -108,7 +108,7 @@ VERIFICATION_MODULE = {
             {
                 "type": "truthness",
                 "settings": {
-                    "model": "hf.co/mradermacher/Meditron3-Phi4-14B-GGUF:Q8_0",
+                    "model": "gemma3:12b",
                     "prompt_template": PROMPT_TMPL_S7,
                     "temperature": BASE_TEMPERATURE,
                     # "max_tokens": 512 # Currently hardcoded in individual step

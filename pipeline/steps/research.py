@@ -1,7 +1,7 @@
 import re
 import xml.etree.ElementTree as ET
 from datetime import datetime
-from typing import List, Tuple, Any, Optional, Dict
+from typing import List, Tuple, Any, Dict
 
 import requests
 
@@ -148,109 +148,132 @@ class QueryToLinkStep(PipelineStep):
 
 
 # -------------------------------------------------------------------------
-# STEP 5: Link to Summary (Refactored: Fetch Abstract & Types)
+# STEP 5: Link to Abstract (Refactored: Fetch Abstract & Types)
 # -------------------------------------------------------------------------
-class LinkToSummaryStep(PipelineStep):
+class LinkToAbstractStep(PipelineStep):
     """
-    Step 5: Fetches PubMed abstract and publication types for evidence URLs.
+    Step 5: Fetches PubMed metadata (Title, Abstract, Types) in BATCHES.
+    Optimized to reduce HTTP calls and extract Titles for the Reranker.
     """
     PUBMED_URL_RE = re.compile(r"pubmed\.ncbi\.nlm\.nih\.gov/(\d+)/?")
 
     def __init__(self, step_config: Dict[str, Any]):
-        # Call parent init to set self.config
         super().__init__(step_config)
-        # Initialize the proxy URL once at startup
         self.proxy_base = self.config.get("proxy_url", "http://127.0.0.1:8080/proxy")
 
     def execute(self, state: PipelineState) -> PipelineState:
-        print(f"[{self.__class__.__name__}] Fetching PubMed metadata (Abstracts & Types)...")
-
-        # self.proxy_base is now available from __init__
+        print(f"[{self.__class__.__name__}] Fetching metadata (Batch Mode)...")
 
         for stmt in state.statements:
+            # 1. Collect all valid PMIDs for this statement
+            evidence_map = {}
             for ev in stmt.evidence:
-                url = ev.url
-                if not url:
+                try:
+                    pmid = self._extract_pmid(ev.url)
+                    ev.pubmed_id = pmid
+                    evidence_map[pmid] = ev
+                except ValueError:
                     continue
 
-                try:
-                    # 1. Extract PMID
-                    pmid = self._extract_pmid(url)
-                    ev.pubmed_id = pmid
+            if not evidence_map:
+                continue
 
-                    # 2. Fetch Publication Types
-                    pub_types = self._pubmed_fetch_types(pmid)
-                    ev.pub_type = pub_types
+            pmids = list(evidence_map.keys())
 
-                    # 3. Fetch Abstract
-                    abstract = self._pubmed_fetch_abstract(pmid)
-                    ev.abstract = abstract
+            # 2. Fetch all Publication Types in ONE request
+            self._batch_fetch_types(pmids, evidence_map)
 
-                    # Optional: Map abstract to summary if summary is empty
-                    if not ev.summary and abstract:
-                        ev.summary = abstract[:500] + "..."  # Fallback for display
-
-                    print(f"   Processed {url} -> PMID: {pmid}, Types: {len(pub_types)}, Abstract Len: {len(abstract) if abstract else 0}")
-
-                except Exception as e:
-                    print(f"   [Warning] Could not process {url}: {e}")
-                    # Keep defaults if failed
+            # 3. Fetch all Titles & Abstracts in ONE request
+            self._batch_fetch_details(pmids, evidence_map)
 
         # Update timestamp
         state.generated_at = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         return state
 
     def _extract_pmid(self, url: str) -> str:
-        """Extract numeric PMID from a PubMed URL or accept raw PMIDs."""
-        if url.isdigit():
+        if url and url.isdigit():
             return url
-        match = self.PUBMED_URL_RE.search(url)
+        match = self.PUBMED_URL_RE.search(url or "")
         if match:
             return match.group(1)
-        raise ValueError(f"Unable to extract PMID from URL: {url}")
+        raise ValueError(f"Invalid URL/PMID: {url}")
 
-    def _pubmed_fetch_types(self, pmid: str) -> List[str]:
-        """Fetch PubMed 'Publication Types' using ESummary via Proxy."""
-        params = {"db": "pubmed", "id": pmid, "retmode": "json"}
-        # Use self.proxy_base initialized in __init__
-        r = requests.get(f"{self.proxy_base}/esummary.fcgi", params=params, timeout=20)
-        r.raise_for_status()
-        payload = r.json()
+    def _batch_fetch_types(self, pmids: List[str], ev_map: Dict[str, Any]):
+        """Fetched PubTypes for multiple PMIDs in one go (esummary)."""
+        if not pmids: return
 
-        rec = (payload.get("result") or {}).get(pmid) or {}
-        pubtypes = rec.get("pubtype") or []
-        # Ensure list[str]
-        return [str(x) for x in pubtypes if x is not None]
+        ids_str = ",".join(pmids)
+        params = {"db": "pubmed", "id": ids_str, "retmode": "json"}
 
-    def _pubmed_fetch_abstract(self, pmid: str) -> Optional[str]:
-        """Fetch Abstract using EFetch via Proxy."""
-        params = {"db": "pubmed", "id": pmid, "retmode": "xml"}
-        # Use self.proxy_base initialized in __init__
-        r = requests.get(f"{self.proxy_base}/efetch.fcgi", params=params, timeout=20)
-        r.raise_for_status()
+        try:
+            r = requests.get(f"{self.proxy_base}/esummary.fcgi", params=params, timeout=30)
+            r.raise_for_status()
+            data = r.json()
+            result = data.get("result", {})
 
-        root = ET.fromstring(r.text)
+            # 'result' contains keys for each PMID (strings), plus a 'uids' list
+            for pmid in pmids:
+                if pmid in result:
+                    rec = result[pmid]
+                    ptypes = rec.get("pubtype", [])
+                    # Update the evidence object
+                    ev_map[pmid].pub_type = [str(x) for x in ptypes if x]
 
-        def collect(xpath: str) -> List[str]:
-            parts = []
-            for el in root.findall(xpath):
-                txt = "".join(el.itertext()).strip()
-                if not txt:
-                    continue
-                label = el.attrib.get("Label") or el.attrib.get("NlmCategory")
-                parts.append(f"{label}: {txt}" if label else txt)
-            return parts
+            print(f"   Fetched PubTypes for {len(pmids)} items.")
 
-        parts = collect(".//Abstract/AbstractText")
-        if not parts:
-            parts = collect(".//OtherAbstract/AbstractText")
+        except Exception as e:
+            print(f"   [Error] Batch esummary failed: {e}")
 
-        abstract = " ".join(parts).strip()
-        if abstract.lower().startswith("abstract available from the publisher"):
-            return None
+    def _batch_fetch_details(self, pmids: List[str], ev_map: Dict[str, Any]):
+        """Fetches Title and Abstract for multiple PMIDs in one go (efetch)."""
+        if not pmids: return
 
-        return abstract or None
+        ids_str = ",".join(pmids)
+        params = {"db": "pubmed", "id": ids_str, "retmode": "xml"}
 
+        try:
+            r = requests.get(f"{self.proxy_base}/efetch.fcgi", params=params, timeout=30)
+            r.raise_for_status()
+
+            # Parse the big XML containing multiple PubmedArticle nodes
+            root = ET.fromstring(r.text)
+
+            # Iterate over each article found in the XML
+            for article in root.findall(".//PubmedArticle"):
+                # 1. Identify which PMID this is
+                pmid_node = article.find(".//MedlineCitation/PMID")
+                if pmid_node is None: continue
+                pmid = pmid_node.text
+
+                if pmid not in ev_map: continue
+                ev = ev_map[pmid]
+
+                # 2. Extract Title
+                title_node = article.find(".//Article/ArticleTitle")
+                if title_node is not None and title_node.text:
+                    # Reranker/Stance usually look for 'title' or 'article_title'
+                    # We can store it in a standard attribute (add 'title' to Evidence model if needed)
+                    # For now, we attach it dynamically or assume Evidence has a title field
+                    ev.title = title_node.text.strip()
+
+                # 3. Extract Abstract (combining parts)
+                abs_texts = article.findall(".//Abstract/AbstractText")
+                if not abs_texts:
+                    abs_texts = article.findall(".//OtherAbstract/AbstractText")
+
+                parts = []
+                for el in abs_texts:
+                    txt = "".join(el.itertext()).strip()
+                    if not txt: continue
+                    label = el.attrib.get("Label") or el.attrib.get("NlmCategory")
+                    parts.append(f"{label}: {txt}" if label else txt)
+
+                full_abstract = " ".join(parts).strip()
+                if full_abstract and not full_abstract.lower().startswith("abstract available from"):
+                    ev.abstract = full_abstract
+
+        except Exception as e:
+            print(f"   [Error] Batch efetch failed: {e}")
 
 # -------------------------------------------------------------------------
 # STEP 5.1: PubType to Weight (Your New Step)

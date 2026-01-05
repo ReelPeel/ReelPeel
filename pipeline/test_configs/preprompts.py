@@ -141,36 +141,28 @@ CLAIM:
 
 """
 # ────────────────────────────────────────────────────────────────────
-# Step5: Summarise PubMed search results
-# ────────────────────────────────────────────────────────────────────
-PROMPT_TMPL_S5 = """
-You are summarising evidence for a medical fact-checker.  
-Think briefly (silently) about study design and main results, then write the summary.
-
-GUIDELINES  
-• ≤ 300 words, plain text.  
-• Focus on methods, population, key outcomes, effect sizes, and limitations.  
-• Do NOT add interpretation beyond the abstract itself.
-
-TEXT TO SUMMARISE
------------------
-{abstract}
------------------
-"""
-
-
-# ────────────────────────────────────────────────────────────────────
 # Step6: Get rid of irrelevant evidence
 # ────────────────────────────────────────────────────────────────────
 PROMPT_TMPL_S6 = """
-You are verifying whether the summary actually addresses the claim.  
+You are verifying whether the evidence abstract is relevant to the claim.
 Think (silently) first; then answer in exactly one word.
+
+Use metadata if present:
+- w: study type strength (0-1). Not about topicality.
+- rel: claim match (0-1). Low rel suggests off-topic.
+- stance: NLI on abstract with probs (S support, R refute, N neutral).
+
+Decision rules:
+- yes if the abstract is directly about the claim (support OR refute).
+- no if off-topic, mismatched population/intervention/outcome, or rel is low and stance is Neutral/NA.
+- If metadata conflicts with the text, trust the abstract text.
 
 STATEMENT: {statement}
 
-EVIDENCE SUMMARY: {evidence_summary}
+EVIDENCE:
+{evidence}
 
-Does the summary *directly relate to or support* the statement?
+Does the EVIDENCE relate to the STATEMENT?
 Respond with only: yes   |   no
 """
 
@@ -182,7 +174,13 @@ You are a professional medical fact-checker.
 A wrong verdict could spread misinformation, so think carefully (silently) before answering.
 
 TASK  
-Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim. If evidence is insufficient or contradictory, use the "weights" to guide your decision in the "EVIDENCE" if available.
+Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim. If evidence is insufficient or contradictory, use the evidence metadata if present.
+
+METADATA (if present in EVIDENCE lines)
+- w: study type strength (0-1, higher = stronger evidence)
+- rel: claim match (0-1, higher = more on-topic)
+- stance: NLI label + probs for abstract (S support, R refute, N neutral)
+Prefer higher w/rel evidence and stronger stance probabilities. Downweight low rel items.
 
 CLAIM:
 {claim_text}
@@ -190,7 +188,7 @@ CLAIM:
 EVIDENCE:
 {evidence_block}
 
-Inclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
+Including the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
 {transcript}
 
 give the final response in the following format:
@@ -201,7 +199,7 @@ FINALSCORE: <probability 0.00–1.00>
 """
 
 # ────────────────────────────────────────────────────────────────────
-# Step7: Statement rating
+# Step7: Statement rating TEST PROMPT
 # ────────────────────────────────────────────────────────────────────
 PROMPT_TMPL_RAW = """
 You are a professional medical fact-checker.  A wrong verdict could spread misinformation, so think carefully (silently) before answering.
