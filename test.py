@@ -36,10 +36,10 @@ def print_report(state: PipelineState):
             print(f"   Evidence Used ({len(stmt.evidence)}):")
             for ev in stmt.evidence:
                 # Show PMID, Type, and Weight
-                # Truncate summary to one line
-                summary_snippet = (ev.abstract or ev.summary or "No summary")[:80].replace("\n", " ")
+                # Truncate abstract to one line
+                abstract_snippet = (ev.abstract or "No abstract")[:80].replace("\n", " ")
                 print(f"     • PMID {ev.pubmed_id} [{ev.pub_type}] (Wt: {ev.weight}, Rel: {ev.relevance}, Stance: {ev.stance.abstract_label}, Stance_prob (s,r,n): {ev.stance.abstract_p_supports}, {ev.stance.abstract_p_refutes}, {ev.stance.abstract_p_neutral}):")
-                print(f"       \"{summary_snippet}...\"")
+                print(f"       \"{abstract_snippet}...\"")
         else:
             print("   (No relevant evidence found)")
 
