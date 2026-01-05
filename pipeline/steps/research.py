@@ -6,7 +6,7 @@ from typing import List, Tuple, Any, Optional, Dict
 import requests
 
 from ..core.base import PipelineStep
-from ..core.models import PipelineState, Evidence
+from ..core.models import Evidence, PipelineState
 
 
 # -------------------------------------------------------------------------
@@ -276,6 +276,7 @@ class PubTypeWeightStep(PipelineStep):
 
         for stmt in state.statements:
             for ev in stmt.evidence:
+                
                 # Use the helper to determine weight
                 w = self._weight_from_pubtypes(ev.pub_type, default=default_weight)
                 ev.weight = float(w)

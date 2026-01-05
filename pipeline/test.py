@@ -1,6 +1,8 @@
+from pathlib import Path
+
 from pipeline.core.models import PipelineState
 from pipeline.core.orchestrator import PipelineOrchestrator
-from pipeline.test_configs.kai_test import FULL_PIPELINE_CONFIG
+from pipeline.test_configs.rag_test import RAG_TEST_CONFIG
 
 
 def print_report(state: PipelineState):
@@ -25,7 +27,9 @@ def print_report(state: PipelineState):
         elif stmt.verdict == "uncertain":
             icon = "⚠️"
 
-        print(f"{icon} [ID {stmt.id}] VERDICT: {stmt.verdict.upper()} (Conf: {stmt.score})")
+        verdict = (stmt.verdict or "unknown").upper()
+        score_display = stmt.score if stmt.score is not None else "N/A"
+        print(f"{icon} [ID {stmt.id}] VERDICT: {verdict} (Conf: {score_display})")
         print(f"   Claim: \"{stmt.text}\"")
 
         # Print Rationale (optional, usually long)
@@ -38,10 +42,50 @@ def print_report(state: PipelineState):
                 # Show PMID, Type, and Weight
                 # Truncate summary to one line
                 summary_snippet = (ev.abstract or ev.summary or "No summary")[:80].replace("\n", " ")
-                print(f"     • PMID {ev.pubmed_id} [{ev.pub_type}] (Wt: {ev.weight}, Rel: {ev.relevance}, Stance: {ev.stance.abstract_label}, Stance_prob (s,r,n): {ev.stance.abstract_p_supports}, {ev.stance.abstract_p_refutes}, {ev.stance.abstract_p_neutral}):")
+                if ev.stance:
+                    stance_label = ev.stance.abstract_label or ev.stance.summary_label or "N/A"
+                    stance_supports = (
+                        ev.stance.abstract_p_supports
+                        if ev.stance.abstract_p_supports is not None
+                        else ev.stance.summary_p_supports
+                    )
+                    stance_refutes = (
+                        ev.stance.abstract_p_refutes
+                        if ev.stance.abstract_p_refutes is not None
+                        else ev.stance.summary_p_refutes
+                    )
+                    stance_neutral = (
+                        ev.stance.abstract_p_neutral
+                        if ev.stance.abstract_p_neutral is not None
+                        else ev.stance.summary_p_neutral
+                    )
+                else:
+                    stance_label = "N/A"
+                    stance_supports = "N/A"
+                    stance_refutes = "N/A"
+                    stance_neutral = "N/A"
+                source_value = getattr(ev, "source", "unknown")
+                source_label = source_value.value if hasattr(source_value, "value") else str(source_value)
+                source_id = ev.pubmed_id or (Path(ev.url).name if ev.url else "N/A")
+                print(
+                    f"     • {source_label} {source_id} [{ev.pub_type}] "
+                    f"(Wt: {ev.weight}, Rel: {ev.relevance}, Stance: {stance_label}, "
+                    f"Stance_prob (s,r,n): {stance_supports}, {stance_refutes}, {stance_neutral}):"
+                )
                 print(f"       \"{summary_snippet}...\"")
         else:
             print("   (No relevant evidence found)")
+
+        if getattr(stmt, "guideline_chunks", None):
+            print(f"   Guideline Chunks ({len(stmt.guideline_chunks)}):")
+            for ch in stmt.guideline_chunks:
+                source = Path(ch.source_path).name
+                pages = ",".join(str(p) for p in ch.pages) if ch.pages else "n/a"
+                chunk_snippet = ch.text[:140].replace("\n", " ")
+                print(f"     • {source} p.{pages} (Score: {ch.score:.2f})")
+                print(f"       \"{chunk_snippet}...\"")
+        else:
+            print("   (No guideline matches found)")
 
         print("-" * 60)
 
@@ -55,7 +99,7 @@ def main():
 
     # 2. Boot the Orchestrator
     try:
-        orchestrator = PipelineOrchestrator(FULL_PIPELINE_CONFIG)
+        orchestrator = PipelineOrchestrator(RAG_TEST_CONFIG)
     except Exception as e:
         print(f"Configuration Error: {e}")
         return

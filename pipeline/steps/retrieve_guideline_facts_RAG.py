@@ -8,8 +8,6 @@ Given a statement (claim), retrieve relevant guideline content from the SQLite v
 - Encodes the statement with the same embedding model (must match DB)
 - Computes cosine similarity (dot product because vectors are normalized)
 - Returns top-k chunks with metadata (doc path + pages)
-- Optional: extracts "facts" as the most relevant sentences from the retrieved chunks
-  (deterministic: sentence-level embedding similarity, no LLM required)
 """
 
 from __future__ import annotations
@@ -17,30 +15,14 @@ from __future__ import annotations
 import argparse
 import json
 import sqlite3
-from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
-
-@dataclass
-class RetrievedChunk:
-    chunk_id: str
-    score: float
-    source_path: str
-    pages: List[int]
-    text: str
-
-
-@dataclass
-class ExtractedFact:
-    fact: str
-    score: float
-    chunk_id: str
-    source_path: str
-    pages: List[int]
+from ..core.base import PipelineStep
+from ..core.models import Evidence, GuidelineChunk, PipelineState
 
 
 def _parse_pages(pages_json: str) -> List[int]:
@@ -99,119 +81,133 @@ def _load_all_chunks(con: sqlite3.Connection, dim: int) -> Tuple[List[Dict[str, 
     return chunk_rows, E
 
 
+def load_guideline_index(db_path: Path) -> Tuple[str, int, List[Dict[str, Any]], np.ndarray]:
+    con = sqlite3.connect(str(db_path))
+    try:
+        embed_model, dim = _load_db_metadata(con)
+        chunk_rows, embeddings = _load_all_chunks(con, dim=dim)
+        return embed_model, dim, chunk_rows, embeddings
+    finally:
+        con.close()
+
+
+def retrieve_chunks_for_statement(
+    statement: str,
+    model: SentenceTransformer,
+    chunk_rows: List[Dict[str, Any]],
+    embeddings: np.ndarray,
+    top_k: int = 5,
+    min_score: float = 0.25,
+) -> List[GuidelineChunk]:
+    if not chunk_rows:
+        return []
+
+    q = model.encode([statement], normalize_embeddings=True)
+    q = np.asarray(q, dtype=np.float32)[0]  # (dim,)
+
+    # Because embeddings and q are normalized, cosine similarity == dot product
+    scores = embeddings @ q  # (N,)
+
+    # top-k selection
+    if top_k <= 0:
+        top_k = 5
+    k = min(top_k, scores.shape[0])
+    idxs = np.argpartition(-scores, kth=k - 1)[:k]
+    idxs = idxs[np.argsort(-scores[idxs])]
+
+    out: List[GuidelineChunk] = []
+    for i in idxs.tolist():
+        s = float(scores[i])
+        if s < min_score:
+            continue
+        r = chunk_rows[i]
+        out.append(
+            GuidelineChunk(
+                chunk_id=r["chunk_id"],
+                score=s,
+                source_path=r["source_path"],
+                pages=r["pages"],
+                text=r["text"],
+            )
+        )
+
+    return out
+
+
 def retrieve_chunks(
     db_path: Path,
     statement: str,
     top_k: int = 5,
     min_score: float = 0.25,
-) -> Tuple[str, int, List[RetrievedChunk]]:
-    con = sqlite3.connect(str(db_path))
-    try:
-        embed_model, dim = _load_db_metadata(con)
+) -> Tuple[str, int, List[GuidelineChunk]]:
+    embed_model, dim, chunk_rows, embeddings = load_guideline_index(db_path)
+    model = SentenceTransformer(embed_model)
+    chunks = retrieve_chunks_for_statement(
+        statement=statement,
+        model=model,
+        chunk_rows=chunk_rows,
+        embeddings=embeddings,
+        top_k=top_k,
+        min_score=min_score,
+    )
+    return embed_model, dim, chunks
+
+
+
+
+
+class RetrieveGuidelineFactsStep(PipelineStep):
+    """
+    Config keys:
+      - db_path: str (default: "guidelines_vdb.sqlite")
+      - top_k: int (default: 5)
+      - min_score: float (default: 0.25)
+    """
+
+    def execute(self, state: PipelineState) -> PipelineState:
+        if not state.statements:
+            print(f"[{self.__class__.__name__}] No statements available; skipping guideline retrieval.")
+            return state
+
+        db_path = Path(self.config.get("db_path", "guidelines_vdb.sqlite")).expanduser().resolve()
+        if not db_path.exists():
+            raise FileNotFoundError(f"Guideline DB not found: {db_path}")
+
+        top_k = int(self.config.get("top_k", 5))
+        min_score = float(self.config.get("min_score", 0.25))
+
+        embed_model, dim, chunk_rows, embeddings = load_guideline_index(db_path)
         model = SentenceTransformer(embed_model)
 
-        chunk_rows, E = _load_all_chunks(con, dim=dim)
+        print(
+            f"[{self.__class__.__name__}] Loaded guideline index with "
+            f"{len(chunk_rows)} chunks (dim={dim})."
+        )
 
-        q = model.encode([statement], normalize_embeddings=True)
-        q = np.asarray(q, dtype=np.float32)[0]  # (dim,)
-
-        # Because E and q are normalized, cosine similarity == dot product
-        scores = E @ q  # (N,)
-
-        # top-k selection
-        if top_k <= 0:
-            top_k = 5
-        k = min(top_k, scores.shape[0])
-        idxs = np.argpartition(-scores, kth=k - 1)[:k]
-        idxs = idxs[np.argsort(-scores[idxs])]
-
-        out: List[RetrievedChunk] = []
-        for i in idxs.tolist():
-            s = float(scores[i])
-            if s < min_score:
+        for stmt in state.statements:
+            statement_text = (stmt.text or "").strip()
+            if not statement_text:
+                stmt.guideline_chunks = []
                 continue
-            r = chunk_rows[i]
-            out.append(
-                RetrievedChunk(
-                    chunk_id=r["chunk_id"],
-                    score=s,
-                    source_path=r["source_path"],
-                    pages=r["pages"],
-                    text=r["text"],
-                )
+
+            chunks = retrieve_chunks_for_statement(
+                statement=statement_text,
+                model=model,
+                chunk_rows=chunk_rows,
+                embeddings=embeddings,
+                top_k=top_k,
+                min_score=min_score,
             )
+            stmt.guideline_chunks = chunks
 
-        return embed_model, dim, out
-    finally:
-        con.close()
+            if stmt.evidence is None:
+                stmt.evidence = []
+            
 
+            if self.debug:
+                print(f"   Statement {stmt.id}: {len(stmt.evidence)} chunks.")
 
-def _split_sentences(text: str) -> List[str]:
-    # Simple, language-agnostic-ish heuristic; deterministic and dependency-free.
-    # You can replace with spaCy later if you want better sentence boundaries.
-    text = " ".join(text.split())
-    if not text:
-        return []
-    # Split on common end punctuation.
-    sents: List[str] = []
-    buf = []
-    for ch in text:
-        buf.append(ch)
-        if ch in ".!?":
-            sent = "".join(buf).strip()
-            buf = []
-            if sent:
-                sents.append(sent)
-    tail = "".join(buf).strip()
-    if tail:
-        sents.append(tail)
-    return sents
-
-
-def extract_facts_from_chunks(
-    embed_model: str,
-    statement: str,
-    chunks: List[RetrievedChunk],
-    max_facts_total: int = 10,
-    max_facts_per_chunk: int = 2,
-    min_fact_chars: int = 40,
-    max_fact_chars: int = 320,
-) -> List[ExtractedFact]:
-    model = SentenceTransformer(embed_model)
-    q = model.encode([statement], normalize_embeddings=True)
-    q = np.asarray(q, dtype=np.float32)[0]
-
-    facts: List[ExtractedFact] = []
-    for ch in chunks:
-        sents = _split_sentences(ch.text)
-        sents = [
-            s for s in sents
-            if min_fact_chars <= len(s) <= max_fact_chars
-        ]
-        if not sents:
-            continue
-
-        S = model.encode(sents, normalize_embeddings=True)
-        S = np.asarray(S, dtype=np.float32)
-
-        scores = S @ q
-        k = min(max_facts_per_chunk, len(sents))
-        idxs = np.argpartition(-scores, kth=k - 1)[:k]
-        idxs = idxs[np.argsort(-scores[idxs])]
-
-        for i in idxs.tolist():
-            facts.append(
-                ExtractedFact(
-                    fact=sents[i],
-                    score=float(scores[i]),
-                    chunk_id=ch.chunk_id,
-                    source_path=ch.source_path,
-                    pages=ch.pages,
-                )
-            )
-
-    facts.sort(key=lambda x: x.score, reverse=True)
-    return facts[:max_facts_total]
+        return state
 
 
 def main() -> None:
@@ -220,9 +216,6 @@ def main() -> None:
     ap.add_argument("--statement", type=str, required=True)
     ap.add_argument("--top_k", type=int, default=5)
     ap.add_argument("--min_score", type=float, default=0.25)
-    ap.add_argument("--extract_facts", action="store_true", help="Extract sentence-level facts from retrieved chunks.")
-    ap.add_argument("--max_facts_total", type=int, default=10)
-    ap.add_argument("--max_facts_per_chunk", type=int, default=2)
     args = ap.parse_args()
 
     db_path = Path(args.db_path).expanduser().resolve()
@@ -238,18 +231,8 @@ def main() -> None:
         "statement": args.statement,
         "embed_model": embed_model,
         "embedding_dim": dim,
-        "retrieved_chunks": [asdict(c) for c in chunks],
+        "retrieved_chunks": [c.model_dump() for c in chunks],
     }
-
-    if args.extract_facts:
-        facts = extract_facts_from_chunks(
-            embed_model=embed_model,
-            statement=args.statement,
-            chunks=chunks,
-            max_facts_total=args.max_facts_total,
-            max_facts_per_chunk=args.max_facts_per_chunk,
-        )
-        result["facts"] = [asdict(f) for f in facts]
 
     print(json.dumps(result, ensure_ascii=False, indent=2))
 

@@ -45,6 +45,16 @@ class Evidence(BaseModel):
     relevance_summary: Optional[float] = None
     stance: Optional[Stance] = None
 
+
+class GuidelineChunk(BaseModel):
+    chunk_id: str
+    score: float
+    source_path: str
+    pages: List[int] = Field(default_factory=list)
+    text: str
+
+
+
 class Statement(BaseModel):
     id: int
     text: str
@@ -53,6 +63,8 @@ class Statement(BaseModel):
     score: Optional[float] = None
     queries: List[str] = Field(default_factory=list)
     evidence: List[Evidence] = Field(default_factory=list)
+    guideline_chunks: List[GuidelineChunk] = Field(default_factory=list)
+    
 
 
 class PipelineState(BaseModel):
