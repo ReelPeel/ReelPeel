@@ -1,4 +1,4 @@
-from pipeline.core.models import PipelineState
+from pipeline.core.models import PipelineState, SourceType
 from pipeline.core.orchestrator import PipelineOrchestrator
 from pipeline.test_configs.kai_test import FULL_PIPELINE_CONFIG
 
@@ -35,10 +35,34 @@ def print_report(state: PipelineState):
         if stmt.evidence:
             print(f"   Evidence Used ({len(stmt.evidence)}):")
             for ev in stmt.evidence:
-                # Show PMID, Type, and Weight
-                # Truncate abstract to one line
-                abstract_snippet = (ev.abstract or "No abstract")[:80].replace("\n", " ")
-                print(f"     • PMID {ev.pubmed_id} [{ev.pub_type}] (Wt: {ev.weight}, Rel: {ev.relevance}, Stance: {ev.stance.abstract_label}, Stance_prob (s,r,n): {ev.stance.abstract_p_supports}, {ev.stance.abstract_p_refutes}, {ev.stance.abstract_p_neutral}):")
+                abstract_snippet = (getattr(ev, "abstract", None) or "No abstract")[:80].replace("\n", " ")
+                stance = getattr(ev, "stance", None)
+                stance_label = getattr(stance, "abstract_label", None) if stance else None
+                stance_s = getattr(stance, "abstract_p_supports", None) if stance else None
+                stance_r = getattr(stance, "abstract_p_refutes", None) if stance else None
+                stance_n = getattr(stance, "abstract_p_neutral", None) if stance else None
+
+                if getattr(ev, "source_type", None) == SourceType.RAG:
+                    chunk_id = getattr(ev, "chunk_id", "N/A")
+                    source_path = getattr(ev, "source_path", "unknown")
+                    pages = getattr(ev, "pages", []) or []
+                    pages_txt = f" p.{','.join(str(p) for p in pages)}" if pages else ""
+                    print(
+                        f"     • RAG {chunk_id} [{source_path}{pages_txt}] "
+                        f"(Wt: {ev.weight}, Rel: {ev.relevance}, "
+                        f"Stance: {stance_label}, "
+                        f"Stance_prob (s,r,n): {stance_s}, {stance_r}, {stance_n}):"
+                    )
+                else:
+                    pub_id = getattr(ev, "pubmed_id", None) or getattr(ev, "epistemonikos_id", None) or "N/A"
+                    pub_type = getattr(ev, "pub_type", None)
+                    print(
+                        f"     • PMID {pub_id} [{pub_type}] "
+                        f"(Wt: {ev.weight}, Rel: {ev.relevance}, "
+                        f"Stance: {stance_label}, "
+                        f"Stance_prob (s,r,n): {stance_s}, {stance_r}, {stance_n}):"
+                    )
+
                 print(f"       \"{abstract_snippet}...\"")
         else:
             print("   (No relevant evidence found)")

@@ -63,8 +63,8 @@ SCORES_MODULE = {
                     "batch_size": 16,
                     "max_length": 4096,
                     "score_fields": ["abstract"],
-                    "empty_relevance": 0.5,
-                    "min_relevance": 0.3,
+                    "empty_relevance": 0.0,
+                    "min_relevance": 0.5,
                 },
             },
             {
@@ -155,6 +155,15 @@ FULL_PIPELINE_CONFIG = {
 
         # STEP 3-5.1: The Research Module
         RESEARCH_MODULE,
+        
+        {
+            "type": "retrieve_guideline_facts",
+            "settings": {
+                "db_path": "pipeline/RAG_vdb/guidelines_vdb.sqlite",
+                "top_k": 5,
+                "min_score": 0.25,
+            },
+        },
         
         # Step 5.99: Scores Module
         SCORES_MODULE,
