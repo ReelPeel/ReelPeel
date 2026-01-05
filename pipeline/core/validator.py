@@ -4,12 +4,21 @@ from typing import Dict, Any, Set, Tuple, List
 
 import httpx
 
+# Try to import huggingface_hub for robust checking
+try:
+    from huggingface_hub import try_to_load_from_cache, HfApi
+    from huggingface_hub.utils import RepositoryNotFoundError, GatedRepoError
+
+    HAS_HF_HUB = True
+except ImportError:
+    HAS_HF_HUB = False
+
 
 def validate_pipeline_models(config: Dict[str, Any]):
     """
     Validates all models defined in the pipeline config.
     - 'model' keys are checked against the Ollama server.
-    - 'model_name' keys are checked against the Hugging Face Hub (or local paths).
+    - 'model_name' keys are checked using huggingface_hub (Strict Mode).
     """
     print("--- Validating Model Availability ---")
 
@@ -78,39 +87,29 @@ def _validate_ollama_models(config: Dict, models: Set[str]) -> List[str]:
     llm_settings = config.get("llm_settings", {})
     base_url = llm_settings.get("base_url", "http://localhost:11434/v1")
 
-    # Clean URL for the /models endpoint
-    # OpenAI API: /v1/models
-    # Ollama Raw: /api/tags
-
     available_models = set()
     missing = []
 
     try:
-        # Try OpenAI-compatible endpoint first
         models_url = f"{base_url.rstrip('/')}/models"
-        # print(f"    Querying LLM Server: {models_url}...")
 
         with httpx.Client(timeout=5.0) as client:
             resp = client.get(models_url)
 
             if resp.status_code == 404:
-                # Fallback to Ollama native API if /v1/models is missing
+                # Fallback to Ollama native API
                 alt_url = re.sub(r"/v1$", "", base_url.rstrip('/')) + "/api/tags"
-                # print(f"    Retrying with Ollama Native: {alt_url}...")
                 resp = client.get(alt_url)
                 resp.raise_for_status()
                 data = resp.json()
-                # Ollama native returns 'name'
                 available_models = {m["name"] for m in data.get("models", [])}
             else:
                 resp.raise_for_status()
                 data = resp.json()
-                # OpenAI returns 'id'
                 available_models = {m["id"] for m in data.get("data", [])}
 
     except Exception as e:
         print(f"    [WARNING] Could not connect to LLM server: {e}")
-        # If we can't check, we warn but don't crash the pipeline unless strict
         return [f"LLM Server Unreachable: {e}"]
 
     for req in models:
@@ -125,31 +124,62 @@ def _validate_ollama_models(config: Dict, models: Set[str]) -> List[str]:
 
 
 def _validate_hf_models(models: Set[str]) -> List[str]:
-    """Checks if models exist on the Hugging Face Hub (or are local files)."""
+    """Checks if models exist locally, in HF cache, or on the Hugging Face Hub."""
     missing = []
 
-    with httpx.Client(timeout=10.0) as client:
-        for m in models:
-            # 1. Check if it's a local path first
-            if os.path.isdir(m) or os.path.isfile(m):
-                print(f"    [OK] HF (Local): {m}")
-                continue
+    # Initialize API if available
+    api = HfApi() if HAS_HF_HUB else None
 
-            # 2. Check Hugging Face Hub API
-            # API: https://huggingface.co/api/models/{repo_id}
-            url = f"https://huggingface.co/api/models/{m}"
+    for m in models:
+        # 1. Check if it's a local path first
+        if os.path.isdir(m) or os.path.isfile(m):
+            print(f"    [OK] HF (Local Path): {m}")
+            continue
 
+        # 2. Check Hugging Face Cache (Fast)
+        if HAS_HF_HUB:
             try:
-                resp = client.get(url)
-                if resp.status_code == 200:
-                    print(f"    [OK] HF (Hub): {m}")
-                elif resp.status_code == 401 or resp.status_code == 403:
-                    print(f"    [WARN] HF (Private/Gated): {m} (Assuming valid)")
-                else:
-                    print(f"    [ERROR] HF Model not found: {m}")
-                    missing.append(f"Missing HF Model: {m}")
+                cached_path = try_to_load_from_cache(repo_id=m, filename="config.json")
+                if cached_path:
+                    print(f"    [OK] HF (Cache): {m}")
+                    continue
+            except Exception:
+                pass
+
+        # 3. Check Online (Robust via HfApi)
+        if HAS_HF_HUB:
+            try:
+                # This throws specific errors for 404 vs 401/403
+                api.model_info(repo_id=m)
+                print(f"    [OK] HF (Online Hub): {m}")
+            except RepositoryNotFoundError:
+                print(f"    [ERROR] HF Model not found: {m}")
+                missing.append(f"Model not found on HF Hub: {m}")
+            except GatedRepoError:
+                print(f"    [OK] HF (Gated/Private): {m} (Ensure you are logged in)")
             except Exception as e:
-                print(f"    [WARN] Could not check HF Hub for {m}: {e}")
-                # Don't fail on network errors (might be offline mode)
+                # If network error or other API issue
+                print(f"    [ERROR] HF Verification failed for {m}: {e}")
+                missing.append(f"Could not verify HF model: {m}")
+
+        # 4. Fallback if huggingface_hub is NOT installed (Raw HTTP)
+        else:
+            print(f"    [INFO] validating {m} via raw HTTP...")
+            url = f"https://huggingface.co/api/models/{m}"
+            with httpx.Client(timeout=10.0) as client:
+                try:
+                    resp = client.get(url)
+                    if resp.status_code == 200:
+                        print(f"    [OK] HF (Online Hub): {m}")
+                    elif resp.status_code == 404:
+                        print(f"    [ERROR] HF Model not found: {m}")
+                        missing.append(f"Model not found: {m}")
+                    else:
+                        # Treat 403/401 as ERRORS in strict mode, because pipeline download will likely fail too
+                        print(f"    [ERROR] HF Access Denied ({resp.status_code}): {m}")
+                        missing.append(f"Access Denied for model: {m}")
+                except Exception as e:
+                    print(f"    [WARN] Network error checking {m}: {e}")
+                    # Don't block pipeline on network error if using raw HTTP (risky but flexible)
 
     return missing
