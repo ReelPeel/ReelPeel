@@ -8,3 +8,5 @@ __pycache__
 *.json
 *.log
 evaluation/deberta_runs/
+
+.idea
