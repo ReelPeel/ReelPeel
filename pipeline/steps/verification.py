@@ -60,14 +60,73 @@ class TruthnessStep(PipelineStep):
         prompt_tmpl = self.config.get('prompt_template', "")
         transcript = state.transcript or ""
 
+        def _fmt(val):
+            if val is None:
+                return None
+            try:
+                return f"{float(val):.2f}"
+            except Exception:
+                return None
+
         for stmt in state.statements:
             # 1. Build Evidence Block
             evidence_lines = []
             for ev in stmt.evidence:
                 pmid = ev.pubmed_id or "N/A"
+                parts = [f"PMID {pmid}"]
+
+                w = _fmt(getattr(ev, "weight", None))
+                if w is not None:
+                    parts.append(f"w {w}")
+
+                rel = _fmt(getattr(ev, "relevance", None))
+                if rel is not None:
+                    parts.append(f"rel {rel}")
+
+                stance_info = []
+                st = getattr(ev, "stance", None)
+                if st is not None:
+                    abs_label = getattr(st, "abstract_label", None)
+                    abs_s = _fmt(getattr(st, "abstract_p_supports", None))
+                    abs_r = _fmt(getattr(st, "abstract_p_refutes", None))
+                    abs_n = _fmt(getattr(st, "abstract_p_neutral", None))
+                    if abs_label or any(v is not None for v in [abs_s, abs_r, abs_n]):
+                        probs = []
+                        if abs_s is not None:
+                            probs.append(f"S{abs_s}")
+                        if abs_r is not None:
+                            probs.append(f"R{abs_r}")
+                        if abs_n is not None:
+                            probs.append(f"N{abs_n}")
+                        label = abs_label.value if abs_label is not None else "NA"
+                        prob_txt = f" ({' '.join(probs)})" if probs else ""
+                        stance_info.append(f"abs {label}{prob_txt}")
+
+                    sum_label = getattr(st, "summary_label", None)
+                    sum_s = _fmt(getattr(st, "summary_p_supports", None))
+                    sum_r = _fmt(getattr(st, "summary_p_refutes", None))
+                    sum_n = _fmt(getattr(st, "summary_p_neutral", None))
+                    if sum_label or any(v is not None for v in [sum_s, sum_r, sum_n]):
+                        probs = []
+                        if sum_s is not None:
+                            probs.append(f"S{sum_s}")
+                        if sum_r is not None:
+                            probs.append(f"R{sum_r}")
+                        if sum_n is not None:
+                            probs.append(f"N{sum_n}")
+                        label = sum_label.value if sum_label is not None else "NA"
+                        prob_txt = f" ({' '.join(probs)})" if probs else ""
+                        stance_info.append(f"sum {label}{prob_txt}")
+
+                if stance_info:
+                    parts.append(f"stance {'; '.join(stance_info)}")
+
                 # Use abstract (preferred) or summary
                 content = (ev.abstract or ev.summary or "").strip().replace("\n", " ")
-                evidence_lines.append(f"- PMID {pmid}: {content}")
+                if content:
+                    parts.append(f"text: {content}")
+
+                evidence_lines.append("- " + " | ".join(parts))
 
             evidence_block = "\n".join(evidence_lines) or "No evidence provided."
 

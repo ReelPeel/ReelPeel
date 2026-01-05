@@ -182,7 +182,13 @@ You are a professional medical fact-checker.
 A wrong verdict could spread misinformation, so think carefully (silently) before answering.
 
 TASK  
-Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim. If evidence is insufficient or contradictory, use the "weights" to guide your decision in the "EVIDENCE" if available.
+Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim. If evidence is insufficient or contradictory, use the evidence metadata if present.
+
+METADATA (if present in EVIDENCE lines)
+- w: study type strength (0-1, higher = stronger evidence)
+- rel: claim match (0-1, higher = more on-topic)
+- stance: NLI label + probs for abstract/summary (S support, R refute, N neutral)
+Use higher w/rel evidence more, and use stance to resolve contradictions.
 
 CLAIM:
 {claim_text}
@@ -190,7 +196,7 @@ CLAIM:
 EVIDENCE:
 {evidence_block}
 
-Inclunding the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
+Including the Scientific Evidence together with Common Sense and the Context of the Video Transcript:
 {transcript}
 
 give the final response in the following format:
