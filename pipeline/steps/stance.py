@@ -5,7 +5,6 @@ STEP (SCORES): COMPUTE STANCE (NLI) FOR EVIDENCE
 - Uses cnut1648/biolinkbert-mednli (BioLinkBERT-large fine-tuned on MedNLI).
 - Writes per-field outputs back into Evidence.stance (nested model):
     - stance.abstract_label / stance.abstract_p_{supports,refutes,neutral}
-    - stance.summary_label  / stance.summary_p_{supports,refutes,neutral}
 
 Label mapping for cnut1648/biolinkbert-mednli:
     id2label = {0: entailment, 1: neutral, 2: contradiction}
@@ -112,7 +111,7 @@ class StanceEvidenceStep(PipelineStep):
       - batch_size: int (default: 16)
       - max_length: int (default: 512)
 
-      - evidence_fields: list[str] (default: ["abstract","summary"])
+      - evidence_fields: list[str] (default: ["abstract"])
           Which Evidence fields to compute stance on.
 
       - top_m_by_relevance: int | None (default: None)
@@ -130,7 +129,7 @@ class StanceEvidenceStep(PipelineStep):
         batch_size = int(self.config.get("batch_size", 16))
         max_length = int(self.config.get("max_length", 512))
 
-        evidence_fields = self.config.get("evidence_fields", ["abstract", "summary"])
+        evidence_fields = self.config.get("evidence_fields", ["abstract"])
         top_m = self.config.get("top_m_by_relevance", None)
         threshold_decisive = float(self.config.get("threshold_decisive", 0.0))
 

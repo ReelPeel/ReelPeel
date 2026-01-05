@@ -10,7 +10,7 @@ The current pipeline is centered on PubMed-backed medical fact checking:
 2. LLM extracts 1-3 medical claims.
 3. LLM generates multiple PubMed queries per claim.
 4. PubMed IDs are fetched via a local proxy (rate limited).
-5. Abstracts are retrieved and summarized.
+5. Abstracts are retrieved.
 6. Publication types are converted into evidence weights.
 7. Evidence is reranked for relevance.
 8. Evidence stance is computed with an NLI model.
@@ -120,7 +120,7 @@ graph TD
     A[Transcript] --> B[Claim extraction]
     B --> C[Query generation]
     C --> D[PubMed fetch]
-    D --> E[Abstract fetch + summary]
+    D --> E[Abstract fetch]
     E --> F[Pub type weights]
     F --> G[Relevance rerank]
     G --> H[Stance (NLI)]
@@ -134,4 +134,3 @@ graph TD
 - Evidence weights are derived from PubMed publication types.
 - Relevance and stance are computed with Transformers models and require torch/transformers.
 - The pipeline logs detailed step outputs to `pipeline_debug_<run_id>.log` when debug is enabled.
-

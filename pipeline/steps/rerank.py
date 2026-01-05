@@ -2,9 +2,7 @@
 STEP (SCORES): RERANK EVIDENCE WITH BGE RERANKER v2 m3
 -----------------------------------------------------
 - Scores each evidence item for *relevance to the claim* using BAAI/bge-reranker-v2-m3.
-- Computes separate rerank scores:
-    - ev.relevance_abstract (claim vs abstract)
-    - ev.relevance_summary  (claim vs summary)
+- Computes ev.relevance_abstract (claim vs abstract).
 - Also writes ev.relevance as a combined score for downstream sorting.
 """
 
@@ -85,7 +83,7 @@ class RerankEvidenceStep(PipelineStep):
       - batch_size: int (default: 16)
       - max_length: int (default: 512)
 
-      - score_fields: list[str] (default: ["abstract","summary"])
+      - score_fields: list[str] (default: ["abstract"])
           Which evidence fields to score individually.
 
       - combine_strategy: str (default: "max")
@@ -106,7 +104,7 @@ class RerankEvidenceStep(PipelineStep):
         batch_size = int(self.config.get("batch_size", 16))
         max_length = int(self.config.get("max_length", 512))
 
-        score_fields = self.config.get("score_fields", ["abstract", "summary"])
+        score_fields = self.config.get("score_fields", ["abstract"])
         combine_strategy = self.config.get("combine_strategy", "max")
         empty_relevance = float(self.config.get("empty_relevance", 0.0))
 

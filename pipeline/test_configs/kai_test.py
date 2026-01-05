@@ -62,7 +62,7 @@ SCORES_MODULE = {
                     "normalize": True,
                     "batch_size": 16,
                     "max_length": 4096,
-                    "score_fields": ["abstract", "summary"],
+                    "score_fields": ["abstract"],
                     "empty_relevance": 0.0,
                 },
             },
@@ -73,7 +73,7 @@ SCORES_MODULE = {
                     "use_fp16": True,
                     "batch_size": 16,
                     "max_length": 512,
-                    "evidence_fields": ["abstract", "summary"],
+                    "evidence_fields": ["abstract"],
 
                     # optional: only compute stance on Top-M evidence per statement (by ev.relevance)
                     # "top_m_by_relevance": 5,
