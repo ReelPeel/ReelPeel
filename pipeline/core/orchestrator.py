@@ -1,5 +1,5 @@
-import time
 import io
+import time
 from datetime import datetime
 from typing import Dict, List, Any
 
@@ -10,9 +10,10 @@ from rich.table import Table
 from rich.text import Text
 
 from .factory import StepFactory
-from .models import PipelineState
 from .logging import PipelineLogger
+from .models import PipelineState
 from .service_manager import ensure_pubmed_proxy
+from .validator import validate_pipeline_models
 
 
 class PipelineOrchestrator:
@@ -26,7 +27,15 @@ class PipelineOrchestrator:
         self.logger = PipelineLogger(self.run_id, debug=self.debug)
         ensure_pubmed_proxy()
 
-        # 2. Build Steps
+        # 2. VALIDATION (Fail Fast)
+        # Check models before doing anything expensive
+        try:
+            validate_pipeline_models(self.config)
+        except ValueError as e:
+            print(f"[Orchestrator] Configuration Validation Failed: {e}")
+            raise e  # Stop execution
+
+        # 3. Build Steps
         self.steps = []
         for step_def in config.get("steps", []):
             # Inject global settings
