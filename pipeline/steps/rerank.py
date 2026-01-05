@@ -68,6 +68,8 @@ class RerankEvidenceStep(PipelineStep):
           Which evidence fields to score individually.
 
       - empty_relevance: float (default: 0.0)
+      - min_relevance: float | None (default: None)
+          Drop evidence with relevance below this threshold after scoring.
     """
 
     def execute(self, state: PipelineState) -> PipelineState:
@@ -82,6 +84,13 @@ class RerankEvidenceStep(PipelineStep):
         if "abstract" not in score_fields:
             score_fields = ["abstract"]
         empty_relevance = float(self.config.get("empty_relevance", 0.0))
+        min_relevance_cfg = self.config.get("min_relevance", None)
+        min_relevance = None
+        if min_relevance_cfg is not None:
+            try:
+                min_relevance = float(min_relevance_cfg)
+            except Exception:
+                min_relevance = None
 
         if torch is None:
             raise RuntimeError("torch/transformers not available for reranking.")
@@ -164,5 +173,11 @@ class RerankEvidenceStep(PipelineStep):
                     a = float(ev.relevance) if ev.relevance is not None else float(empty_relevance)
 
                 ev.relevance = float(a)
+
+            if min_relevance is not None:
+                stmt.evidence = [
+                    ev for ev in stmt.evidence
+                    if float(getattr(ev, "relevance", 0.0) or 0.0) >= min_relevance
+                ]
 
         return state

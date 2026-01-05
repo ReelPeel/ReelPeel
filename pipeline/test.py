@@ -25,7 +25,7 @@ def print_report(state: PipelineState):
         elif stmt.verdict == "uncertain":
             icon = "⚠️"
 
-        print(f"{icon} [ID {stmt.id}] VERDICT: {stmt.verdict.upper()} (Conf: {stmt.score})")
+        print(f"{icon} [ID {stmt.id}] VERDICT: {stmt.verdict.upper()} (Score: {stmt.score})")
         print(f"   Claim: \"{stmt.text}\"")
 
         # Print Rationale (optional, usually long)

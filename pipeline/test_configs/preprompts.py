@@ -174,13 +174,19 @@ You are a professional medical fact-checker.
 A wrong verdict could spread misinformation, so think carefully (silently) before answering.
 
 TASK  
-Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim. If evidence is insufficient or contradictory, use the evidence metadata if present.
+Decide whether the provided abstracts collectively SUPPORT, REFUTE, or leave UNCERTAIN the claim. 
+If evidence is insufficient or contradictory, use the evidence metadata if present.
 
 METADATA (if present in EVIDENCE lines)
 - w: study type strength (0-1, higher = stronger evidence)
 - rel: claim match (0-1, higher = more on-topic)
 - stance: NLI label + probs for abstract (S support, R refute, N neutral)
 Prefer higher w/rel evidence and stronger stance probabilities. Downweight low rel items.
+
+CONSERVATIVE RULES
+- If evidence is sparse, low relevance, neutral stance, or mixed, lean more towards UNCERTAIN.
+- Lean more towards TRUE/FALSE when multiple high-relevance items agree and stance is strong.
+- If no evidence lines are present, lean more towards UNCERTAIN with a tendancy towards FALSE (low score <= 0.40).
 
 CLAIM:
 {claim_text}

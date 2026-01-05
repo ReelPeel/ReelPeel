@@ -1,6 +1,6 @@
 # ReelPeel Medical Fact-Checking Pipeline
 
-Extract medical claims from short-form content, retrieve PubMed evidence, and produce a structured verdict with confidence scores.
+Extract medical claims from short-form content, retrieve PubMed evidence, and produce a structured verdict with scores.
 
 ## What it does
 
@@ -15,7 +15,7 @@ The current pipeline is centered on PubMed-backed medical fact checking:
 7. Evidence is reranked for relevance.
 8. Evidence stance is computed with an NLI model.
 9. LLM filters irrelevant evidence.
-10. LLM produces a verdict and confidence.
+10. LLM produces a verdict and score.
 11. Overall truthiness is computed from statement scores.
 
 ## Repository layout

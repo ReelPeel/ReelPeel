@@ -115,6 +115,7 @@ class TruthnessStep(PipelineStep):
         transcript = state.transcript or ""
 
         for stmt in state.statements:
+            stmt.evidence.sort(key=lambda ev: float(getattr(ev, "relevance", 0.0) or 0.0))
             # 1. Build Evidence Block
             evidence_lines = []
             for ev in stmt.evidence:

@@ -1,6 +1,6 @@
 from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_BALANCED, PROMPT_TMPL_S3_SPECIFIC, PROMPT_TMPL_S3_ATM_ASSISTED, PROMPT_TMPL_S6, PROMPT_TMPL_S7
 
-BASE_TEMPERATURE = 0.0
+BASE_TEMPERATURE = 0.3
 
 # 1. Define the Research Module (Steps 3, 4, 5, 5.1)
 RESEARCH_MODULE = {
@@ -11,7 +11,7 @@ RESEARCH_MODULE = {
             {
                 "type": "generate_query",  # Step 3
                 "settings": {
-                    "model": "gemma3:12b",
+                    "model": "gemma3:27b",
                     "prompt_template": PROMPT_TMPL_S3_BALANCED,
                     "temperature": BASE_TEMPERATURE,
                 }
@@ -19,7 +19,7 @@ RESEARCH_MODULE = {
         {
                 "type": "generate_query",  # Step 3
                 "settings": {
-                    "model": "gemma3:12b",
+                    "model": "gemma3:27b",
                     "prompt_template": PROMPT_TMPL_S3_SPECIFIC,
                     "temperature": BASE_TEMPERATURE,
                 }
@@ -27,14 +27,14 @@ RESEARCH_MODULE = {
         {
                 "type": "generate_query",  # Step 3
                 "settings": {
-                    "model": "gemma3:12b",
+                    "model": "gemma3:27b",
                     "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED,
                     "temperature": BASE_TEMPERATURE,
                 }
             },
             {
                 "type": "fetch_links",  # Step 4
-                "settings": {"retmax": 5}
+                "settings": {"retmax": 10}
             },
             {
                 "type": "summarize_evidence",  # Step 5
@@ -63,7 +63,8 @@ SCORES_MODULE = {
                     "batch_size": 16,
                     "max_length": 4096,
                     "score_fields": ["abstract"],
-                    "empty_relevance": 0.0,
+                    "empty_relevance": 0.5,
+                    "min_relevance": 0.3,
                 },
             },
             {
@@ -98,7 +99,7 @@ VERIFICATION_MODULE = {
             {
                 "type": "filter_evidence",
                 "settings": {
-                    "model": "gemma3:12b",
+                    "model": "gemma3:27b",
                     "prompt_template": PROMPT_TMPL_S6,
                     "temperature": BASE_TEMPERATURE,
                     # "max_tokens": 512 # Currently hardcoded in individual step
@@ -108,7 +109,7 @@ VERIFICATION_MODULE = {
             {
                 "type": "truthness",
                 "settings": {
-                    "model": "gemma3:12b",
+                    "model": "gemma3:27b",
                     "prompt_template": PROMPT_TMPL_S7,
                     "temperature": BASE_TEMPERATURE,
                     # "max_tokens": 512 # Currently hardcoded in individual step
@@ -145,7 +146,7 @@ FULL_PIPELINE_CONFIG = {
         {
             "type": "extraction",
             "settings": {
-                "model": "gemma3:12b",
+                "model": "gemma3:27b",
                 "prompt_template": PROMPT_TMPL_S2,
                 "temperature": BASE_TEMPERATURE,
                 # "max_tokens": 512 # Currently hardcoded in individual step
