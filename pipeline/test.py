@@ -1,3 +1,23 @@
+"""
+Manual runner for the end-to-end fact-checking pipeline.
+
+This module is a convenience script, not a unit test. It wires up a full
+PipelineOrchestrator using the predefined FULL_PIPELINE_CONFIG and prints a
+human-readable report of the final results. It also saves the entire
+PipelineState to a JSON file for debugging and offline inspection.
+
+Data flow summary:
+- Initialize an empty PipelineState (no transcript or statements yet).
+- Build and run the PipelineOrchestrator from FULL_PIPELINE_CONFIG.
+- Render a final report per statement, including verdicts, evidence weights,
+  relevance scores, stance probabilities, and RAG chunk details.
+- Write the full structured output to final_output.json in the CWD.
+
+Operational notes:
+- Requires the configured LLM models and the PubMed proxy to be available.
+- Intended for manual debugging, integration testing, and demo runs.
+"""
+
 from pipeline.core.models import PipelineState, SourceType
 from pipeline.core.orchestrator import PipelineOrchestrator
 from pipeline.test_configs.kai_test import FULL_PIPELINE_CONFIG

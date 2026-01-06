@@ -1,3 +1,39 @@
+"""
+Research module (steps 3-5.1): turn statements into PubMed evidence.
+
+This file defines a sequence of PipelineStep implementations that expand a
+claim into PubMed queries, fetch matching PMIDs, and enrich those results with
+titles, abstracts, publication types, and weights:
+
+- StatementToQueryStep (Step 3):
+  Uses an LLM to generate PubMed queries per statement, normalizes tags, and
+  appends unique queries to stmt.queries.
+- QueryToLinkStep (Step 4):
+  Calls the PubMed ESearch API (via a local proxy) to retrieve PMIDs and
+  creates PubMedEvidence entries or updates existing ones with query provenance.
+- LinkToAbstractStep (Step 5):
+  Batch fetches publication types (esummary) and title/abstract content
+  (efetch) for all PMIDs, then attaches this metadata to evidence objects.
+- PubTypeWeightStep (Step 5.1):
+  Assigns evidence weights by matching publication types against regex rules
+  (systematic review, RCT, etc.).
+
+Inputs:
+- state.statements populated with Statement.text.
+- Each Statement should have stmt.evidence initialized (defaults to empty list).
+
+Outputs:
+- stmt.queries: normalized PubMed queries per statement.
+- stmt.evidence: PubMedEvidence objects with pubmed_id, url, title, abstract,
+  pub_type, and weight fields.
+- state.generated_at updated after metadata enrichment.
+
+Operational notes:
+- Uses a local proxy at http://127.0.0.1:8080/proxy by default (see service_manager).
+- Batches esummary/efetch requests to reduce HTTP calls.
+- All network failures are caught and logged; evidence may remain partial.
+"""
+
 import re
 import xml.etree.ElementTree as ET
 from datetime import datetime
