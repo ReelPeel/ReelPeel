@@ -45,6 +45,19 @@ class LLMService:
             if max_tokens is not None:
                 kwargs["max_tokens"] = max_tokens
 
+            if self.observer:
+                self.observer.on_artifact(
+                    "LLM Prompt",
+                    {
+                        "model": model,
+                        "temperature": temperature,
+                        "max_tokens": max_tokens,
+                        "stop": stop,
+                        "prompt": prompt,
+                    },
+                    depth=0,
+                )
+
             # Execute Call
             response = self.client.chat.completions.create(**kwargs)
 

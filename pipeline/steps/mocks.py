@@ -1,3 +1,26 @@
+"""
+Test-only steps that inject controlled inputs into the pipeline state.
+
+These steps are used in test configs to bypass upstream dependencies
+(audio ingestion, transcription, or LLM extraction) and to make downstream
+steps reproducible. They do not call external services and only mutate
+PipelineState with provided values.
+
+Provided steps and expected config:
+- MockTranscriptLoader:
+  - config key: transcript_text (str)
+  - writes state.transcript and updates state.generated_at
+  - logs a warning if transcript_text is missing or empty
+- MockStatementLoader:
+  - config key: statements (list[dict])
+  - each dict may include id, text, and optional query
+  - writes state.statements with Statement models and leaves transcript unchanged
+
+Typical usage:
+- Use MockTranscriptLoader as Step 1 when testing extraction and downstream steps.
+- Use MockStatementLoader to skip extraction and test research/verification logic.
+"""
+
 from datetime import datetime
 
 from ..core.base import PipelineStep

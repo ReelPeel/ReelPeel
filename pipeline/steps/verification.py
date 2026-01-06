@@ -1,3 +1,33 @@
+"""
+Verification module (steps 6-8): filter evidence, judge truthness, aggregate score.
+
+This file defines the final pipeline steps that take ranked evidence and turn
+it into statement-level verdicts and an overall truthiness score.
+
+Included steps:
+- FilterEvidenceStep (Step 6):
+  Uses an LLM to decide whether each evidence item is relevant to the claim.
+  PubMed/Epistemonikos/RAG evidence is formatted into a compact line (including
+  relevance and any available stance metadata) and passed to the model.
+  Only responses starting with "yes" are treated as relevant.
+- TruthnessStep (Step 7):
+  Builds an evidence block (plus RAG chunk block) and calls an LLM to produce
+  a VERDICT and FINALSCORE. Parses those fields and writes them to Statement.
+- ScoringStep (Step 8):
+  Computes state.overall_truthiness as a weighted average. Scores below a
+  threshold are up-weighted to penalize false or uncertain statements.
+
+Inputs:
+- state.statements with stmt.evidence already populated and scored.
+- Evidence objects may contain relevance, weight, and stance fields.
+- config keys: prompt_template, model, temperature, max_tokens, threshold.
+
+Outputs:
+- stmt.evidence filtered for relevance.
+- stmt.verdict, stmt.score, stmt.rationale set by TruthnessStep.
+- state.overall_truthiness set by ScoringStep.
+"""
+
 import re
 
 from ..core.base import PipelineStep
@@ -112,10 +142,6 @@ class FilterEvidenceStep(PipelineStep):
             filtered_evidence = []
 
             for ev in stmt.evidence:
-                if _source_type_value(ev) == SourceType.RAG.value:
-                    filtered_evidence.append(ev)
-                    continue
-
                 # Use abstract if available, otherwise skip filter
                 text_to_check = getattr(ev, "abstract", None) or ""
                 if not text_to_check.strip():
