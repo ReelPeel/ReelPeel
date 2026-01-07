@@ -1,4 +1,14 @@
-from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_BALANCED, PROMPT_TMPL_S3_SPECIFIC, PROMPT_TMPL_S3_ATM_ASSISTED, PROMPT_TMPL_S6, PROMPT_TMPL_S7
+from pipeline.test_configs.preprompts import (
+    PROMPT_TMPL_S2,
+    PROMPT_TMPL_S3_BALANCED,
+    PROMPT_TMPL_S3_SPECIFIC,
+    PROMPT_TMPL_S3_ATM_ASSISTED,
+    PROMPT_TMPL_S3_BALANCED_COUNTER,
+    PROMPT_TMPL_S3_SPECIFIC_COUNTER,
+    PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER,
+    PROMPT_TMPL_S6,
+    PROMPT_TMPL_S7,
+)
 
 BASE_TEMPERATURE = 0.3
 
@@ -24,7 +34,7 @@ RESEARCH_MODULE = {
                     "temperature": BASE_TEMPERATURE,
                 }
             },
-        {
+            {
                 "type": "generate_query",  # Step 3
                 "settings": {
                     "model": "gemma3:27b",
@@ -33,8 +43,32 @@ RESEARCH_MODULE = {
                 }
             },
             {
+                "type": "generate_query",  # Step 3 (counter-evidence)
+                "settings": {
+                    "model": "gemma3:27b",
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
+                "type": "generate_query",  # Step 3 (counter-evidence)
+                "settings": {
+                    "model": "gemma3:27b",
+                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
+                "type": "generate_query",  # Step 3 (counter-evidence)
+                "settings": {
+                    "model": "gemma3:27b",
+                    "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
                 "type": "fetch_links",  # Step 4
-                "settings": {"retmax": 10}
+                "settings": {"retmax": 20}
             },
             {
                 "type": "summarize_evidence",  # Step 5
