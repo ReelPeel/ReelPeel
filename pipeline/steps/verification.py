@@ -189,17 +189,26 @@ class TruthnessStep(PipelineStep):
         for stmt in state.statements:
             stmt.evidence.sort(key=lambda ev: float(getattr(ev, "relevance", 0.0) or 0.0))
             # 1. Build Evidence Block
-            evidence_lines = []
+            pubmed_lines = []
             rag_lines = []
             for ev in stmt.evidence:
                 if _source_type_value(ev) == SourceType.RAG.value:
                     rag_lines.append(_format_rag_chunk(ev, include_text=True))
                 else:
-                    evidence_lines.append(_format_evidence_line(ev, include_text=True))
+                    pubmed_lines.append(_format_evidence_line(ev, include_text=True))
 
-            evidence_block = "\n".join(evidence_lines) or "No evidence provided."
-
+            pubmed_block = "\n".join(pubmed_lines) or "No PubMed evidence provided."
             rag_block = "\n".join(rag_lines) or "No RAG chunks provided."
+
+            evidence_block = "\n".join(
+                [
+                    "PUBMED EVIDENCE:",
+                    pubmed_block,
+                    "",
+                    "RAG EVIDENCE:",
+                    rag_block,
+                ]
+            ).strip()
 
             # 2. Call LLM
             try:

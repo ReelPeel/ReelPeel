@@ -26,14 +26,16 @@ No commentary, no extra keys, no markdown.
 
 
 # ────────────────────────────────────────────────────────────────────
-# Step3: PubMed query generation (REVISED)
+# Step3: PubMed query generation (modular preprompts)
 # ────────────────────────────────────────────────────────────────────
-PROMPT_TMPL_S3_BALANCED = """
-You are a biomedical information specialist generating PubMed searches for a medical fact-checking pipeline. The input CLAIM comes from an Instagram reel and may be informal or exaggerated. Translate informal wording into scientifically standard terminology suitable for PubMed searching (use clinical/scientific equivalents where applicable).
+S3_INTRO = (
+    "You are a biomedical information specialist generating PubMed searches for a medical "
+    "fact-checking pipeline. The input CLAIM comes from an Instagram reel and may be informal "
+    "or exaggerated. Translate informal wording into scientifically standard terminology suitable "
+    "for PubMed searching (use clinical/scientific equivalents where applicable).\\n"
+)
 
-TASK
-Return ONE PubMed Boolean query (single line) that retrieves papers relevant to evaluating the claim.
-
+S3_OUTPUT_RULES_BASE = """
 OUTPUT RULES (strict)
 - Output ONLY the query string. No explanations. Exactly one line.
 - Use uppercase AND/OR/NOT.
@@ -43,11 +45,28 @@ OUTPUT RULES (strict)
 - Multi-word phrases must be written as: word1 word2[tiab] (no quotes).
 - Ensure parentheses are balanced; no leading/trailing whitespace.
 - Do not tag groups of synonyms with a single field tag.
-- all words must be tagged. 
 - Do not use generalic domian words as filters, like molecular biology, homeostasis, wellness, detox, etc.
+"""
 
+S3_OUTPUT_RULES_BALANCED = S3_OUTPUT_RULES_BASE + "- all words must be tagged.\\n"
+
+S3_OUTPUT_RULES_SPECIFIC = S3_OUTPUT_RULES_BASE + (
+    "- all words must be tagged.\\n"
+    "- End with a final AND group that boosts clinical/human evidence recall, e.g., \\n"
+    "  (humans[mh] OR clinical trial[tiab] OR randomized[tiab] OR randomised[tiab] OR "
+    "trial[tiab] OR cohort[tiab] OR case control[tiab] OR observational[tiab] OR "
+    "systematic review[tiab] OR meta analysis[tiab])\\n"
+)
+
+S3_OUTPUT_RULES_ATM = S3_OUTPUT_RULES_BASE + (
+    "- Allowed field tags: [mh] and [tiab] only, EXCEPT you may include EXACTLY one "
+    "untagged scientific anchor term or phrase (no tag) inside the anchor group.\\n"
+    "- all words must be tagged, except for the single untagged scientific anchor term/phrase.\\n"
+)
+
+S3_SEMANTIC_RULES_BASE = """
 SEMANTIC RULES
-1) Identify 2–4 core CONCEPTS from the claim (e.g., condition/population, intervention/exposure, outcome/mechanism).
+1) Identify 2–4 core CONCEPTS from the claim (condition/population, intervention/exposure, outcome/mechanism).
 2) Build one synonym group per concept:
    - Include 1–2 MeSH headings as term[mh] ONLY if you are confident they exist as MeSH.
    - Include 2–6 scientific free-text terms as term[tiab]. Prefer standard medical equivalents over colloquial wording.
@@ -57,40 +76,14 @@ SEMANTIC RULES
 5) Handle absolutes: If the claim uses “cures”, “guarantees”, “all”, “detox”, convert into testable research language (treat*, reduc*, decreas*, improv*, efficacy, symptom*, biomarker*). Do NOT include words like cure, curative, healing, miracle.
 6) If the outcome is overly broad (e.g., inflammation), operationalize it with scientific endpoints where appropriate (e.g., inflammat*, anti-inflammatory, cytokine*, C-reactive protein/CRP, interleukin-6/IL-6, tumor necrosis factor/TNF) and/or specific disease terms if the claim names them.
 7) Keep concise: max 4 concept groups; max ~8 terms per group; avoid unnecessary dose/time constraints unless essential AND likely to appear in title/abstract.
-
-CLAIM:
-{claim}
-
 """
-# ────────────────────────────────────────────────────────────────────
-# Step3: PubMed query generation (REVISED)
-# ────────────────────────────────────────────────────────────────────
-PROMPT_TMPL_S3_SPECIFIC = """
-You are a biomedical information specialist generating PubMed searches for a medical fact-checking pipeline. The input CLAIM comes from an Instagram reel and may be informal or exaggerated. Translate informal wording into scientifically standard terminology suitable for PubMed searching (use clinical/scientific equivalents where applicable).
 
-TASK
-Return ONE PubMed Boolean query (single line) that prioritizes clinically informative human evidence with HIGH RECALL (sensitive), while staying on-topic for the claim.
+S3_SEMANTIC_RULES_COUNTER_APPEND = """
+4) Add a FINAL COUNTER-EVIDENCE group (AND) that targets null/negative results. Use terms like:
+   (no effect[tiab] OR ineffective[tiab] OR null[tiab] OR negative[tiab] OR not associated[tiab] OR adverse[tiab] OR harm[tiab])
+"""
 
-OUTPUT RULES (strict)
-- Output ONLY the query string. No explanations. Exactly one line.
-- Use uppercase AND/OR/NOT.
-- Use parentheses to group synonyms.
-- Allowed field tags: [mh] and [tiab] only.
-- Do NOT use quotation marks (including curly quotes) anywhere.
-- Multi-word phrases must be written as: word1 word2[tiab] (no quotes).
-- Ensure parentheses are balanced; no leading/trailing whitespace.
-- Do not tag groups of synonyms with a single field tag.
-- Do not use generalic domian words as filters, like molecular biology, homeostasis, wellness, detox, etc.
-- all words must be tagged.
-- End with a final AND group that boosts clinical/human evidence recall, e.g., 
-  (humans[mh] OR clinical trial[tiab] OR randomized[tiab] OR randomised[tiab] OR trial[tiab] OR cohort[tiab] OR case control[tiab] OR observational[tiab] OR systematic review[tiab] OR meta analysis[tiab])
-
-SEMANTIC RULES
-1) Build a TOPIC QUERY from 2–4 core concepts (condition/population, intervention/exposure, outcome/mechanism).
-2) One synonym group per concept:
-   - 1–2 confident MeSH headings as term[mh] (only if confident).
-   - 2–6 scientific free-text terms as term[tiab] using clinical/scientific equivalents.
-3) Combine topic concept groups with AND.
+S3_SEMANTIC_RULES_SPECIFIC_APPEND = """
 4) Add ONE final AND group that boosts clinical/human evidence recall (do not put these terms inside the topic groups):
    (humans[mh] OR clinical trial[tiab] OR randomized[tiab] OR randomised[tiab] OR trial[tiab] OR cohort[tiab] OR case control[tiab] OR observational[tiab] OR systematic review[tiab] OR meta analysis[tiab])
 5) ANCHOR RULE: The primary topic anchor must apply to the whole query; do not create an OR branch that omits the anchor.
@@ -99,30 +92,22 @@ SEMANTIC RULES
    - For broad outcomes (e.g., inflammation), use scientific endpoints (inflammat*, anti-inflammatory, CRP, cytokine*, IL-6, TNF) and/or named diseases when present.
 7) Avoid low-value terms: never include study[tiab]. Avoid generic “homeostasis”, “wellness”, “detox” unless the claim specifically requires it.
 8) Keep concise: max 4 topic concept groups; max ~8 terms per group.
-
-CLAIM:
-{claim}
-
-
 """
-PROMPT_TMPL_S3_ATM_ASSISTED = """
-You are a biomedical information specialist generating PubMed searches for a medical fact-checking pipeline. The input CLAIM comes from an Instagram reel and may be informal or exaggerated. Translate informal wording into scientifically standard terminology suitable for PubMed searching (use clinical/scientific equivalents where applicable).
 
-TASK
-Return ONE PubMed Boolean query (single line) optimized for HIGH RECALL by allowing PubMed’s automatic mapping to help, while maintaining a structured query.
+S3_SEMANTIC_RULES_SPECIFIC_COUNTER_APPEND = """
+4) Add ONE final COUNTER-EVIDENCE group (AND) that targets null/negative results, e.g.:
+   (no effect[tiab] OR ineffective[tiab] OR null[tiab] OR negative[tiab] OR not associated[tiab] OR adverse[tiab] OR harm[tiab])
+5) Add ONE final AND group that boosts clinical/human evidence recall (do not put these terms inside the topic groups):
+   (humans[mh] OR clinical trial[tiab] OR randomized[tiab] OR randomised[tiab] OR trial[tiab] OR cohort[tiab] OR case control[tiab] OR observational[tiab] OR systematic review[tiab] OR meta analysis[tiab])
+6) ANCHOR RULE: The primary topic anchor must apply to the whole query; do not create an OR branch that omits the anchor group.
+7) Handle absolutes and broad outcomes exactly as follows:
+   - Replace cure/curative/healing/miracle language with testable terms (treat*, reduc*, improv*, efficacy, outcome*, symptom*, biomarker*).
+   - For broad outcomes (e.g., inflammation), use scientific endpoints (inflammat*, anti-inflammatory, CRP, cytokine*, IL-6, TNF) and/or named diseases when present.
+8) Avoid low-value terms: never include study[tiab]. Avoid generic “homeostasis”, “wellness”, “detox” unless the claim specifically requires it.
+9) Keep concise: max 4 topic concept groups; max ~8 terms per group.
+"""
 
-OUTPUT RULES (strict)
-- Output ONLY the query string. No explanations. Exactly one line.
-- Use uppercase AND/OR/NOT.
-- Use parentheses to group synonyms.
-- Allowed field tags: [mh] and [tiab] only, EXCEPT you may include EXACTLY one untagged scientific anchor term or phrase (no tag) inside the anchor group.
-- Do NOT use quotation marks (including curly quotes) anywhere.
-- Multi-word phrases must be written as: word1 word2[tiab] (no quotes) when tagged.
-- Ensure parentheses are balanced; no leading/trailing whitespace.
-- Do not tag groups of synonyms with a single field tag.
-- all words must be tagged, except for the single untagged scientific anchor term/phrase.
-- Do not use generalic domian words as filters, like molecular biology, homeostasis, wellness, detox, etc.
-
+S3_SEMANTIC_RULES_ATM = """
 SEMANTIC RULES
 1) Identify the single most important TOPIC ANCHOR (primary intervention/exposure or primary condition).
 2) Start with an ANCHOR GROUP that includes:
@@ -133,13 +118,127 @@ SEMANTIC RULES
 4) Combine groups with AND.
 5) ANCHOR RULE: The anchor group must apply to the whole query; do not create an OR branch that omits the anchor group.
 6) Handle absolutes: replace cure/curative/healing/miracle wording with testable research terms (treat*, reduc*, improv*, efficacy, symptom*, biomarker*). Do NOT include cure/curative/healing/miracle.
-7) If the outcome is broad (e.g., inflammation), operationalize with scientific endpoints (inflammat*, anti-inflammatory, cytokine*, CRP, IL-6, TNF) and/or named diseases when present.
+7) If the outcome is broad (e.g., inflammation), operationalize it with scientific endpoints (inflammat*, anti-inflammatory, cytokine*, CRP, IL-6, TNF) and/or named diseases when present.
 8) Keep concise: max 4 concept groups total; avoid unnecessary dose/time constraints unless essential AND likely to appear in title/abstract.
-
-CLAIM:
-{claim}
-
 """
+
+S3_SEMANTIC_RULES_ATM_COUNTER_APPEND = """
+5) Add a FINAL COUNTER-EVIDENCE group (AND) that targets null/negative results. Use terms like:
+   (no effect[tiab] OR ineffective[tiab] OR null[tiab] OR negative[tiab] OR not associated[tiab] OR adverse[tiab] OR harm[tiab])
+6) ANCHOR RULE: The anchor group must apply to the whole query; do not create an OR branch that omits the anchor group.
+7) Handle absolutes: replace cure/curative/healing/miracle wording with testable research terms (treat*, reduc*, improv*, efficacy, symptom*, biomarker*). Do NOT include cure/curative/healing/miracle.
+8) If the outcome is broad (e.g., inflammation), operationalize it with scientific endpoints (inflammat*, anti-inflammatory, cytokine*, CRP, IL-6, TNF) and/or named diseases when present.
+9) Keep concise: max 4 concept groups total; avoid unnecessary dose/time constraints unless essential AND likely to appear in title/abstract.
+"""
+
+
+def _s3_prompt(task_line: str, output_rules: str, semantic_rules: str) -> str:
+    return (
+        f"{S3_INTRO}\\n"
+        f"TASK\\n{task_line}\\n\\n"
+        f"{output_rules}\\n"
+        f"{semantic_rules}\\n"
+        "CLAIM:\\n{claim}\\n"
+    )
+
+
+# ────────────────────────────────────────────────────────────────────
+# Step3: PubMed query generation (REVISED)
+# ────────────────────────────────────────────────────────────────────
+PROMPT_TMPL_S3_BALANCED = _s3_prompt(
+    task_line="Return ONE PubMed Boolean query (single line) that retrieves papers relevant to evaluating the claim.",
+    output_rules=S3_OUTPUT_RULES_BALANCED,
+    semantic_rules=S3_SEMANTIC_RULES_BASE,
+)
+
+# ────────────────────────────────────────────────────────────────────
+# Step3: PubMed query generation (COUNTER-EVIDENCE)
+# ────────────────────────────────────────────────────────────────────
+PROMPT_TMPL_S3_BALANCED_COUNTER = _s3_prompt(
+    task_line=(
+        "Return ONE PubMed Boolean query (single line) that prioritizes finding COUNTER-EVIDENCE "
+        "(null/negative findings, ineffectiveness, harm, lack of association) relevant to evaluating the claim."
+    ),
+    output_rules=S3_OUTPUT_RULES_BALANCED,
+    semantic_rules=S3_SEMANTIC_RULES_BASE.replace(
+        "4) ANCHOR RULE:",
+        S3_SEMANTIC_RULES_COUNTER_APPEND + "\\n4) ANCHOR RULE:",
+    ),
+)
+
+# ────────────────────────────────────────────────────────────────────
+# Step3: PubMed query generation (REVISED)
+# ────────────────────────────────────────────────────────────────────
+PROMPT_TMPL_S3_SPECIFIC = _s3_prompt(
+    task_line=(
+        "Return ONE PubMed Boolean query (single line) that prioritizes clinically informative "
+        "human evidence with HIGH RECALL (sensitive), while staying on-topic for the claim."
+    ),
+    output_rules=S3_OUTPUT_RULES_SPECIFIC,
+    semantic_rules=(
+        "SEMANTIC RULES\\n"
+        "1) Build a TOPIC QUERY from 2–4 core concepts (condition/population, intervention/exposure, outcome/mechanism).\\n"
+        "2) One synonym group per concept:\\n"
+        "   - 1–2 confident MeSH headings as term[mh] (only if confident).\\n"
+        "   - 2–6 scientific free-text terms as term[tiab] using clinical/scientific equivalents.\\n"
+        "3) Combine topic concept groups with AND.\\n"
+        f"{S3_SEMANTIC_RULES_SPECIFIC_APPEND}"
+    ),
+)
+
+# ────────────────────────────────────────────────────────────────────
+# Step3: PubMed query generation (COUNTER-EVIDENCE, SPECIFIC)
+# ────────────────────────────────────────────────────────────────────
+PROMPT_TMPL_S3_SPECIFIC_COUNTER = _s3_prompt(
+    task_line=(
+        "Return ONE PubMed Boolean query (single line) that prioritizes clinically informative human evidence "
+        "with HIGH RECALL, while favoring COUNTER-EVIDENCE (null/negative findings, ineffectiveness, harm, "
+        "lack of association) relevant to the claim."
+    ),
+    output_rules=S3_OUTPUT_RULES_SPECIFIC,
+    semantic_rules=(
+        "SEMANTIC RULES\\n"
+        "1) Build a TOPIC QUERY from 2–4 core concepts (condition/population, intervention/exposure, outcome/mechanism).\\n"
+        "2) One synonym group per concept:\\n"
+        "   - 1–2 confident MeSH headings as term[mh] (only if confident).\\n"
+        "   - 2–6 scientific free-text terms as term[tiab] using clinical/scientific equivalents.\\n"
+        "3) Combine topic concept groups with AND.\\n"
+        f"{S3_SEMANTIC_RULES_SPECIFIC_COUNTER_APPEND}"
+    ),
+)
+
+PROMPT_TMPL_S3_ATM_ASSISTED = _s3_prompt(
+    task_line=(
+        "Return ONE PubMed Boolean query (single line) optimized for HIGH RECALL by allowing PubMed’s "
+        "automatic mapping to help, while maintaining a structured query."
+    ),
+    output_rules=S3_OUTPUT_RULES_ATM,
+    semantic_rules=S3_SEMANTIC_RULES_ATM,
+)
+
+# ────────────────────────────────────────────────────────────────────
+# Step3: PubMed query generation (COUNTER-EVIDENCE, ATM-ASSISTED)
+# ────────────────────────────────────────────────────────────────────
+PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER = _s3_prompt(
+    task_line=(
+        "Return ONE PubMed Boolean query (single line) optimized for HIGH RECALL by allowing PubMed’s "
+        "automatic mapping to help, while favoring COUNTER-EVIDENCE (null/negative findings, ineffectiveness, "
+        "harm, lack of association) relevant to evaluating the claim."
+    ),
+    output_rules=S3_OUTPUT_RULES_ATM,
+    semantic_rules=(
+        "SEMANTIC RULES\\n"
+        "1) Identify the single most important TOPIC ANCHOR (primary intervention/exposure or primary condition).\\n"
+        "2) Start with an ANCHOR GROUP that includes:\\n"
+        "   - Exactly ONE untagged scientific anchor term/phrase (no [mh]/[tiab]) to enable automatic mapping.\\n"
+        "   - Plus 1–2 confident MeSH headings as term[mh] (only if confident) and 1–3 variants as term[tiab].\\n"
+        "   Example pattern: (untagged_anchor OR anchor[mh] OR anchor[tiab] OR ...)\\n"
+        "3) Add 1–3 additional concept groups using only [mh] and [tiab] (outcome/mechanism/population). "
+        "Each group: 1–2 confident MeSH + 2–5 scientific [tiab] terms.\\n"
+        "4) Combine groups with AND.\\n"
+        f"{S3_SEMANTIC_RULES_ATM_COUNTER_APPEND}"
+    ),
+)
 # ────────────────────────────────────────────────────────────────────
 # Step6: Get rid of irrelevant evidence
 # ────────────────────────────────────────────────────────────────────
