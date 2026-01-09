@@ -1,9 +1,36 @@
 """
-STEP (SCORES): RERANK EVIDENCE WITH BGE RERANKER v2 m3
------------------------------------------------------
-- Scores each evidence item for *relevance to the claim* using BAAI/bge-reranker-v2-m3.
-- Computes ev.relevance_abstract (claim vs abstract).
-- Also writes ev.relevance for downstream sorting.
+Step: Rerank evidence with a cross-encoder relevance model.
+
+This step assigns a relevance score to each evidence item relative to a claim
+using a BAAI/bge-reranker-v2-m3 cross-encoder. It builds (claim, passage) pairs
+from evidence fields (abstract and/or text) and optionally prefixes passages
+with the evidence title when available. Scores are written back to the
+Evidence objects for downstream filtering and sorting.
+
+Inputs:
+- state.statements with Statement.text populated.
+- stmt.evidence list populated with Evidence objects.
+- Evidence fields used for scoring: abstract, text, and optionally title or
+  article_title/paper_title (used as a prefix if present).
+
+Config keys:
+- model_name: cross-encoder model id.
+- device: "cuda", "cpu", or explicit device string; defaults to CUDA if available.
+- use_fp16: use fp16 weights on CUDA.
+- batch_size, max_length: inference batching and truncation.
+- normalize: apply sigmoid to logits for [0,1] scores.
+- score_fields: list of fields to score, typically ["abstract", "text"].
+- empty_relevance: fallback score when evidence has no text.
+- min_relevance: optional threshold to drop low-scoring evidence.
+
+Outputs:
+- ev.relevance_abstract set when abstract or text is scored.
+- ev.relevance set to the chosen relevance score for each evidence.
+- stmt.evidence filtered if min_relevance is provided.
+
+Runtime notes:
+- Requires torch and transformers.
+- Models are cached in-process to avoid repeated downloads/loads.
 """
 
 from __future__ import annotations
@@ -68,6 +95,8 @@ class RerankEvidenceStep(PipelineStep):
           Which evidence fields to score individually.
 
       - empty_relevance: float (default: 0.0)
+      - min_relevance: float | None (default: None)
+          Drop evidence with relevance below this threshold after scoring.
     """
 
     def execute(self, state: PipelineState) -> PipelineState:
@@ -82,6 +111,13 @@ class RerankEvidenceStep(PipelineStep):
         if "abstract" not in score_fields and "text" not in score_fields:
             score_fields = ["abstract", "text"]
         empty_relevance = float(self.config.get("empty_relevance", 0.0))
+        min_relevance_cfg = self.config.get("min_relevance", None)
+        min_relevance = None
+        if min_relevance_cfg is not None:
+            try:
+                min_relevance = float(min_relevance_cfg)
+            except Exception:
+                min_relevance = None
 
         if torch is None:
             raise RuntimeError("torch/transformers not available for reranking.")
@@ -167,5 +203,11 @@ class RerankEvidenceStep(PipelineStep):
                     a = float(ev.relevance) if ev.relevance is not None else float(empty_relevance)
 
                 ev.relevance = float(a)
+
+            if min_relevance is not None:
+                stmt.evidence = [
+                    ev for ev in stmt.evidence
+                    if float(getattr(ev, "relevance", 0.0) or 0.0) >= min_relevance
+                ]
 
         return state

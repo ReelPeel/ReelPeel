@@ -1,3 +1,33 @@
+"""
+Verification module (steps 6-8): filter evidence, judge truthness, aggregate score.
+
+This file defines the final pipeline steps that take ranked evidence and turn
+it into statement-level verdicts and an overall truthiness score.
+
+Included steps:
+- FilterEvidenceStep (Step 6):
+  Uses an LLM to decide whether each evidence item is relevant to the claim.
+  PubMed/Epistemonikos/RAG evidence is formatted into a compact line (including
+  relevance and any available stance metadata) and passed to the model.
+  Only responses starting with "yes" are treated as relevant.
+- TruthnessStep (Step 7):
+  Builds an evidence block (plus RAG chunk block) and calls an LLM to produce
+  a VERDICT and FINALSCORE. Parses those fields and writes them to Statement.
+- ScoringStep (Step 8):
+  Computes state.overall_truthiness as a weighted average. Scores below a
+  threshold are up-weighted to penalize false or uncertain statements.
+
+Inputs:
+- state.statements with stmt.evidence already populated and scored.
+- Evidence objects may contain relevance, weight, and stance fields.
+- config keys: prompt_template, model, temperature, max_tokens, threshold.
+
+Outputs:
+- stmt.evidence filtered for relevance.
+- stmt.verdict, stmt.score, stmt.rationale set by TruthnessStep.
+- state.overall_truthiness set by ScoringStep.
+"""
+
 import re
 
 from ..core.base import PipelineStep
@@ -66,11 +96,7 @@ def _format_evidence_line(ev, include_text: bool = True, missing_text: str = "te
         parts.append(f"stance {'; '.join(stance_info)}")
 
     if include_text:
-        content = (
-            getattr(ev, "abstract", None)
-            or getattr(ev, "text", None)
-            or ""
-        ).strip().replace("\n", " ")
+        content = (getattr(ev, "abstract", None) or "").strip().replace("\n", " ")
         if content:
             parts.append(f"text: {content}")
         elif missing_text:
@@ -94,11 +120,11 @@ def _format_rag_chunk(chunk, include_text: bool = True) -> str:
         parts.append(f"w {weight}")
 
     if include_text:
-        text = (getattr(chunk, "text", "") or "").strip().replace("\n", " ")
+        text = (getattr(chunk, "abstract", "") or "").strip().replace("\n", " ")
         if text:
-            parts.append(f"text: {text}")
+            parts.append(f"abstract: {text}")
         else:
-            parts.append("text: [no text]")
+            parts.append("abstract: [no abstract]")
 
     return "- " + source + (" | " + " | ".join(parts) if parts else "")
 
@@ -116,10 +142,6 @@ class FilterEvidenceStep(PipelineStep):
             filtered_evidence = []
 
             for ev in stmt.evidence:
-                if _source_type_value(ev) == SourceType.RAG.value:
-                    filtered_evidence.append(ev)
-                    continue
-
                 # Use abstract if available, otherwise skip filter
                 text_to_check = getattr(ev, "abstract", None) or ""
                 if not text_to_check.strip():
@@ -165,18 +187,36 @@ class TruthnessStep(PipelineStep):
         transcript = state.transcript or ""
 
         for stmt in state.statements:
+            stmt.evidence.sort(key=lambda ev: float(getattr(ev, "relevance", 0.0) or 0.0))
             # 1. Build Evidence Block
-            evidence_lines = []
+            pubmed_lines = []
+            epistemonikos_lines = []  # TODO: confirm Epistemonikos formatting expectations for this list
             rag_lines = []
             for ev in stmt.evidence:
-                if _source_type_value(ev) == SourceType.RAG.value:
+                source_type = _source_type_value(ev)
+                if source_type == SourceType.RAG.value:
                     rag_lines.append(_format_rag_chunk(ev, include_text=True))
+                elif source_type == SourceType.EPISTEMONIKOS.value:
+                    epistemonikos_lines.append(_format_evidence_line(ev, include_text=True))
                 else:
-                    evidence_lines.append(_format_evidence_line(ev, include_text=True))
+                    pubmed_lines.append(_format_evidence_line(ev, include_text=True))
 
-            evidence_block = "\n".join(evidence_lines) or "No evidence provided."
+            pubmed_block = "\n".join(pubmed_lines) or "No PubMed evidence provided."
+            epistemonikos_block = "\n".join(epistemonikos_lines) or "No Epistemonikos evidence provided."
+            rag_block = "\n".join(rag_lines) or "No RAG evidence provided."
 
-            rag_block = "\n".join(rag_lines) or "No RAG chunks provided."
+            evidence_block = "\n".join(
+                [
+                    "PUBMED EVIDENCE:",
+                    pubmed_block,
+                    "",
+                    "EPISTEMONIKOS EVIDENCE:",
+                    epistemonikos_block,
+                    "",
+                    "RAG EVIDENCE:",
+                    rag_block,
+                ]
+            )
 
             # 2. Call LLM
             try:

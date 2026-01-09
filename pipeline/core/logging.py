@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+from datetime import datetime
 from typing import Any, Dict, Protocol
 
 from loguru import logger
@@ -25,6 +26,7 @@ class PipelineLogger:
         self.debug = debug
         self.run_id = run_id
         self.log_file = None
+        self.prompt_log_file = None
 
         # Reset loguru to clear default handlers
         logger.remove()
@@ -42,6 +44,7 @@ class PipelineLogger:
 
             # 3. Set the file path
             self.log_file = os.path.join(log_dir, f"pipeline_debug_{run_id}.log")
+            self.prompt_log_file = os.path.join(log_dir, f"pipeline_debug_{run_id}_llm_prmpts.log")
 
             # Simple format: Time | Message
             fmt = "<green>{time:H:mm:ss}</green>\n{message}\n"
@@ -82,6 +85,15 @@ class PipelineLogger:
             final_msg += f"\n{ts_pad}{step_indent}{line}"
 
         logger.debug(final_msg)
+
+    def _append_prompt_log(self, text: str):
+        if not self.debug or not self.prompt_log_file:
+            return
+        try:
+            with open(self.prompt_log_file, "a", encoding="utf-8") as f:
+                f.write(text + "\n")
+        except Exception as e:
+            print(f"Prompt logging error: {e}")
 
     # -------------------------------------------------------------------------
     # PUBLIC EVENTS
@@ -141,10 +153,18 @@ class PipelineLogger:
         else:
             content = str(data)
 
-        msg = (
-            f">>> [ARTIFACT] {label}\n"
-            f"{content}"
-        )
+        if label == "LLM Prompt":
+            timestamp = datetime.now().strftime("%H:%M:%S")
+            msg = (
+                f"{timestamp}\n"
+                f">>> [LLM Prompt]\n"
+                f"{content}\n"
+                f"{'=' * 80}"
+            )
+            self._append_prompt_log(msg)
+            return
+
+        msg = f">>> [ARTIFACT] {label}\n{content}"
         self._log(msg, depth=depth)
 
     def on_run_end(self, duration: float):

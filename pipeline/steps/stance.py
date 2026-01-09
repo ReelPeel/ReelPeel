@@ -1,17 +1,37 @@
 """
-STEP (SCORES): COMPUTE STANCE (NLI) FOR EVIDENCE
-------------------------------------------------
-- Computes the stance of each evidence item relative to a claim using an NLI model.
-- Uses cnut1648/biolinkbert-mednli (BioLinkBERT-large fine-tuned on MedNLI).
-- Writes per-field outputs back into Evidence.stance (nested model):
-    - stance.abstract_label / stance.abstract_p_{supports,refutes,neutral}
+Step: Compute stance (NLI) for evidence relative to each claim.
 
-Label mapping for cnut1648/biolinkbert-mednli:
-    id2label = {0: entailment, 1: neutral, 2: contradiction}
-We map:
-    entailment    -> Supports
-    contradiction -> Refutes
-    neutral       -> Neutral
+This step runs a natural language inference model to decide whether each piece
+of evidence supports, refutes, or is neutral toward the claim. It writes the
+probabilities and label into the nested Evidence.stance model.
+
+Inputs:
+- state.statements with Statement.text and stmt.evidence populated.
+- Evidence fields used: abstract and/or text (configurable).
+- Optional evidence titles are prefixed to the passage when available.
+
+Config keys:
+- model_name: default "cnut1648/biolinkbert-mednli".
+- device: "cuda", "cpu", or explicit device string.
+- use_fp16: use fp16 weights on CUDA.
+- batch_size, max_length: inference batching and truncation.
+- evidence_fields: list of evidence fields to score, typically ["abstract", "text"].
+- top_m_by_relevance: if set, only score the top-M evidence by relevance.
+- threshold_decisive: if both support/refute are weak, force Neutral.
+
+Outputs:
+- ev.stance.abstract_label set to Supports/Refutes/Neutral.
+- ev.stance.abstract_p_supports/refutes/neutral set to probabilities.
+
+Label mapping:
+- Uses model.config.id2label when available; otherwise assumes
+  0=entailment, 1=neutral, 2=contradiction.
+- Maps entailment -> Supports, contradiction -> Refutes, neutral -> Neutral.
+
+Runtime notes:
+- Requires torch and transformers.
+- Models are cached in-process to avoid repeated loads.
+- Long inputs are truncated to max_length (no chunking implemented here).
 
 NOTE ON LONG ABSTRACTS
 ---------------------
@@ -19,6 +39,7 @@ This model was trained with max_seq_length=512 tokens. For long abstracts/summar
 we rely on tokenizer truncation (max_length). This keeps the *leading* portion of the
 text and discards the tail. If this becomes an issue, implement chunking (e.g., sliding
 window) and aggregate probabilities (max/mean) downstream.
+
 """
 
 from __future__ import annotations

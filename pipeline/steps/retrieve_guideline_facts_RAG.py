@@ -1,13 +1,30 @@
 #!/usr/bin/env python3
 """
-retrieve_guideline_facts.py
+Guideline RAG retrieval step and CLI utility.
 
-Given a statement (claim), retrieve relevant guideline content from the SQLite vector DB:
+This module loads a SQLite "vector DB" built from guideline PDFs and retrieves
+the most relevant guideline chunks for a given claim. It uses the exact
+SentenceTransformer model recorded in the DB metadata to encode the query and
+computes cosine similarity via dot product on normalized embeddings.
 
-- Loads embeddings and texts for all chunks
-- Encodes the statement with the same embedding model (must match DB)
-- Computes cosine similarity (dot product because vectors are normalized)
-- Returns top-k chunks with metadata (doc path + pages)
+Core flow:
+- Read embed_model and embedding dimension from the DB metadata table.
+- Load all chunk rows and their normalized embeddings into memory.
+- Encode the statement with normalize_embeddings=True using the same model.
+- Compute similarity scores, pick top-k, and filter by min_score.
+- Return RAGEvidence objects containing chunk_id, source_path, pages, text,
+  and relevance/weight fields derived from similarity scores.
+
+Pipeline integration:
+- RetrieveGuidelineFactsStep appends RAG evidence to stmt.evidence.
+- This step expects statements to already exist (from extraction).
+
+CLI usage:
+- Run this file directly to test retrieval against a local DB.
+
+Operational notes:
+- Loads all embeddings into RAM; DB size impacts memory usage.
+- Requires sentence-transformers, numpy, and sqlite3.
 """
 
 from __future__ import annotations
@@ -45,7 +62,7 @@ def _load_db_metadata(con: sqlite3.Connection) -> Tuple[str, int]:
 def _load_all_chunks(con: sqlite3.Connection, dim: int) -> Tuple[List[Dict[str, Any]], np.ndarray]:
     """
     Returns:
-      chunk_rows: list of dicts with chunk_id, source_path, pages, text
+      chunk_rows: list of dicts with chunk_id, source_path, pages, abstract
       E: (N, dim) normalized embeddings float32
     """
     rows = con.execute(
@@ -127,7 +144,7 @@ def retrieve_chunks_for_statement(
                 score=s,
                 source_path=r["source_path"],
                 pages=r["pages"],
-                text=r["text"],
+                abstract=r["abstract"],
                 weight=1.0,
                 relevance=s,
                 relevance_abstract=s,

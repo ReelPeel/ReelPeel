@@ -1,3 +1,28 @@
+"""
+Step 2: Extract medical claims from a transcript using an LLM.
+
+This step expects PipelineState.transcript to already be populated (e.g. via a
+Whisper transcription step or MockTranscriptLoader). It prompts an LLM with a
+template that should return a JSON array of claim strings. The response is
+cleaned by stripping Markdown code fences and trailing commas, then parsed and
+converted into Statement objects with sequential IDs.
+
+Inputs:
+- state.transcript: raw transcript text.
+- config keys: prompt_template, model, temperature, max_tokens.
+
+Outputs:
+- state.statements: list[Statement] with id and text filled in.
+- state.generated_at: UTC ISO timestamp updated after extraction.
+
+Fallback behavior:
+- If the LLM call fails or JSON parsing fails, it falls back to naive sentence
+  splitting and keeps the first few non-empty sentences as claims.
+
+Side effects:
+- Logs the raw LLM response via PipelineStep.log_artifact for traceability.
+"""
+
 import json
 import re
 from datetime import datetime
