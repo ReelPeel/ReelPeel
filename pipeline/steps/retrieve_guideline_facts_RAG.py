@@ -74,7 +74,7 @@ def _load_all_chunks(con: sqlite3.Connection, dim: int) -> Tuple[List[Dict[str, 
                 "chunk_id": str(chunk_id),
                 "source_path": str(source_path),
                 "pages": _parse_pages(str(pages_json)),
-                "text": str(text),
+                "abstract": str(text),
             }
         )
 
