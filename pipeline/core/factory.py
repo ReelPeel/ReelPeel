@@ -1,5 +1,7 @@
 from typing import Dict, Any
 
+from ..steps.audio_to_transcript import AudioToTranscriptStep
+from ..steps.video_to_audio import VideoToAudioStep
 from ..steps.extraction import TranscriptToStatementStep
 # Import your concrete steps here (BUT NOT PipelineModule)
 from ..steps.mocks import MockTranscriptLoader, MockStatementLoader
@@ -22,6 +24,8 @@ from ..steps.verification import (
 class StepFactory:
     # Do NOT put "module" in here to avoid circular imports
     _registry = {
+        "audio_to_transcript": AudioToTranscriptStep,
+        "video_to_audio": VideoToAudioStep,
         "mock_transcript": MockTranscriptLoader,
         "mock_statements": MockStatementLoader,
         "extraction": TranscriptToStatementStep,

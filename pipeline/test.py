@@ -20,7 +20,8 @@ Operational notes:
 
 from pipeline.core.models import PipelineState, SourceType
 from pipeline.core.orchestrator import PipelineOrchestrator
-from pipeline.test_configs.kai_test import FULL_PIPELINE_CONFIG
+from pipeline.test_configs.audio_transcription_config import AUDIO_PIPELINE_CONFIG
+from pipeline.test_configs.video_transcription_config import VIDEO_PIPELINE_CONFIG
 
 
 def print_report(state: PipelineState):
@@ -99,7 +100,7 @@ def main():
 
     # 2. Boot the Orchestrator
     try:
-        orchestrator = PipelineOrchestrator(FULL_PIPELINE_CONFIG)
+        orchestrator = PipelineOrchestrator(VIDEO_PIPELINE_CONFIG)
     except Exception as e:
         print(f"Configuration Error: {e}")
         return

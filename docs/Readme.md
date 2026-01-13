@@ -102,6 +102,8 @@ PIPELINE_CONFIG = {
 Key step types registered in `pipeline/core/factory.py`:
 
 - `mock_transcript` and `mock_statements` for test input injection.
+- `video_to_audio` for video -> audio file conversion.
+- `audio_to_transcript` for audio -> transcript (Whisper).
 - `extraction` for transcript -> statements.
 - `generate_query`, `fetch_links`, `summarize_evidence`, `weight_evidence` for PubMed research.
 - `retrieve_guideline_facts` for guideline RAG.
