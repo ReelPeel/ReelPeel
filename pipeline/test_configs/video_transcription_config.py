@@ -34,7 +34,7 @@ VIDEO_PIPELINE_CONFIG = {
             "type": "retrieve_guideline_facts",
             "settings": {
                 "db_path": "pipeline/RAG_vdb/guidelines_vdb.sqlite",
-                "top_k": 3,
+                "top_k": 5,
                 "min_score": 0.25,
             },
         },
