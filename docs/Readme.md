@@ -1,53 +1,161 @@
 # ReelPeel Medical Fact-Checking Pipeline
 
-End-to-end pipeline for medical claim extraction, PubMed evidence retrieval, optional guideline RAG retrieval, and conservative truth scoring.
+End-to-end, config-driven pipeline for medical claim extraction, PubMed evidence retrieval, optional guideline RAG retrieval, and conservative truth scoring.
 
-This project treats the output score as a truth score: 0.0 = claim is false, 1.0 = claim is true.
+This project treats statement scores as truth scores: 0.0 = claim is false, 1.0 = claim is true (with uncertainty in between).
 
-## What it does (current flow)
+## Pipeline overview (config-driven)
 
-1. Input transcript (or mock transcript) enters the pipeline.
-2. LLM extracts 1-3 medical claims.
-3. LLM generates multiple PubMed queries per claim.
-4. PubMed IDs are fetched via a local proxy (rate limited).
-5. Abstracts and publication types are retrieved.
-6. Publication types are converted into evidence weights.
-7. Optional: guideline RAG chunks are retrieved from a local SQLite vector DB.
-8. Evidence is reranked for relevance to the claim (title + abstract when available).
-9. Evidence stance is computed with an NLI model (claim vs title+abstract).
-10. LLM filters irrelevant evidence (PubMed and other non-RAG evidence).
-11. LLM produces a verdict and score using PubMed evidence + RAG chunks.
-12. Overall truthiness is computed from statement scores.
+The pipeline is defined by a config dict with an ordered list of steps. The `PipelineOrchestrator` builds each step and runs them sequentially. A step can be a simple operation or a `module` that groups nested steps (still executed in order). The exact ordering and which steps are enabled is controlled by the config; the outline below describes the typical flow used in this repo.
 
-## Evidence sources
+## Detailed pipeline flow (typical order)
 
-All evidence items share the same union type and are stored in `Statement.evidence`:
+1. Input ingestion
+   - A step populates `PipelineState.transcript` (from ASR or a mock step), or directly populates `PipelineState.statements` (skipping extraction).
+   - The pipeline core only requires transcript text or prebuilt statements; audio ingestion lives outside the pipeline.
+
+2. Claim extraction (`extraction`)
+   - LLM turns the transcript into 1-3 medical claims.
+   - Output is parsed as JSON; if parsing fails the step falls back to sentence splitting.
+   - Produces `Statement` objects with `id` and `text`.
+
+3. Research module: query generation -> retrieval -> metadata -> weighting
+   - One or more `generate_query` steps expand each claim into PubMed Boolean queries.
+     - Queries are normalized (tags, operators, parentheses) and deduplicated per statement.
+     - Multiple query strategies can be chained, including counter-evidence oriented prompts.
+   - `fetch_links` calls PubMed ESearch via a local proxy to retrieve PMIDs per query.
+     - Evidence items are created (or updated). When an existing PMID is seen again, the query is recorded for provenance.
+   - `summarize_evidence` batch-fetches publication types (esummary) and title/abstract text (efetch).
+     - Titles are stored when available; abstracts are stored as raw text.
+   - `weight_evidence` converts publication types to numeric weights using regex rules with a default fallback.
+
+4. Optional guideline RAG retrieval (`retrieve_guideline_facts`)
+   - Loads a SQLite vector DB built from guideline PDFs.
+   - Reads the embedding model recorded in the DB, encodes each claim, computes cosine similarity, and returns top-k chunks above `min_score`.
+   - Adds `RAGEvidence` items with `score`, `relevance`, and `weight` set from the similarity.
+
+5. Scores module: relevance reranking + stance inference
+   - `rerank_evidence` uses a cross-encoder (BAAI/bge-reranker-v2-m3 by default) to score claim/evidence relevance.
+     - Titles are prefixed to abstracts when available.
+     - `min_relevance` can drop low-scoring evidence.
+   - `stance_evidence` uses an NLI model (BioLinkBERT MedNLI by default) to estimate support/refute/neutral probabilities.
+     - `top_m_by_relevance` can limit stance computation to the most relevant items.
+
+6. Verification module: filter -> verdict -> aggregate
+   - `filter_evidence` uses an LLM to drop off-topic evidence based on abstract text plus metadata (weight, relevance, stance).
+     - Evidence without text is kept for manual review.
+     - All evidence types are eligible for filtering if they include text.
+   - `truthness` builds a grouped evidence block (PubMed, Epistemonikos, RAG) and asks an LLM for a verdict and score.
+     - Evidence is sorted by relevance (lowest to highest) before formatting.
+     - The transcript context is provided to the prompt.
+   - `scoring` aggregates statement scores into `overall_truthiness` and up-weights scores below a threshold to penalize likely false/uncertain claims.
+
+7. Output
+   - `PipelineState` contains statements, evidence, verdicts, and scores.
+   - The debug log and summary table reflect step timing and token usage.
+
+## Evidence model
+
+All evidence items share a union schema and live in `Statement.evidence`:
 
 - PubMed evidence (`source_type = PubMed`)
-  - `pubmed_id`, `url`, `title`, `abstract`, `pub_type`, `weight`, `relevance`, `stance`
+  - `pubmed_id`, `url`, `title`, `abstract`, `pub_type`, `weight`, `relevance`, `stance`, `queries`
 - Guideline RAG evidence (`source_type = RAG`)
-  - `chunk_id`, `source_path`, `pages`, `abstract`, `score`, `weight`, `relevance`
-- Epistemonikos evidence is defined in the schema but not wired into the pipeline yet.
+  - `chunk_id`, `source_path`, `pages`, `abstract` (chunk text), `score`, `weight`, `relevance`
+- Epistemonikos evidence (`source_type = Epistemonikos`)
+  - Defined in the schema but not wired into the pipeline yet.
 
-RAG chunks are currently passed to the LLM in a separate `RAG CHUNKS` section.
+## Configuration
 
-## Repository layout
+### Config structure and modules
 
+A pipeline is defined as a dict (or JSON) with a top-level `steps` array. Each entry has a `type` and `settings`. Use the special `module` type to group nested steps.
+
+```python
+PIPELINE_CONFIG = {
+    "name": "Example",
+    "debug": True,
+    "steps": [
+        {"type": "mock_transcript", "settings": {"transcript_text": "..."}},
+        {"type": "extraction", "settings": {...}},
+        {
+            "type": "module",
+            "settings": {
+                "name": "Research",
+                "steps": [
+                    {"type": "generate_query", "settings": {...}},
+                    {"type": "fetch_links", "settings": {"retmax": 20}},
+                    {"type": "summarize_evidence", "settings": {}},
+                    {"type": "weight_evidence", "settings": {"default_weight": 0.5}},
+                ],
+            },
+        },
+        {"type": "retrieve_guideline_facts", "settings": {...}},
+        {"type": "module", "settings": {"name": "Scores", "steps": [...] }},
+        {"type": "module", "settings": {"name": "Verification", "steps": [...] }},
+    ],
+}
 ```
-app/                       # FastAPI app and reel utilities (optional ingestion)
-app/main.py                # API entry point
-app/reel_utils.py          # Reel download and audio conversion
-app/step_1_audio_to_transcript.py
-pipeline/                  # Core pipeline framework
-pipeline/core/             # Orchestrator, models, LLM client, logging
-pipeline/steps/            # Extraction, research, scoring, verification, RAG
-pipeline/RAG_vdb/           # Guideline RAG vector DB tools
-pipeline/test.py           # Local pipeline runner (uses kai_test config)
-pipeline/test_configs/     # Reference configs and prompt templates
-services/                  # PubMed proxy service
-evaluation/                # Evaluation scripts and datasets
-browser-extension/         # UI experiment
-final_output.json          # Example output (generated by pipeline/test.py)
+
+### Pipeline step types (reference)
+
+Key step types registered in `pipeline/core/factory.py`:
+
+- `mock_transcript` and `mock_statements` for test input injection.
+- `video_to_audio` for video -> audio file conversion.
+- `audio_to_transcript` for audio -> transcript (Whisper).
+- `extraction` for transcript -> statements.
+- `generate_query`, `fetch_links`, `summarize_evidence`, `weight_evidence` for PubMed research.
+- `retrieve_guideline_facts` for guideline RAG.
+- `rerank_evidence`, `stance_evidence` for scoring.
+- `filter_evidence`, `truthness`, `scoring` for verification.
+
+### Prompt templates
+
+Prompt templates are centralized in `pipeline/test_configs/preprompts.py` and injected per step.
+
+### LLM endpoint settings
+
+Each LLM step can override endpoint settings with `llm_settings`:
+
+```python
+{
+  "type": "extraction",
+  "settings": {
+    "model": "gemma3:27b",
+    "prompt_template": PROMPT_TMPL_S2,
+    "llm_settings": {
+      "base_url": "http://localhost:11434/v1",
+      "api_key": "ollama"
+    }
+  }
+}
+```
+
+If omitted, defaults to `http://localhost:11434/v1`.
+
+### Model validation
+
+`PipelineOrchestrator` validates required models at startup:
+
+- `model` keys are checked against the LLM endpoint (Ollama-compatible).
+- `model_name` keys are checked against the Hugging Face cache or Hub.
+
+The run fails fast if required models are missing.
+
+### Relevance thresholding and ordering
+
+- `rerank_evidence` supports `min_relevance`. Evidence below the threshold is dropped.
+- `truthness` sorts evidence by relevance ascending before sending to the LLM.
+
+## PubMed proxy service
+
+The pipeline uses a local proxy (`services/pubmed_proxy.py`) to respect NCBI rate limits.
+`PipelineOrchestrator` will auto-start it (and wait for `/health`) if it is not running.
+You can also run it manually:
+
+```bash
+python services/pubmed_proxy.py
 ```
 
 ## Quick start (pipeline only)
@@ -74,13 +182,13 @@ ollama serve
 ollama pull gemma3:27b
 ```
 
-3) Run the reference pipeline config:
+3) Run the pipeline runner:
 
 ```bash
 python pipeline/test.py
 ```
 
-This uses `pipeline/test_configs/kai_test.py` and writes `final_output.json` plus a `pipeline_debug_*.log` file.
+The runner imports a reference config from `pipeline/test_configs`. Swap the import or call `PipelineOrchestrator` directly to run a different config.
 
 ## Guideline RAG setup
 
@@ -94,7 +202,7 @@ python pipeline/RAG_vdb/build_guideline_vdb.py \
   --db_path pipeline/RAG_vdb/guidelines_vdb.sqlite
 ```
 
-2) Enable RAG retrieval in a pipeline config (already enabled in `pipeline/test_configs/kai_test.py`):
+2) Enable RAG retrieval in a pipeline config:
 
 ```python
 {
@@ -107,65 +215,7 @@ python pipeline/RAG_vdb/build_guideline_vdb.py \
 }
 ```
 
-3) Optional: use `pipeline/test_configs/rag_test.py` as a minimal RAG config. It can be run by passing that config into the `PipelineOrchestrator` in `pipeline/test.py`.
-
-## Configuration
-
-### Pipeline steps
-
-Key step types (see `pipeline/core/factory.py`):
-
-- `extraction`: transcript -> claims (LLM)
-- `generate_query`: claim -> PubMed query (LLM)
-- `fetch_links`: PubMed ID lookup
-- `summarize_evidence`: abstract + pubtypes fetch (name kept for compatibility)
-- `weight_evidence`: weight from pub_type
-- `retrieve_guideline_facts`: RAG chunks from SQLite vector DB
-- `rerank_evidence`: relevance score using BGE reranker (title+abstract)
-- `stance_evidence`: NLI stance using BioLinkBERT MedNLI (title+abstract)
-- `filter_evidence`: LLM filter for topicality
-- `truthness`: LLM verdict + score
-- `scoring`: overall truthiness across statements
-
-### Prompt templates
-
-Prompt templates are centralized in `pipeline/test_configs/preprompts.py` and injected per step.
-Step 7 uses `EVIDENCE` plus a separate `RAG CHUNKS` block.
-
-### LLM endpoint settings
-
-Each LLM-based step can override the endpoint with `llm_settings` in its `settings` block:
-
-```python
-{
-  "type": "extraction",
-  "settings": {
-    "model": "gemma3:27b",
-    "prompt_template": PROMPT_TMPL_S2,
-    "llm_settings": {
-      "base_url": "http://localhost:11434/v1",
-      "api_key": "ollama"
-    }
-  }
-}
-```
-
-If `llm_settings` is omitted, the default is `http://localhost:11434/v1`.
-
-### Relevance thresholding and ordering
-
-- `rerank_evidence` supports `min_relevance`. Evidence below this threshold is dropped.
-- `truthness` sorts evidence by relevance ascending before sending to the LLM (lowest first, highest last).
-
-## PubMed proxy service
-
-The pipeline uses a local proxy (`services/pubmed_proxy.py`) to respect NCBI rate limits.
-It is auto-started by `pipeline/core/orchestrator.py` via `pipeline/core/service_manager.py`.
-You can also run it manually:
-
-```bash
-python services/pubmed_proxy.py
-```
+3) Optional: use a minimal RAG-only config from `pipeline/test_configs` and pass it into `PipelineOrchestrator`.
 
 ## Output
 
@@ -175,12 +225,32 @@ Each statement includes:
 - `score`: 0.00-1.00 (truth score)
 - `evidence`: mixed list of PubMed + RAG evidence
 
-The final JSON is written to `final_output.json` by `pipeline/test.py`.
+The pipeline runner writes a full JSON snapshot to `final_output.json`.
+
+## Repository layout
+
+```
+app/                       # FastAPI app and reel utilities (optional ingestion)
+app/main.py                # API entry point
+app/reel_utils.py          # Reel download and audio conversion
+app/step_1_audio_to_transcript.py
+pipeline/                  # Core pipeline framework
+pipeline/core/             # Orchestrator, models, LLM client, logging
+pipeline/steps/            # Extraction, research, scoring, verification, RAG
+pipeline/RAG_vdb/          # Guideline RAG vector DB tools
+pipeline/test.py           # Local pipeline runner (loads a reference config)
+pipeline/test_configs/     # Reference configs and prompt templates
+services/                  # PubMed proxy service
+evaluation/                # Evaluation scripts and datasets
+browser-extension/         # UI experiment
+logs/                      # Debug logs (when enabled)
+final_output.json          # Example output (generated by pipeline/test.py)
+```
 
 ## Notes and caveats
 
-- Evidence is abstract-only; summaries are no longer generated.
-- Reranker and stance models both prepend paper title to the abstract when available.
-- RAG chunks are stored as `abstract` in the evidence schema to integrate with the pipeline.
-- The verification step passes RAG chunks directly to the LLM without filtering.
-- Debug logs are saved as `pipeline_debug_<run_id>.log` when debug is enabled.
+- Evidence is abstract-only; summaries are not generated.
+- Reranker and stance models prepend the paper title to the abstract when available.
+- RAG chunk text is stored in the `abstract` field to integrate with the evidence schema.
+- `filter_evidence` only keeps items with an abstract when the LLM replies with "yes"; errors default to dropping the item.
+- Debug logs are saved as `logs/pipeline_debug_<run_id>.log` and prompt logs as `logs/pipeline_debug_<run_id>_llm_prmpts.log` when debug is enabled.

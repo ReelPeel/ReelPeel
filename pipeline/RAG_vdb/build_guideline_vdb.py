@@ -18,7 +18,7 @@ Notes:
 """
 
 from __future__ import annotations
-
+from transformers import AutoTokenizer
 import argparse
 import datetime as dt
 import hashlib
@@ -55,6 +55,52 @@ def sha256_file(path: Path, chunk_size: int = 1024 * 1024) -> str:
                 break
             h.update(b)
     return h.hexdigest()
+
+def chunk_by_tokens(
+    pages: List[PageText],
+    tokenizer,
+    max_tokens: int=512,
+    overlap_tokens: int=64,
+) -> List[Tuple[List[int], str]]:
+    
+    assert max_tokens > 0
+    assert 0 <= overlap_tokens < max_tokens
+
+    token_ids: List[int] = []
+    token_pages: List[int] = []
+
+    for pt in pages:
+        if not pt.text:
+            continue
+        page_no = pt.page_index_0 + 1
+        ids = tokenizer.encode(pt.text, add_special_tokens=False)
+        if not ids:
+            continue
+        token_ids.extend(ids)
+        token_pages.extend([page_no] * len(ids))
+
+    if not token_ids:
+        return []
+
+    step = max_tokens - overlap_tokens
+    chunks: List[Tuple[List[int], str]] = []
+
+    start = 0
+    while start < len(token_ids):
+        end = min(start + max_tokens, len(token_ids))
+        window_ids = token_ids[start:end]
+        pages_in = sorted(set(token_pages[start:end]))
+
+        # Decode back to text. This is deterministic and keeps the token budget guarantee.
+        text = tokenizer.decode(window_ids, skip_special_tokens=True).strip()
+        if text:
+            chunks.append((pages_in, text))
+
+        if end == len(token_ids):
+            break
+        start += step
+
+    return chunks
 
 
 def init_db(db_path: Path) -> None:
@@ -95,16 +141,29 @@ def init_db(db_path: Path) -> None:
 
 
 def pdf_to_pages(pdf_path: Path) -> List[PageText]:
-    reader = PdfReader(str(pdf_path))
+    try:
+        reader = PdfReader(str(pdf_path))
+    except Exception as e:
+        raise PdfReadError(f"Failed to open PDF: {e}")
+
+    # Try to decrypt with empty password (works for some “restricted but no user password” PDFs)
+    try:
+        if getattr(reader, "is_encrypted", False):
+            try:
+                reader.decrypt("")  # may return 0 if it didn't work; still worth trying
+            except Exception:
+                pass
+    except DependencyError:
+        # Missing AES deps
+        raise
+
     pages: List[PageText] = []
     for i, page in enumerate(reader.pages):
-        # PyPDF returns None sometimes; normalize to ""
         txt = page.extract_text() or ""
-        # Collapse odd whitespace; keep newlines lightly
-        txt = "\n".join(line.rstrip() for line in txt.splitlines())
-        txt = txt.strip()
+        txt = "\n".join(line.rstrip() for line in txt.splitlines()).strip()
         pages.append(PageText(page_index_0=i, text=txt))
     return pages
+
 
 
 def iter_pdf_paths(pdf_dir: Path) -> Iterable[Path]:
@@ -113,49 +172,6 @@ def iter_pdf_paths(pdf_dir: Path) -> Iterable[Path]:
             yield p
 
 
-def chunk_words(
-    pages: List[PageText],
-    chunk_words_n: int,
-    overlap_words_n: int,
-) -> List[Tuple[List[int], str]]:
-    """
-    Returns list of (pages_in_chunk, chunk_text).
-    pages_in_chunk = list of 1-based page numbers included in the chunk.
-    """
-    assert chunk_words_n > 0
-    assert 0 <= overlap_words_n < chunk_words_n
-
-    # Build a linear token stream with page markers.
-    tokens: List[str] = []
-    token_pages: List[int] = []  # token_pages[idx] = 1-based page number
-    for pt in pages:
-        if not pt.text:
-            continue
-        page_no = pt.page_index_0 + 1
-        # Conservative split (whitespace)
-        for t in pt.text.split():
-            tokens.append(t)
-            token_pages.append(page_no)
-
-    if not tokens:
-        return []
-
-    chunks: List[Tuple[List[int], str]] = []
-    step = chunk_words_n - overlap_words_n
-
-    start = 0
-    while start < len(tokens):
-        end = min(start + chunk_words_n, len(tokens))
-        chunk_toks = tokens[start:end]
-        pages_in = sorted(set(token_pages[start:end]))
-        chunk_txt = " ".join(chunk_toks).strip()
-        if chunk_txt:
-            chunks.append((pages_in, chunk_txt))
-        if end == len(tokens):
-            break
-        start += step
-
-    return chunks
 
 
 def doc_id_for(pdf_path: Path, file_hash: str) -> str:
@@ -255,10 +271,13 @@ def main() -> None:
             file_hash = sha256_file(pdf_path)
             pages = pdf_to_pages(pdf_path)
 
-            chunks = chunk_words(
+            model = SentenceTransformer(args.embed_model)
+            tokenizer = AutoTokenizer.from_pretrained(args.embed_model, use_fast=True)
+            chunks = chunk_by_tokens(
                 pages=pages,
-                chunk_words_n=args.chunk_words,
-                overlap_words_n=args.overlap_words,
+                tokenizer=tokenizer,
+                max_tokens=512,
+                overlap_tokens=64,
             )
 
             if not chunks:

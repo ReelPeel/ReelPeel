@@ -9,5 +9,5 @@ __pycache__
 *.log
 *.pdf
 evaluation/deberta_runs/
-
+downloads/
 .idea
