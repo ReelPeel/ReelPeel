@@ -18,6 +18,7 @@ SELECTION RULES
 2. Only include medical claims that are clinically relevant, novel, or potentially harmful or medical advice.  
 3. Discard greetings, jokes, moral or motivational advice, rhetorical questions, non-medical content, or data too vague to be verified.  
 4. Merge duplicate / near-duplicate claims into one concise statement and avoid duplication.
+5. Make the claims self-contained and context-independent but such that it matches the meaning as in the transcript.
 
 STRICT OUTPUT  
 A valid JSON array with 1–5 strings.  

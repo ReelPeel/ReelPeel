@@ -52,18 +52,14 @@ def _format_evidence_line(ev, include_text: bool = True, missing_text: str = "te
     source_type = _source_type_value(ev)
     if source_type == SourceType.PUBMED.value:
         source_label = "PMID"
-        source_id = getattr(ev, "pubmed_id", None) or "N/A"
     elif source_type == SourceType.EPISTEMONIKOS.value:
         source_label = "EPIST"
-        source_id = getattr(ev, "epistemonikos_id", None) or "N/A"
     elif source_type == SourceType.RAG.value:
         source_label = "RAG"
-        source_id = getattr(ev, "chunk_id", None) or "N/A"
     else:
         source_label = "SOURCE"
-        source_id = "N/A"
 
-    parts = [f"{source_label} {source_id}"]
+    parts = [source_label]
 
     w = _fmt_score(getattr(ev, "weight", None))
     if w is not None:
@@ -106,11 +102,7 @@ def _format_evidence_line(ev, include_text: bool = True, missing_text: str = "te
 
 
 def _format_rag_chunk(chunk, include_text: bool = True) -> str:
-    source = getattr(chunk, "source_path", None) or "unknown"
-    pages = getattr(chunk, "pages", None) or []
-    if pages:
-        source = f"{source} p.{','.join(str(p) for p in pages)}"
-
+    source = "RAG"
     parts = []
     score = _fmt_score(getattr(chunk, "score", None))
     if score is not None:
