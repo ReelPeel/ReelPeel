@@ -16,16 +16,18 @@ class AudioToTranscriptStep(PipelineStep):
     in PipelineState.transcript.
 
     Config keys:
-      - audio_path: str (required)
+      - audio_path: str (optional if state.audio_path is set)
       - whisper_model: str (default: "turbo")
       - fp16: bool (default: True)
       - translate_non_english: bool (default: True)
     """
 
     def execute(self, state: PipelineState) -> PipelineState:
-        audio_path = self.config.get("audio_path")
+        audio_path = self.config.get("audio_path") or state.audio_path
         if not audio_path:
-            raise ValueError("[AudioToTranscriptStep] Missing required config: audio_path")
+            raise ValueError(
+                "[AudioToTranscriptStep] Missing audio_path (config or state.audio_path)"
+            )
 
         path = Path(audio_path).expanduser()
         if not path.exists():
@@ -51,6 +53,7 @@ class AudioToTranscriptStep(PipelineStep):
             result = model.transcribe(str(path), task="translate", fp16=fp16)
             transcript = str(result.get("text", "")).strip()
 
+        state.audio_path = str(path)
         state.transcript = transcript
         state.generated_at = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
 

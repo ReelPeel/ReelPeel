@@ -13,6 +13,7 @@ The pipeline is defined by a config dict with an ordered list of steps. The `Pip
 1. Transcript extraction (`audio_to_transcript`)
   - Extracts the transcript from a audio .wav file
   - Produces `Transcipt`object
+  - Optional pre-step: `video_to_audio` converts a local video file into audio
 
 2. Claim extraction (`extraction`)
    - LLM turns the transcript into 1-3 medical claims.
@@ -107,6 +108,8 @@ PIPELINE_CONFIG = {
 Key step types registered in `pipeline/core/factory.py`:
 
 - `mock_transcript` and `mock_statements` for test input injection.
+- `video_to_audio` for video -> audio file conversion.
+- `audio_to_transcript` for audio -> transcript (Whisper).
 - `extraction` for transcript -> statements.
 - `generate_query`, `fetch_links`, `summarize_evidence`, `weight_evidence` for PubMed research.
 - `retrieve_guideline_facts` for guideline RAG.
