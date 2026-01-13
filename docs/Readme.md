@@ -116,6 +116,7 @@ python pipeline/RAG_vdb/build_guideline_vdb.py \
 Key step types (see `pipeline/core/factory.py`):
 
 - `extraction`: transcript -> claims (LLM)
+- `audio_to_transcript`: audio file -> transcript (Whisper)
 - `generate_query`: claim -> PubMed query (LLM)
 - `fetch_links`: PubMed ID lookup
 - `summarize_evidence`: abstract + pubtypes fetch (name kept for compatibility)
