@@ -9,7 +9,7 @@ RESEARCH_MODULE = {
             {
                 "type": "generate_query",  # Step 3
                 "settings": {
-                    "model": "gemma3:12b",
+                    "model": "gemma3:27b",
                     "prompt_template": PROMPT_TMPL_S3_BALANCED,
                     "temperature": 0.0,
                     # "max_tokens": 512 # Currently hardcoded in individual step
@@ -64,7 +64,7 @@ VERIFICATION_MODULE = {
             {
                 "type": "filter_evidence",
                 "settings": {
-                    "model": "gemma3:12b",
+                    "model": "gemma3:27b",
                     "prompt_template": PROMPT_TMPL_S6,
 
                     "temperature": 0.0,
@@ -75,7 +75,7 @@ VERIFICATION_MODULE = {
             {
                 "type": "truthness",
                 "settings": {
-                    "model": "gemma3:12b",
+                    "model": "gemma3:27b",
                     "prompt_template": PROMPT_TMPL_S7,
                     "temperature": 0.0,
                     # "max_tokens": 512 # Currently hardcoded in individual step
@@ -116,7 +116,7 @@ FULL_PIPELINE_CONFIG = {
         {
             "type": "extraction",
             "settings": {
-                "model": "gemma3:12b",
+                "model": "gemma3:27b",
                 "prompt_template": PROMPT_TMPL_S2,
                 "temperature": 0.0,
                 # "max_tokens": 512 # Currently hardcoded in individual step
