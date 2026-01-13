@@ -10,9 +10,9 @@ The pipeline is defined by a config dict with an ordered list of steps. The `Pip
 
 ## Detailed pipeline flow (typical order)
 
-1. Input ingestion
-   - A step populates `PipelineState.transcript` (from ASR or a mock step), or directly populates `PipelineState.statements` (skipping extraction).
-   - The pipeline core only requires transcript text or prebuilt statements; audio ingestion lives outside the pipeline.
+1. Transcript extraction (`audio_to_transcript`)
+  - Extracts the transcript from a audio .wav file
+  - Produces `Transcipt`object
 
 2. Claim extraction (`extraction`)
    - LLM turns the transcript into 1-3 medical claims.
@@ -54,6 +54,11 @@ The pipeline is defined by a config dict with an ordered list of steps. The `Pip
    - `PipelineState` contains statements, evidence, verdicts, and scores.
    - The debug log and summary table reflect step timing and token usage.
 
+
+Optional: Input ingestion
+If no transcript is available or single statements want to be passed into the pipeline you can use mock steps.
+   - A step populates `PipelineState.transcript` (from ASR or a mock step), or directly populates `PipelineState.statements` (skipping extraction).
+   - The pipeline core only requires transcript text or prebuilt statements; audio ingestion lives outside the pipeline.
 ## Evidence model
 
 All evidence items share a union schema and live in `Statement.evidence`:
