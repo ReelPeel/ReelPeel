@@ -7,6 +7,23 @@ from .models import PipelineState
 from .logging import PipelineObserver
 
 
+def _count_evidence(state: PipelineState) -> Dict[str, Any]:
+    total = 0
+    by_source: Dict[str, int] = {}
+    statements = getattr(state, "statements", None) or []
+    for stmt in statements:
+        evidence = getattr(stmt, "evidence", None) or []
+        total += len(evidence)
+        for ev in evidence:
+            source_type = getattr(ev, "source_type", None)
+            if hasattr(source_type, "value"):
+                source_type = source_type.value
+            if not source_type:
+                source_type = "Unknown"
+            by_source[source_type] = by_source.get(source_type, 0) + 1
+    return {"total": total, "by_source": by_source}
+
+
 class PipelineStep(ABC):
     def __init__(self, step_config: Dict[str, Any]):
         self.config = step_config
@@ -35,6 +52,7 @@ class PipelineStep(ABC):
         DO NOT OVERRIDE. Override execute() instead.
         """
         start_time = time.time()
+        evidence_before = _count_evidence(state)
 
         # 1. Notify Start
         if self.observer:
@@ -46,6 +64,7 @@ class PipelineStep(ABC):
         except Exception as e:
             print(f"[ERROR] Step {self.step_name} failed: {e}")
             raise e
+        evidence_after = _count_evidence(new_state)
 
         # 3. Calculate Stats
         duration = time.time() - start_time
@@ -63,7 +82,11 @@ class PipelineStep(ABC):
             "duration": duration,
             "tokens": tokens,
             "indent": state.depth,
-            "is_module": isinstance(self, PipelineModule)
+            "is_module": isinstance(self, PipelineModule),
+            "evidence_total_before": evidence_before["total"],
+            "evidence_total_after": evidence_after["total"],
+            "evidence_by_source_before": evidence_before["by_source"],
+            "evidence_by_source_after": evidence_after["by_source"],
         })
 
         return new_state

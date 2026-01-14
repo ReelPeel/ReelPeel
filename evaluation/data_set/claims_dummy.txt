@@ -1,0 +1,17 @@
+[
+  {
+    "statement": "Aloe vera relieves discomfort caused by psoriasis.",
+    "label": 1,
+    "id": 443
+  },
+  {
+    "statement": "Vitamin C can prevent infection with coronavirus or prevent deaths from covid-19.",
+    "label": 1,
+    "id": 132
+  },
+  {
+    "statement": "Negative expectancy can reduce the effect of pain medications.",
+    "label": 2,
+    "id": 713
+  }
+]
