@@ -138,6 +138,9 @@ def compute_metrics_from_arrays(
             "n_scored": 0,
             "n_skipped": int(n_skipped),
             "accuracy": None,
+            "precision": None,
+            "recall": None,
+            "f1_score": None,
             "per_class_recall": {str(c): None for c in sorted(VALID_LABELS)},
             "confusion_matrix": {},
         }
@@ -148,10 +151,31 @@ def compute_metrics_from_arrays(
     accuracy = float((y_true_arr == y_pred_arr).mean())
 
     per_class_recall: Dict[str, Any] = {}
+    per_class_precision: Dict[str, Any] = {}
+    per_class_f1: Dict[str, Any] = {}
     for cls in sorted(VALID_LABELS):
         mask = (y_true_arr == cls)
-        denom = int(mask.sum())
-        per_class_recall[str(cls)] = None if denom == 0 else float(((y_pred_arr == cls) & mask).sum() / denom)
+        tp = int(((y_pred_arr == cls) & mask).sum())
+        fp = int(((y_pred_arr == cls) & (y_true_arr != cls)).sum())
+        fn = int(((y_pred_arr != cls) & mask).sum())
+
+        recall = None if (tp + fn) == 0 else float(tp / (tp + fn))
+        precision = None if (tp + fp) == 0 else float(tp / (tp + fp))
+        f1 = None
+        if precision is not None and recall is not None and (precision + recall) > 0:
+            f1 = float(2 * precision * recall / (precision + recall))
+
+        per_class_recall[str(cls)] = recall
+        per_class_precision[str(cls)] = precision
+        per_class_f1[str(cls)] = f1
+
+    def _macro_avg(values: List[Optional[float]]) -> float:
+        vals = [v for v in values if v is not None]
+        return float(sum(vals) / len(vals)) if vals else 0.0
+
+    precision = _macro_avg(list(per_class_precision.values()))
+    recall = _macro_avg(list(per_class_recall.values()))
+    f1_score = _macro_avg(list(per_class_f1.values()))
 
     confusion: Dict[str, Dict[str, int]] = {}
     for t, p in zip(y_true_arr.tolist(), y_pred_arr.tolist()):
@@ -164,6 +188,9 @@ def compute_metrics_from_arrays(
         "n_scored": int(n_scored),
         "n_skipped": int(n_skipped),
         "accuracy": accuracy,
+        "precision": precision,
+        "recall": recall,
+        "f1_score": f1_score,
         "per_class_recall": per_class_recall,
         "confusion_matrix": confusion,
     }

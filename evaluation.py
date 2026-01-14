@@ -7,7 +7,7 @@ import re
 import time
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Tuple
 
 import pipeline.test_configs.raw_eval_config as config_module
 from pipeline.core.models import PipelineState
@@ -54,6 +54,23 @@ def load_json_if_exists(path: str) -> dict:
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
     return {}
+
+
+def collect_pipeline_configs(module) -> List[dict]:
+    configs = []
+    for _, value in vars(module).items():
+        if not isinstance(value, dict):
+            continue
+        if value.get("type") == "module":
+            continue
+        steps = value.get("steps")
+        if not isinstance(steps, list):
+            continue
+        if "name" not in value:
+            continue
+        configs.append(value)
+    configs.sort(key=lambda cfg: cfg.get("name", ""))
+    return configs
 
 
 def set_mock_statement(cfg: dict, text: str, stmt_id: int = 1) -> None:
@@ -191,6 +208,8 @@ def summarize_per_config_output(per_config_payload: dict) -> dict:
     total = len(y_true)
     accuracy = correct / total if total else 0.0
 
+    precision, recall, f1_score = compute_macro_metrics(y_true, y_pred)
+
     per_class = {}
     by_class = defaultdict(list)
     for t, p in zip(y_true, y_pred):
@@ -206,6 +225,9 @@ def summarize_per_config_output(per_config_payload: dict) -> dict:
         "n_scored": total,
         "n_skipped": skipped,
         "accuracy": accuracy,
+        "precision": precision,
+        "recall": recall,
+        "f1_score": f1_score,
         "per_class_recall": per_class,
         "confusion_matrix": {t: dict(c) for t, c in confusion.items()},
         "total_wall_seconds": meta.get("total_wall_seconds"),
@@ -231,6 +253,102 @@ def update_truthness_results(
     summary[config_name] = entry
 
     atomic_write_json(summary_path, summary)
+
+
+def compute_macro_metrics(y_true: List[int], y_pred: List[int]) -> Tuple[float, float, float]:
+    if not y_true:
+        return 0.0, 0.0, 0.0
+
+    labels = sorted(set(y_true) | set(y_pred))
+    precisions = []
+    recalls = []
+    f1s = []
+
+    for cls in labels:
+        tp = sum(1 for t, p in zip(y_true, y_pred) if t == cls and p == cls)
+        fp = sum(1 for t, p in zip(y_true, y_pred) if t != cls and p == cls)
+        fn = sum(1 for t, p in zip(y_true, y_pred) if t == cls and p != cls)
+
+        precision = tp / (tp + fp) if (tp + fp) else 0.0
+        recall = tp / (tp + fn) if (tp + fn) else 0.0
+        f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) else 0.0
+
+        precisions.append(precision)
+        recalls.append(recall)
+        f1s.append(f1)
+
+    precision = sum(precisions) / len(precisions)
+    recall = sum(recalls) / len(recalls)
+    f1_score = sum(f1s) / len(f1s)
+    return precision, recall, f1_score
+
+
+def extract_token_stats(execution_log: Optional[List[Dict[str, Any]]]) -> Dict[str, Any]:
+    tokens_total = 0
+    tokens_by_step: List[Dict[str, Any]] = []
+    for entry in execution_log or []:
+        if entry.get("is_module"):
+            continue
+        tokens = int(entry.get("tokens", 0) or 0)
+        tokens_total += tokens
+        tokens_by_step.append({"step": entry.get("step"), "tokens": tokens})
+    return {"total": tokens_total, "by_step": tokens_by_step}
+
+
+def extract_evidence_stats(execution_log: Optional[List[Dict[str, Any]]]) -> Dict[str, Any]:
+    found_total = 0
+    discarded_total = 0
+    found_by_source: Dict[str, int] = defaultdict(int)
+    discarded_by_source: Dict[str, int] = defaultdict(int)
+    saw_counts = False
+
+    for entry in execution_log or []:
+        if entry.get("is_module"):
+            continue
+        before = entry.get("evidence_total_before")
+        after = entry.get("evidence_total_after")
+        if before is None or after is None:
+            continue
+        saw_counts = True
+        delta = int(after) - int(before)
+        if delta > 0:
+            found_total += delta
+        elif delta < 0:
+            discarded_total += -delta
+
+        before_src = entry.get("evidence_by_source_before") or {}
+        after_src = entry.get("evidence_by_source_after") or {}
+        for source in set(before_src) | set(after_src):
+            b = int(before_src.get(source, 0) or 0)
+            a = int(after_src.get(source, 0) or 0)
+            d = a - b
+            if d > 0:
+                found_by_source[source] += d
+            elif d < 0:
+                discarded_by_source[source] += -d
+
+    if not saw_counts:
+        return {
+            "found_total": None,
+            "discarded_total": None,
+            "found_by_source": None,
+            "discarded_by_source": None,
+        }
+
+    return {
+        "found_total": found_total,
+        "discarded_total": discarded_total,
+        "found_by_source": dict(found_by_source),
+        "discarded_by_source": dict(discarded_by_source),
+    }
+
+
+def split_papers_chunks(by_source: Optional[Dict[str, int]]) -> Tuple[Optional[int], Optional[int]]:
+    if by_source is None:
+        return None, None
+    chunks = int(by_source.get("RAG", 0) or 0)
+    papers = sum(int(v or 0) for k, v in by_source.items() if k != "RAG")
+    return papers, chunks
 
 
 def evaluate_to_json(
@@ -284,6 +402,16 @@ def evaluate_to_json(
         verdict = None
         pred_label = None
         error_note = None
+        tokens_total = None
+        tokens_by_step = None
+        evidence_found_total = None
+        evidence_discarded_total = None
+        evidence_found_by_source = None
+        evidence_discarded_by_source = None
+        papers_found_total = None
+        chunks_found_total = None
+        papers_discarded_total = None
+        chunks_discarded_total = None
 
         # Pipeline runtime: orchestrator.run only
         pipeline_start = time.perf_counter()
@@ -300,6 +428,19 @@ def evaluate_to_json(
                 pred_label = VERDICT_TO_LABEL.get(verdict)
                 if pred_label is None:
                     error_note = f"Unexpected or missing verdict: {verdict!r}"
+
+            execution_log = getattr(final_state, "execution_log", None)
+            token_stats = extract_token_stats(execution_log)
+            tokens_total = token_stats["total"]
+            tokens_by_step = token_stats["by_step"]
+
+            evidence_stats = extract_evidence_stats(execution_log)
+            evidence_found_total = evidence_stats["found_total"]
+            evidence_discarded_total = evidence_stats["discarded_total"]
+            evidence_found_by_source = evidence_stats["found_by_source"]
+            evidence_discarded_by_source = evidence_stats["discarded_by_source"]
+            papers_found_total, chunks_found_total = split_papers_chunks(evidence_found_by_source)
+            papers_discarded_total, chunks_discarded_total = split_papers_chunks(evidence_discarded_by_source)
         except Exception as e:
             error_note = f"Exception during pipeline run: {type(e).__name__}: {e}"
         pipeline_end = time.perf_counter()
@@ -324,6 +465,16 @@ def evaluate_to_json(
             "pipeline_seconds": pipeline_seconds,
             "sleep_seconds": sleep_seconds,
             "wall_seconds": wall_seconds,
+            "tokens_total": tokens_total,
+            "tokens_by_step": tokens_by_step,
+            "evidence_found_total": evidence_found_total,
+            "evidence_discarded_total": evidence_discarded_total,
+            "evidence_found_by_source": evidence_found_by_source,
+            "evidence_discarded_by_source": evidence_discarded_by_source,
+            "papers_found_total": papers_found_total,
+            "chunks_found_total": chunks_found_total,
+            "papers_discarded_total": papers_discarded_total,
+            "chunks_discarded_total": chunks_discarded_total,
             # Optional debug fields
             "verdict": verdict,
             "error": error_note,
@@ -354,13 +505,11 @@ def evaluate_to_json(
 
 
 def main():
-    dataset_path = "evaluation/data_set/claims_statements_train.txt"
+    dataset_path = "evaluation/data_set/claims_dummy.txt"
 
-    configs = [
-        config_module.RAW_PIPELINE_CONFIG,
-        config_module.PUBMED_PIPELINE_CONFIG,
-        config_module.PUBMED_PIPELINE_CONFIG_NO_WEIGHTS,
-    ]
+    configs = collect_pipeline_configs(config_module)
+    if not configs:
+        raise ValueError("No pipeline configs found in config_module.")
 
     # All outputs go here as requested
     out_dir = "evaluation/eval_outputs"
@@ -401,6 +550,9 @@ def main():
         print(f"Scored items: {s['n_scored']} / {s['n_total_in_file']}")
         print(f"Skipped items: {s['n_skipped']}")
         print(f"Accuracy: {s['accuracy']:.4f}")
+        print(f"Precision (macro): {s['precision']:.4f}")
+        print(f"Recall (macro): {s['recall']:.4f}")
+        print(f"F1 (macro): {s['f1_score']:.4f}")
         print(f"Per-class recall: {s['per_class_recall']}")
         print("Confusion matrix (rows=true, cols=pred):")
         for t, row in sorted(s["confusion_matrix"].items()):

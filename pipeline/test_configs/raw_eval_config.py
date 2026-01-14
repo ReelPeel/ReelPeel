@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from pipeline.test_configs.preprompts import (
     PROMPT_TMPL_RAW,
     PROMPT_TMPL_S3_ATM_ASSISTED,
@@ -158,7 +160,7 @@ PUBMED_LOW_LATENCY_CONFIG = {
             "type": "generate_query",
             "settings": {
                 "base_url": "http://localhost:11434/v1",
-                "model": "gemma3:12b",
+                "model": "gemma3:27b",
                 "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED,
                 "temperature": 0.0,
             },
@@ -169,7 +171,7 @@ PUBMED_LOW_LATENCY_CONFIG = {
             "type": "filter_evidence",
             "settings": {
                 "base_url": "http://localhost:11434/v1",
-                "model": "gemma3:12b",
+                "model": "gemma3:27b",
                 "prompt_template": PROMPT_TMPL_S6,
                 "temperature": 0.0,
             },
@@ -178,7 +180,7 @@ PUBMED_LOW_LATENCY_CONFIG = {
             "type": "truthness",
             "settings": {
                 "base_url": "http://localhost:11434/v1",
-                "model": "gemma3:12b",
+                "model": "gemma3:27b",
                 "prompt_template": PROMPT_TMPL_S7,
                 "temperature": 0.0,
             },
@@ -203,7 +205,7 @@ PUBMED_DUAL_QUERY_CONFIG = {
             "type": "generate_query",
             "settings": {
                 "base_url": "http://localhost:11434/v1",
-                "model": "gemma3:12b",
+                "model": "gemma3:27b",
                 "prompt_template": PROMPT_TMPL_S3_BALANCED,
                 "temperature": 0.0,
             },
@@ -212,7 +214,7 @@ PUBMED_DUAL_QUERY_CONFIG = {
             "type": "generate_query",
             "settings": {
                 "base_url": "http://localhost:11434/v1",
-                "model": "gemma3:12b",
+                "model": "gemma3:27b",
                 "prompt_template": PROMPT_TMPL_S3_SPECIFIC,
                 "temperature": 0.0,
             },
@@ -223,7 +225,7 @@ PUBMED_DUAL_QUERY_CONFIG = {
             "type": "filter_evidence",
             "settings": {
                 "base_url": "http://localhost:11434/v1",
-                "model": "gemma3:12b",
+                "model": "gemma3:27b",
                 "prompt_template": PROMPT_TMPL_S6,
                 "temperature": 0.0,
             },
@@ -232,7 +234,7 @@ PUBMED_DUAL_QUERY_CONFIG = {
             "type": "truthness",
             "settings": {
                 "base_url": "http://localhost:11434/v1",
-                "model": "gemma3:12b",
+                "model": "gemma3:27b",
                 "prompt_template": PROMPT_TMPL_S7,
                 "temperature": 0.0,
             },
@@ -258,7 +260,7 @@ PUBMED_MULTI_QUERY_CONFIG = {
             "type": "filter_evidence",
             "settings": {
                 "base_url": "http://localhost:11434/v1",
-                "model": "gemma3:12b",
+                "model": "gemma3:27b",
                 "prompt_template": PROMPT_TMPL_S6,
                 "temperature": 0.0,
             },
@@ -267,7 +269,7 @@ PUBMED_MULTI_QUERY_CONFIG = {
             "type": "truthness",
             "settings": {
                 "base_url": "http://localhost:11434/v1",
-                "model": "gemma3:12b",
+                "model": "gemma3:27b",
                 "prompt_template": PROMPT_TMPL_S7,
                 "temperature": 0.0,
             },
@@ -320,10 +322,28 @@ RAG_HYBRID_CONFIG = {
         {"type": "stance_evidence", "settings": {}},
         {
             "type": "truthness",
-            "settings": {
-                "model": "gemma3:12b",
+            "settings": {                
+                "model": "gemma3:27b",
                 "prompt_template": PROMPT_TMPL_S7,
             },
         },
     ],
 }
+
+RAW_PIPELINE_CONFIG_REASONING = deepcopy(RAW_PIPELINE_CONFIG)
+RAW_PIPELINE_CONFIG_REASONING["name"] = "Raw_Eval_Pipeline_Reasoning"
+RAW_PIPELINE_CONFIG_REASONING["steps"][-1]["settings"]["model"] = "deepseek-r1:32b"
+
+PUBMED_MULTI_QUERY_RERANK_MEDITRON_CONFIG = deepcopy(PUBMED_MULTI_QUERY_RERANK_CONFIG)
+PUBMED_MULTI_QUERY_RERANK_MEDITRON_CONFIG["name"] = "PubMed_MultiQuery_Rerank_Meditron"
+PUBMED_MULTI_QUERY_RERANK_MEDITRON_CONFIG["steps"][3]["settings"]["steps"][1]["settings"]["model"] = "meditron3-70b"
+
+PUBMED_MULTI_QUERY_RERANK_GEMMA12B_CONFIG = deepcopy(PUBMED_MULTI_QUERY_RERANK_CONFIG)
+PUBMED_MULTI_QUERY_RERANK_GEMMA12B_CONFIG["name"] = "PubMed_MultiQuery_Rerank_Gemma3_12B"
+PUBMED_MULTI_QUERY_RERANK_GEMMA12B_CONFIG["steps"][1]["settings"]["steps"][0]["settings"]["model"] = "gemma3:12b"
+PUBMED_MULTI_QUERY_RERANK_GEMMA12B_CONFIG["steps"][3]["settings"]["steps"][0]["settings"]["model"] = "gemma3:12b"
+PUBMED_MULTI_QUERY_RERANK_GEMMA12B_CONFIG["steps"][3]["settings"]["steps"][1]["settings"]["model"] = "gemma3:12b"
+
+PUBMED_MULTI_QUERY_RERANK_MINREL_0_6_CONFIG = deepcopy(PUBMED_MULTI_QUERY_RERANK_CONFIG)
+PUBMED_MULTI_QUERY_RERANK_MINREL_0_6_CONFIG["name"] = "PubMed_MultiQuery_Rerank_MinRel_0.6"
+PUBMED_MULTI_QUERY_RERANK_MINREL_0_6_CONFIG["steps"][2]["settings"]["steps"][0]["settings"]["min_relevance"] = 0.6
