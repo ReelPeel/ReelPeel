@@ -81,6 +81,16 @@ def _batch(items: List[Any], batch_size: int) -> List[List[Any]]:
     return [items[i : i + batch_size] for i in range(0, len(items), batch_size)]
 
 
+def _count_batch_tokens(inputs: Dict[str, torch.Tensor]) -> int:
+    attn = inputs.get("attention_mask")
+    if attn is not None:
+        return int(attn.sum().item())
+    input_ids = inputs.get("input_ids")
+    if input_ids is None:
+        return 0
+    return int(input_ids.numel())
+
+
 class RerankEvidenceStep(PipelineStep):
     """
     Config keys:
@@ -174,6 +184,7 @@ class RerankEvidenceStep(PipelineStep):
                         return_tensors="pt",
                         max_length=max_length,
                     )
+                    self.add_step_tokens(_count_batch_tokens(inputs))
                     inputs = {k: v.to(device) for k, v in inputs.items()}
 
                     logits = model(**inputs, return_dict=True).logits.view(-1).float()

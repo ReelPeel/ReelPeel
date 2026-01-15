@@ -196,6 +196,8 @@ class PipelineLogger:
 
     def on_artifact(self, label: str, data: Any, depth: int):
         if label == "LLM Prompt":
+            if not self.debug:
+                return
             timestamp = datetime.now().strftime("%H:%M:%S")
             call_id = None
             prompt_data = data

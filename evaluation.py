@@ -775,7 +775,7 @@ def _evaluate_config_worker(
 
 
 def main():
-    dataset_path = "evaluation/data_set/claims_statements_train.txt"
+    dataset_path = "evaluation/data_set/claims_dummy.txt"
 
     configs = collect_pipeline_configs(config_module)
     if not configs:
