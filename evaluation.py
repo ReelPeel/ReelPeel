@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
+import atexit
+import concurrent.futures
 import copy
 import json
+import multiprocessing as mp
 import os
 import random
 import re
+import shutil
+import socket
+import subprocess
 import time
+import urllib.error
+import urllib.request
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any, Tuple
@@ -37,6 +45,168 @@ def sanitize_filename(s: str) -> str:
     s = re.sub(r"\s+", "_", s)
     s = re.sub(r"[^A-Za-z0-9._-]+", "", s)
     return s or "Unnamed_Pipeline"
+
+
+def build_run_id(config_name: str, stmt_id: int) -> str:
+    safe = sanitize_filename(config_name)
+    ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_%f")
+    return f"{safe}_{stmt_id}_{os.getpid()}_{ts}"
+
+
+def _is_truthy(value: Optional[str]) -> bool:
+    return str(value).strip().lower() in {"1", "true", "yes", "y", "on"}
+
+
+def _ollama_base_url(host: str, port: int) -> str:
+    return f"http://{host}:{port}/v1"
+
+
+def _ollama_tags_url(base_url: str) -> str:
+    url = base_url.rstrip("/")
+    if url.endswith("/v1"):
+        url = url[:-3]
+    return f"{url}/api/tags"
+
+
+def _is_port_open(host: str, port: int) -> bool:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(0.5)
+        return s.connect_ex((host, port)) == 0
+
+
+def _wait_for_ollama(base_url: str, timeout: float = 30.0) -> bool:
+    url = _ollama_tags_url(base_url)
+    start = time.time()
+    while time.time() - start < timeout:
+        try:
+            with urllib.request.urlopen(url, timeout=1) as resp:
+                if resp.status == 200:
+                    return True
+        except urllib.error.URLError:
+            pass
+        except Exception:
+            pass
+        time.sleep(0.5)
+    return False
+
+
+def _shutdown_processes(procs: List[subprocess.Popen]) -> None:
+    for proc in procs:
+        if proc.poll() is None:
+            proc.terminate()
+    for proc in procs:
+        try:
+            proc.wait(timeout=5)
+        except Exception:
+            if proc.poll() is None:
+                proc.kill()
+
+
+def start_ollama_servers(
+    gpu_ids: List[str],
+    *,
+    host: str,
+    base_port: int,
+    log_dir: str,
+    timeout: float = 30.0,
+) -> Tuple[List[str], List[subprocess.Popen], bool]:
+    if not gpu_ids:
+        return [], [], False
+    if shutil.which("ollama") is None:
+        print("[WARNING] 'ollama' not found in PATH; skipping multi-GPU launch.")
+        return [], [], False
+
+    os.makedirs(log_dir, exist_ok=True)
+    procs: List[subprocess.Popen] = []
+    base_urls: List[str] = []
+    all_ready = True
+
+    for idx, gpu_id in enumerate(gpu_ids):
+        port = base_port + idx
+        base_url = _ollama_base_url(host, port)
+        base_urls.append(base_url)
+
+        if _is_port_open(host, port):
+            if _wait_for_ollama(base_url, timeout=5.0):
+                print(f"[Ollama] Using existing server at {base_url} (GPU {gpu_id}).")
+                continue
+            print(f"[Ollama] Port {port} is open but server is not responding.")
+            all_ready = False
+            continue
+
+        env = os.environ.copy()
+        env["CUDA_VISIBLE_DEVICES"] = gpu_id
+        env["OLLAMA_HOST"] = f"{host}:{port}"
+        log_path = os.path.join(log_dir, f"ollama_{gpu_id}_{port}.log")
+        log_file = open(log_path, "a", encoding="utf-8")
+        proc = subprocess.Popen(
+            ["ollama", "serve"],
+            stdout=log_file,
+            stderr=log_file,
+            env=env,
+            start_new_session=True,
+        )
+        procs.append(proc)
+
+        if not _wait_for_ollama(base_url, timeout=timeout):
+            print(f"[Ollama] Server failed to become healthy at {base_url}.")
+            all_ready = False
+
+    return base_urls, procs, all_ready
+
+
+def _llm_settings_from_base_url(base_url: str) -> Dict[str, str]:
+    api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OLLAMA_API_KEY") or "ollama"
+    return {"base_url": base_url, "api_key": api_key}
+
+
+def _llm_settings_from_env() -> Dict[str, str]:
+    base_url = os.environ.get("LLM_BASE_URL") or os.environ.get("OLLAMA_BASE_URL")
+    if not base_url:
+        return {}
+    return _llm_settings_from_base_url(base_url)
+
+
+def _apply_llm_settings_to_steps(steps: List[Any], llm_settings: Dict[str, str]) -> None:
+    for step in steps:
+        if not isinstance(step, dict):
+            continue
+        if step.get("type") == "module":
+            module_settings = step.get("settings", {}) or {}
+            _apply_llm_settings_to_steps(module_settings.get("steps", []) or [], llm_settings)
+            continue
+        settings = step.setdefault("settings", {})
+        settings["llm_settings"] = dict(llm_settings)
+
+
+def apply_llm_settings(cfg: dict, llm_settings: Dict[str, str]) -> None:
+    if not llm_settings:
+        return
+    cfg["llm_settings"] = dict(llm_settings)
+    _apply_llm_settings_to_steps(cfg.get("steps", []) or [], llm_settings)
+
+
+def _parse_cuda_visible_devices() -> Optional[List[str]]:
+    raw = os.environ.get("CUDA_VISIBLE_DEVICES")
+    if raw is None:
+        return None
+    raw = raw.strip()
+    if not raw:
+        return []
+    return [p.strip() for p in raw.split(",") if p.strip()]
+
+
+def detect_available_gpus() -> List[str]:
+    env_gpus = _parse_cuda_visible_devices()
+    if env_gpus is not None:
+        return env_gpus
+    try:
+        import torch  # Optional dependency
+    except Exception:
+        return []
+    if torch.cuda.is_available():
+        return [str(i) for i in range(torch.cuda.device_count())]
+    return []
 
 
 def atomic_write_json(path: str, payload: dict) -> None:
@@ -398,6 +568,7 @@ def evaluate_to_json(
 
         cfg = copy.deepcopy(base_config)
         set_mock_statement(cfg, text=text, stmt_id=stmt_id)
+        cfg.setdefault("run_id", build_run_id(config_name, stmt_id))
 
         verdict = None
         pred_label = None
@@ -504,8 +675,107 @@ def evaluate_to_json(
     return out
 
 
+def _report_config_summary(
+    *,
+    config_name: str,
+    per_config_payload: dict,
+    per_config_output_path: str,
+    truthness_summary_path: str,
+) -> None:
+    update_truthness_results(
+        summary_path=truthness_summary_path,
+        config_name=config_name,
+        per_config_payload=per_config_payload,
+        per_config_output_path=per_config_output_path,
+    )
+
+    s = summarize_per_config_output(per_config_payload)
+    print(f"\n=== EVALUATION RESULTS FOR PIPELINE: {config_name} ===")
+    print(f"Scored items: {s['n_scored']} / {s['n_total_in_file']}")
+    print(f"Skipped items: {s['n_skipped']}")
+    print(f"Accuracy: {s['accuracy']:.4f}")
+    print(f"Precision (macro): {s['precision']:.4f}")
+    print(f"Recall (macro): {s['recall']:.4f}")
+    print(f"F1 (macro): {s['f1_score']:.4f}")
+    print(f"Per-class recall: {s['per_class_recall']}")
+    print("Confusion matrix (rows=true, cols=pred):")
+    for t, row in sorted(s["confusion_matrix"].items()):
+        print(f"  true={t}: {row}")
+    print(f"Updated summary: {truthness_summary_path}")
+
+
+def _run_single_config(
+    *,
+    dataset_path: str,
+    base_config: dict,
+    per_config_output_path: str,
+    limit: Optional[int],
+    seed: int,
+    sleep_min: float,
+    sleep_max: float,
+    progress_every: int,
+    llm_settings: Optional[Dict[str, str]] = None,
+) -> dict:
+    config = copy.deepcopy(base_config)
+    if llm_settings:
+        apply_llm_settings(config, llm_settings)
+    name = config.get("name", "Unnamed_Pipeline")
+    print(f"\n=== RUNNING PIPELINE: {name} ===")
+    return evaluate_to_json(
+        dataset_path,
+        base_config=config,
+        output_path=per_config_output_path,
+        limit=limit,
+        seed=seed,
+        sleep_min=sleep_min,
+        sleep_max=sleep_max,
+        progress_every=progress_every,
+    )
+
+
+def _init_worker(gpu_ids: List[str], base_urls: List[str]) -> None:
+    if not gpu_ids:
+        return
+    try:
+        worker_index = mp.current_process()._identity[0] - 1
+    except Exception:
+        worker_index = 0
+    gpu_id = gpu_ids[worker_index % len(gpu_ids)]
+    os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
+    if base_urls:
+        base_url = base_urls[worker_index % len(base_urls)]
+        os.environ["LLM_BASE_URL"] = base_url
+        os.environ["OLLAMA_BASE_URL"] = base_url
+
+
+def _evaluate_config_worker(
+    dataset_path: str,
+    base_config: dict,
+    per_config_output_path: str,
+    limit: Optional[int],
+    seed: int,
+    sleep_min: float,
+    sleep_max: float,
+    progress_every: int,
+) -> Tuple[str, str, Optional[str]]:
+    llm_settings = _llm_settings_from_env()
+    _run_single_config(
+        dataset_path=dataset_path,
+        base_config=base_config,
+        per_config_output_path=per_config_output_path,
+        limit=limit,
+        seed=seed,
+        sleep_min=sleep_min,
+        sleep_max=sleep_max,
+        progress_every=progress_every,
+        llm_settings=llm_settings,
+    )
+    config_name = base_config.get("name", "Unnamed_Pipeline")
+    return config_name, per_config_output_path, os.environ.get("CUDA_VISIBLE_DEVICES")
+
+
 def main():
-    dataset_path = "evaluation/data_set/claims_dummy.txt"
+    dataset_path = "evaluation/data_set/claims_statements_train.txt"
 
     configs = collect_pipeline_configs(config_module)
     if not configs:
@@ -518,46 +788,114 @@ def main():
     # Also place the summary here
     truthness_summary_path = os.path.join(out_dir, "truthness_eval_results.json")
 
-    for base in configs:
-        name = base.get("name", "Unnamed_Pipeline")
-        safe = sanitize_filename(name)
-        per_config_output_path = os.path.join(out_dir, f"{safe}.json")
+    gpu_ids = detect_available_gpus()
+    use_parallel = len(configs) > 1 and len(gpu_ids) > 1
+    ollama_host = os.environ.get("OLLAMA_MULTI_HOST", "127.0.0.1")
+    ollama_base_port = int(os.environ.get("OLLAMA_MULTI_BASE_PORT", "11434"))
+    default_base_url = _ollama_base_url(ollama_host, ollama_base_port)
+    env_base_url = os.environ.get("LLM_BASE_URL") or os.environ.get("OLLAMA_BASE_URL")
+    base_urls = [env_base_url or default_base_url]
+    ollama_procs: List[subprocess.Popen] = []
 
-        print(f"\n=== RUNNING PIPELINE: {name} ===")
+    if use_parallel:
+        print(f"Detected {len(gpu_ids)} GPUs; running configs in parallel.")
+        try:
+            from pipeline.core.service_manager import ensure_pubmed_proxy
+            ensure_pubmed_proxy()
+        except Exception as e:
+            print(f"[WARNING] Failed to prestart PubMed proxy: {e}")
 
-        per_config_payload = evaluate_to_json(
-            dataset_path,
-            base_config=base,
-            output_path=per_config_output_path,
-            limit=None,
-            seed=42,
-            sleep_min=2.0,
-            sleep_max=5.0,
-            progress_every=50,
-        )
+        if _is_truthy(os.environ.get("OLLAMA_MULTI_INSTANCE", "2")) and not env_base_url:
+            base_urls, ollama_procs, all_ready = start_ollama_servers(
+                gpu_ids,
+                host=ollama_host,
+                base_port=ollama_base_port,
+                log_dir=os.path.join("logs"),
+            )
+            if not all_ready:
+                print("[WARNING] Multi-GPU Ollama startup incomplete; using default base URL.")
+                if ollama_procs:
+                    _shutdown_processes(ollama_procs)
+                    ollama_procs = []
+                base_urls = [default_base_url]
+            elif ollama_procs:
+                atexit.register(_shutdown_processes, ollama_procs)
+        else:
+            base_urls = [default_base_url]
 
-        # Update the global summary after each config run (including resumed runs)
-        update_truthness_results(
-            summary_path=truthness_summary_path,
-            config_name=name,
-            per_config_payload=per_config_payload,
-            per_config_output_path=per_config_output_path,
-        )
+        ctx = mp.get_context("spawn")
+        max_workers = min(len(gpu_ids), len(configs))
+        with concurrent.futures.ProcessPoolExecutor(
+            max_workers=max_workers,
+            mp_context=ctx,
+            initializer=_init_worker,
+            initargs=(gpu_ids, base_urls),
+        ) as executor:
+            futures = {}
+            for base in configs:
+                name = base.get("name", "Unnamed_Pipeline")
+                safe = sanitize_filename(name)
+                per_config_output_path = os.path.join(out_dir, f"{safe}.json")
+                future = executor.submit(
+                    _evaluate_config_worker,
+                    dataset_path,
+                    base,
+                    per_config_output_path,
+                    None,
+                    42,
+                    2.0,
+                    5.0,
+                    50,
+                )
+                futures[future] = (name, per_config_output_path)
 
-        # Print summary to console
-        s = summarize_per_config_output(per_config_payload)
-        print(f"\n=== EVALUATION RESULTS FOR PIPELINE: {name} ===")
-        print(f"Scored items: {s['n_scored']} / {s['n_total_in_file']}")
-        print(f"Skipped items: {s['n_skipped']}")
-        print(f"Accuracy: {s['accuracy']:.4f}")
-        print(f"Precision (macro): {s['precision']:.4f}")
-        print(f"Recall (macro): {s['recall']:.4f}")
-        print(f"F1 (macro): {s['f1_score']:.4f}")
-        print(f"Per-class recall: {s['per_class_recall']}")
-        print("Confusion matrix (rows=true, cols=pred):")
-        for t, row in sorted(s["confusion_matrix"].items()):
-            print(f"  true={t}: {row}")
-        print(f"Updated summary: {truthness_summary_path}")
+            for future in concurrent.futures.as_completed(futures):
+                name, per_config_output_path = futures[future]
+                try:
+                    config_name, output_path, gpu_id = future.result()
+                except Exception as e:
+                    print(f"[{name}] Failed: {type(e).__name__}: {e}")
+                    continue
+
+                per_config_payload = load_json_if_exists(output_path)
+                if not per_config_payload:
+                    print(f"[{config_name}] No output found at {output_path}; skipping summary update.")
+                    continue
+
+                if gpu_id:
+                    print(f"[{config_name}] Completed on GPU {gpu_id}.")
+
+                _report_config_summary(
+                    config_name=config_name,
+                    per_config_payload=per_config_payload,
+                    per_config_output_path=output_path,
+                    truthness_summary_path=truthness_summary_path,
+                )
+    else:
+        llm_settings = _llm_settings_from_base_url(base_urls[0]) if base_urls else {}
+        for base in configs:
+            name = base.get("name", "Unnamed_Pipeline")
+            safe = sanitize_filename(name)
+            per_config_output_path = os.path.join(out_dir, f"{safe}.json")
+
+            per_config_payload = _run_single_config(
+                dataset_path=dataset_path,
+                base_config=base,
+                per_config_output_path=per_config_output_path,
+                limit=None,
+                seed=42,
+                sleep_min=2.0,
+                sleep_max=5.0,
+                progress_every=50,
+                llm_settings=llm_settings,
+            )
+
+            _report_config_summary(
+                config_name=name,
+                per_config_payload=per_config_payload,
+                per_config_output_path=per_config_output_path,
+                truthness_summary_path=truthness_summary_path,
+            )
 
     print(f"\nDone. Final summary saved in {truthness_summary_path}")
 
