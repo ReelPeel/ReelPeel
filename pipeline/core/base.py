@@ -31,6 +31,7 @@ class PipelineStep(ABC):
         self.debug = self.config.get("debug", False)
 
         self._llm_service = None
+        self._step_tokens = 0
 
         # This will be injected by the Orchestrator (or Parent Module)
         self.observer: Optional[PipelineObserver] = None
@@ -44,6 +45,15 @@ class PipelineStep(ABC):
                 observer=self.observer
             )
         return self._llm_service
+
+    def _reset_step_tokens(self) -> None:
+        self._step_tokens = 0
+
+    def add_step_tokens(self, tokens: int) -> None:
+        try:
+            self._step_tokens += int(tokens)
+        except Exception:
+            pass
 
     def run(self, state: PipelineState) -> PipelineState:
         """
@@ -59,6 +69,7 @@ class PipelineStep(ABC):
             self.observer.on_step_start(self.step_name, self.config, state.depth)
 
         # 2. Execute Logic
+        self._reset_step_tokens()
         try:
             new_state = self.execute(state)
         except Exception as e:
@@ -68,7 +79,8 @@ class PipelineStep(ABC):
 
         # 3. Calculate Stats
         duration = time.time() - start_time
-        tokens = self._llm_service.token_usage["total_tokens"] if self._llm_service else 0
+        tokens = int(self._llm_service.token_usage["total_tokens"]) if self._llm_service else 0
+        tokens += int(self._step_tokens or 0)
 
         # 4. Notify End
         if self.observer:

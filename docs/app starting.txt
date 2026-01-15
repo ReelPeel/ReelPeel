@@ -17,12 +17,13 @@ curl "http://im-redstone02.hs-regensburg.de:32311/process" `
      -Body ( @{ url = "https://www.instagram.com/reels/DIRM85ZifdM/"; mock = "true" } | ConvertTo-Json ) `
      -ContentType "application/json"
 
-
-
+Linux Server lokal:
 curl -X POST http://localhost:6006/process \
   -H "Content-Type: application/json" \
   -d '{"url":"https://www.instagram.com/reels/DIRM85ZifdM/","mock":"true"}'
 
+Testing:
+curl -X GET http://localhost:6006/number
 
 https://www.instagram.com/reels/DIRM85ZifdM/  Butter
 

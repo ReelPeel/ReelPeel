@@ -158,12 +158,21 @@ Stance step (`stance_evidence`):
 - `cnut1648/biolinkbert-mednli` (default): BioLinkBERT NLI model trained on MedNLI; outputs Supports/Refutes/Neutral.
 
 LLM step models (used by `extraction`, `generate_query`, `filter_evidence`, `truthness`, etc.):
-- `hf.co/mradermacher/Llama3-OpenBioLLM-70B-i1-GGUF:Llama3-OpenBioLLM-70B.i1-Q4_K_S.gguf` (~40 GB): Llama 3 biomedical finetune; strong medical vocabulary and domain reasoning; GGUF Q4_K_S for llama.cpp/Ollama, heavy VRAM use.
-- `hf.co/mradermacher/Llama3-Med42-70B-i1-GGUF:Llama3-Med42-70B.i1-Q4_K_S.gguf` (~40 GB): Med42 biomedical/clinical finetune; strong evidence-style reasoning; GGUF Q4_K_S, heavy VRAM use.
-- `hf.co/mradermacher/Meditron3-70B-GGUF:latest` (~38 GB): Meditron3 70B domain model; good for clinical summaries and evidence synthesis; GGUF format.
-- `hf.co/mradermacher/DeepSeek-R1-Distill-Qwen-32B-Medical-GGUF:Q8_0` (~32 GB): distilled Qwen-based medical model; strong analytical reasoning with larger Q8 quantization footprint.
+
+---------------------- Instruct tuned, Medical Domain Models ----------------------
+- `hf.co/mradermacher/Llama3-OpenBioLLM-70B-i1-GGUF:Llama3-OpenBioLLM-70B.i1-IQ4_XS.gguf` (~37 GB): Llama 3 biomedical finetune; strong medical vocabulary and domain reasoning; i1 (imatrix) GGUF IQ4_XS to fit single A100 40GB without sharding.
+- `hf.co/mradermacher/Llama3-Med42-70B-i1-GGUF:Llama3-Med42-70B.i1-IQ4_XS.gguf` (~37 GB): Med42 biomedical/clinical finetune; strong evidence-style reasoning; i1 (imatrix) GGUF IQ4_XS to fit single A100 40GB without sharding.
+
+------------------------------ Foundation, Medical Models ----------------------
+- `hf.co/mradermacher/Meditron3-70B-GGUF:latest` (~38 GB): Meditron3 70B medical foundation model (not instruction-tuned); good for clinical-style summaries and evidence synthesis; GGUF format.
+
+------------------------------ Reasoning, Medical Models ----------------------
+- `hf.co/mradermacher/DeepSeek-R1-Distill-Qwen-32B-Medical-GGUF:Q8_0` (~34 GB): distilled (R1) Qwen-based medical model; strong analytical reasoning; higher-fidelity Q8 quantization with comfortable VRAM headroom on A100 40GB.
+
+---------------------- Instruct tuned, General Domain Models ----------------------
 - `gemma3:12b` (`gemma3:12b-it-q4_K_M`) (~8.1 GB): instruction-tuned general model; fast and light, good for quick extraction/filtering.
 - `gemma3:27b` (`gemma3:27b-it-q4_K_M`) (~17 GB): instruction-tuned mid-size model; stronger reasoning than 12b with moderate VRAM cost.
+
 
 ### Relevance thresholding and ordering
 
