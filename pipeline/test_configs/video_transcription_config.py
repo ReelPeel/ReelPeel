@@ -69,13 +69,7 @@ VIDEO_PIPELINE_CONFIG = {
                 },
         
         
-        {
-                "type": "truthness",
-                "settings": {
-                    "model": "gemma3:27b",
-                    "prompt_template": PROMPT_TMPL_S7
-                }
-            },       
+            
         VERIFICATION_MODULE,
 
     ],

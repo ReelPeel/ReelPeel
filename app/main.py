@@ -3,7 +3,7 @@ from fastapi import FastAPI, Body, HTTPException
 import shutil, os
 from .pipeline import run_pipeline
   # ← your existing heavy pipeline
-from .reel_utils import convert_video_to_wav  # ← helper from earlier 
+from ..pipeline.steps.reel_utils import convert_video_to_wav  # ← helper from earlier 
 from typing import Any, Dict, List
 from urllib.parse import urlparse
 import random
@@ -30,10 +30,24 @@ def extract_reel_id(instagram_url: str) -> str:
     """
     path = urlparse(instagram_url).path.rstrip("/")        # '/reels/DJDzRAgNHyv'
     parts = path.split("/")                                # ['', 'reels', 'DJDzRAgNHyv']
-    try:
-        return parts[parts.index("reels") + 1]
-    except (ValueError, IndexError):
-        raise HTTPException(400, "Could not extract reel ID from URL")
+    for marker in ("reels", "reel"):
+        try:
+            return parts[parts.index(marker) + 1]
+        except (ValueError, IndexError):
+            continue
+    raise HTTPException(400, "Could not extract reel ID from URL")
+
+
+def _coerce_bool(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return False
+    if isinstance(value, (int, float)):
+        return value != 0
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "y", "on"}
+    return bool(value)
 
 @app.post("/process")
 async def process(payload: dict = Body(...)):
@@ -44,19 +58,22 @@ async def process(payload: dict = Body(...)):
         raise HTTPException(400, "JSON body must contain a 'url' field")
 
     reel_id = extract_reel_id(url)
-    mock    = payload.get("mock", False)
+    mock    = _coerce_bool(payload.get("mock", False))
 
     if mock:
         # Mock mode: just look for a pre-made WAV named <reel_id>.wav
         wav_path = os.path.abspath(f"{reel_id}.wav")
-        tmp_dir  = os.path.dirname(wav_path)
     else:
         try:
             print(f"Downloading reel from {url}...")
             wav_path = convert_video_to_wav(url)           # your existing helper
-            tmp_dir  = os.path.dirname(wav_path)
         except RuntimeError as e:
             raise HTTPException(400, str(e))
+        if not wav_path:
+            raise HTTPException(400, "Failed to download or convert reel")
+
+    wav_path = os.path.abspath(wav_path)
+    tmp_dir  = os.path.dirname(wav_path)
 
     try:
         return run_pipeline(wav_path)                      # your existing inference step
