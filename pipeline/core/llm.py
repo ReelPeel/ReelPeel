@@ -1,3 +1,4 @@
+import uuid
 import openai
 from typing import Dict, Any, Optional, List, Union
 from .logging import PipelineObserver
@@ -32,6 +33,8 @@ class LLMService:
         if temperature is None or temperature < 0:
             raise ValueError("temperature must be a positive float")
 
+        call_id = uuid.uuid4().hex
+
         try:
             # Prepare arguments
             kwargs = {
@@ -49,6 +52,7 @@ class LLMService:
                 self.observer.on_artifact(
                     "LLM Prompt",
                     {
+                        "call_id": call_id,
                         "model": model,
                         "temperature": temperature,
                         "max_tokens": max_tokens,
@@ -62,23 +66,41 @@ class LLMService:
             response = self.client.chat.completions.create(**kwargs)
 
             # --- TRACK USAGE ---
+            usage_data = {
+                "call_id": call_id,
+                "model": model,
+                "prompt": None,
+                "completion": None,
+                "total": None,
+            }
             if response.usage:
                 u = response.usage
                 self.token_usage["prompt_tokens"] += u.prompt_tokens
                 self.token_usage["completion_tokens"] += u.completion_tokens
                 self.token_usage["total_tokens"] += u.total_tokens
+                usage_data["prompt"] = u.prompt_tokens
+                usage_data["completion"] = u.completion_tokens
+                usage_data["total"] = u.total_tokens
 
-                # Log detailed usage artifact via observer
-                if self.observer:
-                    self.observer.on_artifact("LLM Usage Stats", {
-                        "model": model,
-                        "prompt": u.prompt_tokens,
-                        "completion": u.completion_tokens,
-                        "total": u.total_tokens
-                    }, depth=0)  # Logger handles context
+            # Log detailed usage artifact via observer
+            if self.observer:
+                self.observer.on_artifact("LLM Usage Stats", usage_data, depth=0)
 
             content = response.choices[0].message.content
             return content.strip() if content else ""
 
         except Exception as e:
+            if self.observer:
+                self.observer.on_artifact(
+                    "LLM Usage Stats",
+                    {
+                        "call_id": call_id,
+                        "model": model,
+                        "prompt": None,
+                        "completion": None,
+                        "total": None,
+                        "error": str(e),
+                    },
+                    depth=0,
+                )
             raise RuntimeError(f"LLM Service Error [Model: {model}]: {e}") from e

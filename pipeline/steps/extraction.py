@@ -51,8 +51,8 @@ class TranscriptToStatementStep(PipelineStep):
         try:
             resp = self.llm.call(
                 model=self.config.get('model'),
-                temperature=self.config.get('temperature', 0.7),
-                max_tokens=self.config.get('max_tokens', 128),
+                temperature=self.config.get('temperature', 0),
+                # max_tokens=self.config.get('max_tokens', 128),
                 prompt=prompt,
             )
 

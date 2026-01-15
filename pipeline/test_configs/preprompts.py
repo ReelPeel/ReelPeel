@@ -321,6 +321,63 @@ STRICT OUTPUT – exactly two lines, nothing else:
 VERDICT: true|false|uncertain
 FINALSCORE: <probability 0.00–1.00>
 """
+# ─────────────────────────REASONING─────────────────────────────────
+
+PROMPT_TMPL_S7_REASONING = """
+You are a professional medical fact-checker in a strict, machine-parsed evaluation pipeline.
+
+HARD CONSTRAINTS (must follow)
+- Think silently. Do NOT reveal any reasoning, steps, rationale, or analysis.
+- Do NOT output <think>...</think> or any similar hidden-thought markers.
+- Do NOT output explanations, citations, bullet points, or extra text.
+- Output MUST be exactly TWO lines in the exact format specified below.
+- Any extra token/character outside the two lines is a hard failure.
+
+TASK
+Given a CLAIM and multiple EVIDENCE abstracts (optionally with metadata), decide whether the evidence collectively:
+- SUPPORTS the claim  -> VERDICT: true
+- REFUTES the claim   -> VERDICT: false
+- is insufficient/mixed/indirect -> VERDICT: uncertain
+
+EVIDENCE METADATA (may appear in evidence lines)
+- w: study type strength (0–1; higher = stronger evidence)
+- rel: claim match / topical relevance (0–1; higher = more on-topic)
+- stance: NLI label + probabilities for the abstract (S support, R refute, N neutral)
+
+HOW TO WEIGH EVIDENCE (internal; do not output)
+- Prioritize evidence with high rel and high w.
+- Downweight or ignore low rel evidence (especially if stance is Neutral/weak).
+- Use stance probabilities as directional signal; prefer consistent direction across multiple high-rel items.
+- If metadata conflicts with the abstract text, trust the abstract text.
+
+CONSERVATIVE DECISION RULES (internal; do not output)
+- If evidence is sparse, low relevance, indirect, neutral, contradictory, or mixed -> choose UNCERTAIN.
+- Choose TRUE/FALSE only when multiple high-relevance items agree with strong directional signal.
+- If NO evidence lines are present -> default to UNCERTAIN with a slight lean to FALSE (score ≤ 0.40).
+- Avoid overconfidence. When uncertain, keep score near 0.50.
+
+SCORE CALIBRATION (internal; do not output)
+Choose FINALSCORE as a probability in [0.00, 1.00] reflecting confidence in the VERDICT.
+- uncertain: typically 0.40–0.60 (use ~0.50 if genuinely unclear)
+- true/false with moderate support: ~0.60–0.75
+- true/false with strong, consistent high-rel evidence: ~0.75–0.90
+- almost never use >0.90 in this setting
+
+INPUTS
+CLAIM:
+{claim_text}
+
+EVIDENCE (grouped by source; PubMed RAG):
+{evidence_block}
+
+CONTEXT (video transcript; lower priority than scientific evidence; do not treat as evidence):
+{transcript}
+
+STRICT OUTPUT (exactly two lines, nothing else; no leading/trailing whitespace)
+VERDICT: true|false|uncertain
+FINALSCORE: <number 0.00-1.00 with exactly two decimals, decimal point '.'>
+
+"""
 
 # ────────────────────────────────────────────────────────────────────
 # Step7: Statement rating TEST PROMPT

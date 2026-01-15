@@ -2,7 +2,7 @@ import json
 import os
 import sys
 from datetime import datetime
-from typing import Any, Dict, Protocol
+from typing import Any, Dict, Protocol, Optional
 
 from loguru import logger
 
@@ -27,6 +27,7 @@ class PipelineLogger:
         self.run_id = run_id
         self.log_file = None
         self.prompt_log_file = None
+        self._pending_prompt_entries = {}
 
         # Reset loguru to clear default handlers
         logger.remove()
@@ -44,7 +45,7 @@ class PipelineLogger:
 
             # 3. Set the file path
             self.log_file = os.path.join(log_dir, f"pipeline_debug_{run_id}.log")
-            self.prompt_log_file = os.path.join(log_dir, f"pipeline_debug_{run_id}_llm_prmpts.log")
+            self.prompt_log_file = os.path.join(log_dir, f"pipeline_debug_{run_id}_prompts.log")
 
             # Simple format: Time | Message
             fmt = "<green>{time:H:mm:ss}</green>\n{message}\n"
@@ -94,6 +95,52 @@ class PipelineLogger:
                 f.write(text + "\n")
         except Exception as e:
             print(f"Prompt logging error: {e}")
+
+    def _format_tokens_line(self, usage: Optional[Dict[str, Any]]) -> str:
+        if not isinstance(usage, dict):
+            return "TOKENS: unknown"
+        prompt = usage.get("prompt")
+        completion = usage.get("completion")
+        total = usage.get("total")
+        parts = [
+            f"prompt={prompt}" if prompt is not None else "prompt=?",
+            f"completion={completion}" if completion is not None else "completion=?",
+            f"total={total}" if total is not None else "total=?",
+        ]
+        return "TOKENS: " + " ".join(parts)
+
+    def _write_prompt_entry(self, timestamp: str, content: str, usage: Optional[Dict[str, Any]]):
+        tokens_line = self._format_tokens_line(usage)
+        msg = (
+            f"{timestamp}\n"
+            f">>> [LLM Prompt]\n"
+            f"{tokens_line}\n"
+            f"{content}\n"
+            f"{'=' * 80}"
+        )
+        self._append_prompt_log(msg)
+
+    def _flush_prompt_entry(self, usage: Optional[Dict[str, Any]]):
+        if not self.debug or not self.prompt_log_file:
+            return
+        call_id = usage.get("call_id") if isinstance(usage, dict) else None
+        entry = None
+        if call_id and call_id in self._pending_prompt_entries:
+            entry = self._pending_prompt_entries.pop(call_id)
+        elif call_id is None and len(self._pending_prompt_entries) == 1:
+            entry = self._pending_prompt_entries.pop(next(iter(self._pending_prompt_entries)))
+        if not entry:
+            return
+        self._write_prompt_entry(entry["timestamp"], entry["content"], usage)
+
+    def _flush_pending_prompt_entries(self):
+        if not self.debug or not self.prompt_log_file:
+            return
+        if not self._pending_prompt_entries:
+            return
+        for entry in list(self._pending_prompt_entries.values()):
+            self._write_prompt_entry(entry["timestamp"], entry["content"], usage=None)
+        self._pending_prompt_entries.clear()
 
     # -------------------------------------------------------------------------
     # PUBLIC EVENTS
@@ -148,26 +195,40 @@ class PipelineLogger:
         self._log(msg, 0)
 
     def on_artifact(self, label: str, data: Any, depth: int):
+        if label == "LLM Prompt":
+            timestamp = datetime.now().strftime("%H:%M:%S")
+            call_id = None
+            prompt_data = data
+            if isinstance(data, dict):
+                call_id = data.get("call_id")
+                prompt_data = dict(data)
+                prompt_data.pop("call_id", None)
+            if isinstance(prompt_data, (dict, list)):
+                content = self._format_json(prompt_data)
+            else:
+                content = str(prompt_data)
+            if call_id:
+                self._pending_prompt_entries[call_id] = {
+                    "timestamp": timestamp,
+                    "content": content,
+                }
+            else:
+                self._write_prompt_entry(timestamp, content, usage=None)
+            return
+
+        if label == "LLM Usage Stats":
+            self._flush_prompt_entry(data)
+
         if isinstance(data, (dict, list)):
             content = self._format_json(data)
         else:
             content = str(data)
 
-        if label == "LLM Prompt":
-            timestamp = datetime.now().strftime("%H:%M:%S")
-            msg = (
-                f"{timestamp}\n"
-                f">>> [LLM Prompt]\n"
-                f"{content}\n"
-                f"{'=' * 80}"
-            )
-            self._append_prompt_log(msg)
-            return
-
         msg = f">>> [ARTIFACT] {label}\n{content}"
         self._log(msg, depth=depth)
 
     def on_run_end(self, duration: float):
+        self._flush_pending_prompt_entries()
         divider = "=" * 80
         msg = f"{divider}\nTOTAL PIPELINE TIME: {duration:.4f}s\n{divider}"
         self._log(msg, 0)

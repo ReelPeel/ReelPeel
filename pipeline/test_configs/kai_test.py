@@ -10,7 +10,8 @@ from pipeline.test_configs.preprompts import (
     PROMPT_TMPL_S7,
 )
 
-BASE_TEMPERATURE = 0.3
+BASE_TEMPERATURE = 0.0
+BASE_MODEL = "gemma3:27b"
 
 # 1. Define the Research Module (Steps 3, 4, 5, 5.1)
 RESEARCH_MODULE = {
@@ -21,7 +22,7 @@ RESEARCH_MODULE = {
             {
                 "type": "generate_query",  # Step 3
                 "settings": {
-                    "model": "gemma3:27b",
+                    "model": BASE_MODEL,
                     "prompt_template": PROMPT_TMPL_S3_BALANCED,
                     "temperature": BASE_TEMPERATURE,
                 }
@@ -29,7 +30,7 @@ RESEARCH_MODULE = {
         {
                 "type": "generate_query",  # Step 3
                 "settings": {
-                    "model": "gemma3:27b",
+                    "model": BASE_MODEL,
                     "prompt_template": PROMPT_TMPL_S3_SPECIFIC,
                     "temperature": BASE_TEMPERATURE,
                 }
@@ -37,7 +38,7 @@ RESEARCH_MODULE = {
             {
                 "type": "generate_query",  # Step 3
                 "settings": {
-                    "model": "gemma3:27b",
+                    "model": BASE_MODEL,
                     "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED,
                     "temperature": BASE_TEMPERATURE,
                 }
@@ -45,7 +46,7 @@ RESEARCH_MODULE = {
             {
                 "type": "generate_query",  # Step 3 (counter-evidence)
                 "settings": {
-                    "model": "gemma3:27b",
+                    "model": BASE_MODEL,
                     "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER,
                     "temperature": BASE_TEMPERATURE,
                 }
@@ -53,7 +54,7 @@ RESEARCH_MODULE = {
             {
                 "type": "generate_query",  # Step 3 (counter-evidence)
                 "settings": {
-                    "model": "gemma3:27b",
+                    "model": BASE_MODEL,
                     "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER,
                     "temperature": BASE_TEMPERATURE,
                 }
@@ -61,7 +62,7 @@ RESEARCH_MODULE = {
             {
                 "type": "generate_query",  # Step 3 (counter-evidence)
                 "settings": {
-                    "model": "gemma3:27b",
+                    "model": BASE_MODEL,
                     "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER,
                     "temperature": BASE_TEMPERATURE,
                 }
@@ -133,7 +134,7 @@ VERIFICATION_MODULE = {
             {
                 "type": "filter_evidence",
                 "settings": {
-                    "model": "gemma3:27b",
+                    "model": BASE_MODEL,
                     "prompt_template": PROMPT_TMPL_S6,
                     "temperature": BASE_TEMPERATURE,
                     # "max_tokens": 512 # Currently hardcoded in individual step
@@ -143,7 +144,17 @@ VERIFICATION_MODULE = {
             {
                 "type": "truthness",
                 "settings": {
-                    "model": "gemma3:27b",
+# ---------------------- Instruct tuned, Medical Domain Models ----------------------
+# - `hf.co/mradermacher/Llama3-Med42-70B-i1-GGUF:Llama3-Med42-70B.i1-Q4_K_S.gguf` (~40 GB): Med42 biomedical/clinical finetune; strong evidence-style reasoning; GGUF Q4_K_S, heavy VRAM use.
+# - `hf.co/mradermacher/Llama3-OpenBioLLM-70B-i1-GGUF:Llama3-OpenBioLLM-70B.i1-Q4_K_S.gguf` (~40 GB): Llama 3 biomedical finetune; strong medical vocabulary and domain reasoning; GGUF Q4_K_S for llama.cpp/Ollama, heavy VRAM use.
+# ------------------------------ Foundation, Medical Models ----------------------
+# - `hf.co/mradermacher/Meditron3-70B-GGUF:latest` (~38 GB): Meditron3 70B domain model; good for clinical summaries and evidence synthesis; GGUF format.
+# ------------------------------ Reasoning, Medical Models ----------------------
+# - `hf.co/mradermacher/DeepSeek-R1-Distill-Qwen-32B-Medical-GGUF:Q8_0` (~32 GB): distilled Qwen-based medical model; strong analytical reasoning with larger Q8 quantization footprint.
+# ---------------------- Instruct tuned, General Domain Models ----------------------
+# - `gemma3:12b` (`gemma3:12b-it-q4_K_M`) (~8.1 GB): instruction-tuned general model; fast and light, good for quick extraction/filtering.
+# - `gemma3:27b` (`gemma3:27b-it-q4_K_M`) (~17 GB): instruction-tuned mid-size model; stronger reasoning than 12b with moderate VRAM cost.
+                    "model": "hf.co/mradermacher/Llama3-OpenBioLLM-70B-i1-GGUF:Llama3-OpenBioLLM-70B.i1-Q4_K_S.gguf",
                     "prompt_template": PROMPT_TMPL_S7,
                     "temperature": BASE_TEMPERATURE,
                     # "max_tokens": 512 # Currently hardcoded in individual step
@@ -180,7 +191,7 @@ FULL_PIPELINE_CONFIG = {
         {
             "type": "extraction",
             "settings": {
-                "model": "gemma3:27b",
+                "model": BASE_MODEL,
                 "prompt_template": PROMPT_TMPL_S2,
                 "temperature": BASE_TEMPERATURE,
                 # "max_tokens": 512 # Currently hardcoded in individual step
