@@ -11,3 +11,4 @@ __pycache__
 evaluation/deberta_runs/
 downloads/
 .idea
+*.mp4

@@ -1,4 +1,9 @@
 let currentPopup = null;
+let popupState = null;
+let lastAnalyzedUrl = null;
+let scrollPauseTimer = null;
+let analysisInFlight = false;
+const scrollPauseDelayMs = 1000;
 
 // Monitor URL changes
 let lastUrl = location.href;
@@ -14,6 +19,8 @@ observer.observe(document, { subtree: true, childList: true });
 
 // Initial check
 checkForReel();
+
+window.addEventListener("scroll", scheduleAnalysisAfterPause, { passive: true });
 
 function checkForReel() {
   if (isReelUrl()) {
@@ -36,25 +43,88 @@ function getScoreColor(score) {
   return "high-score";
 }
 
-async function showPopup() {
-  console.log("Started the showPopUp function!");
-  if (currentPopup) return;
+function formatScore(value) {
+  if (value === null || value === undefined || value === "") return "N/A";
+  const num = Number(value);
+  if (Number.isNaN(num)) return String(value);
+  return num.toFixed(2);
+}
 
-  var medicalScore = 0;
-  // var scoreColor = getScoreColor(medicalScore);
-  var needleRotation = medicalScore * 1.8 - 90; // Convert score to degrees (-90 to 90)
+function formatPubType(pubType) {
+  if (!pubType) return "Unknown";
+  if (Array.isArray(pubType)) {
+    const cleaned = pubType
+      .map((item) => (item ? String(item).trim() : ""))
+      .filter((item) => item);
+    return cleaned.length ? cleaned.join(", ") : "Unknown";
+  }
+  return String(pubType);
+}
 
-  console.log("medical score is " + medicalScore + " " + needleRotation);
+function formatEvidenceTitle(evidence) {
+  if (!evidence || typeof evidence !== "object") return "Untitled source";
+  const title =
+    evidence.title || evidence.article_title || evidence.paper_title || "";
+  if (title) return String(title);
+  if (evidence.pubmed_id) return `PubMed ${evidence.pubmed_id}`;
+  if (evidence.epistemonikos_id)
+    return `Epistemonikos ${evidence.epistemonikos_id}`;
+  if (evidence.chunk_id) return `RAG ${evidence.chunk_id}`;
+  return "Untitled source";
+}
 
-  var popup = document.createElement("div");
+function getEvidenceUrl(evidence) {
+  if (!evidence || typeof evidence !== "object") return null;
+  if (evidence.url) return evidence.url;
+  if (evidence.pubmed_id)
+    return `https://pubmed.ncbi.nlm.nih.gov/${evidence.pubmed_id}/`;
+  if (evidence.epistemonikos_id)
+    return `https://www.epistemonikos.org/en/documents/${evidence.epistemonikos_id}`;
+  return null;
+}
+
+function stanceClassName(label) {
+  const normalized = String(label || "").toLowerCase();
+  if (normalized.startsWith("support")) return "stance-supports";
+  if (normalized.startsWith("refute")) return "stance-refutes";
+  if (normalized.startsWith("neutral")) return "stance-neutral";
+  return "stance-unknown";
+}
+
+function formatStance(evidence) {
+  const stance = evidence && evidence.stance;
+  if (!stance) return { label: "Unknown", className: "stance-unknown" };
+  if (typeof stance === "string") {
+    return { label: stance, className: stanceClassName(stance) };
+  }
+
+  const label =
+    stance.abstract_label || stance.label || stance.abstractLabel || "";
+  if (label) {
+    return { label, className: stanceClassName(label) };
+  }
+
+  const scores = [
+    { label: "Supports", value: stance.abstract_p_supports },
+    { label: "Refutes", value: stance.abstract_p_refutes },
+    { label: "Neutral", value: stance.abstract_p_neutral },
+  ].filter((item) => typeof item.value === "number");
+
+  if (!scores.length) {
+    return { label: "Unknown", className: "stance-unknown" };
+  }
+
+  scores.sort((a, b) => b.value - a.value);
+  const top = scores[0];
+  return { label: top.label, className: stanceClassName(top.label) };
+}
+
+function createPopupState() {
+  const medicalScore = 0;
+  const needleRotation = medicalScore * 1.8 - 90; // Convert score to degrees (-90 to 90)
+
+  const popup = document.createElement("div");
   popup.className = "reel-alert";
-  console.log("Made the div!");
-  // popup.innerHTML = `
-  //       <div class="dial-container">
-  //           <div class="dial-background"><div class="dial-needle" style="transform: rotate(${needleRotation}deg);"></div></div>
-  //       </div>
-  //       <button id="close-alert">×</button>
-  //   `;
   popup.innerHTML = `
     <div class="dial-container">
       <div class="dial-background">
@@ -64,144 +134,290 @@ async function showPopup() {
     </div>
     
     <div class="dropdown-container">
-      <div class="dropdown-content">
-        <ul id="dropdown-list">
-        </ul>
+      <div id="statements-view" class="panel-view active">
+        <div class="dropdown-content">
+          <ul id="dropdown-list"></ul>
+        </div>
       </div>
+      <div id="evidence-view" class="panel-view">
+        <div class="evidence-header">
+          <div class="evidence-label">Evidence</div>
+          <div id="evidence-title" class="evidence-title"></div>
+        </div>
+        <div class="evidence-content">
+          <ul id="evidence-list"></ul>
+        </div>
       </div>
     </div>
     <button id="close-alert">×</button>
   `;
 
   document.body.appendChild(popup);
-  // try {
-  //   const medicalScore = await calculateMedicalAccuracy();
-  //   const needleRotation = medicalScore * 1.8 - 90;
+  const state = {
+    popup,
+    dialContainer: popup.querySelector(".dial-container"),
+    needle: popup.querySelector(".dial-needle"),
+    percentNumber: popup.querySelector("#percent-number"),
+    statementsView: popup.querySelector("#statements-view"),
+    evidenceView: popup.querySelector("#evidence-view"),
+    evidenceTitle: popup.querySelector("#evidence-title"),
+    evidenceList: popup.querySelector("#evidence-list"),
+    listContent: popup.querySelector("#dropdown-list"),
+    viewMode: "statements",
+    statements: [],
+  };
 
-  //   // Update the needle rotation
-  //   popup.querySelector(
-  //     ".dial-needle"
-  //   ).style.transform = `rotate(${needleRotation}deg)`;
+  state.setExpanded = function (isExpanded) {
+    state.popup.classList.toggle("expanded", isExpanded);
+    state.dialContainer.style.height = isExpanded ? "auto" : "40px";
+    state.percentNumber.style.display = isExpanded ? "block" : "none";
+  };
 
-  //   popup.querySelector("#percent-number").innerHTML = `${medicalScore}`;
+  state.showStatementsView = function () {
+    state.viewMode = "statements";
+    state.statementsView.classList.add("active");
+    state.evidenceView.classList.remove("active");
+  };
 
-  //   // TODO: Update statement content
-  // } catch (error) {
-  //   console.error("Failed to load medical data:", error);
-  //   popup.querySelector(".dropdown-content").innerHTML =
-  //     "<p>Could not load medical analysis at this time</p>";
-  // }
+  state.renderEvidenceList = function (statement) {
+    state.evidenceTitle.textContent =
+      statement && statement.text ? statement.text : "Evidence details";
+    state.evidenceList.innerHTML = "";
 
-  // Add dropdown toggle functionality
-  const tacho = popup.querySelector(".dial-container");
-  const needle = popup.querySelector(".dial-needle");
-  const percentNumber = popup.querySelector("#percent-number");
-  const dialContainer = popup.querySelector(".dial-container");
+    const evidenceItems =
+      statement && Array.isArray(statement.evidence) ? statement.evidence : [];
 
-  tacho.addEventListener("click", () => {
-    popup.classList.toggle("expanded");
-    dialContainer.style.height = popup.classList.contains("expanded")
-      ? "auto"
-      : "40px";
-    percentNumber.style.display = popup.classList.contains("expanded")
-      ? "block"
-      : "none";
+    if (!evidenceItems.length) {
+      const emptyItem = document.createElement("li");
+      emptyItem.className = "evidence-empty";
+      emptyItem.textContent = "No evidence found.";
+      state.evidenceList.appendChild(emptyItem);
+      return;
+    }
+
+    for (const evidence of evidenceItems) {
+      const item = document.createElement("li");
+      item.className = "evidence-item";
+
+      const titleUrl = getEvidenceUrl(evidence);
+      let titleEl = null;
+      if (titleUrl) {
+        const link = document.createElement("a");
+        link.className = "evidence-item-title";
+        link.href = titleUrl;
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.textContent = formatEvidenceTitle(evidence);
+        titleEl = link;
+      } else {
+        const title = document.createElement("div");
+        title.className = "evidence-item-title";
+        title.textContent = formatEvidenceTitle(evidence);
+        titleEl = title;
+      }
+
+      const meta = document.createElement("div");
+      meta.className = "evidence-meta";
+
+      const relevance = document.createElement("span");
+      relevance.className = "evidence-meta-item";
+      relevance.textContent = `Relevance: ${formatScore(evidence.relevance)}`;
+
+      const pubType = document.createElement("span");
+      pubType.className = "evidence-meta-item";
+      pubType.textContent = `Type: ${formatPubType(evidence.pub_type)}`;
+
+      const reliability = document.createElement("span");
+      reliability.className = "evidence-meta-item";
+      reliability.textContent = `Reliability: ${formatScore(evidence.weight)}`;
+
+      const stance = formatStance(evidence);
+      const stanceEl = document.createElement("span");
+      stanceEl.className = `evidence-meta-item ${stance.className}`;
+      stanceEl.textContent = `Stance: ${stance.label}`;
+
+      meta.append(relevance, pubType, reliability, stanceEl);
+      item.append(titleEl, meta);
+      state.evidenceList.appendChild(item);
+    }
+  };
+
+  state.showEvidenceView = function (statement) {
+    state.viewMode = "evidence";
+    state.statementsView.classList.remove("active");
+    state.evidenceView.classList.add("active");
+    state.setExpanded(true);
+    state.renderEvidenceList(statement);
+  };
+
+  state.setLoading = function () {
+    state.needle.style.display = "block";
+    state.needle.classList.add("loading-needle");
+    state.percentNumber.innerHTML =
+      '<span style="font-size: 14px;">Loading...</span>';
+    state.percentNumber.classList.remove(
+      "high-score",
+      "medium-score",
+      "low-score"
+    );
+  };
+
+  state.setScore = function (score) {
+    const needleRotation = score * 1.8 - 90;
+    state.needle.style.display = "block";
+    state.needle.classList.remove("loading-needle");
+    state.needle.style.transform = `rotate(${needleRotation}deg)`;
+    state.percentNumber.innerHTML = `${score}%`;
+    state.percentNumber.classList.remove(
+      "high-score",
+      "medium-score",
+      "low-score"
+    );
+    state.percentNumber.classList.add(getScoreColor(score));
+  };
+
+  state.setStatements = function (statements) {
+    state.listContent.innerHTML = "";
+    state.statements = Array.isArray(statements) ? statements : [];
+
+    for (var i = 0; i < state.statements.length; i++) {
+      const statement = state.statements[i];
+
+      const listItem = document.createElement("li");
+      listItem.className = "statement-item";
+
+      const verdictButton = document.createElement("button");
+      verdictButton.className = "feedback-button";
+      verdictButton.type = "button";
+
+      if (statement.verdict == "true") {
+        verdictButton.title = "Agree with analysis";
+        verdictButton.innerHTML = `<svg viewBox="0 0 24 24" fill="green">
+          <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+        </svg>`;
+      } else if (statement.verdict == "false") {
+        verdictButton.title = "Disagree with analysis";
+        verdictButton.innerHTML = `<svg viewBox="0 0 24 24" fill="red">
+          <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.58-6.59c.37-.36.59-.86.59-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
+        </svg>`;
+      } else {
+        verdictButton.title = "Disagree with analysis";
+        verdictButton.innerHTML = `<svg viewBox="0 0 24 24" fill="orange" style="transform: rotate(0.25turn)">
+          <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.58-6.59c.37-.36.59-.86.59-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
+        </svg>`;
+      }
+
+      const statementText = document.createElement("span");
+      statementText.className = "statement-text";
+      statementText.textContent = statement.text || "";
+
+      const evidenceButton = document.createElement("button");
+      evidenceButton.className = "feedback-button evidence-pin";
+      evidenceButton.type = "button";
+      evidenceButton.title = "View evidence";
+      evidenceButton.dataset.statementIndex = String(i);
+      evidenceButton.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 12v-1l-2-2V5c0-1.1-.9-2-2-2H9c-1.1 0-2 .9-2 2v4l-2 2v1h6v7l1 1 1-1v-7h6z"/>
+      </svg>`;
+
+      listItem.append(verdictButton, statementText, evidenceButton);
+      state.listContent.appendChild(listItem);
+    }
+  };
+
+  state.dialContainer.addEventListener("click", () => {
+    if (state.viewMode === "evidence") {
+      state.showStatementsView();
+      state.setExpanded(true);
+      return;
+    }
+    state.setExpanded(!state.popup.classList.contains("expanded"));
+  });
+
+  state.listContent.addEventListener("click", (event) => {
+    const pinButton = event.target.closest(".evidence-pin");
+    if (!pinButton) return;
+    const index = Number(pinButton.dataset.statementIndex);
+    const statement = state.statements[index];
+    if (!statement) return;
+    state.showEvidenceView(statement);
   });
 
   popup.querySelector("#close-alert").addEventListener("click", () => {
-    popup.remove();
-    currentPopup = null;
+    removePopup();
   });
 
+  return state;
+}
+
+function ensurePopup() {
+  if (popupState && currentPopup) return popupState;
+  popupState = createPopupState();
+  currentPopup = popupState.popup;
+  return popupState;
+}
+
+function scheduleAnalysisAfterPause() {
+  if (!isReelUrl()) return;
+  if (scrollPauseTimer) {
+    clearTimeout(scrollPauseTimer);
+  }
+  scrollPauseTimer = setTimeout(() => {
+    const currentUrl = window.location.href;
+    if (!currentUrl || currentUrl === lastAnalyzedUrl) return;
+    runAnalysis(currentUrl);
+  }, scrollPauseDelayMs);
+}
+
+async function runAnalysis(reelUrl) {
+  if (!reelUrl || reelUrl === lastAnalyzedUrl) return;
+  if (analysisInFlight) return;
+  analysisInFlight = true;
+  const state = ensurePopup();
+  state.setLoading();
+  state.showStatementsView();
+
   try {
-    console.log("Trying to make a call through the backend");
-
-    // NEW: grab the active page URL (it will be the reel page)
-    const currentReelUrl = window.location.href;
-
-    // Send message to background script
     const data = await chrome.runtime.sendMessage({
       type: "getMedicalScore",
-      url: currentReelUrl,   // ⬅️ pass the URL along
+      url: reelUrl,
     });
 
-    var statements = data.statements;
-    console.log("I got back " + statements[0].text);
+    const statements = data && data.statements ? data.statements : [];
+    const medicalScore =
+      (data && data["overall_truthiness"]
+        ? data["overall_truthiness"]
+        : 0) * 100;
 
-    medicalScore = data["overall_truthiness"] * 100;
-
-    needleRotation = medicalScore * 1.8 - 90;
-
-    // Update the needle rotation
-    popup.querySelector(".dial-needle").style.display = "block";
-    popup.querySelector(".dial-needle").classList.remove("loading-needle");
-    popup.querySelector(
-      ".dial-needle"
-    ).style.transform = `rotate(${needleRotation}deg)`;
-
-    popup.querySelector("#percent-number").innerHTML = `${medicalScore}%`;
-    popup
-      .querySelector("#percent-number")
-      .classList.add(getScoreColor(medicalScore));
-
-    console.log("Updating the GUI");
-
-    var listContent = popup.querySelector("#dropdown-list");
-    console.log("list content: ", listContent);
-    listContent.innerHTML = "";
-
-    // TODO: Update statement content
-    for (var statement of statements) {
-      console.log("statement: " + statement.text);
-      let currentContent = listContent.innerHTML;
-      listContent.innerHTML =
-        currentContent +
-        `<li> ${
-          statement.verdict == "true"
-            ? `<button class="feedback-button" title="Agree with analysis">
-      <svg viewBox="0 0 24 24" fill="green">
-        <path
-          d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"
-        />
-      </svg></button>`
-            : statement.verdict == "false"
-            ? `<button class="feedback-button" title="Disagree with analysis">
-      <svg viewBox="0 0 24 24" fill="red">
-        <path
-          d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.58-6.59c.37-.36.59-.86.59-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"
-        />
-      </svg></button>`
-            : `<button class="feedback-button" title="Disagree with analysis">
-      <svg viewBox="0 0 24 24" fill="orange" style="transform: rotate(0.25turn)">
-        <path
-          d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.58-6.59c.37-.36.59-.86.59-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"
-        />
-      </svg></button>`
-        }
-      ${statement.text}
-      ${
-        statement.evidence.length > 0
-          ? `<a id="link-icon" class="feedback-button" target="_blank" href=${statement.evidence[0].url}><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 144-208 0c-35.3 0-64 28.7-64 64l0 144-48 0c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM176 352l32 0c30.9 0 56 25.1 56 56s-25.1 56-56 56l-16 0 0 32c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-48 0-80c0-8.8 7.2-16 16-16zm32 80c13.3 0 24-10.7 24-24s-10.7-24-24-24l-16 0 0 48 16 0zm96-80l32 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-32 0c-8.8 0-16-7.2-16-16l0-128c0-8.8 7.2-16 16-16zm32 128c8.8 0 16-7.2 16-16l0-64c0-8.8-7.2-16-16-16l-16 0 0 96 16 0zm80-112c0-8.8 7.2-16 16-16l48 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 32 32 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 48c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-64 0-64z"/></svg></a>`
-          : ""
-      }
-  </li>`;
-    }
+    state.setStatements(statements);
+    state.setScore(medicalScore);
+    lastAnalyzedUrl = reelUrl;
   } catch (error) {
     console.error("Error in content script" + error);
+  } finally {
+    analysisInFlight = false;
   }
+}
 
-  currentPopup = popup;
-
-  // Auto-remove after 8 seconds
-  // setTimeout(() => {
-  //   popup.remove();
-  //   currentPopup = null;
-  // }, 8000);
+function showPopup() {
+  ensurePopup();
+  if (!lastAnalyzedUrl) {
+    runAnalysis(window.location.href);
+    return;
+  }
+  scheduleAnalysisAfterPause();
 }
 
 function removePopup() {
   if (currentPopup) {
     currentPopup.remove();
-    currentPopup = null;
+  }
+  currentPopup = null;
+  popupState = null;
+  lastAnalyzedUrl = null;
+  analysisInFlight = false;
+  if (scrollPauseTimer) {
+    clearTimeout(scrollPauseTimer);
+    scrollPauseTimer = null;
   }
 }

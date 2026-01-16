@@ -1,6 +1,7 @@
-from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S7
+from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_BALANCED_COUNTER, PROMPT_TMPL_S7
 from pipeline.test_configs.test_extraction import RESEARCH_MODULE, VERIFICATION_MODULE
 from pipeline.test_configs.kai_test import SCORES_MODULE
+from pipeline.test_configs.preprompts import PROMPT_TMPL_S3_SPECIFIC, PROMPT_TMPL_S3_BALANCED, PROMPT_TMPL_S3_ATM_ASSISTED
 
 
 VIDEO_PIPELINE_CONFIG = {
@@ -72,5 +73,87 @@ VIDEO_PIPELINE_CONFIG = {
             
         VERIFICATION_MODULE,
 
+    ],
+}
+
+
+VIDEO_URL_PIPELINE_CONFIG = {
+    "name": "Video_URL_End_to_End_Run",
+    "debug": True,
+    "steps": [
+        {
+            "type": "download_reel",
+            "settings": {
+                "video_url": "",
+                "output_dir": "temp",
+            },
+        },
+        {
+            "type": "video_to_audio",
+            "settings": {},
+        },
+        {
+            "type": "audio_to_transcript",
+            "settings": {
+                "whisper_model": "turbo",
+                "translate_non_english": True,
+            },
+        },
+        {
+            "type": "extraction",
+            "settings": {
+                "model": "gemma3:27b",
+                "prompt_template": PROMPT_TMPL_S2,
+                "temperature": 0.0,
+            },
+        },
+        {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": "gemma3:27b",
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED
+                }
+            },
+        {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": "gemma3:27b",
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER
+                }
+            },
+        {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": "gemma3:27b",
+                    "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED
+                }
+            },
+            {
+                "type": "fetch_links",  # Step 4
+                "settings": {"retmax": 15}
+            },
+            {
+                "type": "summarize_evidence",  # Step 5
+                "settings": {}
+            },
+            {
+                "type": "weight_evidence",  # Step 5.1
+                "settings": {"default_weight": 0.5}
+            },
+            SCORES_MODULE,
+        {
+                "type": "truthness",
+                "settings": {
+                    "model": "gemma3:27b",
+                    "prompt_template": PROMPT_TMPL_S7
+                }
+            },
+            # Step 8: Final Score
+            {
+                "type": "scoring",
+                "settings": {
+                    "threshold": 0.15
+                }
+            }
     ],
 }

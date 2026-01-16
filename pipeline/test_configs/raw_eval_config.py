@@ -255,7 +255,36 @@ PUBMED_MULTI_QUERY_CONFIG = {
                 ]
             },
         },
-        MQ_RESEARCH_MODULE,
+        {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": "gemma3:27b",
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED
+                }
+            },
+        {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": "gemma3:27b",
+                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC
+                }
+            },
+        {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": "gemma3:27b",
+                    "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED
+                }
+            },
+        {
+                "type": "fetch_links",  # Step 4
+                "settings": {"retmax": 5}
+            },
+            {
+                "type": "summarize_evidence",  # Step 5
+                "settings": {}
+            },
+
         {
             "type": "filter_evidence",
             "settings": {

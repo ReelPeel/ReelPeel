@@ -3,7 +3,6 @@ from fastapi import FastAPI, Body, HTTPException
 import shutil, os
 from .pipeline import run_pipeline
   # ← your existing heavy pipeline
-from ..pipeline.steps.reel_utils import convert_video_to_wav  # ← helper from earlier 
 from typing import Any, Dict, List
 from urllib.parse import urlparse
 import random
@@ -60,26 +59,24 @@ async def process(payload: dict = Body(...)):
     reel_id = extract_reel_id(url)
     mock    = _coerce_bool(payload.get("mock", False))
 
-    if mock:
-        # Mock mode: just look for a pre-made WAV named <reel_id>.wav
-        wav_path = os.path.abspath(f"{reel_id}.wav")
-    else:
-        try:
-            print(f"Downloading reel from {url}...")
-            wav_path = convert_video_to_wav(url)           # your existing helper
-        except RuntimeError as e:
-            raise HTTPException(400, str(e))
-        if not wav_path:
-            raise HTTPException(400, "Failed to download or convert reel")
-
-    wav_path = os.path.abspath(wav_path)
-    tmp_dir  = os.path.dirname(wav_path)
-
+    result = None
     try:
-        return run_pipeline(wav_path)                      # your existing inference step
+        if mock:
+            # Mock mode: just look for a pre-made WAV named <reel_id>.wav
+            wav_path = os.path.abspath(f"{reel_id}.wav")
+            if not os.path.exists(wav_path):
+                raise HTTPException(400, f"Mock WAV not found: {wav_path}")
+            result = run_pipeline(audio_path=wav_path)     # your existing inference step
+        else:
+            result = run_pipeline(video_url=url)
+        return result
     finally:
-        if not mock:                                       # don’t delete local mocks
-            shutil.rmtree(tmp_dir, ignore_errors=True)
+        if not mock and result:
+            video_path = result.get("video_path")
+            audio_path = result.get("audio_path")
+            cleanup_path = video_path or audio_path
+            if cleanup_path:
+                shutil.rmtree(os.path.dirname(cleanup_path), ignore_errors=True)
 
 @app.get("/number")
 async def get_number():

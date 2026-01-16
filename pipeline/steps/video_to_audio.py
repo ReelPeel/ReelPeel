@@ -16,17 +16,19 @@ class VideoToAudioStep(PipelineStep):
     in PipelineState.audio_path.
 
     Config keys:
-      - video_path: str (required)
-      - output_path: str (optional, file or directory)
+      - video_path: str (optional if state.video_path is set)
+      - output_path: str (optional, file or directory; default is next to video)
       - fps: int (optional, default: moviepy default)
       - codec: str (optional)
       - bitrate: str (optional)
     """
 
     def execute(self, state: PipelineState) -> PipelineState:
-        video_path = self.config.get("video_path")
+        video_path = self.config.get("video_path") or state.video_path
         if not video_path:
-            raise ValueError("[VideoToAudioStep] Missing required config: video_path")
+            raise ValueError(
+                "[VideoToAudioStep] Missing video_path (config or state.video_path)"
+            )
 
         path = Path(video_path).expanduser()
         if not path.exists():
@@ -64,6 +66,7 @@ class VideoToAudioStep(PipelineStep):
                 clip.audio.close()
             clip.close()
 
+        state.video_path = str(path)
         state.audio_path = str(output_path)
         state.generated_at = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
 
@@ -75,7 +78,7 @@ class VideoToAudioStep(PipelineStep):
     def _resolve_output_path(self, video_path: Path) -> Path:
         output_path = self.config.get("output_path")
         if not output_path:
-            return Path("temp") / f"{video_path.stem}{DEFAULT_AUDIO_EXT}"
+            return video_path.parent / f"{video_path.stem}{DEFAULT_AUDIO_EXT}"
 
         output = Path(output_path).expanduser()
         if output.exists() and output.is_dir():
