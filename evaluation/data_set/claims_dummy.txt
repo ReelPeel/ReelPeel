@@ -13,5 +13,495 @@
     "statement": "Negative expectancy can reduce the effect of pain medications.",
     "label": 2,
     "id": 713
+  },
+  {
+    "statement": "Cinnamon lowers blood sugar levels in diabetes.",
+    "label": 2,
+    "id": 313
+  },
+  {
+    "statement": "Electric cigarettes are less harmful than tobacco smoking.",
+    "label": 1,
+    "id": 439
+  },
+  {
+    "statement": "Protein supplements help build muscle.",
+    "label": 1,
+    "id": 493
+  },
+  {
+    "statement": "Behavioral therapy methods help with specific fears (phobias) such as fear of spiders.",
+    "label": 0,
+    "id": 690
+  },
+  {
+    "statement": "Ointment with comfrey helps against back pain and knee pain better than a placebo.",
+    "label": 0,
+    "id": 371
+  },
+  {
+    "statement": "Calcium from Japanese coral is safe and effective in preventing disease.",
+    "label": 1,
+    "id": 342
+  },
+  {
+    "statement": "A newly approved contraceptive pill with the active ingredient combination nomegestrol acetate and 17ß-estradiol has fewer undesirable side effects than other birth control pills.",
+    "label": 2,
+    "id": 683
+  },
+  {
+    "statement": "PEMF noticeably improves pain in osteoarthritis and the method improves mobility and quality of life in sufferers.",
+    "label": 1,
+    "id": 215
+  },
+  {
+    "statement": "Taking vitamin C prevents motion sickness.",
+    "label": 1,
+    "id": 344
+  },
+  {
+    "statement": "Heat patches containing capsaicin help with neck pain.",
+    "label": 2,
+    "id": 232
+  },
+  {
+    "statement": "Tocilizumab specifically helps children with rheumatoid arthritis (juvenile idiopathic arthritis).",
+    "label": 0,
+    "id": 680
+  },
+  {
+    "statement": "Light freezing helps with weight loss.",
+    "label": 1,
+    "id": 639
+  },
+  {
+    "statement": "Lung cancer screening by computed tomography (CT) can also do harm.",
+    "label": 0,
+    "id": 123
+  },
+  {
+    "statement": "Mindfulness-based methods effect improvement in chronic pain.",
+    "label": 1,
+    "id": 699
+  },
+  {
+    "statement": "The drug Sovaldi (sofosbuvir) enables high cure rates for chronic hepatitis C.",
+    "label": 0,
+    "id": 579
+  },
+  {
+    "statement": "Regular use of sleeping pills promotes the risk of death or cancer.",
+    "label": 0,
+    "id": 668
+  },
+  {
+    "statement": "Yoga alleviates the severity of persistent back pain.",
+    "label": 2,
+    "id": 309
+  },
+  {
+    "statement": "Arthroscopy can reduce pain or improve mobility.",
+    "label": 2,
+    "id": 749
+  },
+  {
+    "statement": "It is harmful for the mental development of the unborn child if the mother regularly eats fish contaminated with mercury during pregnancy.",
+    "label": 0,
+    "id": 520
+  },
+  {
+    "statement": "A treatment with singing bowls can relieve pain.",
+    "label": 2,
+    "id": 654
+  },
+  {
+    "statement": "Taking coconut oil improves mental abilities in dementia like Alzheimer's disease.",
+    "label": 1,
+    "id": 543
+  },
+  {
+    "statement": "The so-called blood group diet has any health benefits.",
+    "label": 1,
+    "id": 453
+  },
+  {
+    "statement": "Topical agents containing acids and oils, such as Excilor and Nailner, are effective for nail fungus.",
+    "label": 1,
+    "id": 407
+  },
+  {
+    "statement": "The Orthopulse device accelerates the orthodontic correction of malocclusions.",
+    "label": 1,
+    "id": 519
+  },
+  {
+    "statement": "Ginger works against breast cancer.",
+    "label": 1,
+    "id": 225
+  },
+  {
+    "statement": "Homeopathic preparations with Anamirta cocculus can help against dizziness.",
+    "label": 1,
+    "id": 2
+  },
+  {
+    "statement": "LOW dose atropine (0.05% or less) sustainably inhibits the progression of myopia in children.",
+    "label": 1,
+    "id": 202
+  },
+  {
+    "statement": "Mesotherapy helps against pain.",
+    "label": 2,
+    "id": 703
+  },
+  {
+    "statement": "Taking vitamin A or following certain diets improves or halts the progression of multiple sclerosis (MS).",
+    "label": 1,
+    "id": 320
+  },
+  {
+    "statement": "Over-the-counter cough medicines relieve cough symptoms.",
+    "label": 1,
+    "id": 582
+  },
+  {
+    "statement": "Valerian helps with sleep disorders.",
+    "label": 1,
+    "id": 409
+  },
+  {
+    "statement": "Vaccination against rotavirus increases the risk of intestinal intussusception in infants.",
+    "label": 0,
+    "id": 451
+  },
+  {
+    "statement": "A mixture of hops and other natural remedies helps with sleep problems.",
+    "label": 2,
+    "id": 352
+  },
+  {
+    "statement": "Household cleaners and room fresheners in spray form cause damage to the heart.",
+    "label": 1,
+    "id": 670
+  },
+  {
+    "statement": "Chocolate has a mood-lifting effect.",
+    "label": 0,
+    "id": 475
+  },
+  {
+    "statement": "Sitting for long periods despite compensatory exercise increasingly leads to type 2 diabetes.",
+    "label": 1,
+    "id": 694
+  },
+  {
+    "statement": "Lavender scent helps with sleep disorders.",
+    "label": 1,
+    "id": 578
+  },
+  {
+    "statement": "Green tea can affect the likelihood of dying early and reduce the risk of cardiovascular disease.",
+    "label": 0,
+    "id": 525
+  },
+  {
+    "statement": "Deuterium-reduced water prevents cancer.",
+    "label": 1,
+    "id": 159
+  },
+  {
+    "statement": "Gastrointestinal surgeries (bariatric surgeries) improve symptoms of type 2 diabetes.",
+    "label": 0,
+    "id": 696
+  },
+  {
+    "statement": "Staining brain tumors with the dye aminolevulinic acid before surgery helps patients survive longer.",
+    "label": 1,
+    "id": 661
+  },
+  {
+    "statement": "The consumption of dairy products promotes mucus and diseases of the ear, nose and throat.",
+    "label": 1,
+    "id": 506
+  },
+  {
+    "statement": "International travel restrictions and border health checks are effective in curbing the spread of covid-19.",
+    "label": 0,
+    "id": 151
+  },
+  {
+    "statement": "The preparation \"CAPS immu\" from Ringana reduces the risk of infections in healthy people.",
+    "label": 1,
+    "id": 544
+  },
+  {
+    "statement": "Taking a mushroom called reishi benefits cancer.",
+    "label": 1,
+    "id": 354
+  },
+  {
+    "statement": "Blueberries improve blood sugar levels in type 2 diabetes or they prevent secondary diseases.",
+    "label": 1,
+    "id": 118
+  },
+  {
+    "statement": "Special baby water is better for infants than tap water.",
+    "label": 1,
+    "id": 194
+  },
+  {
+    "statement": "Air ions cause an improvement of allergies.",
+    "label": 1,
+    "id": 633
+  },
+  {
+    "statement": "Honey helps against acute cough in children.",
+    "label": 0,
+    "id": 72
+  },
+  {
+    "statement": "Zeolite can alleviate or prevent health problems.",
+    "label": 1,
+    "id": 3
+  },
+  {
+    "statement": "Oil pulling promotes dental health.",
+    "label": 1,
+    "id": 216
+  },
+  {
+    "statement": "Cryolipolysis causes noticeable body fat reduction.",
+    "label": 1,
+    "id": 605
+  },
+  {
+    "statement": "Perineal massage during pregnancy can help prevent birth injury in first-time mothers.",
+    "label": 0,
+    "id": 300
+  },
+  {
+    "statement": "Caffeine makes us die sooner.",
+    "label": 1,
+    "id": 638
+  },
+  {
+    "statement": "Bloodletting according to Hildegard von Bingen has health benefits.",
+    "label": 1,
+    "id": 565
+  },
+  {
+    "statement": "\"Detoxic\" works against tapeworms and other parasites and helps with health complaints.",
+    "label": 1,
+    "id": 179
+  },
+  {
+    "statement": "Taking chondroitin can relieve osteoarthritis pain or improve mobility in the long term.",
+    "label": 2,
+    "id": 177
+  },
+  {
+    "statement": "Acupuncture or related smoking cessation methods help you stay smoke-free for at least 6 months.",
+    "label": 0,
+    "id": 695
+  },
+  {
+    "statement": "For women at high risk of breast cancer, a precautionary mastectomy makes more sense than regular participation in intensive screening.",
+    "label": 1,
+    "id": 679
+  },
+  {
+    "statement": "Water from jugs with semi-precious stones has a positive health effect.",
+    "label": 1,
+    "id": 341
+  },
+  {
+    "statement": "The risk of bacterial or fungal infection is comparable when using menstrual cups or pads.",
+    "label": 0,
+    "id": 257
+  },
+  {
+    "statement": "Preparations with rose root have an effect against stress and its consequences, e.g. exhaustion.",
+    "label": 1,
+    "id": 369
+  },
+  {
+    "statement": "Amla supplements are effective and safe in lowering high cholesterol.",
+    "label": 1,
+    "id": 336
+  },
+  {
+    "statement": "Graviola is an effective and safe treatment for cancer.",
+    "label": 1,
+    "id": 250
+  },
+  {
+    "statement": "The milk of horn-bearing cows is less rich in allergens and more easily tolerated by lactose-intolerant individuals.",
+    "label": 1,
+    "id": 491
+  },
+  {
+    "statement": "Sedatives and sleeping pills such as benzodiazepines and related substances increase the risk of Alzheimer's disease or other forms of dementia.",
+    "label": 1,
+    "id": 44
+  },
+  {
+    "statement": "Medistus Antivirus Lozenges can protect against colds, flu, covid-19, or other respiratory infections.",
+    "label": 1,
+    "id": 127
+  },
+  {
+    "statement": "Oolong tea is an effective way to lose weight.",
+    "label": 1,
+    "id": 270
+  },
+  {
+    "statement": "Topiramate can reduce the frequency of migraine attacks.",
+    "label": 0,
+    "id": 597
+  },
+  {
+    "statement": "Hyposensitization by means of drops or tablets administered under the tongue can help with hay fever.",
+    "label": 0,
+    "id": 278
+  },
+  {
+    "statement": "Fish oil capsules promote prostate cancer.",
+    "label": 0,
+    "id": 644
+  },
+  {
+    "statement": "Tomato extract reduces the risk of cardiovascular disease.",
+    "label": 1,
+    "id": 380
+  },
+  {
+    "statement": "Wearing sunglasses in childhood and adolescence protects against macular degeneration in old age.",
+    "label": 1,
+    "id": 340
+  },
+  {
+    "statement": "The plant substance nobiletin contained in mandarins protects against weight gain.",
+    "label": 1,
+    "id": 489
+  },
+  {
+    "statement": "Maca helps with sexual problems such as erectile dysfunction or sexual aversion in men and women.",
+    "label": 1,
+    "id": 286
+  },
+  {
+    "statement": "Pregnant women who take vitamin D have a lower risk of preterm birth.",
+    "label": 0,
+    "id": 376
+  },
+  {
+    "statement": "A patch with high-dose capsaicin relieves pain in diabetes mellitus or infection with HIV.",
+    "label": 1,
+    "id": 358
+  },
+  {
+    "statement": "Pain from osteoarthritis (joint wear) can be relieved by arnica ointment or arnica gel.",
+    "label": 0,
+    "id": 236
+  },
+  {
+    "statement": "Paper towels or electric dryers are more hygienic after washing hands.",
+    "label": 1,
+    "id": 468
+  },
+  {
+    "statement": "Garlic extract can reduce high blood pressure and thus the risk of cardiovascular disease.",
+    "label": 1,
+    "id": 523
+  },
+  {
+    "statement": "Taking probiotics during pregnancy and early life protects children from atopic dermatitis.",
+    "label": 0,
+    "id": 499
+  },
+  {
+    "statement": "Removal and examination of the first lymph nodes after the prostate is affected by cancer (sentinel lymph nodes or sentinel lymph nodes) improve the chances of cure.",
+    "label": 1,
+    "id": 653
+  },
+  {
+    "statement": "Milk or dairy products promote bladder cancer.",
+    "label": 2,
+    "id": 744
+  },
+  {
+    "statement": "A cold spray with trypsin protects against colds or covid-19 and reduces symptoms and duration of illness.",
+    "label": 1,
+    "id": 58
+  },
+  {
+    "statement": "Cold showers, cold baths, or cold water treading according to Kneipp can prevent colds and respiratory infections in adults.",
+    "label": 1,
+    "id": 69
+  },
+  {
+    "statement": "Statins help older people suffering from cardiovascular disease to live longer and reduce the risk of heart attack and stroke.",
+    "label": 0,
+    "id": 387
+  },
+  {
+    "statement": "Wearing bras promotes breast cancer risk.",
+    "label": 1,
+    "id": 561
+  },
+  {
+    "statement": "Inhalation with budesonide spray can relieve symptoms of covid-19.",
+    "label": 0,
+    "id": 114
+  },
+  {
+    "statement": "Today's children have a shorter life expectancy than their parents.",
+    "label": 0,
+    "id": 621
+  },
+  {
+    "statement": "DAILY administration of HIGH-dose atropine (0.5 - 1%) sustainably inhibits the progression of myopia in children.",
+    "label": 2,
+    "id": 200
+  },
+  {
+    "statement": "Taking coenzyme Q10 improves movement disorders in Parkinson's disease.",
+    "label": 2,
+    "id": 143
+  },
+  {
+    "statement": "Pumpkin seed preparations improve symptoms caused by a benign enlarged prostate.",
+    "label": 2,
+    "id": 456
+  },
+  {
+    "statement": "Oseltamivir (brand name \"Tamiflu\") reduces the severity and duration of influenza in otherwise healthy adults.",
+    "label": 0,
+    "id": 383
+  },
+  {
+    "statement": "Diets with primarily or exclusively uncooked foods have health benefits.",
+    "label": 1,
+    "id": 533
+  },
+  {
+    "statement": "Taking chlorophyll can affect the odor of urine in catheter wearers or stool in people with an artificial bowel outlet.",
+    "label": 2,
+    "id": 256
+  },
+  {
+    "statement": "Probiotics can prevent diarrhea after treatment with antibiotics.",
+    "label": 0,
+    "id": 420
+  },
+  {
+    "statement": "The \"Rolfing\" treatment causes an improvement of body malpositions as well as certain pains.",
+    "label": 1,
+    "id": 642
+  },
+  {
+    "statement": "Gargling with hydrogen peroxide has health risks.",
+    "label": 1,
+    "id": 131
   }
 ]

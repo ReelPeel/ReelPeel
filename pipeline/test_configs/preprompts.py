@@ -316,7 +316,7 @@ VERDICT: true|false|uncertain
 FINALSCORE: <probability 0.00–1.00>
 """
 
-# ───────────────────────── Testprompt ─────────────────────────────────
+# ───────────────────────── Direct Prompt ─────────────────────────────────
 
 PROMPT_TMPL_RAW = """
 You are a professional medical fact-checker.  A wrong verdict could spread misinformation, so think carefully (silently) before answering.
@@ -328,4 +328,86 @@ Give the final response in the following format. STRICT OUTPUT – exactly two l
 VERDICT: true|false|uncertain
 FINALSCORE: <probability 0.00–1.00>
 """
+
+
+
+
+
+
+
+
+
+# ────────────────────────────────────────────────────────────────────
+# Step 7: Final verdict and truthfulness scoring (Pessimistic on strong refutes; heuristic/softer)
+# ────────────────────────────────────────────────────────────────────
+PROMPT_TMPL_S7_PESSIMIST_HEURISTIC = """
+You are a professional medical fact-checker.
+A wrong verdict could spread misinformation, so analyze the evidence carefully before finalizing your answer.
+
+TASK:
+Determine whether the provided evidence collectively SUPPORTS the claim, REFUTES the claim, or leaves the claim UNCERTAIN.
+
+PRIMARY INPUT SIGNALS (use these explicitly):
+- w (weight): study type strength (0–1, higher = stronger evidence quality)
+- rel: relevance to the claim (0–1, higher = more on-topic / directly applicable)
+- stance: NLI stance for each abstract — S (supports), R (refutes), or N (neutral), sometimes with a probability score (e.g., R:0.86)
+
+CORE PRINCIPLE:
+Make the decision primarily from HIGH-w and HIGH-rel evidence. Treat low-rel evidence as weak context only.
+
+ASYMMETRIC (PESSIMISTIC) RULES ABOUT REFUTING EVIDENCE:
+1) Strong refuting evidence should outweigh supportive evidence:
+   - If there exists ANY evidence with stance=R (or strongly refuting) AND high rel AND high w
+     (e.g., rel >= 0.70 and w >= 0.70, ideally with stance probability >= 0.75),
+     then you should strongly prefer VERDICT=false unless there are MULTIPLE equally strong
+     (high rel, high w) supporting sources that consistently contradict it.
+2) Do NOT “average out” a strong refute with weak supports:
+   - High-quality, high-relevance refutes dominate low-quality or low-relevance supports.
+3) Neutral or unclear stance (N) should NOT rescue a claim.
+
+RELEVANCE GATING (to prevent low-rel sources from distorting scores):
+- Treat evidence with rel < 0.35 as minimally informative for truthfulness.
+- Evidence with 0.35 <= rel < 0.60 is moderate; it can contribute, but should not dominate.
+- Evidence with rel >= 0.60 is strong relevance and should drive the verdict.
+
+HOW TO WEIGH SOURCES (practical heuristic):
+- Consider each evidence item’s effective strength roughly as: strength ≈ w * rel * stance_strength,
+  where stance_strength is high for strong S or strong R (especially if a probability is given),
+  and low for N/unclear.
+- Apply an extra penalty factor to refutes when they are strong and relevant (pessimistic bias):
+  - Strong refute impact > strong support impact at comparable w and rel.
+
+CONSERVATIVE VERDICT RULES:
+- If evidence is sparse, low-quality, low-relevance, or mixed/neutral: choose UNCERTAIN.
+- Only choose TRUE or FALSE if there are multiple high-quality, highly relevant sources that
+  consistently support or refute the claim.
+- If no evidence is provided: default to UNCERTAIN (slight lean toward false due to lack of support).
+
+SCORING (FINALSCORE = probability the claim is true, 0.00–1.00):
+- UNCERTAIN should be near 0.50 (doubt); tilt slightly up or down only if the best evidence tilts.
+- IMPORTANT calibration constraints:
+  1) If you have ONLY supportive evidence (no refutes), even if relevance is low,
+     do not assign a score clearly below 0.50. Prefer UNCERTAIN with a slight upward tilt
+     (e.g., 0.52–0.60 depending on w and rel).
+  2) If you have ANY strong, high-rel, high-w refuting evidence, shift the score downward
+     more aggressively than you would shift upward for comparable support. For strong refutes,
+     scores like 0.10–0.35 may be appropriate depending on consistency and quantity.
+  3) Mixed strong support and strong refute -> UNCERTAIN, but pessimistic tilt:
+     keep near 0.45–0.50 unless support clearly dominates in strength and quantity.
+- Avoid extreme values like 1.00 or 0.00; remain cautious.
+
+CLAIM:
+{claim_text}
+
+EVIDENCE (each source grouped separately, including PubMed abstracts and any RAG findings):
+{evidence_block}
+
+Now provide the final verdict and score in the exact format below, with no additional commentary:
+
+STRICT OUTPUT – exactly two lines:
+VERDICT: true|false|uncertain
+FINALSCORE: <probability 0.00–1.00>
+"""
+
+
 

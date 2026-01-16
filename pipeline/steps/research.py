@@ -71,16 +71,40 @@ class StatementToQueryStep(PipelineStep):
                 q = self.clean_pubmed_query(raw)
 
                 # Append if not duplicate
+                added = False
                 if q and q.lower() not in {x.lower() for x in stmt.queries}:
                     stmt.queries.append(q)
+                    added = True
+                if q:
+                    self.log_artifact(
+                        "PubMed Query",
+                        {
+                            "statement_id": stmt.id,
+                            "query": q,
+                            "source": "llm",
+                            "added": added,
+                        },
+                    )
 
                 print(f"   Statement {stmt.id}: + query: {q}")
 
             except Exception as e:
                 print(f"   [Error] ID {stmt.id}: {e}")
                 fb = self._fallback_query(stmt.text)
+                added = False
                 if fb.lower() not in {x.lower() for x in stmt.queries}:
                     stmt.queries.append(fb)
+                    added = True
+                self.log_artifact(
+                    "PubMed Query",
+                    {
+                        "statement_id": stmt.id,
+                        "query": fb,
+                        "source": "fallback",
+                        "added": added,
+                        "error": str(e),
+                    },
+                )
 
         return state
     _ALLOWED_TAGS = {"mh", "tiab"}
@@ -150,6 +174,11 @@ class QueryToLinkStep(PipelineStep):
                         "retmode": "json",
                         "sort": sort,
                     }
+                    request_url = requests.Request("GET", search_url, params=params).prepare().url
+                    self.log_artifact(
+                        "PubMed ESearch Request",
+                        {"statement_id": stmt.id, "query": q, "url": request_url},
+                    )
                     # Send request to Proxy
                     resp = requests.get(search_url, params=params, timeout=10)
                     resp.raise_for_status()
