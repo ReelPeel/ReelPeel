@@ -128,7 +128,7 @@ class QueryToLinkStep(PipelineStep):
     def execute(self, state: PipelineState) -> PipelineState:
         print(f"[{self.__class__.__name__}] Fetching PubMed links...")
 
-        retmax = self.config.get("retmax", 3)
+        retmax = self.config.get("retmax", 5)
         sort = self.config.get("sort", "relevance")
 
         # USE PROXY: Default to local service port 8080
