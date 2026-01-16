@@ -1,13 +1,13 @@
 from pipeline.test_configs.preprompts import (
-    PROMPT_TMPL_S2,
-    PROMPT_TMPL_S3_BALANCED,
-    PROMPT_TMPL_S3_SPECIFIC,
-    PROMPT_TMPL_S3_ATM_ASSISTED,
-    PROMPT_TMPL_S3_BALANCED_COUNTER,
-    PROMPT_TMPL_S3_SPECIFIC_COUNTER,
-    PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER,
-    PROMPT_TMPL_S6,
+    PROMPT_TMPL_S2, 
+    PROMPT_TMPL_S6, 
     PROMPT_TMPL_S7,
+    PROMPT_TMPL_S3_ATM_ASSISTED,
+    PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER,
+    PROMPT_TMPL_S3_BALANCED,
+    PROMPT_TMPL_S3_BALANCED_COUNTER,
+    PROMPT_TMPL_S3_SPECIFIC,
+    PROMPT_TMPL_S3_SPECIFIC_COUNTER,
 )
 
 BASE_TEMPERATURE = 0.0
@@ -99,7 +99,7 @@ SCORES_MODULE = {
                     "max_length": 4096,
                     "score_fields": ["abstract"],
                     "empty_relevance": 0.0,
-                    "min_relevance": 0.5,
+                    "min_relevance": 0.7,
                 },
             },
             {
@@ -157,7 +157,7 @@ VERIFICATION_MODULE = {
 # ---------------------- Instruct tuned, General Domain Models ----------------------
 # - `gemma3:12b` (`gemma3:12b-it-q4_K_M`) (~8.1 GB): instruction-tuned general model; fast and light, good for quick extraction/filtering.
 # - `gemma3:27b` (`gemma3:27b-it-q4_K_M`) (~17 GB): instruction-tuned mid-size model; stronger reasoning than 12b with moderate VRAM cost.
-                    "model": "hf.co/mradermacher/Llama3-OpenBioLLM-70B-i1-GGUF:Llama3-OpenBioLLM-70B.i1-IQ4_XS.gguf",
+                    "model": BASE_MODEL,
                     "prompt_template": PROMPT_TMPL_S7,
                     "temperature": BASE_TEMPERATURE,
                     # "max_tokens": 512 # Currently hardcoded in individual step
