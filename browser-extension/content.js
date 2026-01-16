@@ -3,7 +3,10 @@ let popupState = null;
 let lastAnalyzedUrl = null;
 let scrollPauseTimer = null;
 let analysisInFlight = false;
+let pendingAnalysisUrl = null;
+let lastSeenUrl = null;
 const scrollPauseDelayMs = 1000;
+
 
 // Monitor URL changes
 let lastUrl = location.href;
@@ -38,7 +41,7 @@ function isReelUrl() {
 }
 
 function getScoreColor(score) {
-  if (score <= 50) return "low-score";
+  if (score <= 30) return "low-score";
   if (score <= 75) return "medium-score";
   return "high-score";
 }
@@ -81,6 +84,123 @@ function getEvidenceUrl(evidence) {
   if (evidence.epistemonikos_id)
     return `https://www.epistemonikos.org/en/documents/${evidence.epistemonikos_id}`;
   return null;
+}
+
+function normalizeScore(rawValue) {
+  if (rawValue === null || rawValue === undefined || rawValue === "") {
+    return null;
+  }
+  const num = Number(rawValue);
+  if (!Number.isFinite(num)) return null;
+  let percent = num;
+  if (num >= 0 && num <= 1) {
+    percent = num * 100;
+  }
+  if (percent < 0 || percent > 100) {
+    return null;
+  }
+  return Math.round(percent);
+}
+
+function getMetaContent(key) {
+  const propertyTag = document.querySelector(`meta[property="${key}"]`);
+  if (propertyTag && propertyTag.content) return propertyTag.content;
+  const nameTag = document.querySelector(`meta[name="${key}"]`);
+  if (nameTag && nameTag.content) return nameTag.content;
+  return "";
+}
+
+function getVisibleArea(rect) {
+  const left = Math.max(0, rect.left);
+  const right = Math.min(window.innerWidth, rect.right);
+  const top = Math.max(0, rect.top);
+  const bottom = Math.min(window.innerHeight, rect.bottom);
+  const width = Math.max(0, right - left);
+  const height = Math.max(0, bottom - top);
+  return width * height;
+}
+
+function getActiveVideoElement() {
+  const videos = Array.from(document.querySelectorAll("video"));
+  let bestVideo = null;
+  let bestArea = 0;
+
+  for (const video of videos) {
+    const rect = video.getBoundingClientRect();
+    if (!rect.width || !rect.height) continue;
+    const area = getVisibleArea(rect);
+    if (area > bestArea) {
+      bestArea = area;
+      bestVideo = video;
+    }
+  }
+
+  return bestVideo;
+}
+
+function getReelContextText(video) {
+  const metaDescription =
+    getMetaContent("og:description") || getMetaContent("description");
+  const metaTitle = getMetaContent("og:title");
+  const pageTitle = document.title || "";
+  let text = [metaTitle, metaDescription, pageTitle].filter(Boolean).join(" ");
+
+  if (video) {
+    const container =
+      video.closest("article") ||
+      video.closest("div[role='presentation']") ||
+      video.parentElement;
+    if (container) {
+      const containerText = container.innerText || "";
+      if (containerText) {
+        text = `${text} ${containerText}`.trim();
+      }
+    }
+  }
+
+  if (text.length > 2000) return text.slice(0, 2000);
+  return text.trim();
+}
+
+function hasAudioTrack(video) {
+  if (!video) return null;
+  if (typeof video.mozHasAudio === "boolean") return video.mozHasAudio;
+  if (video.audioTracks && typeof video.audioTracks.length === "number") {
+    return video.audioTracks.length > 0;
+  }
+  if (typeof video.webkitAudioDecodedByteCount === "number") {
+    if (video.webkitAudioDecodedByteCount > 0) return true;
+  }
+  return null;
+}
+
+
+function shouldSkipPipeline(video) {
+  const hasAudio = hasAudioTrack(video);
+  if (hasAudio === false) return { skip: true, reason: "no-audio" };
+  return { skip: false };
+}
+
+function markNewReelSeen(reelUrl) {
+  if (!reelUrl || reelUrl === lastSeenUrl) return;
+  lastSeenUrl = reelUrl;
+  if (reelUrl === lastAnalyzedUrl) return;
+  const state = ensurePopup();
+  state.resetForNewReel();
+}
+
+function queueAnalysisForUrl(reelUrl) {
+  if (!reelUrl) return;
+  pendingAnalysisUrl = reelUrl;
+  maybeStartAnalysis();
+}
+
+function maybeStartAnalysis() {
+  if (analysisInFlight) return;
+  if (!pendingAnalysisUrl) return;
+  const nextUrl = pendingAnalysisUrl;
+  pendingAnalysisUrl = null;
+  runAnalysis(nextUrl);
 }
 
 function stanceClassName(label) {
@@ -250,11 +370,30 @@ function createPopupState() {
     state.renderEvidenceList(statement);
   };
 
+  state.resetForNewReel = function () {
+    state.setExpanded(false);
+    state.showStatementsView();
+    state.evidenceTitle.textContent = "";
+    state.evidenceList.innerHTML = "";
+    state.listContent.innerHTML = "";
+    state.statements = [];
+    state.setLoading();
+  };
+
+  state.setNotApplicable = function () {
+    state.setExpanded(false);
+    state.showStatementsView();
+    state.evidenceTitle.textContent = "";
+    state.evidenceList.innerHTML = "";
+    state.listContent.innerHTML = "";
+    state.statements = [];
+    state.setScore(null);
+  };
+
   state.setLoading = function () {
     state.needle.style.display = "block";
     state.needle.classList.add("loading-needle");
-    state.percentNumber.innerHTML =
-      '<span style="font-size: 14px;">Loading...</span>';
+    state.percentNumber.textContent = "Loading...";
     state.percentNumber.classList.remove(
       "high-score",
       "medium-score",
@@ -263,11 +402,24 @@ function createPopupState() {
   };
 
   state.setScore = function (score) {
+    if (!Number.isFinite(score)) {
+      state.needle.style.display = "block";
+      state.needle.classList.remove("loading-needle");
+      state.needle.style.transform = "rotate(-90deg)";
+      state.percentNumber.textContent = "N/A";
+      state.percentNumber.classList.remove(
+        "high-score",
+        "medium-score",
+        "low-score"
+      );
+      return;
+    }
+
     const needleRotation = score * 1.8 - 90;
     state.needle.style.display = "block";
     state.needle.classList.remove("loading-needle");
     state.needle.style.transform = `rotate(${needleRotation}deg)`;
-    state.percentNumber.innerHTML = `${score}%`;
+    state.percentNumber.textContent = `${score}%`;
     state.percentNumber.classList.remove(
       "high-score",
       "medium-score",
@@ -359,23 +511,40 @@ function ensurePopup() {
 
 function scheduleAnalysisAfterPause() {
   if (!isReelUrl()) return;
+  const currentUrl = window.location.href;
+  markNewReelSeen(currentUrl);
   if (scrollPauseTimer) {
     clearTimeout(scrollPauseTimer);
   }
   scrollPauseTimer = setTimeout(() => {
-    const currentUrl = window.location.href;
-    if (!currentUrl || currentUrl === lastAnalyzedUrl) return;
-    runAnalysis(currentUrl);
+    const url = window.location.href;
+    if (!url) return;
+    if (url === lastAnalyzedUrl && !pendingAnalysisUrl) return;
+    queueAnalysisForUrl(url);
   }, scrollPauseDelayMs);
 }
 
 async function runAnalysis(reelUrl) {
-  if (!reelUrl || reelUrl === lastAnalyzedUrl) return;
+  if (!reelUrl || reelUrl === lastAnalyzedUrl) {
+    maybeStartAnalysis();
+    return;
+  }
   if (analysisInFlight) return;
   analysisInFlight = true;
   const state = ensurePopup();
   state.setLoading();
   state.showStatementsView();
+
+  const video = getActiveVideoElement();
+  const skipCheck = shouldSkipPipeline(video);
+  if (skipCheck.skip) {
+    console.log(`Skipping pipeline for ${reelUrl}: ${skipCheck.reason}`);
+    state.setNotApplicable();
+    lastAnalyzedUrl = reelUrl;
+    analysisInFlight = false;
+    maybeStartAnalysis();
+    return;
+  }
 
   try {
     const data = await chrome.runtime.sendMessage({
@@ -383,11 +552,11 @@ async function runAnalysis(reelUrl) {
       url: reelUrl,
     });
 
+    if (window.location.href !== reelUrl) return;
+
     const statements = data && data.statements ? data.statements : [];
-    const medicalScore =
-      (data && data["overall_truthiness"]
-        ? data["overall_truthiness"]
-        : 0) * 100;
+    const rawScore = data ? data["overall_truthiness"] : null;
+    const medicalScore = normalizeScore(rawScore);
 
     state.setStatements(statements);
     state.setScore(medicalScore);
@@ -396,13 +565,16 @@ async function runAnalysis(reelUrl) {
     console.error("Error in content script" + error);
   } finally {
     analysisInFlight = false;
+    maybeStartAnalysis();
   }
 }
 
 function showPopup() {
   ensurePopup();
+  const currentUrl = window.location.href;
+  markNewReelSeen(currentUrl);
   if (!lastAnalyzedUrl) {
-    runAnalysis(window.location.href);
+    queueAnalysisForUrl(currentUrl);
     return;
   }
   scheduleAnalysisAfterPause();
@@ -415,6 +587,8 @@ function removePopup() {
   currentPopup = null;
   popupState = null;
   lastAnalyzedUrl = null;
+  lastSeenUrl = null;
+  pendingAnalysisUrl = null;
   analysisInFlight = false;
   if (scrollPauseTimer) {
     clearTimeout(scrollPauseTimer);
