@@ -18,7 +18,7 @@ from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any, Tuple
 
-import pipeline.test_configs.raw_eval_config as config_module
+import pipeline.test_configs.kai_evaluation as config_module
 from pipeline.core.models import PipelineState
 from pipeline.core.orchestrator import PipelineOrchestrator
 

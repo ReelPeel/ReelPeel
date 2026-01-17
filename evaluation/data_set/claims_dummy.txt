@@ -463,5 +463,45 @@
     "statement": "DAILY administration of HIGH-dose atropine (0.5 - 1%) sustainably inhibits the progression of myopia in children.",
     "label": 2,
     "id": 200
+  },
+  {
+    "statement": "Taking coenzyme Q10 improves movement disorders in Parkinson's disease.",
+    "label": 2,
+    "id": 143
+  },
+  {
+    "statement": "Pumpkin seed preparations improve symptoms caused by a benign enlarged prostate.",
+    "label": 2,
+    "id": 456
+  },
+  {
+    "statement": "Oseltamivir (brand name \"Tamiflu\") reduces the severity and duration of influenza in otherwise healthy adults.",
+    "label": 0,
+    "id": 383
+  },
+  {
+    "statement": "Diets with primarily or exclusively uncooked foods have health benefits.",
+    "label": 1,
+    "id": 533
+  },
+  {
+    "statement": "Taking chlorophyll can affect the odor of urine in catheter wearers or stool in people with an artificial bowel outlet.",
+    "label": 2,
+    "id": 256
+  },
+  {
+    "statement": "Probiotics can prevent diarrhea after treatment with antibiotics.",
+    "label": 0,
+    "id": 420
+  },
+  {
+    "statement": "The \"Rolfing\" treatment causes an improvement of body malpositions as well as certain pains.",
+    "label": 1,
+    "id": 642
+  },
+  {
+    "statement": "Gargling with hydrogen peroxide has health risks.",
+    "label": 1,
+    "id": 131
   }
 ]

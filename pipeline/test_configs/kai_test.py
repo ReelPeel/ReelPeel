@@ -1,13 +1,13 @@
 from pipeline.test_configs.preprompts import (
-    PROMPT_TMPL_S2,
-    PROMPT_TMPL_S3_BALANCED,
-    PROMPT_TMPL_S3_SPECIFIC,
-    PROMPT_TMPL_S3_ATM_ASSISTED,
-    PROMPT_TMPL_S3_BALANCED_COUNTER,
-    PROMPT_TMPL_S3_SPECIFIC_COUNTER,
-    PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER,
-    PROMPT_TMPL_S6,
+    PROMPT_TMPL_S2, 
+    PROMPT_TMPL_S6, 
     PROMPT_TMPL_S7,
+    PROMPT_TMPL_S3_ATM_ASSISTED,
+    PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER,
+    PROMPT_TMPL_S3_BALANCED,
+    PROMPT_TMPL_S3_BALANCED_COUNTER,
+    PROMPT_TMPL_S3_SPECIFIC,
+    PROMPT_TMPL_S3_SPECIFIC_COUNTER,
 )
 
 BASE_TEMPERATURE = 0.0
@@ -99,7 +99,7 @@ SCORES_MODULE = {
                     "max_length": 4096,
                     "score_fields": ["abstract"],
                     "empty_relevance": 0.0,
-                    "min_relevance": 0.5,
+                    "min_relevance": 0.7,
                 },
             },
             {
@@ -157,7 +157,7 @@ VERIFICATION_MODULE = {
 # ---------------------- Instruct tuned, General Domain Models ----------------------
 # - `gemma3:12b` (`gemma3:12b-it-q4_K_M`) (~8.1 GB): instruction-tuned general model; fast and light, good for quick extraction/filtering.
 # - `gemma3:27b` (`gemma3:27b-it-q4_K_M`) (~17 GB): instruction-tuned mid-size model; stronger reasoning than 12b with moderate VRAM cost.
-                    "model": "hf.co/mradermacher/Llama3-OpenBioLLM-70B-i1-GGUF:Llama3-OpenBioLLM-70B.i1-IQ4_XS.gguf",
+                    "model": BASE_MODEL,
                     "prompt_template": PROMPT_TMPL_S7,
                     "temperature": BASE_TEMPERATURE,
                     # "max_tokens": 512 # Currently hardcoded in individual step
@@ -184,8 +184,24 @@ FULL_PIPELINE_CONFIG = {
             "type": "mock_transcript",
             "settings": {
                 "transcript_text": (
-                    "Fasting for 72 hours triggers autophagy and renews the immune system. "
-                    "Also, drinking celery juice every morning cures all inflammation."
+                    # "Fasting for 72 hours triggers autophagy and renews the immune system. "
+                    # "Also, drinking celery juice every morning cures all inflammation."
+                    
+                    # Transkript von: C0hXZ3bNAbH
+                    """Was gibst du deinem Baby da? Aber Babys dürfen doch im ersten Lebensjahr keine Eier und keine Kuhmilchprodukte konsumieren. Diese Empfehlung hält sich
+                    hartnäckig, ist aber mittlerweile veraltet. Die aktuelle Empfehlung der Leitlinie zur Allergieprävention lautet, nach neuesten wissenschaftlichen
+                    Erkenntnissen gibt es in Bezug auf Allergieprävention keine Einschränkung in der Lebensmittelauswahl mehr. Ein verzögertes Einführen von potent
+                    allergenen Lebensmitteln kann nicht mehr empfohlen werden. Und eine Restriktion hat auch keine positiven Auswirkungen hinsichtlich der
+                    Allergieprävention. Einfach gesagt bedeutet dies, biete Allergene früh und häufig an. Aber was sind denn überhaupt die häufigsten Allergene? Dies sind
+                    Milchprodukte, Ei, Erdnüsse, Baumnüsse, Soja, Weizen, Fisch und Meeresfrüchte. Diese sollten spätestens ab dem siebten Lebensmonat eingeführt werden.
+                    Jedes Allergen sollte einzeln und in kleinen Mengen eingeführt werden, um potenzielle Reaktionen genau beobachten zu können. Im ersten Lebensjahr
+                    dürfen Babys bis zu 200 ml verarbeitete Milchprodukte am Tag konsumieren. Diese dürfen jedoch nicht als Ersatz für Muttermilch oder Formular gegeben
+                    werden. Im ersten Lebensjahr dürfen Babys nur ein bis zwei Eier die Woche konsumieren. Dies liegt am hohen Proteingehalt, der die unreifen Nieren
+                    belastet und den Wasserhaushalt durcheinander bringt. Die Wahl des Zeitpunktes ist auch entscheidend. Die Einführung neuer Lebensmittel sollte
+                    vorzugsweise am Morgen erfolgen, um mögliche Reaktionen während der nächsten Stunden genau überwachen zu können. Insgesamt ist es aber so, dass
+                    Lebensmittelallergien nicht zwangsläufig bei der ersten Gabe auftreten, sondern sich eher über Zeit bilden können. Falls ihr selbst oder
+                    Geschwisterkinder von Allergien betroffen sind, sprecht dies unbedingt nochmal genauer bei eurem Kinderarzt an."""
+
                 )
             }
         },

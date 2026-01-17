@@ -38,7 +38,7 @@ if NCBI_API_KEY:
     NCBI_COMMON["api_key"] = NCBI_API_KEY
 
 RATE = 10 if NCBI_API_KEY else 3
-limiter = AsyncLimiter(RATE, 1.0)  # tokens per 1 second
+limiter = AsyncLimiter(RATE, 1.1)  # tokens per 1 second
 
 
 def ensure_shared_dir():
