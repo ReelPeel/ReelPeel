@@ -17,7 +17,7 @@ SHARED_DIR = "/data/home/jak38842/disk/fact_checker/pubmed_db_cache"
 DB_FILE = os.path.join(SHARED_DIR, "pubmed_cache.db")
 
 IDLE_TIMEOUT = 300  # 5 minutes
-limiter = AsyncLimiter(3, 1.5)
+limiter = AsyncLimiter(3, 1.2)
 
 last_request_time = time.time()
 NCBI_BASE = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"

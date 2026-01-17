@@ -258,7 +258,7 @@ class TruthnessStep(PipelineStep):
 # -------------------------------------------------------------------------
 class ScoringStep(PipelineStep):
     def execute(self, state: PipelineState) -> PipelineState:
-        threshold = self.config.get("threshold", 0.15)
+        threshold = self.config.get("threshold", 0.3)
 
         scores = [s.score for s in state.statements if s.score is not None]
 
@@ -278,3 +278,62 @@ class ScoringStep(PipelineStep):
             state.overall_truthiness = 0.0
 
         return state
+
+
+# -----------------------------------------------------------------------------
+# STEP 8 SCORING – Hinweis zur Semantik (Truthiness vs. Certainty)
+# -----------------------------------------------------------------------------
+# Problem:
+# - Ein einzelner Skalar in [0,1] kann "Richtung" (wahr vs. falsch) und
+#   "Sicherheit" (klar vs. unklar) nicht gleichzeitig sauber transportieren.
+# - Wenn "uncertain" intern als 0.5 kodiert ist, ist 0.5 zwar neutral,
+#   wird aber von vielen Nutzern als "eher schlecht" gelesen (50% = eher falsch).
+#
+# Empfehlung:
+# - Zwei Größen statt einer:
+#   1) overall_truthiness: Richtung in [0,1]
+#      - 0.0 = absolut falsch
+#      - 1.0 = absolut korrekt
+#      - 0.5 = neutral / unbestimmt
+#   2) overall_certainty: Sicherheit in [0,1]
+#      - 0.0 = komplett unklar
+#      - 1.0 = sehr klar
+#   UI kann dann explizit kommunizieren:
+#   - "Gesamt: unklar (certainty 0.12)" statt nur "0.50".
+#
+# Aggregationsidee:
+# - Statements nahe 0.5 sollen die Richtung kaum beeinflussen.
+# - Dafür wird als Gewicht die Distanz zur 0.5 verwendet (Unklarheit downweighten).
+#
+# Definitionen pro Statement-Score s_i in [0,1]:
+# - Richtung (zentriert, normiert):
+#     d_i = 2 * (s_i - 0.5)          # in [-1, 1]
+# - Sicherheit (aus Richtung abgeleitet):
+#     c_i = |d_i| = 2 * |s_i - 0.5|  # in [0, 1]
+#   Interpretation:
+#     c_i ~ 0   => sehr unklar (s_i ~ 0.5)
+#     c_i ~ 1   => sehr klar (s_i nahe 0 oder 1)
+# - Gewicht (Schärfung optional):
+#     w_i = max(eps, c_i ** gamma)
+#   eps   > 0 verhindert Division durch 0 / Null-Gewichte.
+#   gamma >= 1 schärft (macht mittlere Sicherheiten weniger einflussreich).
+#
+# Aggregation über alle Statements:
+# - Aggregierte Richtung:
+#     D = sum(d_i * w_i) / sum(w_i)  # in [-1, 1]
+# - Zurück auf [0,1]:
+#     overall_truthiness = 0.5 + 0.5 * D
+# - Gesamt-Sicherheit (einfacher Startpunkt):
+#     overall_certainty = mean(c_i)
+#   (alternativ konservativer: weighted mean, harmonic mean, min, etc.)
+#
+# Edge Case:
+# - Wenn alle Statements uncertain sind (alle s_i ~ 0.5), dann c_i ~ 0.
+#   => overall_certainty ~ 0 und overall_truthiness bleibt ~ 0.5,
+#      aber wird eindeutig als "unklar" ausgewiesen.
+#
+# Beispiel-Intuition:
+# - [0.5, 0.5, 0.5] => truthiness ~ 0.5, certainty 0
+# - [0.9, 0.8, 0.5] => truthiness > 0.5, certainty 0.47
+# - [0.9, 0.1, 0.5] => truthiness ~ 0.5, certainty 0.53
+# -----------------------------------------------------------------------------
