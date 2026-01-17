@@ -365,7 +365,7 @@ class PubTypeWeightStep(PipelineStep):
 
     def execute(self, state: PipelineState) -> PipelineState:
         print(f"[{self.__class__.__name__}] Calculating evidence weights...")
-        default_weight = self.config.get("default_weight", 0.5)
+        default_weight = self.config.get("default_weight", 0.4)
 
         for stmt in state.statements:
             for ev in stmt.evidence:

@@ -133,7 +133,7 @@ VIDEO_URL_PIPELINE_CONFIG = {
                 "settings": {"retmax": 15}
             },
             {
-                "type": "summarize_evidence",  # Step 5
+                "type": "abstract_evidence",  # Step 5
                 "settings": {}
             },
             {

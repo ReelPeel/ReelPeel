@@ -1,0 +1,12 @@
+Show all Ollama:
+pgrep -au "$USER" -f 'ollama|evaluation\.py|transformers|bge-reranker|biolinkbert|mednli' || true
+
+Kill all:
+pkill -u "$USER" -x ollama || true
+
+
+Show all Torch:
+ps -fu "$USER" | egrep -i 'evaluation\.py|transformers|bge-reranker|biolinkbert|mednli|python' | grep -v egrep
+
+Kill:
+kill -TERM nummer nummer nummer nummer ...

@@ -8,12 +8,25 @@ from pipeline.test_configs.preprompts import (
     PROMPT_TMPL_S3_BALANCED_COUNTER,
     PROMPT_TMPL_S3_SPECIFIC,
     PROMPT_TMPL_S3_SPECIFIC_COUNTER,
+    PROMPT_TMPL_S7_ASYMMETRIC,
 )
+
+
+
+############################################### WARNUNG #################################################
+############################################### WARNUNG #################################################
+############################################### WARNUNG #################################################
+#                                       EXTRACTION STEP 2 IST VORHANDEN
+#                                        Könnte die Statements verändern
+############################################### WARNUNG #################################################
+############################################### WARNUNG #################################################
+############################################### WARNUNG #################################################
+
+
 
 
 BASE_TEMPERATURE = 0.0
 BASE_MODEL = "gemma3:27b"
-
 
 
 PROMPT_NEW_TEST_FULL_PIPELINE = {
@@ -103,7 +116,7 @@ PROMPT_NEW_TEST_FULL_PIPELINE = {
                 "settings": {"retmax": 10}
             },
             {
-                "type": "summarize_evidence",  # Step 5
+                "type": "abstract_evidence",  # Step 5
                 "settings": {}
             },
             {
@@ -308,7 +321,7 @@ PROMPT_NEW_MEDITRON_TEST_FULL_PIPELINE = {
                 "settings": {"retmax": 10}
             },
             {
-                "type": "summarize_evidence",  # Step 5
+                "type": "abstract_evidence",  # Step 5
                 "settings": {}
             },
             {
@@ -414,6 +427,196 @@ PROMPT_NEW_MEDITRON_TEST_FULL_PIPELINE = {
 
 
 
+PROMPT_NEW_MEDITRON_ASSYMETRIC_TEST_FULL_PIPELINE = {
+    "name": "Prompt New Meditron Assymetric Eval Config",
+    "debug": True,
+    "steps": [
+        # STEP 1: Mock Input (Simulating Whisper)
+        {
+            "type": "mock_statements",
+            "settings": {
+                "statements": [
+                    {
+                        "id": 1, 
+                        "text": "PLATZHALTER"
+                    },
+                ]
+            }
+        },
+
+        # STEP 2: Extraction
+        {
+            "type": "extraction",
+            "settings": {
+                "model": BASE_MODEL,
+                "prompt_template": PROMPT_TMPL_S2,
+                "temperature": BASE_TEMPERATURE,
+                # "max_tokens": 512 # Currently hardcoded in individual step
+            }
+        },
+
+        # STEP 3-5.1: The Research Module
+        {
+    "type": "module",
+    "settings": {
+        "name": "MODULE! PubMed Research Engine",
+        "steps": [
+            {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+        {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
+                "type": "generate_query",  # Step 3 (counter-evidence)
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
+                "type": "generate_query",  # Step 3 (counter-evidence)
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
+                "type": "generate_query",  # Step 3 (counter-evidence)
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
+                "type": "fetch_links",  # Step 4
+                "settings": {"retmax": 10}
+            },
+            {
+                "type": "abstract_evidence",  # Step 5
+                "settings": {}
+            },
+            {
+                "type": "weight_evidence",  # Step 5.1
+                "settings": {"default_weight": 0.5}
+            }
+        ]
+    }
+},
+        
+        # Step 5.99: Scores Module
+        {
+    "type": "module",
+    "settings": {
+        "name": "MODULE! Scores Engine",
+        "steps": [
+            {
+                "type": "rerank_evidence",
+                "settings": {
+                    "model_name": "BAAI/bge-reranker-v2-m3", # BAAI/bge-reranker-v2-gemma bigger but slower
+                    "use_fp16": True,
+                    "normalize": True,
+                    "batch_size": 16,
+                    "max_length": 4096,
+                    "score_fields": ["abstract"],
+                    "empty_relevance": 0.0,
+                    "min_relevance": 0.7,
+                },
+            },
+            {
+                "type": "stance_evidence",
+                "settings": {
+                    "model_name": "cnut1648/biolinkbert-mednli",
+                    "use_fp16": True,
+                    "batch_size": 16,
+                    "max_length": 512,
+                    "evidence_fields": ["abstract"],
+
+                    # optional: only compute stance on Top-M evidence per statement (by ev.relevance)
+                    # "top_m_by_relevance": 5,
+
+                    # optional: if both support/refute are weak, force "neutral"
+                    "threshold_decisive": 0.3,
+                }
+                },
+            # {"type": "similarity_penalty", "settings": {...}},
+        ]
+    }
+},
+        
+        # STEP 6-8: The Verification Module
+        {
+    "type": "module",
+    "settings": {
+        "name": "MODULE! Verification Engine",
+        "debug": True,
+        "steps": [
+            # Step 6: Filter Irrelevant Evidence
+            {
+                "type": "filter_evidence",
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S6,
+                    "temperature": BASE_TEMPERATURE,
+                    # "max_tokens": 512 # Currently hardcoded in individual step
+                }
+            },
+            # Step 7: Determine Truthness
+            {
+                "type": "truthness",
+                "settings": {
+# ---------------------- Instruct tuned, Medical Domain Models ----------------------
+# - `hf.co/mradermacher/Llama3-OpenBioLLM-70B-i1-GGUF:Llama3-OpenBioLLM-70B.i1-IQ4_XS.gguf` (~37 GB): Llama 3 biomedical finetune; strong medical vocabulary and domain reasoning; i1 (imatrix) GGUF IQ4_XS to fit single A100 40GB without sharding.
+# - `hf.co/mradermacher/Llama3-Med42-70B-i1-GGUF:Llama3-Med42-70B.i1-IQ4_XS.gguf` (~37 GB): Med42 biomedical/clinical finetune; strong evidence-style reasoning; i1 (imatrix) GGUF IQ4_XS to fit single A100 40GB without sharding.
+
+# ------------------------------ Foundation, Medical Models ----------------------
+# - `hf.co/mradermacher/Meditron3-70B-GGUF:latest` (~38 GB): Meditron3 70B medical foundation model (not instruction-tuned); good for clinical-style summaries and evidence synthesis; GGUF format.
+
+# ------------------------------ Reasoning, Medical Models ----------------------
+# - `hf.co/mradermacher/DeepSeek-R1-Distill-Qwen-32B-Medical-GGUF:Q8_0` (~34 GB): distilled (R1) Qwen-based medical model; strong analytical reasoning; higher-fidelity Q8 quantization with comfortable VRAM headroom on A100 40GB.
+
+# ---------------------- Instruct tuned, General Domain Models ----------------------
+# - `gemma3:12b` (`gemma3:12b-it-q4_K_M`) (~8.1 GB): instruction-tuned general model; fast and light, good for quick extraction/filtering.
+# - `gemma3:27b` (`gemma3:27b-it-q4_K_M`) (~17 GB): instruction-tuned mid-size model; stronger reasoning than 12b with moderate VRAM cost.
+                    "model": "hf.co/mradermacher/Meditron3-70B-GGUF:latest",
+                    "prompt_template": PROMPT_TMPL_S7_ASYMMETRIC,
+                    "temperature": BASE_TEMPERATURE,
+                    # "max_tokens": 512 # Currently hardcoded in individual step
+                }
+            },
+            # Step 8: Final Score
+            {
+                "type": "scoring",
+                "settings": {
+                    "threshold": 0.15
+                }
+            }
+        ]
+    }
+}
+    ]
+}
 
 
 
@@ -516,7 +719,7 @@ PROMPT_NEW_MED42_TEST_FULL_PIPELINE = {
                 "settings": {"retmax": 10}
             },
             {
-                "type": "summarize_evidence",  # Step 5
+                "type": "abstract_evidence",  # Step 5
                 "settings": {}
             },
             {
@@ -725,7 +928,7 @@ PROMPT_NEW_OPENBIO_TEST_FULL_PIPELINE = {
                 "settings": {"retmax": 10}
             },
             {
-                "type": "summarize_evidence",  # Step 5
+                "type": "abstract_evidence",  # Step 5
                 "settings": {}
             },
             {
@@ -840,3 +1043,396 @@ PROMPT_NEW_OPENBIO_TEST_FULL_PIPELINE = {
 
 
 
+
+PROMPT_NEW_DEEPSEEK_TEST_FULL_PIPELINE = {
+    "name": "Prompt New DeepSeek Eval Config",
+    "debug": True,
+    "steps": [
+        # STEP 1: Mock Input (Simulating Whisper)
+        {
+            "type": "mock_statements",
+            "settings": {
+                "statements": [
+                    {
+                        "id": 1, 
+                        "text": "PLATZHALTER"
+                    },
+                ]
+            }
+        },
+
+        # STEP 2: Extraction
+        {
+            "type": "extraction",
+            "settings": {
+                "model": BASE_MODEL,
+                "prompt_template": PROMPT_TMPL_S2,
+                "temperature": BASE_TEMPERATURE,
+                # "max_tokens": 512 # Currently hardcoded in individual step
+            }
+        },
+
+        # STEP 3-5.1: The Research Module
+        {
+    "type": "module",
+    "settings": {
+        "name": "MODULE! PubMed Research Engine",
+        "steps": [
+            {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+        {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
+                "type": "generate_query",  # Step 3 (counter-evidence)
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
+                "type": "generate_query",  # Step 3 (counter-evidence)
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
+                "type": "generate_query",  # Step 3 (counter-evidence)
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
+                "type": "fetch_links",  # Step 4
+                "settings": {"retmax": 10}
+            },
+            {
+                "type": "abstract_evidence",  # Step 5
+                "settings": {}
+            },
+            {
+                "type": "weight_evidence",  # Step 5.1
+                "settings": {"default_weight": 0.5}
+            }
+        ]
+    }
+},
+        
+        # Step 5.99: Scores Module
+        {
+    "type": "module",
+    "settings": {
+        "name": "MODULE! Scores Engine",
+        "steps": [
+            {
+                "type": "rerank_evidence",
+                "settings": {
+                    "model_name": "BAAI/bge-reranker-v2-m3", # BAAI/bge-reranker-v2-gemma bigger but slower
+                    "use_fp16": True,
+                    "normalize": True,
+                    "batch_size": 16,
+                    "max_length": 4096,
+                    "score_fields": ["abstract"],
+                    "empty_relevance": 0.0,
+                    "min_relevance": 0.7,
+                },
+            },
+            {
+                "type": "stance_evidence",
+                "settings": {
+                    "model_name": "cnut1648/biolinkbert-mednli",
+                    "use_fp16": True,
+                    "batch_size": 16,
+                    "max_length": 512,
+                    "evidence_fields": ["abstract"],
+
+                    # optional: only compute stance on Top-M evidence per statement (by ev.relevance)
+                    # "top_m_by_relevance": 5,
+
+                    # optional: if both support/refute are weak, force "neutral"
+                    "threshold_decisive": 0.3,
+                }
+                },
+            # {"type": "similarity_penalty", "settings": {...}},
+        ]
+    }
+},
+        
+        # STEP 6-8: The Verification Module
+        {
+    "type": "module",
+    "settings": {
+        "name": "MODULE! Verification Engine",
+        "debug": True,
+        "steps": [
+            # Step 6: Filter Irrelevant Evidence
+            {
+                "type": "filter_evidence",
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S6,
+                    "temperature": BASE_TEMPERATURE,
+                    # "max_tokens": 512 # Currently hardcoded in individual step
+                }
+            },
+            # Step 7: Determine Truthness
+            {
+                "type": "truthness",
+                "settings": {
+# ---------------------- Instruct tuned, Medical Domain Models ----------------------
+# - `hf.co/mradermacher/Llama3-OpenBioLLM-70B-i1-GGUF:Llama3-OpenBioLLM-70B.i1-IQ4_XS.gguf` (~37 GB): Llama 3 biomedical finetune; strong medical vocabulary and domain reasoning; i1 (imatrix) GGUF IQ4_XS to fit single A100 40GB without sharding.
+# - `hf.co/mradermacher/Llama3-Med42-70B-i1-GGUF:Llama3-Med42-70B.i1-IQ4_XS.gguf` (~37 GB): Med42 biomedical/clinical finetune; strong evidence-style reasoning; i1 (imatrix) GGUF IQ4_XS to fit single A100 40GB without sharding.
+
+# ------------------------------ Foundation, Medical Models ----------------------
+# - `hf.co/mradermacher/Meditron3-70B-GGUF:latest` (~38 GB): Meditron3 70B medical foundation model (not instruction-tuned); good for clinical-style summaries and evidence synthesis; GGUF format.
+
+# ------------------------------ Reasoning, Medical Models ----------------------
+# - `hf.co/mradermacher/DeepSeek-R1-Distill-Qwen-32B-Medical-GGUF:Q8_0` (~34 GB): distilled (R1) Qwen-based medical model; strong analytical reasoning; higher-fidelity Q8 quantization with comfortable VRAM headroom on A100 40GB.
+
+# ---------------------- Instruct tuned, General Domain Models ----------------------
+# - `gemma3:12b` (`gemma3:12b-it-q4_K_M`) (~8.1 GB): instruction-tuned general model; fast and light, good for quick extraction/filtering.
+# - `gemma3:27b` (`gemma3:27b-it-q4_K_M`) (~17 GB): instruction-tuned mid-size model; stronger reasoning than 12b with moderate VRAM cost.
+                    "model": "hf.co/mradermacher/DeepSeek-R1-Distill-Qwen-32B-Medical-GGUF:Q8_0",
+                    "prompt_template": PROMPT_TMPL_S7,
+                    "temperature": BASE_TEMPERATURE,
+                    # "max_tokens": 512 # Currently hardcoded in individual step
+                }
+            },
+            # Step 8: Final Score
+            {
+                "type": "scoring",
+                "settings": {
+                    "threshold": 0.15
+                }
+            }
+        ]
+    }
+}
+    ]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+PROMPT_NEW_MEDITRON_PHI_TEST_FULL_PIPELINE = {
+    "name": "Prompt New Meditron Phi Eval Config",
+    "debug": True,
+    "steps": [
+        # STEP 1: Mock Input (Simulating Whisper)
+        {
+            "type": "mock_statements",
+            "settings": {
+                "statements": [
+                    {
+                        "id": 1, 
+                        "text": "PLATZHALTER"
+                    },
+                ]
+            }
+        },
+
+        # STEP 2: Extraction
+        {
+            "type": "extraction",
+            "settings": {
+                "model": BASE_MODEL,
+                "prompt_template": PROMPT_TMPL_S2,
+                "temperature": BASE_TEMPERATURE,
+                # "max_tokens": 512 # Currently hardcoded in individual step
+            }
+        },
+
+        # STEP 3-5.1: The Research Module
+        {
+    "type": "module",
+    "settings": {
+        "name": "MODULE! PubMed Research Engine",
+        "steps": [
+            {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+        {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
+                "type": "generate_query",  # Step 3 (counter-evidence)
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
+                "type": "generate_query",  # Step 3 (counter-evidence)
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
+                "type": "generate_query",  # Step 3 (counter-evidence)
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
+                "type": "fetch_links",  # Step 4
+                "settings": {"retmax": 10}
+            },
+            {
+                "type": "abstract_evidence",  # Step 5
+                "settings": {}
+            },
+            {
+                "type": "weight_evidence",  # Step 5.1
+                "settings": {"default_weight": 0.5}
+            }
+        ]
+    }
+},
+        
+        # Step 5.99: Scores Module
+        {
+    "type": "module",
+    "settings": {
+        "name": "MODULE! Scores Engine",
+        "steps": [
+            {
+                "type": "rerank_evidence",
+                "settings": {
+                    "model_name": "BAAI/bge-reranker-v2-m3", # BAAI/bge-reranker-v2-gemma bigger but slower
+                    "use_fp16": True,
+                    "normalize": True,
+                    "batch_size": 16,
+                    "max_length": 4096,
+                    "score_fields": ["abstract"],
+                    "empty_relevance": 0.0,
+                    "min_relevance": 0.7,
+                },
+            },
+            {
+                "type": "stance_evidence",
+                "settings": {
+                    "model_name": "cnut1648/biolinkbert-mednli",
+                    "use_fp16": True,
+                    "batch_size": 16,
+                    "max_length": 512,
+                    "evidence_fields": ["abstract"],
+
+                    # optional: only compute stance on Top-M evidence per statement (by ev.relevance)
+                    # "top_m_by_relevance": 5,
+
+                    # optional: if both support/refute are weak, force "neutral"
+                    "threshold_decisive": 0.3,
+                }
+                },
+            # {"type": "similarity_penalty", "settings": {...}},
+        ]
+    }
+},
+        
+        # STEP 6-8: The Verification Module
+        {
+    "type": "module",
+    "settings": {
+        "name": "MODULE! Verification Engine",
+        "debug": True,
+        "steps": [
+            # Step 6: Filter Irrelevant Evidence
+            {
+                "type": "filter_evidence",
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S6,
+                    "temperature": BASE_TEMPERATURE,
+                    # "max_tokens": 512 # Currently hardcoded in individual step
+                }
+            },
+            # Step 7: Determine Truthness
+            {
+                "type": "truthness",
+                "settings": {
+# ---------------------- Instruct tuned, Medical Domain Models ----------------------
+# - `hf.co/mradermacher/Llama3-OpenBioLLM-70B-i1-GGUF:Llama3-OpenBioLLM-70B.i1-IQ4_XS.gguf` (~37 GB): Llama 3 biomedical finetune; strong medical vocabulary and domain reasoning; i1 (imatrix) GGUF IQ4_XS to fit single A100 40GB without sharding.
+# - `hf.co/mradermacher/Llama3-Med42-70B-i1-GGUF:Llama3-Med42-70B.i1-IQ4_XS.gguf` (~37 GB): Med42 biomedical/clinical finetune; strong evidence-style reasoning; i1 (imatrix) GGUF IQ4_XS to fit single A100 40GB without sharding.
+
+# ------------------------------ Foundation, Medical Models ----------------------
+# - `hf.co/mradermacher/Meditron3-70B-GGUF:latest` (~38 GB): Meditron3 70B medical foundation model (not instruction-tuned); good for clinical-style summaries and evidence synthesis; GGUF format.
+
+# ------------------------------ Reasoning, Medical Models ----------------------
+# - `hf.co/mradermacher/DeepSeek-R1-Distill-Qwen-32B-Medical-GGUF:Q8_0` (~34 GB): distilled (R1) Qwen-based medical model; strong analytical reasoning; higher-fidelity Q8 quantization with comfortable VRAM headroom on A100 40GB.
+
+# ---------------------- Instruct tuned, General Domain Models ----------------------
+# - `gemma3:12b` (`gemma3:12b-it-q4_K_M`) (~8.1 GB): instruction-tuned general model; fast and light, good for quick extraction/filtering.
+# - `gemma3:27b` (`gemma3:27b-it-q4_K_M`) (~17 GB): instruction-tuned mid-size model; stronger reasoning than 12b with moderate VRAM cost.
+                    "model": "hf.co/mradermacher/Meditron3-Phi4-14B-i1-GGUF:Meditron3-Phi4-14B.i1-Q4_K_M.gguf",
+                    "prompt_template": PROMPT_TMPL_S7,
+                    "temperature": BASE_TEMPERATURE,
+                    # "max_tokens": 512 # Currently hardcoded in individual step
+                }
+            },
+            # Step 8: Final Score
+            {
+                "type": "scoring",
+                "settings": {
+                    "threshold": 0.15
+                }
+            }
+        ]
+    }
+}
+    ]
+}

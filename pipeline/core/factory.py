@@ -33,7 +33,7 @@ class StepFactory:
         "extraction": TranscriptToStatementStep,
         "generate_query": StatementToQueryStep,
         "fetch_links": QueryToLinkStep,
-        "summarize_evidence": LinkToAbstractStep,
+        "abstract_evidence": LinkToAbstractStep,
         "weight_evidence": PubTypeWeightStep,
         "retrieve_guideline_facts": RetrieveGuidelineFactsStep,
         "rerank_evidence": RerankEvidenceStep,

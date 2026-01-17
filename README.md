@@ -26,7 +26,7 @@ The pipeline is defined by a config dict with an ordered list of steps. The `Pip
      - Multiple query strategies can be chained, including counter-evidence oriented prompts.
    - `fetch_links` calls PubMed ESearch via a local proxy to retrieve PMIDs per query.
      - Evidence items are created (or updated). When an existing PMID is seen again, the query is recorded for provenance.
-   - `summarize_evidence` batch-fetches publication types (esummary) and title/abstract text (efetch).
+   - `abstract_evidence` batch-fetches publication types (esummary) and title/abstract text (efetch).
      - Titles are stored when available; abstracts are stored as raw text.
    - `weight_evidence` converts publication types to numeric weights using regex rules with a default fallback.
 
@@ -91,7 +91,7 @@ PIPELINE_CONFIG = {
                 "steps": [
                     {"type": "generate_query", "settings": {...}},
                     {"type": "fetch_links", "settings": {"retmax": 20}},
-                    {"type": "summarize_evidence", "settings": {}},
+                    {"type": "abstract_evidence", "settings": {}},
                     {"type": "weight_evidence", "settings": {"default_weight": 0.5}},
                 ],
             },
@@ -111,7 +111,7 @@ Key step types registered in `pipeline/core/factory.py`:
 - `video_to_audio` for video -> audio file conversion.
 - `audio_to_transcript` for audio -> transcript (Whisper).
 - `extraction` for transcript -> statements.
-- `generate_query`, `fetch_links`, `summarize_evidence`, `weight_evidence` for PubMed research.
+- `generate_query`, `fetch_links`, `abstract_evidence`, `weight_evidence` for PubMed research.
 - `retrieve_guideline_facts` for guideline RAG.
 - `rerank_evidence`, `stance_evidence` for scoring.
 - `filter_evidence`, `truthness`, `scoring` for verification.
@@ -163,8 +163,9 @@ LLM step models (used by `extraction`, `generate_query`, `filter_evidence`, `tru
 - `hf.co/mradermacher/Llama3-OpenBioLLM-70B-i1-GGUF:Llama3-OpenBioLLM-70B.i1-IQ4_XS.gguf` (~37 GB): Llama 3 biomedical finetune; strong medical vocabulary and domain reasoning; i1 (imatrix) GGUF IQ4_XS to fit single A100 40GB without sharding.
 - `hf.co/mradermacher/Llama3-Med42-70B-i1-GGUF:Llama3-Med42-70B.i1-IQ4_XS.gguf` (~37 GB): Med42 biomedical/clinical finetune; strong evidence-style reasoning; i1 (imatrix) GGUF IQ4_XS to fit single A100 40GB without sharding.
 
------------------------------- Foundation, Medical Models ----------------------
+------------------------------ Meditron ----------------------
 - `hf.co/mradermacher/Meditron3-70B-GGUF:latest` (~38 GB): Meditron3 70B medical foundation model (not instruction-tuned); good for clinical-style summaries and evidence synthesis; GGUF format.
+- `hf.co/mradermacher/Meditron3-Phi4-14B-i1-GGUF:Meditron3-Phi4-14B.i1-Q4_K_M.gguf`
 
 ------------------------------ Reasoning, Medical Models ----------------------
 - `hf.co/mradermacher/DeepSeek-R1-Distill-Qwen-32B-Medical-GGUF:Q8_0` (~34 GB): distilled (R1) Qwen-based medical model; strong analytical reasoning; higher-fidelity Q8 quantization with comfortable VRAM headroom on A100 40GB.
@@ -172,6 +173,31 @@ LLM step models (used by `extraction`, `generate_query`, `filter_evidence`, `tru
 ---------------------- Instruct tuned, General Domain Models ----------------------
 - `gemma3:12b` (`gemma3:12b-it-q4_K_M`) (~8.1 GB): instruction-tuned general model; fast and light, good for quick extraction/filtering.
 - `gemma3:27b` (`gemma3:27b-it-q4_K_M`) (~17 GB): instruction-tuned mid-size model; stronger reasoning than 12b with moderate VRAM cost.
+
+### Model Evaluation (101 Samples)
+
+| Config-Name | F1-Score |
+|---|---:|
+| PubMed_1Query_Specific_Counter | 0.4620 |
+| PubMed_1Query_Specific | 0.4492 |
+| PubMed_1Query_Balanced_Counter | 0.4326 |
+| Prompt New Meditron Eval Config EXTRACTION_STEP | 0.4259 |
+| Raw_Eval_Pipeline | 0.4112 |
+| Prompt New Eval Config (gemma) EXTRACTION_STEP | 0.3994 |
+| PubMed_1Query_ATM_Assisted | 0.3930 |
+| Prompt Old Eval Config (gemma) EXTRACTION_STEP | 0.3928 |
+| PubMed_1Query_ATM_Assisted_Counter | 0.3833 |
+| Prompt New DeepSeek Eval Config EXTRACTION_STEP | 0.3796 |
+| PubMed_1Query_Balanced | 0.3743 |
+| Prompt New Eval Pessimist Heuristic Config (gemma) EXTRACTION_STEP | 0.3716 |
+| Prompt New Eval Pessimist Config (gemma) EXTRACTION_STEP | 0.3715 |
+| Raw_Asymmetric_Eval_Pipeline | 0.3679
+| Prompt New Meditron Phi Eval Config EXTRACTION_STEP | 0.3652 |
+| Raw_Meditron_Eval_Pipeline | 0.3643 |
+| Prompt New Med42 Eval Config EXTRACTION_STEP | 0.3498 |
+| Prompt New OpenBio Eval Config EXTRACTION_STEP | 0.2780 |
+| Raw_Meditron_Asymmetric_Eval_Pipeline | 0.2458
+
 
 
 ### Relevance thresholding and ordering
