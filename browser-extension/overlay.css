@@ -318,6 +318,28 @@ a.evidence-item-title {
   margin-right: 0;
 }
 
+.evidence-missing {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #999;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  color: #666;
+}
+
+.no-evidence {
+  cursor: default;
+}
+
+.no-evidence:hover {
+  opacity: 1;
+}
+
 .stance-supports {
   color: #2e7d32;
 }

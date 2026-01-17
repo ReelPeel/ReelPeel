@@ -6,6 +6,13 @@ let analysisInFlight = false;
 let pendingAnalysisUrl = null;
 let lastSeenUrl = null;
 const scrollPauseDelayMs = 1000;
+const TOOLTIP_RELIABILITY =
+  "Reliability: Score based on PubMed publication type. Note: reliability ultimately depends on the study design.";
+const TOOLTIP_STANCE =
+  "Stance: Whether the evidence supports, refutes, or is neutral toward the statement.";
+const TOOLTIP_RELEVANCE =
+  "Relevance: How closely the evidence matches the claim's scope.";
+const TOOLTIP_TYPE = "Type: Publication type (as listed in PubMed).";
 
 
 // Monitor URL changes
@@ -342,19 +349,23 @@ function createPopupState() {
       const relevance = document.createElement("span");
       relevance.className = "evidence-meta-item";
       relevance.textContent = `Relevance: ${formatScore(evidence.relevance)}`;
+      relevance.title = TOOLTIP_RELEVANCE;
 
       const pubType = document.createElement("span");
       pubType.className = "evidence-meta-item";
       pubType.textContent = `Type: ${formatPubType(evidence.pub_type)}`;
+      pubType.title = TOOLTIP_TYPE;
 
       const reliability = document.createElement("span");
       reliability.className = "evidence-meta-item";
       reliability.textContent = `Reliability: ${formatScore(evidence.weight)}`;
+      reliability.title = TOOLTIP_RELIABILITY;
 
       const stance = formatStance(evidence);
       const stanceEl = document.createElement("span");
       stanceEl.className = `evidence-meta-item ${stance.className}`;
       stanceEl.textContent = `Stance: ${stance.label}`;
+      stanceEl.title = TOOLTIP_STANCE;
 
       meta.append(relevance, pubType, reliability, stanceEl);
       item.append(titleEl, meta);
@@ -466,11 +477,21 @@ function createPopupState() {
       const evidenceButton = document.createElement("button");
       evidenceButton.className = "feedback-button evidence-pin";
       evidenceButton.type = "button";
-      evidenceButton.title = "View evidence";
-      evidenceButton.dataset.statementIndex = String(i);
-      evidenceButton.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor">
+      const hasEvidence =
+        statement &&
+        Array.isArray(statement.evidence) &&
+        statement.evidence.length > 0;
+      if (hasEvidence) {
+        evidenceButton.title = "View evidence";
+        evidenceButton.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor">
         <path d="M19 12v-1l-2-2V5c0-1.1-.9-2-2-2H9c-1.1 0-2 .9-2 2v4l-2 2v1h6v7l1 1 1-1v-7h6z"/>
       </svg>`;
+      } else {
+        evidenceButton.title = "No evidence provided";
+        evidenceButton.classList.add("no-evidence");
+        evidenceButton.innerHTML = `<span class="evidence-missing">?</span>`;
+      }
+      evidenceButton.dataset.statementIndex = String(i);
 
       listItem.append(verdictButton, statementText, evidenceButton);
       state.listContent.appendChild(listItem);

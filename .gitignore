@@ -12,3 +12,4 @@ evaluation/deberta_runs/
 downloads/
 .idea
 *.mp4
+*.env
