@@ -19,12 +19,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     /* -----------------------------------------
        2.  Forward that URL to your backend.      */
-    fetch("http://im-redstone02.hs-regensburg.de:38843/process", {
+    fetch("http://im-redstone02.hs-regensburg.de:8000/process", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         url: reelUrl, // ⬅️  now dynamic
-        mock: "true",
+        mock: false,
       }),
     })
       .then((response) => response.json())

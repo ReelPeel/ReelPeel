@@ -96,6 +96,7 @@ class PipelineState(BaseModel):
     """The 'Source of Truth' passing between steps and modules."""
     transcript: Optional[str] = None
     audio_path: Optional[str] = None
+    video_path: Optional[str] = None
     statements: List[Statement] = Field(default_factory=list)
     overall_truthiness: Optional[float] = None
     generated_at: Optional[str] = None

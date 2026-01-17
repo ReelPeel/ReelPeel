@@ -8,6 +8,7 @@ import os
 import random
 import re
 import shutil
+import signal
 import socket
 import subprocess
 import time
@@ -734,6 +735,8 @@ def _run_single_config(
 
 
 def _init_worker(gpu_ids: List[str], base_urls: List[str]) -> None:
+    # Let the parent handle Ctrl+C so workers can shut down cleanly.
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
     if not gpu_ids:
         return
     try:
@@ -825,12 +828,14 @@ def main():
 
         ctx = mp.get_context("spawn")
         max_workers = min(len(gpu_ids), len(configs))
-        with concurrent.futures.ProcessPoolExecutor(
+        executor = concurrent.futures.ProcessPoolExecutor(
             max_workers=max_workers,
             mp_context=ctx,
             initializer=_init_worker,
             initargs=(gpu_ids, base_urls),
-        ) as executor:
+        )
+        shutdown_called = False
+        try:
             futures = {}
             for base in configs:
                 name = base.get("name", "Unnamed_Pipeline")
@@ -871,6 +876,14 @@ def main():
                     per_config_output_path=output_path,
                     truthness_summary_path=truthness_summary_path,
                 )
+        except KeyboardInterrupt:
+            print("\nInterrupted; shutting down workers...")
+            executor.shutdown(wait=True, cancel_futures=True)
+            shutdown_called = True
+            raise
+        finally:
+            if not shutdown_called:
+                executor.shutdown(wait=True, cancel_futures=True)
     else:
         llm_settings = _llm_settings_from_base_url(base_urls[0]) if base_urls else {}
         for base in configs:
