@@ -72,7 +72,7 @@ RESEARCH_MODULE = {
                 "settings": {"retmax": 20}
             },
             {
-                "type": "summarize_evidence",  # Step 5
+                "type": "abstract_evidence",  # Step 5
                 "settings": {}
             },
             {

@@ -48,7 +48,7 @@ AUDIO_PIPELINE_CONFIG = {
                 "settings": {"retmax": 5}
             },
             {
-                "type": "summarize_evidence",  # Step 5
+                "type": "abstract_evidence",  # Step 5
                 "settings": {}
             },
             {

@@ -18,7 +18,7 @@ from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any, Tuple
 
-import pipeline.test_configs.kai_evaluation as config_module
+import pipeline.test_configs.raw_eval_config as config_module
 from pipeline.core.models import PipelineState
 from pipeline.core.orchestrator import PipelineOrchestrator
 
@@ -138,6 +138,8 @@ def start_ollama_servers(
         env = os.environ.copy()
         env["CUDA_VISIBLE_DEVICES"] = gpu_id
         env["OLLAMA_HOST"] = f"{host}:{port}"
+        if "OLLAMA_CONTEXT_LENGTH" not in env:
+            env["OLLAMA_CONTEXT_LENGTH"] = env.get("LLM_CONTEXT_LENGTH", "65536")
         log_path = os.path.join(log_dir, f"ollama_{gpu_id}_{port}.log")
         log_file = open(log_path, "a", encoding="utf-8")
         proc = subprocess.Popen(
@@ -158,7 +160,11 @@ def start_ollama_servers(
 
 def _llm_settings_from_base_url(base_url: str) -> Dict[str, str]:
     api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OLLAMA_API_KEY") or "ollama"
-    return {"base_url": base_url, "api_key": api_key}
+    settings: Dict[str, str] = {"base_url": base_url, "api_key": api_key}
+    ctx = os.environ.get("LLM_CONTEXT_LENGTH") or os.environ.get("OLLAMA_CONTEXT_LENGTH")
+    if ctx:
+        settings["context_length"] = ctx
+    return settings
 
 
 def _llm_settings_from_env() -> Dict[str, str]:
@@ -778,7 +784,7 @@ def _evaluate_config_worker(
 
 
 def main():
-    dataset_path = "evaluation/data_set/claims_dummy.txt"
+    dataset_path = "evaluation/data_set/claims_statements_train.txt"
 
     configs = collect_pipeline_configs(config_module)
     if not configs:
