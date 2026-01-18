@@ -173,25 +173,34 @@ LLM step models (used by `extraction`, `generate_query`, `filter_evidence`, `tru
 ---------------------- Instruct tuned, General Domain Models ----------------------
 - `gemma3:12b` (`gemma3:12b-it-q4_K_M`) (~8.1 GB): instruction-tuned general model; fast and light, good for quick extraction/filtering.
 - `gemma3:27b` (`gemma3:27b-it-q4_K_M`) (~17 GB): instruction-tuned mid-size model; stronger reasoning than 12b with moderate VRAM cost.
+- `medgemma-27b-text-it-q4_k_m.gguf`
 
 ### Model Evaluation (101 Samples)
 
 | Config-Name | F1-Score |
 |---|---:|
+| PubMed_1Query_Specific_Counter_Asymmetric | 0.4643 |
 | PubMed_1Query_Specific_Counter | 0.4620 |
 | PubMed_1Query_Specific | 0.4492 |
 | PubMed_1Query_Balanced_Counter | 0.4326 |
 | Prompt New Meditron Eval Config EXTRACTION_STEP | 0.4259 |
 | Raw_Eval_Pipeline | 0.4112 |
+| PubMed_1Query_Highly_Specific_Counter | 0.4082 |
 | Prompt New Eval Config (gemma) EXTRACTION_STEP | 0.3994 |
+| PubMed_1Query_Specific_Counter_Meditron_Asymmetric | 0.3981 |
 | PubMed_1Query_ATM_Assisted | 0.3930 |
 | Prompt Old Eval Config (gemma) EXTRACTION_STEP | 0.3928 |
+| Raw_Medgemma_Eval_Pipeline | 0.3920 |
+| PubMed_1Query_Highly_Specific_Counter_Asymmetric | 0.3890 |
 | PubMed_1Query_ATM_Assisted_Counter | 0.3833 |
+| PubMed_1Query_Highly_Specific | 0.3803 |
 | Prompt New DeepSeek Eval Config EXTRACTION_STEP | 0.3796 |
+| PubMed_1Query_Highly_Specific_Asymmetric | 0.3785 |
+| PubMed_1Query_Specific_Counter_Meditron | 0.3775 |
 | PubMed_1Query_Balanced | 0.3743 |
 | Prompt New Eval Pessimist Heuristic Config (gemma) EXTRACTION_STEP | 0.3716 |
 | Prompt New Eval Pessimist Config (gemma) EXTRACTION_STEP | 0.3715 |
-| Raw_Asymmetric_Eval_Pipeline | 0.3679
+| Raw_Asymmetric_Eval_Pipeline | 0.3679 |
 | Prompt New Meditron Phi Eval Config EXTRACTION_STEP | 0.3652 |
 | Raw_Meditron_Eval_Pipeline | 0.3643 |
 | Prompt New Med42 Eval Config EXTRACTION_STEP | 0.3498 |

@@ -234,6 +234,91 @@ Return ONE PubMed Boolean query (single line) optimized for **HIGH recall** by u
     + f"CLAIM:\n{{claim}}\n"
 )
 
+
+# =============================================================================
+# 7) HIGHLY_SPECIFIC (very high precision / specificity)
+
+HIGHLY_SPECIFIC_OUTPUT_ADDON = (
+    "OUTPUT RULES (additional)\n"
+    "- You MAY include exactly one NOT clause to exclude animal-only records: NOT (animals[mh] NOT humans[mh]).\n"
+)
+
+PROMPT_S3_SEMANTIC_HIGHLY_SPECIFIC = (
+    "SEMANTIC RULES\n"
+    "1) Convert the claim (internally) into a testable PICO statement:\n"
+    "   - Population/context (only if stated or strongly implied)\n"
+    "   - Intervention/exposure (most specific scientific name available)\n"
+    "   - Outcome (1–2 operational endpoints/biomarkers)\n"
+    "2) Build 3–4 concept groups (MANDATORY: topic anchor + outcome).\n"
+    "   - Add population/condition group only if present/clearly implied.\n"
+    "   - Add mechanism group ONLY if explicitly stated in the claim.\n"
+    "3) Each concept group must be narrowly scoped:\n"
+    "   - Include exactly 1 MeSH term (term[mh]) ONLY if you are confident it exists and is specific.\n"
+    "   - Include 2–4 free-text terms (term[tiab]) using standard scientific terminology.\n"
+    "   - Keep ≤5 total terms per group; avoid near-duplicate synonyms.\n"
+    "4) Combine concept groups with AND. Use OR only within synonym groups.\n"
+    "5) Human constraint: add a standalone AND group humans[mh].\n"
+    "6) Study-design constraint: add ONE standalone AND group chosen to match the claim:\n"
+    "   - If the claim is about an intervention/treatment:\n"
+    "     (randomized[tiab] OR randomised[tiab] OR placebo[tiab] OR controlled[tiab] OR trial[tiab])\n"
+    "   - If the claim is about an exposure/risk factor:\n"
+    "     (cohort[tiab] OR prospective[tiab] OR case control[tiab] OR observational[tiab])\n"
+    "   Use ONLY one of these design groups (not both).\n"
+    "7) Outcome specificity rule:\n"
+    "   - If the claim outcome is broad (e.g., inflammation), operationalize it with 1–2 concrete endpoints likely in titles/abstracts\n"
+    "     (e.g., CRP, interleukin-6, tumor necrosis factor, HbA1c, LDL, blood pressure).\n"
+    "8) Handle absolutes: replace cures/guarantees/all with testable terms (treat*, reduc*, decreas*, improv*, efficacy, symptom*, biomarker*).\n"
+    "   Do NOT include cure, curative, healing, miracle.\n"
+    "9) Keep the query tight: aim for ≤4 concept groups total; do not add generic wellness/physiology concepts.\n"
+)
+
+PROMPT_TMPL_S3_HIGHLY_SPECIFIC = (
+    f"""{PROMPT_S3_INTRO}
+
+TASK  
+Return ONE PubMed Boolean query (single line) optimized for VERY HIGH specificity (precision) to the claim, prioritizing direct human clinical evidence.
+
+{PROMPT_S3_OUTPUT_RULES.format(ANCHOR_EXCEPT='', ANCHOR_PHRASE='', ANCHOR_EXCEPT2='')}
+{HIGHLY_SPECIFIC_OUTPUT_ADDON}
+{PROMPT_S3_SEMANTIC_HIGHLY_SPECIFIC}CLAIM:\n{{claim}}\n
+"""
+)
+
+# =============================================================================
+# 8) HIGHLY_SPECIFIC_COUNTER (very high precision + explicit counter-evidence)
+
+COUNTER_EVIDENCE_RULE_HIGHLY_SPECIFIC = (
+    "{NUM}) Add ONE counter-evidence AND group capturing null/negative/adverse findings (pick 4–6 terms):\n"
+    "    (ineffective[tiab] OR no effect[tiab] OR no difference[tiab] OR null[tiab] OR negative[tiab] OR adverse[tiab] OR harm[tiab] OR toxicity[tiab])\n"
+)
+
+PROMPT_S3_SEMANTIC_HIGHLY_SPECIFIC_COUNTER = (
+    PROMPT_S3_SEMANTIC_HIGHLY_SPECIFIC
+    # insert counter rule right after the design constraint (after rule 6)
+    .replace(
+        "7) Outcome specificity rule:\n",
+        COUNTER_EVIDENCE_RULE_HIGHLY_SPECIFIC.format(NUM="7")
+        + "8) Outcome specificity rule:\n"
+    )
+    .replace("8) Handle absolutes", "9) Handle absolutes")
+    .replace("9) Keep the query tight", "10) Keep the query tight")
+)
+
+PROMPT_TMPL_S3_HIGHLY_SPECIFIC_COUNTER = (
+    f"""{PROMPT_S3_INTRO}
+
+TASK  
+Return ONE PubMed Boolean query (single line) optimized for VERY HIGH specificity (precision) to the claim, while explicitly surfacing counter-evidence (null/negative/adverse findings) in humans.
+
+{PROMPT_S3_OUTPUT_RULES.format(ANCHOR_EXCEPT='', ANCHOR_PHRASE='', ANCHOR_EXCEPT2='')}
+{HIGHLY_SPECIFIC_OUTPUT_ADDON}
+{PROMPT_S3_SEMANTIC_HIGHLY_SPECIFIC_COUNTER}CLAIM:\n{{claim}}\n
+"""
+)
+
+
+
+
 PROMPT_TMPL_S3_BY_NAME = {
     "balanced": PROMPT_TMPL_S3_BALANCED,
     "specific": PROMPT_TMPL_S3_SPECIFIC,
@@ -241,6 +326,8 @@ PROMPT_TMPL_S3_BY_NAME = {
     "balanced_counter": PROMPT_TMPL_S3_BALANCED_COUNTER,
     "specific_counter": PROMPT_TMPL_S3_SPECIFIC_COUNTER,
     "atm_assisted_counter": PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER,
+    "highly_specific": PROMPT_TMPL_S3_HIGHLY_SPECIFIC,
+    "highly_specific_counter": PROMPT_TMPL_S3_HIGHLY_SPECIFIC_COUNTER,
 }
 
 
