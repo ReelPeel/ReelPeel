@@ -25,7 +25,7 @@ The pipeline is defined by a config dict with an ordered list of steps. The `Pip
      - Multiple query strategies can be chained, including counter-evidence oriented prompts.
    - `fetch_links` calls PubMed ESearch via a local proxy to retrieve PMIDs per query.
      - Evidence items are created (or updated). When an existing PMID is seen again, the query is recorded for provenance.
-   - `summarize_evidence` batch-fetches publication types (esummary) and title/abstract text (efetch).
+   - `abstract_evidence` batch-fetches publication types (esummary) and title/abstract text (efetch).
      - Titles are stored when available; abstracts are stored as raw text.
    - `weight_evidence` converts publication types to numeric weights using regex rules with a default fallback.
 
@@ -85,7 +85,7 @@ PIPELINE_CONFIG = {
                 "steps": [
                     {"type": "generate_query", "settings": {...}},
                     {"type": "fetch_links", "settings": {"retmax": 20}},
-                    {"type": "summarize_evidence", "settings": {}},
+                    {"type": "abstract_evidence", "settings": {}},
                     {"type": "weight_evidence", "settings": {"default_weight": 0.5}},
                 ],
             },
@@ -105,7 +105,7 @@ Key step types registered in `pipeline/core/factory.py`:
 - `video_to_audio` for video -> audio file conversion.
 - `audio_to_transcript` for audio -> transcript (Whisper).
 - `extraction` for transcript -> statements.
-- `generate_query`, `fetch_links`, `summarize_evidence`, `weight_evidence` for PubMed research.
+- `generate_query`, `fetch_links`, `abstract_evidence`, `weight_evidence` for PubMed research.
 - `retrieve_guideline_facts` for guideline RAG.
 - `rerank_evidence`, `stance_evidence` for scoring.
 - `filter_evidence`, `truthness`, `scoring` for verification.

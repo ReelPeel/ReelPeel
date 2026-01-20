@@ -234,6 +234,91 @@ Return ONE PubMed Boolean query (single line) optimized for **HIGH recall** by u
     + f"CLAIM:\n{{claim}}\n"
 )
 
+
+# =============================================================================
+# 7) HIGHLY_SPECIFIC (very high precision / specificity)
+
+HIGHLY_SPECIFIC_OUTPUT_ADDON = (
+    "OUTPUT RULES (additional)\n"
+    "- You MAY include exactly one NOT clause to exclude animal-only records: NOT (animals[mh] NOT humans[mh]).\n"
+)
+
+PROMPT_S3_SEMANTIC_HIGHLY_SPECIFIC = (
+    "SEMANTIC RULES\n"
+    "1) Convert the claim (internally) into a testable PICO statement:\n"
+    "   - Population/context (only if stated or strongly implied)\n"
+    "   - Intervention/exposure (most specific scientific name available)\n"
+    "   - Outcome (1–2 operational endpoints/biomarkers)\n"
+    "2) Build 3–4 concept groups (MANDATORY: topic anchor + outcome).\n"
+    "   - Add population/condition group only if present/clearly implied.\n"
+    "   - Add mechanism group ONLY if explicitly stated in the claim.\n"
+    "3) Each concept group must be narrowly scoped:\n"
+    "   - Include exactly 1 MeSH term (term[mh]) ONLY if you are confident it exists and is specific.\n"
+    "   - Include 2–4 free-text terms (term[tiab]) using standard scientific terminology.\n"
+    "   - Keep ≤5 total terms per group; avoid near-duplicate synonyms.\n"
+    "4) Combine concept groups with AND. Use OR only within synonym groups.\n"
+    "5) Human constraint: add a standalone AND group humans[mh].\n"
+    "6) Study-design constraint: add ONE standalone AND group chosen to match the claim:\n"
+    "   - If the claim is about an intervention/treatment:\n"
+    "     (randomized[tiab] OR randomised[tiab] OR placebo[tiab] OR controlled[tiab] OR trial[tiab])\n"
+    "   - If the claim is about an exposure/risk factor:\n"
+    "     (cohort[tiab] OR prospective[tiab] OR case control[tiab] OR observational[tiab])\n"
+    "   Use ONLY one of these design groups (not both).\n"
+    "7) Outcome specificity rule:\n"
+    "   - If the claim outcome is broad (e.g., inflammation), operationalize it with 1–2 concrete endpoints likely in titles/abstracts\n"
+    "     (e.g., CRP, interleukin-6, tumor necrosis factor, HbA1c, LDL, blood pressure).\n"
+    "8) Handle absolutes: replace cures/guarantees/all with testable terms (treat*, reduc*, decreas*, improv*, efficacy, symptom*, biomarker*).\n"
+    "   Do NOT include cure, curative, healing, miracle.\n"
+    "9) Keep the query tight: aim for ≤4 concept groups total; do not add generic wellness/physiology concepts.\n"
+)
+
+PROMPT_TMPL_S3_HIGHLY_SPECIFIC = (
+    f"""{PROMPT_S3_INTRO}
+
+TASK  
+Return ONE PubMed Boolean query (single line) optimized for VERY HIGH specificity (precision) to the claim, prioritizing direct human clinical evidence.
+
+{PROMPT_S3_OUTPUT_RULES.format(ANCHOR_EXCEPT='', ANCHOR_PHRASE='', ANCHOR_EXCEPT2='')}
+{HIGHLY_SPECIFIC_OUTPUT_ADDON}
+{PROMPT_S3_SEMANTIC_HIGHLY_SPECIFIC}CLAIM:\n{{claim}}\n
+"""
+)
+
+# =============================================================================
+# 8) HIGHLY_SPECIFIC_COUNTER (very high precision + explicit counter-evidence)
+
+COUNTER_EVIDENCE_RULE_HIGHLY_SPECIFIC = (
+    "{NUM}) Add ONE counter-evidence AND group capturing null/negative/adverse findings (pick 4–6 terms):\n"
+    "    (ineffective[tiab] OR no effect[tiab] OR no difference[tiab] OR null[tiab] OR negative[tiab] OR adverse[tiab] OR harm[tiab] OR toxicity[tiab])\n"
+)
+
+PROMPT_S3_SEMANTIC_HIGHLY_SPECIFIC_COUNTER = (
+    PROMPT_S3_SEMANTIC_HIGHLY_SPECIFIC
+    # insert counter rule right after the design constraint (after rule 6)
+    .replace(
+        "7) Outcome specificity rule:\n",
+        COUNTER_EVIDENCE_RULE_HIGHLY_SPECIFIC.format(NUM="7")
+        + "8) Outcome specificity rule:\n"
+    )
+    .replace("8) Handle absolutes", "9) Handle absolutes")
+    .replace("9) Keep the query tight", "10) Keep the query tight")
+)
+
+PROMPT_TMPL_S3_HIGHLY_SPECIFIC_COUNTER = (
+    f"""{PROMPT_S3_INTRO}
+
+TASK  
+Return ONE PubMed Boolean query (single line) optimized for VERY HIGH specificity (precision) to the claim, while explicitly surfacing counter-evidence (null/negative/adverse findings) in humans.
+
+{PROMPT_S3_OUTPUT_RULES.format(ANCHOR_EXCEPT='', ANCHOR_PHRASE='', ANCHOR_EXCEPT2='')}
+{HIGHLY_SPECIFIC_OUTPUT_ADDON}
+{PROMPT_S3_SEMANTIC_HIGHLY_SPECIFIC_COUNTER}CLAIM:\n{{claim}}\n
+"""
+)
+
+
+
+
 PROMPT_TMPL_S3_BY_NAME = {
     "balanced": PROMPT_TMPL_S3_BALANCED,
     "specific": PROMPT_TMPL_S3_SPECIFIC,
@@ -241,6 +326,8 @@ PROMPT_TMPL_S3_BY_NAME = {
     "balanced_counter": PROMPT_TMPL_S3_BALANCED_COUNTER,
     "specific_counter": PROMPT_TMPL_S3_SPECIFIC_COUNTER,
     "atm_assisted_counter": PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER,
+    "highly_specific": PROMPT_TMPL_S3_HIGHLY_SPECIFIC,
+    "highly_specific_counter": PROMPT_TMPL_S3_HIGHLY_SPECIFIC_COUNTER,
 }
 
 
@@ -318,13 +405,142 @@ FINALSCORE: <probability 0.00–1.00>
 
 # ───────────────────────── Direct Prompt ─────────────────────────────────
 
-PROMPT_TMPL_RAW = """
-You are a professional medical fact-checker.  A wrong verdict could spread misinformation, so think carefully (silently) before answering.
+PROMPT_TMPL_S7_RAW = """
+You are a professional medical fact-checker.  
+A wrong verdict could spread misinformation, so analyze the evidence carefully before finalizing your answer.
 
-Decide whether the CLAIM is SUPPORTED, REFUTED, or UNCERTAIN. 
-Give the final response in the following format. STRICT OUTPUT – exactly two lines, nothing else:
+TASK:  
+Determine whether the provided evidence **collectively** SUPPORTS the claim, REFUTES the claim, or leaves the claim UNCERTAIN.
+
+CONSERVATIVE RULES:  
+- If the evidence is sparse, low-quality, low-relevance, or shows mixed/neutral findings, **choose UNCERTAIN**.  
+- Only conclude **TRUE** or **FALSE** if there are multiple high-quality, highly relevant pieces of evidence that **consistently** support or refute the claim.  
+- If no evidence is provided, default to **UNCERTAIN** (with a slight lean toward false due to lack of supporting evidence).  
+- Avoid overconfidence. When in doubt, it’s safer to be UNCERTAIN. Consider the overall evidence **in totality**, not just individual phrases.
+
+SCORE:  
+The **FINALSCORE** is the probability that the claim is true (0.00 = certainly false, 1.00 = certainly true).  
+- For an **UNCERTAIN** verdict, use a score around 0.50 (indicating doubt).  
+- If the claim is supported or refuted by moderate evidence, choose an intermediate confidence (e.g. 0.60–0.80 range).  
+- If the evidence is very strong and unidirectional, you can go up to ~0.90.  
+- Do **not** use extreme values like 1.00 or 0.00, since conclusions should be cautious.
+
+CLAIM:  
+{claim_text}
+
+Now provide the final **verdict** and **score** in the exact format below, with no additional commentary or explanation:
+
+STRICT OUTPUT – exactly two lines:  
+VERDICT: true|false|uncertain  
+FINALSCORE: <probability 0.00–1.00>
+"""
 
 
+
+
+
+
+
+
+
+
+
+
+PROMPT_TMPL_S7_ASYMMETRIC = """
+You are a professional medical fact-checker.
+A wrong verdict can spread medical misinformation. Your highest priority is: DO NOT label a false medical claim as TRUE.
+
+TASK
+Given the claim and the provided evidence, decide whether the evidence collectively:
+- SUPPORTS the claim (true)
+- REFUTES the claim (false)
+- is INSUFFICIENT / MIXED / INDIRECT (uncertain)
+
+CRITICAL OPERATING RULES (STRICT)
+1) TRUE must meet a HIGH BAR.
+   Only output VERDICT:true if ALL of the following are satisfied:
+   - There are MULTIPLE independent, high-quality, highly relevant sources that directly match the claim (same population/context, same intervention/exposure, same outcome, same direction).
+   - No high-quality, highly relevant evidence refutes the claim.
+   - The support is direct (not just mechanistic speculation, association, or tangential endpoints).
+
+2) FALSE is allowed when there is clear contradiction or overclaim.
+   Output VERDICT:false if ANY of the following is present:
+   - At least one high-quality AND highly relevant source clearly refutes the claim (especially if stance=R with high confidence), OR
+   - The best available evidence shows no benefit / opposite effect while the claim asserts a benefit, OR
+   - The claim is overstated (absolute or strong causal language such as “cures”, “prevents”, “proven”, “always”, “no side effects”) but the evidence is mixed, limited, only correlational, or explicitly inconclusive.
+
+3) UNCERTAIN is the default when evidence is insufficient or indirect.
+   Output VERDICT:uncertain if:
+   - Evidence is sparse, low-quality, low-relevance, mixed, or mostly neutral, OR
+   - Evidence does not directly test the claim (wrong population, different intervention, different outcome, surrogate-only, mechanistic-only).
+
+4) DO NOT treat keyword overlap as support.
+   A source counts as SUPPORT only if it directly addresses the claim’s key qualifiers and outcome direction.
+
+5) Use metadata as decision signals (do not ignore it):
+   - Strong SUPPORT signal: high rel + high w + stance=S (especially with p >= 0.70)
+   - Strong REFUTE signal: high rel + high w + stance=R (especially with p >= 0.70)
+   - stance=N is not support. Treat as neutral / insufficient.
+
+SUGGESTED DECISION HEURISTIC (internal; do NOT output)
+- Focus on the TOP most relevant evidence.
+- If there exists strong REFUTE signal (high rel, high w, stance=R with high p), prefer FALSE.
+- Only output TRUE if strong SUPPORT signals are multiple and consistent and no strong REFUTE exists.
+- Otherwise UNCERTAIN.
+
+SCORE (FINALSCORE = probability the claim is true, 0.00–1.00)
+- VERDICT:true  -> typically 0.70–0.95 (avoid 1.00)
+- VERDICT:false -> typically 0.05–0.30 (avoid 0.00)
+- VERDICT:uncertain -> typically 0.35–0.65
+  - lean false when no support / weak evidence: 0.35–0.49
+  - lean true when mild support but not enough for TRUE: 0.51–0.65
+
+CLAIM:
+{claim_text}
+
+EVIDENCE:
+{evidence_block}
+
+Output EXACTLY two lines, no extra text:
+VERDICT: true|false|uncertain
+FINALSCORE: <probability 0.00–1.00>
+"""
+
+# ───────────────────────── Direct Prompt ─────────────────────────────────
+PROMPT_TMPL_S7_ASYMMETRIC_RAW = """
+You are a professional medical fact-checker.
+A wrong verdict can spread medical misinformation. Your highest priority is: DO NOT label a false medical claim as TRUE.
+
+TASK
+Given the claim, decide whether it should be labeled:
+- true (supported)
+- false (refuted / overclaimed)
+- uncertain (insufficient / mixed / indirect)
+
+CRITICAL OPERATING RULES (STRICT)
+1) TRUE must meet a HIGH BAR.
+   Only output VERDICT:true if the claim is strongly and directly supported, with no meaningful contradictions, and the claim is not overstated.
+
+2) FALSE is allowed when there is clear contradiction or overclaim.
+   Output VERDICT:false if the claim is clearly contradicted, or if the claim uses absolute/strong causal language (e.g., “cures”, “prevents”, “proven”, “always”, “no side effects”) that is not justified.
+
+3) UNCERTAIN is the default when information is insufficient or indirect.
+   Output VERDICT:uncertain if the information is sparse, ambiguous, mixed, indirect, or does not directly test the claim as stated.
+
+4) Be conservative.
+   If you are not confident the claim is directly and consistently supported, choose UNCERTAIN.
+
+SCORING (FINALSCORE = probability the claim is true, 0.00–1.00)
+- VERDICT:true  -> typically 0.70–0.95 (avoid 1.00)
+- VERDICT:false -> typically 0.05–0.30 (avoid 0.00)
+- VERDICT:uncertain -> typically 0.35–0.65
+  - lean false when no support / weak information: 0.35–0.49
+  - lean true when mild support but not enough for TRUE: 0.51–0.65
+
+CLAIM:
+{claim_text}
+
+Output EXACTLY two lines, no extra text:
 VERDICT: true|false|uncertain
 FINALSCORE: <probability 0.00–1.00>
 """

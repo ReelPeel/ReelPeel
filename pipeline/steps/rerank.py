@@ -3,14 +3,14 @@ Step: Rerank evidence with a cross-encoder relevance model.
 
 This step assigns a relevance score to each evidence item relative to a claim
 using a BAAI/bge-reranker-v2-m3 cross-encoder. It builds (claim, passage) pairs
-from evidence fields (abstract and/or text) and optionally prefixes passages
-with the evidence title when available. Scores are written back to the
-Evidence objects for downstream filtering and sorting.
+from evidence abstracts and optionally prefixes passages with the evidence title
+when available. Scores are written back to the Evidence objects for downstream
+filtering and sorting.
 
 Inputs:
 - state.statements with Statement.text populated.
 - stmt.evidence list populated with Evidence objects.
-- Evidence fields used for scoring: abstract, text, and optionally title or
+- Evidence fields used for scoring: abstract, and optionally title or
   article_title/paper_title (used as a prefix if present).
 
 Config keys:
@@ -19,12 +19,12 @@ Config keys:
 - use_fp16: use fp16 weights on CUDA.
 - batch_size, max_length: inference batching and truncation.
 - normalize: apply sigmoid to logits for [0,1] scores.
-- score_fields: list of fields to score, typically ["abstract", "text"].
-- empty_relevance: fallback score when evidence has no text.
+- score_fields: list of fields to score, default ["abstract"].
+- empty_relevance: fallback score when evidence has no abstract.
 - min_relevance: optional threshold to drop low-scoring evidence.
 
 Outputs:
-- ev.relevance_abstract set when abstract or text is scored.
+- ev.relevance_abstract set when abstract is scored.
 - ev.relevance set to the chosen relevance score for each evidence.
 - stmt.evidence filtered if min_relevance is provided.
 
@@ -101,7 +101,7 @@ class RerankEvidenceStep(PipelineStep):
       - batch_size: int (default: 16)
       - max_length: int (default: 512)
 
-      - score_fields: list[str] (default: ["abstract", "text"])
+      - score_fields: list[str] (default: ["abstract"])
           Which evidence fields to score individually.
 
       - empty_relevance: float (default: 0.0)
@@ -115,13 +115,14 @@ class RerankEvidenceStep(PipelineStep):
         use_fp16 = bool(self.config.get("use_fp16", True))
         normalize = bool(self.config.get("normalize", True))
         batch_size = int(self.config.get("batch_size", 16))
-        max_length = int(self.config.get("max_length", 512))
+        max_length = int(self.config.get("max_length", 4096))
 
-        score_fields = self.config.get("score_fields", ["abstract", "text"])
-        if "abstract" not in score_fields and "text" not in score_fields:
-            score_fields = ["abstract", "text"]
+        score_fields = self.config.get("score_fields", ["abstract"])
+        score_fields = [field for field in score_fields if field == "abstract"]
+        if not score_fields:
+            score_fields = ["abstract"]
         empty_relevance = float(self.config.get("empty_relevance", 0.0))
-        min_relevance_cfg = self.config.get("min_relevance", None)
+        min_relevance_cfg = self.config.get("min_relevance", 0.7)
         min_relevance = None
         if min_relevance_cfg is not None:
             try:
@@ -134,13 +135,12 @@ class RerankEvidenceStep(PipelineStep):
 
         tokenizer, model = _load_model(model_name=model_name, device=device, use_fp16=use_fp16)
 
-
         for stmt in state.statements:
             claim = (stmt.text or "").strip()
             if not claim or not getattr(stmt, "evidence", None):
                 continue
 
-            # Build (claim, passage) pairs for *each field*, and map back to (ev_idx, field)
+            # Build (claim, passage) pairs for each field, and map back to (ev_idx, field)
             pairs: List[List[str]] = []
             mapping: List[Tuple[int, str]] = []
 
@@ -166,7 +166,7 @@ class RerankEvidenceStep(PipelineStep):
                     pairs.append([claim, txt])
                     mapping.append((i, field))
 
-                # if neither field exists, set combined relevance fallback now
+                # if no scored fields exist, set combined relevance fallback now
                 if not any(getattr(ev, f, None) for f in score_fields):
                     ev.relevance = float(empty_relevance)
 
@@ -198,13 +198,6 @@ class RerankEvidenceStep(PipelineStep):
 
                 if field == "abstract" and hasattr(ev, "relevance_abstract"):
                     ev.relevance_abstract = fs
-                elif field == "text" and hasattr(ev, "relevance_abstract"):
-                    if ev.relevance_abstract is None:
-                        ev.relevance_abstract = fs
-                else:
-                    # If you ever add more fields, you can extend mapping logic here.
-                    # For now, silently ignore unknown field targets.
-                    pass
 
             # Compute combined relevance for each evidence
             for ev in stmt.evidence:

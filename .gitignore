@@ -13,3 +13,6 @@ downloads/
 .idea
 *.mp4
 *.env
+
+.vscode
+.github

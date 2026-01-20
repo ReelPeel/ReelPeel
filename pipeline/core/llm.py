@@ -1,3 +1,4 @@
+import os
 import uuid
 import openai
 from typing import Dict, Any, Optional, List, Union
@@ -19,6 +20,27 @@ class LLMService:
             "total_tokens": 0
         }
 
+        # Context length (Ollama-specific, applied via options.num_ctx if available)
+        ctx_val = (
+            config.get("context_length")
+            or config.get("num_ctx")
+            or config.get("max_context")
+            or os.environ.get("LLM_CONTEXT_LENGTH")
+            or os.environ.get("OLLAMA_CONTEXT_LENGTH")
+        )
+        self.context_length = None
+        if ctx_val is None:
+            base_url_lower = (self.base_url or "").lower()
+            if "ollama" in base_url_lower or "11434" in base_url_lower:
+                ctx_val = 65536
+        if ctx_val is not None:
+            try:
+                ctx_val = int(ctx_val)
+                if ctx_val > 0:
+                    self.context_length = ctx_val
+            except Exception:
+                self.context_length = None
+
     def call(self,
              prompt: str,
              model: str,
@@ -32,6 +54,8 @@ class LLMService:
             raise ValueError("max_tokens must be a positive integer")
         if temperature is None or temperature < 0:
             raise ValueError("temperature must be a positive float")
+        if self.context_length is not None and self.context_length <= 0:
+            raise ValueError("context_length must be a positive integer")
 
         call_id = uuid.uuid4().hex
 
@@ -47,6 +71,12 @@ class LLMService:
                 kwargs["stop"] = stop
             if max_tokens is not None:
                 kwargs["max_tokens"] = max_tokens
+            if self.context_length is not None:
+                kwargs["extra_body"] = {
+                    "options": {
+                        "num_ctx": self.context_length
+                    }
+                }
 
             if self.observer:
                 self.observer.on_artifact(
@@ -56,6 +86,7 @@ class LLMService:
                         "model": model,
                         "temperature": temperature,
                         "max_tokens": max_tokens,
+                        "context_length": self.context_length,
                         "stop": stop,
                         "prompt": prompt,
                     },
