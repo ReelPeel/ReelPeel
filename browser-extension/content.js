@@ -40,6 +40,35 @@ function checkForReel() {
   }
 }
 
+function toSortableRelevance(value) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return null;
+  // If your backend sometimes sends 0..1, treat it as 0..100
+  if (num >= 0 && num <= 1) return num * 100;
+  return num;
+}
+
+function sortEvidenceByRelevanceDesc(evidenceArray) {
+  return evidenceArray
+    .map((evidence, originalIndex) => ({ evidence, originalIndex }))
+    .sort((a, b) => {
+      const aVal = toSortableRelevance(a.evidence?.relevance);
+      const bVal = toSortableRelevance(b.evidence?.relevance);
+
+      const aValid = Number.isFinite(aVal);
+      const bValid = Number.isFinite(bVal);
+
+      if (aValid && !bValid) return -1;
+      if (!aValid && bValid) return 1;
+      if (!aValid && !bValid) return a.originalIndex - b.originalIndex;
+
+      if (bVal !== aVal) return bVal - aVal;
+      return a.originalIndex - b.originalIndex;
+    })
+    .map((x) => x.evidence);
+}
+
+
 function isReelUrl() {
   return (
     window.location.pathname.includes("/reels/") ||
@@ -246,6 +275,90 @@ function formatStance(evidence) {
   return { label: top.label, className: stanceClassName(top.label) };
 }
 
+function getEvidenceAbstract(evidence) {
+  if (!evidence || typeof evidence !== "object") return "";
+  const raw =
+    evidence.abstract || evidence.text || evidence.summary || evidence.snippet || "";
+  return String(raw || "").trim();
+}
+
+function getEvidenceKey(statementIndex, evidenceIndex) {
+  if (Number.isFinite(statementIndex) && Number.isFinite(evidenceIndex)) {
+    return `${statementIndex}:${evidenceIndex}`;
+  }
+  return `${statementIndex || "s"}:${evidenceIndex || "e"}`;
+}
+
+function createEvidenceItem(evidence, options = {}) {
+  const item = document.createElement(options.tagName || "li");
+  item.className = "evidence-item";
+
+  const header = document.createElement("div");
+  header.className = "evidence-item-header";
+
+  const titleUrl = getEvidenceUrl(evidence);
+  let titleEl = null;
+  if (titleUrl) {
+    const link = document.createElement("a");
+    link.className = "evidence-item-title";
+    link.href = titleUrl;
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.textContent = formatEvidenceTitle(evidence);
+    titleEl = link;
+  } else {
+    const title = document.createElement("div");
+    title.className = "evidence-item-title";
+    title.textContent = formatEvidenceTitle(evidence);
+    titleEl = title;
+  }
+
+  header.appendChild(titleEl);
+
+  if (options.includeSummaryButton) {
+    const summaryButton = document.createElement("button");
+    summaryButton.className = "summary-button";
+    summaryButton.type = "button";
+    summaryButton.title = "Summarize evidence";
+    summaryButton.textContent = "?";
+    if (Number.isFinite(options.statementIndex)) {
+      summaryButton.dataset.statementIndex = String(options.statementIndex);
+    }
+    if (Number.isFinite(options.evidenceIndex)) {
+      summaryButton.dataset.evidenceIndex = String(options.evidenceIndex);
+    }
+    header.appendChild(summaryButton);
+  }
+
+  const meta = document.createElement("div");
+  meta.className = "evidence-meta";
+
+  const relevance = document.createElement("span");
+  relevance.className = "evidence-meta-item";
+  relevance.textContent = `Relevance: ${formatScore(evidence.relevance)}`;
+  relevance.title = TOOLTIP_RELEVANCE;
+
+  const pubType = document.createElement("span");
+  pubType.className = "evidence-meta-item";
+  pubType.textContent = `Type: ${formatPubType(evidence.pub_type)}`;
+  pubType.title = TOOLTIP_TYPE;
+
+  const reliability = document.createElement("span");
+  reliability.className = "evidence-meta-item";
+  reliability.textContent = `Reliability: ${formatScore(evidence.weight)}`;
+  reliability.title = TOOLTIP_RELIABILITY;
+
+  const stance = formatStance(evidence);
+  const stanceEl = document.createElement("span");
+  stanceEl.className = `evidence-meta-item ${stance.className}`;
+  stanceEl.textContent = `Stance: ${stance.label}`;
+  stanceEl.title = TOOLTIP_STANCE;
+
+  meta.append(relevance, pubType, reliability, stanceEl);
+  item.append(header, meta);
+  return item;
+}
+
 function createPopupState() {
   const medicalScore = 0;
   const needleRotation = medicalScore * 1.8 - 90; // Convert score to degrees (-90 to 90)
@@ -275,6 +388,24 @@ function createPopupState() {
           <ul id="evidence-list"></ul>
         </div>
       </div>
+      <div id="summary-view" class="panel-view">
+        <div class="summary-section">
+          <div class="summary-section-label">Statement</div>
+          <div id="summary-statement" class="summary-statement"></div>
+        </div>
+        <div class="summary-section">
+          <div class="summary-section-label">Evidence</div>
+          <div id="summary-evidence" class="summary-evidence"></div>
+        </div>
+        <div class="summary-section">
+          <div class="summary-section-label">Summary</div>
+          <div id="summary-loading" class="summary-loading">
+            <div class="summary-spinner"></div>
+            <span>Generating summary...</span>
+          </div>
+          <div id="summary-text" class="summary-text"></div>
+        </div>
+      </div>
     </div>
     <button id="close-alert">×</button>
   `;
@@ -289,9 +420,21 @@ function createPopupState() {
     evidenceView: popup.querySelector("#evidence-view"),
     evidenceTitle: popup.querySelector("#evidence-title"),
     evidenceList: popup.querySelector("#evidence-list"),
+    summaryView: popup.querySelector("#summary-view"),
+    summaryStatement: popup.querySelector("#summary-statement"),
+    summaryEvidence: popup.querySelector("#summary-evidence"),
+    summaryLoading: popup.querySelector("#summary-loading"),
+    summaryText: popup.querySelector("#summary-text"),
     listContent: popup.querySelector("#dropdown-list"),
     viewMode: "statements",
     statements: [],
+    summaryCache: new Map(),
+    summaryInFlight: new Set(),
+    activeStatement: null,
+    activeStatementIndex: null,
+    activeEvidence: null,
+    activeEvidenceIndex: null,
+    activeSummaryKey: null,
   };
 
   state.setExpanded = function (isExpanded) {
@@ -304,15 +447,41 @@ function createPopupState() {
     state.viewMode = "statements";
     state.statementsView.classList.add("active");
     state.evidenceView.classList.remove("active");
+    state.summaryView.classList.remove("active");
   };
 
-  state.renderEvidenceList = function (statement) {
+  state.renderEvidenceList = function (statement, statementIndex) {
     state.evidenceTitle.textContent =
       statement && statement.text ? statement.text : "Evidence details";
     state.evidenceList.innerHTML = "";
 
-    const evidenceItems =
+    const evidenceItemsRaw =
       statement && Array.isArray(statement.evidence) ? statement.evidence : [];
+
+    const evidenceItems = evidenceItemsRaw
+      .map((evidence, originalIndex) => ({ evidence, originalIndex }))
+      .sort((a, b) => {
+        const aVal = Number(a.evidence?.relevance);
+        const bVal = Number(b.evidence?.relevance);
+
+        const aValid = Number.isFinite(aVal);
+        const bValid = Number.isFinite(bVal);
+
+        // Valid relevance first
+        if (aValid && !bValid) return -1;
+        if (!aValid && bValid) return 1;
+
+        // Both invalid -> keep original order
+        if (!aValid && !bValid) return a.originalIndex - b.originalIndex;
+
+        // Both valid -> higher relevance first
+        if (bVal !== aVal) return bVal - aVal;
+
+        // Tie-breaker: keep original order
+        return a.originalIndex - b.originalIndex;
+      })
+      .map((item) => item.evidence);
+
 
     if (!evidenceItems.length) {
       const emptyItem = document.createElement("li");
@@ -322,63 +491,137 @@ function createPopupState() {
       return;
     }
 
-    for (const evidence of evidenceItems) {
-      const item = document.createElement("li");
-      item.className = "evidence-item";
-
-      const titleUrl = getEvidenceUrl(evidence);
-      let titleEl = null;
-      if (titleUrl) {
-        const link = document.createElement("a");
-        link.className = "evidence-item-title";
-        link.href = titleUrl;
-        link.target = "_blank";
-        link.rel = "noopener";
-        link.textContent = formatEvidenceTitle(evidence);
-        titleEl = link;
-      } else {
-        const title = document.createElement("div");
-        title.className = "evidence-item-title";
-        title.textContent = formatEvidenceTitle(evidence);
-        titleEl = title;
-      }
-
-      const meta = document.createElement("div");
-      meta.className = "evidence-meta";
-
-      const relevance = document.createElement("span");
-      relevance.className = "evidence-meta-item";
-      relevance.textContent = `Relevance: ${formatScore(evidence.relevance)}`;
-      relevance.title = TOOLTIP_RELEVANCE;
-
-      const pubType = document.createElement("span");
-      pubType.className = "evidence-meta-item";
-      pubType.textContent = `Type: ${formatPubType(evidence.pub_type)}`;
-      pubType.title = TOOLTIP_TYPE;
-
-      const reliability = document.createElement("span");
-      reliability.className = "evidence-meta-item";
-      reliability.textContent = `Reliability: ${formatScore(evidence.weight)}`;
-      reliability.title = TOOLTIP_RELIABILITY;
-
-      const stance = formatStance(evidence);
-      const stanceEl = document.createElement("span");
-      stanceEl.className = `evidence-meta-item ${stance.className}`;
-      stanceEl.textContent = `Stance: ${stance.label}`;
-      stanceEl.title = TOOLTIP_STANCE;
-
-      meta.append(relevance, pubType, reliability, stanceEl);
-      item.append(titleEl, meta);
+    for (let i = 0; i < evidenceItems.length; i++) {
+      const evidence = evidenceItems[i];
+      const item = createEvidenceItem(evidence, {
+        tagName: "li",
+        includeSummaryButton: true,
+        statementIndex,
+        evidenceIndex: i,
+      });
       state.evidenceList.appendChild(item);
     }
   };
 
-  state.showEvidenceView = function (statement) {
+  state.showEvidenceView = function (statement, statementIndex) {
     state.viewMode = "evidence";
     state.statementsView.classList.remove("active");
     state.evidenceView.classList.add("active");
+    state.summaryView.classList.remove("active");
     state.setExpanded(true);
-    state.renderEvidenceList(statement);
+    state.activeStatement = statement || null;
+    state.activeStatementIndex = Number.isFinite(statementIndex)
+      ? statementIndex
+      : null;
+    state.activeEvidence = null;
+    state.activeEvidenceIndex = null;
+    state.activeSummaryKey = null;
+    state.renderEvidenceList(statement, statementIndex);
+  };
+
+  state.setSummaryLoading = function (isLoading) {
+    state.summaryLoading.classList.toggle("active", isLoading);
+  };
+
+  state.showSummaryView = function (
+    statement,
+    evidence,
+    statementIndex,
+    evidenceIndex
+  ) {
+    state.viewMode = "summary";
+    state.statementsView.classList.remove("active");
+    state.evidenceView.classList.remove("active");
+    state.summaryView.classList.add("active");
+    state.setExpanded(true);
+
+    state.activeStatement = statement || null;
+    state.activeStatementIndex = Number.isFinite(statementIndex)
+      ? statementIndex
+      : null;
+    state.activeEvidence = evidence || null;
+    state.activeEvidenceIndex = Number.isFinite(evidenceIndex)
+      ? evidenceIndex
+      : null;
+
+    state.summaryStatement.textContent =
+      (statement && statement.text) || "Statement details";
+
+    state.summaryEvidence.innerHTML = "";
+    if (evidence) {
+      const card = createEvidenceItem(evidence, {
+        tagName: "div",
+        includeSummaryButton: false,
+      });
+      state.summaryEvidence.appendChild(card);
+    }
+
+    const key = getEvidenceKey(statementIndex, evidenceIndex);
+    state.activeSummaryKey = key;
+    const cached = state.summaryCache.get(key);
+    if (cached) {
+      state.setSummaryLoading(false);
+      state.summaryText.textContent = cached;
+      return;
+    }
+
+    state.summaryText.textContent = "";
+    state.setSummaryLoading(true);
+    state.requestEvidenceSummary(statement, evidence, key);
+  };
+
+  state.requestEvidenceSummary = async function (statement, evidence, key) {
+    const abstract = getEvidenceAbstract(evidence);
+    if (!abstract) {
+      const message = "Summary unavailable: no abstract provided.";
+      state.summaryCache.set(key, message);
+      if (state.activeSummaryKey === key) {
+        state.setSummaryLoading(false);
+        state.summaryText.textContent = message;
+      }
+      return;
+    }
+
+    if (state.summaryInFlight.has(key)) {
+      return;
+    }
+    state.summaryInFlight.add(key);
+
+    const payloadEvidence = {
+      abstract,
+      title:
+        evidence?.title || evidence?.article_title || evidence?.paper_title || "",
+      pubmed_id: evidence?.pubmed_id,
+      url: evidence?.url,
+    };
+
+    try {
+      const data = await chrome.runtime.sendMessage({
+        type: "getEvidenceSummary",
+        statement: statement?.text || "",
+        evidence: payloadEvidence,
+      });
+
+      const summaryText =
+        (data && data.summary) ||
+        (data && data.error) ||
+        "Summary unavailable.";
+      state.summaryCache.set(key, summaryText);
+      if (state.activeSummaryKey === key) {
+        state.summaryText.textContent = summaryText;
+      }
+    } catch (error) {
+      const message = "Summary unavailable.";
+      state.summaryCache.set(key, message);
+      if (state.activeSummaryKey === key) {
+        state.summaryText.textContent = message;
+      }
+    } finally {
+      state.summaryInFlight.delete(key);
+      if (state.activeSummaryKey === key) {
+        state.setSummaryLoading(false);
+      }
+    }
   };
 
   state.resetForNewReel = function () {
@@ -386,8 +629,19 @@ function createPopupState() {
     state.showStatementsView();
     state.evidenceTitle.textContent = "";
     state.evidenceList.innerHTML = "";
+    state.summaryStatement.textContent = "";
+    state.summaryEvidence.innerHTML = "";
+    state.summaryText.textContent = "";
+    state.setSummaryLoading(false);
     state.listContent.innerHTML = "";
     state.statements = [];
+    state.summaryCache = new Map();
+    state.summaryInFlight = new Set();
+    state.activeStatement = null;
+    state.activeStatementIndex = null;
+    state.activeEvidence = null;
+    state.activeEvidenceIndex = null;
+    state.activeSummaryKey = null;
     state.setLoading();
   };
 
@@ -396,8 +650,19 @@ function createPopupState() {
     state.showStatementsView();
     state.evidenceTitle.textContent = "";
     state.evidenceList.innerHTML = "";
+    state.summaryStatement.textContent = "";
+    state.summaryEvidence.innerHTML = "";
+    state.summaryText.textContent = "";
+    state.setSummaryLoading(false);
     state.listContent.innerHTML = "";
     state.statements = [];
+    state.summaryCache = new Map();
+    state.summaryInFlight = new Set();
+    state.activeStatement = null;
+    state.activeStatementIndex = null;
+    state.activeEvidence = null;
+    state.activeEvidenceIndex = null;
+    state.activeSummaryKey = null;
     state.setScore(null);
   };
 
@@ -443,6 +708,11 @@ function createPopupState() {
     state.listContent.innerHTML = "";
     state.statements = Array.isArray(statements) ? statements : [];
 
+    for (const statement of state.statements) {
+      if (statement && Array.isArray(statement.evidence)) {
+        statement.evidence = sortEvidenceByRelevanceDesc(statement.evidence);
+      }
+    }    
     for (var i = 0; i < state.statements.length; i++) {
       const statement = state.statements[i];
 
@@ -499,6 +769,15 @@ function createPopupState() {
   };
 
   state.dialContainer.addEventListener("click", () => {
+    if (state.viewMode === "summary") {
+      if (state.activeStatement) {
+        state.showEvidenceView(state.activeStatement, state.activeStatementIndex);
+      } else {
+        state.showStatementsView();
+      }
+      state.setExpanded(true);
+      return;
+    }
     if (state.viewMode === "evidence") {
       state.showStatementsView();
       state.setExpanded(true);
@@ -513,7 +792,21 @@ function createPopupState() {
     const index = Number(pinButton.dataset.statementIndex);
     const statement = state.statements[index];
     if (!statement) return;
-    state.showEvidenceView(statement);
+    state.showEvidenceView(statement, index);
+  });
+
+  state.evidenceList.addEventListener("click", (event) => {
+    const summaryButton = event.target.closest(".summary-button");
+    if (!summaryButton) return;
+    const statementIndex = Number(summaryButton.dataset.statementIndex);
+    const evidenceIndex = Number(summaryButton.dataset.evidenceIndex);
+    const statement = state.statements[statementIndex];
+    const evidence =
+      statement && Array.isArray(statement.evidence)
+        ? statement.evidence[evidenceIndex]
+        : null;
+    if (!statement || !evidence) return;
+    state.showSummaryView(statement, evidence, statementIndex, evidenceIndex);
   });
 
   popup.querySelector("#close-alert").addEventListener("click", () => {

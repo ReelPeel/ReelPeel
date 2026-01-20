@@ -3,11 +3,13 @@ from fastapi import FastAPI, Body, HTTPException
 import shutil, os
 from .pipeline import run_pipeline
   # ← your existing heavy pipeline
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 import random
 import json
 from fastapi.middleware.cors import CORSMiddleware
+from pipeline.core.llm import LLMService
+from pipeline.test_configs.preprompts import PROMPT_TMPL_EVIDENCE_SUMMARY
 app = FastAPI(title="One-shot reel-to-pipeline")
 
 app.add_middleware(
@@ -17,6 +19,13 @@ app.add_middleware(
     allow_headers=["*"], # e.g. Content-Type
     expose_headers=["*"],
 )
+
+SUMMARY_MODEL = os.getenv("SUMMARY_MODEL", "gemma3:12b")
+SUMMARY_TEMPERATURE = float(os.getenv("SUMMARY_TEMPERATURE", "0.0"))
+SUMMARY_MAX_TOKENS = int(os.getenv("SUMMARY_MAX_TOKENS", "120"))
+SUMMARY_MAX_CHARS = int(os.getenv("SUMMARY_MAX_CHARS", "2000"))
+LLM_BASE_URL = os.getenv("LLM_BASE_URL", "http://localhost:11434/v1")
+LLM_API_KEY = os.getenv("LLM_API_KEY", "ollama")
 
 def extract_reel_id(instagram_url: str) -> str:
     """
@@ -48,6 +57,26 @@ def _coerce_bool(value: Any) -> bool:
         return value.strip().lower() in {"1", "true", "yes", "y", "on"}
     return bool(value)
 
+def _clean_text(value: Any, max_chars: Optional[int] = None) -> str:
+    if value is None:
+        return ""
+    text = " ".join(str(value).split())
+    if max_chars and len(text) > max_chars:
+        trimmed = text[:max_chars].rsplit(" ", 1)[0]
+        if trimmed:
+            text = trimmed + "..."
+        else:
+            text = text[:max_chars] + "..."
+    return text
+
+def _build_llm_service() -> LLMService:
+    return LLMService(
+        {
+            "base_url": LLM_BASE_URL,
+            "api_key": LLM_API_KEY,
+        }
+    )
+
 @app.post("/process")
 async def process(payload: dict = Body(...)):
     print("Received payload:", payload)
@@ -77,6 +106,46 @@ async def process(payload: dict = Body(...)):
             cleanup_path = video_path or audio_path
             if cleanup_path:
                 shutil.rmtree(os.path.dirname(cleanup_path), ignore_errors=True)
+
+@app.post("/evidence_summary")
+async def evidence_summary(payload: dict = Body(...)):
+    statement = _clean_text(payload.get("statement") or payload.get("statement_text"), SUMMARY_MAX_CHARS)
+    evidence = payload.get("evidence") or {}
+    abstract = _clean_text(
+        evidence.get("abstract") or evidence.get("text") or evidence.get("summary"),
+        SUMMARY_MAX_CHARS,
+    )
+
+    if not statement:
+        raise HTTPException(400, "JSON body must contain a 'statement' field")
+    if not abstract:
+        raise HTTPException(400, "Evidence abstract is required for summary")
+
+    stance = _clean_text(
+        evidence.get("stance")
+        or evidence.get("Stance")
+        or evidence.get("STANCE")
+        or "Unknown",
+        SUMMARY_MAX_CHARS,
+    )
+
+    prompt = PROMPT_TMPL_EVIDENCE_SUMMARY.format(
+        statement=statement,
+        stance=stance,
+        abstract=abstract,
+    )
+
+    try:
+        summary = _build_llm_service().call(
+            prompt=prompt,
+            model=SUMMARY_MODEL,
+            temperature=SUMMARY_TEMPERATURE,
+            max_tokens=SUMMARY_MAX_TOKENS,
+        )
+    except Exception as exc:
+        raise HTTPException(500, f"Summary generation failed: {exc}") from exc
+
+    return {"summary": summary}
 
 @app.get("/number")
 async def get_number():
