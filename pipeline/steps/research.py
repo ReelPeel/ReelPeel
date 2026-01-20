@@ -62,7 +62,7 @@ class StatementToQueryStep(PipelineStep):
             try:
                 resp = self.llm.call(
                     model=self.config.get("model"),
-                    temperature=self.config.get("temperature", 0.2),
+                    temperature=self.config.get("temperature", 0.0),
                     # stop=self.config.get("stop", ["\n"]),  # fine if 1 query/line
                     prompt=prompt,
                 )
