@@ -28,7 +28,7 @@ GOAL
 Extract all distinct, checkable medical claims that appear in the transcript. The number of returned claims must adapt to the transcript content.
 
 SELECTION RULES
-1. Return as many distinct medical claims as are present, up to a maximum of **8**. If more than 8 are present, return the **8 most clinically important and/or potentially harmful**.
+1. Return as many distinct medical claims as are present, up to a maximum of **5**. If more than 8 are present, return the **8 most clinically important and/or potentially harmful**.
 2. A "medical claim" is an assertion about health, disease, symptoms, diagnosis, treatment, prevention, risk, prognosis, nutrition/supplements, physiology, medical tests, medication safety, or health outcomes.
 3. Aim for **high recall**: if a statement is plausibly a medical claim and is checkable, include it rather than omitting it.
 4. Prefer **specific, testable assertions** over vague advice. Keep the speaker's implied certainty (do not add extra hedging or certainty).
@@ -327,4 +327,26 @@ Give the final response in the following format. STRICT OUTPUT – exactly two l
 
 VERDICT: true|false|uncertain
 FINALSCORE: <probability 0.00–1.00>
+"""
+
+# ───────────────────────── Evidence Summary ─────────────────────────────
+
+PROMPT_TMPL_EVIDENCE_SUMMARY = """
+You are a medical evidence assistant.
+Write a very short, plain-language summary that explains how the paper stands with respect to the statement based on STANCE.
+
+Rules:
+- Use only the abstract.
+- 1-2 sentences, max 45 words.
+- No bullet points, no citations, no extra formatting.
+- The summary should be understandable to a general audience without medical training.
+
+STATEMENT:
+{statement}
+
+STANCE:
+{stance}
+
+ABSTRACT:
+{abstract}
 """

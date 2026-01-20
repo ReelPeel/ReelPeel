@@ -1,4 +1,4 @@
-from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_BALANCED_COUNTER, PROMPT_TMPL_S7
+from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_BALANCED_COUNTER, PROMPT_TMPL_S3_SPECIFIC_COUNTER, PROMPT_TMPL_S7
 from pipeline.test_configs.test_extraction import RESEARCH_MODULE, VERIFICATION_MODULE
 from pipeline.test_configs.kai_test import SCORES_MODULE
 from pipeline.test_configs.preprompts import PROMPT_TMPL_S3_SPECIFIC, PROMPT_TMPL_S3_BALANCED, PROMPT_TMPL_S3_ATM_ASSISTED
@@ -118,19 +118,27 @@ VIDEO_URL_PIPELINE_CONFIG = {
                 "type": "generate_query",  # Step 3
                 "settings": {
                     "model": "gemma3:27b",
-                    "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER
+                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC
                 }
             },
         {
                 "type": "generate_query",  # Step 3
                 "settings": {
                     "model": "gemma3:27b",
-                    "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED
+                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER
                 }
             },
             {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": "gemma3:27b",
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER
+                }
+            },
+       
+            {
                 "type": "fetch_links",  # Step 4
-                "settings": {"retmax": 15}
+                "settings": {"retmax": 20}
             },
             {
                 "type": "summarize_evidence",  # Step 5
