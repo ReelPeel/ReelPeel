@@ -2,7 +2,7 @@
 
 ~/ollama/bin/ollama serve
 
-uvicorn app.main:app --host 0.0.0.0 --port 6006 --reload
+uvicorn app.main:app --host 0.0.0.0 --port 6006 
 
 curl.exe http://im-redstone02.hs-regensburg.de:32311/number
 

@@ -1,3 +1,5 @@
+const API_BASE = "http://im-redstone02.hs-regensburg.de:38843";
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log("got a message!");
 
@@ -19,7 +21,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     /* -----------------------------------------
        2.  Forward that URL to your backend.      */
-    fetch("http://im-redstone02.hs-regensburg.de:8000/process", {
+    fetch("http://im-redstone02.hs-regensburg.de:38843/process", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -37,5 +39,29 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       );
 
     return true; // Keep message channel open for async response
+  }
+
+  if (request.type === "getEvidenceSummary") {
+    fetch(`${API_BASE}/evidence_summary`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        statement: request.statement,
+        evidence: request.evidence,
+      }),
+    })
+      .then(async (response) => {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.detail || "Summary request failed");
+        }
+        sendResponse(data);
+      })
+      .catch((error) => {
+        console.error("Error at summary call in background:", error);
+        sendResponse({ error: String(error) });
+      });
+
+    return true;
   }
 });
