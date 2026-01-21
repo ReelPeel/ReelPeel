@@ -362,6 +362,60 @@ Respond with only: yes | no
 # Step 7: Final verdict and truthfulness scoring
 # ────────────────────────────────────────────────────────────────────
 PROMPT_TMPL_S7 = """
+You are a medical evidence auditor. Your priority is to avoid false positives (calling something TRUE when it is not well-supported). Be skeptical, not accommodating.
+
+TASK:
+Using ALL provided evidence, determine whether it collectively SUPPORTS the claim, REFUTES the claim, or leaves it UNCERTAIN.
+
+EVIDENCE INTERPRETATION RULES (STRICT):
+1) Quality over count:
+   - Do NOT decide by “number of papers.” Medical literature is subject to publication bias and abstract-level spin.
+   - A few weak/positive studies do not outweigh one strong negative/neutral study.
+2) Prefer higher-grade evidence:
+   - Highest: systematic reviews/meta-analyses of RCTs, well-powered RCTs with clinically meaningful outcomes.
+   - Medium: prospective cohorts with good controls.
+   - Low: cross-sectional, mechanistic, animal/in-vitro, narrative reviews, editorials/letters.
+3) Directness required:
+   - Evidence must match the claim’s population, exposure/dose, comparator, and outcome.
+   - If evidence only supports a narrower claim (subgroup, short-term, surrogate endpoint) but the claim is broad/general, treat that as NOT supported.
+4) “No effect / safe” claims require strong proof:
+   - Claims like “does not increase risk / is safe / has no effect” need high-quality evidence designed to detect harm or show non-inferiority/equivalence.
+   - Absence of reported harm in limited studies is NOT proof of safety.
+5) Conflicts and ambiguity:
+   - If evidence is mixed, low-quality, indirect, or largely neutral → choose UNCERTAIN.
+
+METADATA USE (if present in EVIDENCE lines):
+- w (weight): higher = stronger study type/quality
+- rel: higher = more directly on-claim
+- stance: S/R/N (supports/refutes/neutral) possibly with probability
+Use metadata as a tie-breaker, not as a substitute for actual evidentiary strength.
+
+VERDICT THRESHOLDS (STRICT):
+- TRUE only if there are MULTIPLE high-quality, high-relevance sources that consistently support the claim, with no credible high-quality refutation.
+- FALSE if high-quality, high-relevance evidence consistently refutes the claim OR if the claim is overly broad and the best evidence contradicts its generality.
+- Otherwise UNCERTAIN.
+
+SCORING (FINALSCORE = P(claim true)):
+- Default skeptical prior:
+  - If evidence is absent OR only low-relevance/neutral/low-quality evidence is present: UNCERTAIN with FINALSCORE = 0.45.
+- UNCERTAIN range: 0.40–0.60 (use 0.45 unless evidence clearly leans one way).
+- TRUE range: 0.65–0.90 (use 0.75 for solid support; up to 0.85–0.90 only for strong, consistent top-grade evidence).
+- FALSE range: 0.10–0.35 (use ~0.25 for solid refutation; avoid 0.00).
+Do not use 0.00 or 1.00.
+
+CLAIM:
+{claim_text}
+
+EVIDENCE:
+{evidence_block}
+
+Return ONLY the two lines below, with no additional text:
+
+VERDICT: true|false|uncertain
+FINALSCORE: <probability 0.00–1.00>
+"""
+
+PROMPT_TMPL_S7_OLD = """
 You are a professional medical fact-checker.  
 A wrong verdict could spread misinformation, so analyze the evidence carefully before finalizing your answer.
 

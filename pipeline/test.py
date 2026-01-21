@@ -103,7 +103,7 @@ def main():
     # 2. Boot the Orchestrator
     try:
         # ------------------------------------ Choose Pipeline Config Here -----------------------------
-        orchestrator = PipelineOrchestrator(FULL_PIPELINE_CONFIG)
+        orchestrator = PipelineOrchestrator(VIDEO_PIPELINE_CONFIG)
     except Exception as e:
         print(f"Configuration Error: {e}")
         return

@@ -3,8 +3,8 @@ from pipeline.test_configs.test_extraction import RESEARCH_MODULE, VERIFICATION_
 from pipeline.test_configs.kai_test import SCORES_MODULE
 from pipeline.test_configs.preprompts import PROMPT_TMPL_S3_SPECIFIC, PROMPT_TMPL_S3_BALANCED, PROMPT_TMPL_S3_ATM_ASSISTED
 
-BASE_TEMPERATURE = 2
-BASE_MODEL="gemma3:27b"
+BASE_TEMPERATURE = 0.3
+BASE_MODEL="gemma3:27b" #hf.co/mradermacher/medgemma-27b-text-it-GGUF:Q4_K_M
 
 VIDEO_PIPELINE_CONFIG = {
     "name": "Video_To_Audio_Run",
@@ -13,7 +13,7 @@ VIDEO_PIPELINE_CONFIG = {
         {
             "type": "video_to_audio",
             "settings": {
-                "video_path": "downloads/downloads_vitamind/C4dki_DoayB.mp4",
+                "video_path": "Jana_video.mp4",
             },
         },
         {
@@ -31,53 +31,80 @@ VIDEO_PIPELINE_CONFIG = {
                 "temperature": BASE_TEMPERATURE,
             },
         },
-        RESEARCH_MODULE,
-        SCORES_MODULE, 
         {
-            "type": "retrieve_guideline_facts",
-            "settings": {
-                "db_path": "pipeline/RAG_vdb/guidelines_vdb.sqlite",
-                "top_k": 5,
-                "min_score": 0.25,
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED,
+                    "temperature": BASE_TEMPERATURE,
+                }
             },
-        },
         {
-            "type": "rerank_evidence",
-            "settings": {
-                    "model_name": "BAAI/bge-reranker-v2-m3", # BAAI/bge-reranker-v2-gemma bigger but slower
-                    "use_fp16": True,
-                    "normalize": True,
-                    "batch_size": 16,
-                    "max_length": 4096,
-                    "score_fields": ["abstract"],
-                    "empty_relevance": 0.0,
-                    "min_relevance": 0.5,
-                },
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+        {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER,
+                    "temperature": BASE_TEMPERATURE,
+                }
             },
             {
-                "type": "stance_evidence",
+                "type": "generate_query",  # Step 3
                 "settings": {
-                    "model_name": "cnut1648/biolinkbert-mednli",
-                    "use_fp16": True,
-                    "batch_size": 16,
-                    "max_length": 512,
-                    "evidence_fields": ["abstract"],
-
-                    # optional: only compute stance on Top-M evidence per statement (by ev.relevance)
-                    # "top_m_by_relevance": 5,
-
-                    # optional: if both support/refute are weak, force "neutral"
-                    "threshold_decisive": 0.3,
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER,
+                    "temperature": BASE_TEMPERATURE,
                 }
-                },
-        
-        
-            
-        VERIFICATION_MODULE,
-
+            },
+       
+            {
+                "type": "fetch_links",  # Step 4
+                "settings": {"retmax": 20}
+            },
+            {
+                "type": "abstract_evidence",  # Step 5
+                "settings": {}
+            },
+            {
+                "type": "weight_evidence",  # Step 5.1
+                "settings": {"default_weight": 0.5}
+            },
+            SCORES_MODULE,
+        {
+                "type": "truthness",
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S7,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            # Step 8: Final Score
+            {
+                "type": "scoring",
+                "settings": {
+                    "threshold": 0.3
+                }
+            }
     ],
 }
 
+
+
+# {
+        #     "type": "retrieve_guideline_facts",
+        #     "settings": {
+        #         "db_path": "pipeline/RAG_vdb/guidelines_vdb.sqlite",
+        #         "top_k": 5,
+        #         "min_score": 0.25,
+        #     },
+        # },
 
 VIDEO_URL_PIPELINE_CONFIG = {
     "name": "Video_URL_End_to_End_Run",
@@ -97,7 +124,7 @@ VIDEO_URL_PIPELINE_CONFIG = {
         {
             "type": "audio_to_transcript",
             "settings": {
-                "whisper_model": "turbo",
+                "whisper_model": "large-v3",
                 "translate_non_english": True,
             },
         },
