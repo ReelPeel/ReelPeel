@@ -38,7 +38,7 @@ class SourceType(str, Enum):
 
 class EvidenceBase(BaseModel):
     source_type: SourceType
-    weight: float = 0.5
+    weight: float = 0.15
     relevance: Optional[float] = None
     relevance_abstract: Optional[float] = None
     stance: Optional[Stance] = None

@@ -179,7 +179,7 @@ VIDEO_URL_PIPELINE_CONFIG = {
             },
             {
                 "type": "weight_evidence",  # Step 5.1
-                "settings": {"default_weight": 0.5}
+                "settings": {"default_weight": 0.15}
             },
             SCORES_MODULE,
         {
