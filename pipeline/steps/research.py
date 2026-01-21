@@ -351,16 +351,55 @@ class LinkToAbstractStep(PipelineStep):
 class PubTypeWeightStep(PipelineStep):
     # Regex rules as class constant or loaded from config
     PUBTYPE_RULES: List[Tuple[re.Pattern, float, str]] = [
-        (re.compile(r"\bmeta[- ]analysis\b"), 0.95, "meta-analysis"),
-        (re.compile(r"\bsystematic review\b"), 0.95, "systematic review"),
-        (re.compile(r"\brandomized controlled trial\b|\brandomised controlled trial\b"), 0.90, "RCT"),
-        (re.compile(r"\bclinical trial\b"), 0.85, "clinical trial"),
-        (re.compile(r"\bguideline\b"), 0.86, "guideline"),
-        (re.compile(r"\bcohort\b|\bprospective\b|\bretrospective\b"), 0.75, "observational"),
-        (re.compile(r"\bcase[- ]control\b"), 0.70, "case-control"),
-        (re.compile(r"\breview\b"), 0.62, "narrative review"),
-        (re.compile(r"\bcase reports?\b"), 0.45, "case report"),
-        (re.compile(r"\beditorial\b|\bletter\b"), 0.35, "opinion"),
+         (re.compile(r"\bmeta[- ]analysis\b", re.I), 0.90, "meta-analysis"),
+    (re.compile(r"\bsystematic review\b", re.I), 0.85, "systematic review"),
+    (re.compile(r"\bpractice guideline\b", re.I), 0.85, "practice guideline"),
+
+    (re.compile(r"\brandomi[sz]ed controlled trial\b", re.I), 0.80, "RCT"),
+
+    # Clinical trials (more specific first)
+    (re.compile(r"\bclinical trial,\s*phase iii\b", re.I), 0.78, "clinical trial"),
+    (re.compile(r"\bcontrolled clinical trial\b", re.I), 0.75, "clinical trial"),
+    (re.compile(r"\bpragmatic clinical trial\b", re.I), 0.75, "clinical trial"),
+    (re.compile(r"\badaptive clinical trial\b", re.I), 0.75, "clinical trial"),
+    (re.compile(r"\bequivalence trial\b", re.I), 0.75, "clinical trial"),
+    (re.compile(r"\bclinical trial,\s*phase ii\b", re.I), 0.70, "clinical trial"),
+    (re.compile(r"\bclinical trial,\s*phase iv\b", re.I), 0.70, "clinical trial"),
+    (re.compile(r"\bclinical trial,\s*phase i\b", re.I), 0.60, "clinical trial"),
+    (re.compile(r"\bclinical trial protocol\b", re.I), 0.25, "clinical trial protocol"),
+    # "Clinical Trial" when unspecified (avoid matching phase/protocol)
+    (re.compile(r"\bclinical trial\b", re.I), 0.70, "clinical trial"),
+
+    # Studies / conferences / guidelines
+    (re.compile(r"\bobservational stud(?:y|ies)\b", re.I), 0.60, "observational"),
+    (re.compile(r"\bclinical stud(?:y|ies)\b", re.I), 0.60, "clinical study"),
+    (re.compile(r"\bconsensus development conference,\s*nih\b", re.I), 0.60, "consensus conference"),
+    (re.compile(r"\bconsensus development conference\b", re.I), 0.60, "consensus conference"),
+    (re.compile(r"\bguideline\b", re.I), 0.60, "guideline"),
+    (re.compile(r"\bcomparative stud(?:y|ies)\b", re.I), 0.60, "comparative study"),
+    (re.compile(r"\bmulticenter stud(?:y|ies)\b", re.I), 0.60, "multicenter study"),
+    (re.compile(r"\bevaluation stud(?:y|ies)\b", re.I), 0.60, "evaluation study"),
+    (re.compile(r"\bvalidation stud(?:y|ies)\b", re.I), 0.55, "validation study"),
+    (re.compile(r"\bjournal article\b", re.I), 0.50, "journal article"),
+    # Reviews
+    (re.compile(r"\breview\b", re.I), 0.55, "narrative review"),
+
+    # Lower-evidence / publication types
+    (re.compile(r"\bcase reports?\b", re.I), 0.40, "case report"),
+    (re.compile(r"\btechnical reports?\b", re.I), 0.40, "technical report"),
+    (re.compile(r"\bpreprints?\b", re.I), 0.40, "preprint"),
+    (re.compile(r"\bmeeting abstracts?\b", re.I), 0.30, "meeting abstract"),
+
+    (re.compile(r"\beditorial\b", re.I), 0.20, "opinion"),
+    (re.compile(r"\bcomment\b", re.I), 0.20, "opinion"),
+    (re.compile(r"\bletter\b", re.I), 0.20, "opinion"),
+    (re.compile(r"\bnews\b", re.I), 0.15, "news"),
+
+    # Integrity / retraction-related
+    (re.compile(r"\bexpression of concern\b", re.I), 0.05, "expression of concern"),
+    (re.compile(r"\bduplicate publication\b", re.I), 0.05, "duplicate publication"),
+    (re.compile(r"\bretraction of publication\b(?:\s*\(notice\))?", re.I), 0.00, "retraction notice"),
+    (re.compile(r"\bretracted publication\b", re.I), 0.00, "retracted publication"),
     ]
 
     def execute(self, state: PipelineState) -> PipelineState:
