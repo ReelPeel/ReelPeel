@@ -12,7 +12,7 @@ AUDIO_PIPELINE_CONFIG = {
             "type": "audio_to_transcript",
             "settings": {
                 "audio_path": "audios/audio.wav",
-                "whisper_model": "turbo",
+                "whisper_model": "large-v3",
                 "translate_non_english": True,
             },
         },

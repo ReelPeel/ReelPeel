@@ -1,4 +1,4 @@
-
+export OLLAMA_CONTEXT_LENGTH=65536
 
 ~/ollama/bin/ollama serve
 

@@ -3,8 +3,8 @@ from pipeline.test_configs.test_extraction import RESEARCH_MODULE, VERIFICATION_
 from pipeline.test_configs.kai_test import SCORES_MODULE
 from pipeline.test_configs.preprompts import PROMPT_TMPL_S3_SPECIFIC, PROMPT_TMPL_S3_BALANCED, PROMPT_TMPL_S3_ATM_ASSISTED
 
-BASE_TEMPERATURE = 0.0
-
+BASE_TEMPERATURE = 2
+BASE_MODEL="gemma3:27b"
 
 VIDEO_PIPELINE_CONFIG = {
     "name": "Video_To_Audio_Run",
@@ -19,14 +19,14 @@ VIDEO_PIPELINE_CONFIG = {
         {
             "type": "audio_to_transcript",
             "settings": {
-                "whisper_model": "turbo",
+                "whisper_model": "large-v3",
                 "translate_non_english": True,
             },
         },
         {
             "type": "extraction",
             "settings": {
-                "model": "gemma3:27b",
+                "model": BASE_MODEL,
                 "prompt_template": PROMPT_TMPL_S2,
                 "temperature": BASE_TEMPERATURE,
             },
@@ -104,7 +104,7 @@ VIDEO_URL_PIPELINE_CONFIG = {
         {
             "type": "extraction",
             "settings": {
-                "model": "gemma3:27b",
+                "model": BASE_MODEL,
                 "prompt_template": PROMPT_TMPL_S2,
                 "temperature": BASE_TEMPERATURE,
             },
@@ -112,7 +112,7 @@ VIDEO_URL_PIPELINE_CONFIG = {
         {
                 "type": "generate_query",  # Step 3
                 "settings": {
-                    "model": "gemma3:27b",
+                    "model": BASE_MODEL,
                     "prompt_template": PROMPT_TMPL_S3_BALANCED,
                     "temperature": BASE_TEMPERATURE,
                 }
@@ -120,7 +120,7 @@ VIDEO_URL_PIPELINE_CONFIG = {
         {
                 "type": "generate_query",  # Step 3
                 "settings": {
-                    "model": "gemma3:27b",
+                    "model": BASE_MODEL,
                     "prompt_template": PROMPT_TMPL_S3_SPECIFIC,
                     "temperature": BASE_TEMPERATURE,
                 }
@@ -128,7 +128,7 @@ VIDEO_URL_PIPELINE_CONFIG = {
         {
                 "type": "generate_query",  # Step 3
                 "settings": {
-                    "model": "gemma3:27b",
+                    "model": BASE_MODEL,
                     "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER,
                     "temperature": BASE_TEMPERATURE,
                 }
@@ -136,7 +136,7 @@ VIDEO_URL_PIPELINE_CONFIG = {
             {
                 "type": "generate_query",  # Step 3
                 "settings": {
-                    "model": "gemma3:27b",
+                    "model": BASE_MODEL,
                     "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER,
                     "temperature": BASE_TEMPERATURE,
                 }
@@ -158,7 +158,7 @@ VIDEO_URL_PIPELINE_CONFIG = {
         {
                 "type": "truthness",
                 "settings": {
-                    "model": "gemma3:27b",
+                    "model": BASE_MODEL,
                     "prompt_template": PROMPT_TMPL_S7,
                     "temperature": BASE_TEMPERATURE,
                 }
@@ -167,7 +167,7 @@ VIDEO_URL_PIPELINE_CONFIG = {
             {
                 "type": "scoring",
                 "settings": {
-                    "threshold": 0.15
+                    "threshold": 0.3
                 }
             }
     ],
