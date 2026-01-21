@@ -17,7 +17,7 @@ RESEARCH_MODULE = {
             },
             {
                 "type": "fetch_links",  # Step 4
-                "settings": {"retmax": 3}
+                "settings": {"retmax": 10}
             },
             {
                 "type": "abstract_evidence",  # Step 5
@@ -106,8 +106,7 @@ FULL_PIPELINE_CONFIG = {
             "type": "mock_transcript",
             "settings": {
                 "transcript_text": (
-                    "Fasting for 72 hours triggers autophagy and renews the immune system. "
-                    "Also, drinking celery juice every morning cures all inflammation."
+                    "Fasting for 72 hours triggers autophagy and renews the immune system. Also, drinking celery juice every morning cures all inflammation."
                 )
             }
         },
