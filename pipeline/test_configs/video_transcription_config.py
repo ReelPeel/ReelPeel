@@ -5,7 +5,7 @@ from pipeline.test_configs.test_extraction import RESEARCH_MODULE, VERIFICATION_
 from pipeline.test_configs.kai_test import SCORES_MODULE
 from pipeline.test_configs.preprompts import PROMPT_TMPL_S3_SPECIFIC, PROMPT_TMPL_S3_BALANCED, PROMPT_TMPL_S3_ATM_ASSISTED
 
-
+ 
 
 BASE_TEMPERATURE = 0.1
 SCORES_MIN_RELEVANCE = 0.6
