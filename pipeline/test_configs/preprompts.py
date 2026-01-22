@@ -12,55 +12,6 @@ def get_prompt_s3_by_name(name: str) -> str:
 # ────────────────────────────────────────────────────────────────────
 # Step 2: Extract medical claims from transcript
 # ────────────────────────────────────────────────────────────────────
-PROMPT_TMPL_S2_NO_NEGATIONS = """
-You are part of a medical fact-checking pipeline.
-If you propagate a false statement, the system may mislead people.
-
-INPUT TRANSCRIPT
----------------
-{transcript}
----------------
-
-TASK
-Extract medical claims suitable for fact-checking.
-
-GOAL
-Extract all distinct, checkable medical claims that appear in the transcript. The number of returned claims must adapt to the transcript content.
-
-SELECTION RULES
-1. Return as many distinct medical claims as are present, up to a maximum of 8. Prefer the most clinically important and/or potentially harmful if there are more.
-2. A "medical claim" is an assertion about health, disease, symptoms, diagnosis, treatment, prevention, risk, prognosis, nutrition/supplements, physiology, medical tests, medication safety, or health outcomes.
-3. Aim for high recall: if a statement is plausibly a medical claim and is checkable, include it rather than omitting it.
-4. Prefer specific, testable assertions over vague advice. Keep the speaker's implied certainty (do not add extra hedging or extra certainty).
-5. Split compound statements into separate claims when they can be checked independently (e.g., "X reduces Y and Z" -> two claims). Merge duplicates / near-duplicates into one concise claim.
-6. Preserve key qualifiers when present (population, dosage, timing, comparator, directionality like increases vs decreases). Rewrite each claim to be self-contained and context-independent, while preserving meaning.
-
-AFFIRMATIVE-ONLY NORMALIZATION (CRITICAL)
-7. Every returned claim MUST be phrased as an affirmative statement (no negations).
-   - If the transcript states a NEGATED claim, INVERT it into its affirmative counterpart.
-     Examples:
-       - "Vitamin D supplementation does NOT reduce cancer incidence." -> "Vitamin D supplementation reduces cancer incidence."
-       - "X is NOT effective for Y." -> "X is effective for Y."
-       - "X does NOT increase risk of Y." -> "X increases risk of Y."
-       - "X is NOT associated with Y." -> "X is associated with Y."
-       - "You should NEVER do X." -> "You should do X."
-       - "X causes NO side effects." -> "X causes side effects."
-       - "X prevents NO infections." -> "X prevents infections."
-   - Preserve modality and qualifiers when possible (e.g., "may", "can", "in adults", "at 2000 IU/day"), but remove the negation and flip the direction accordingly.
-8. HARD BAN: Do not output any of these tokens/phrases (case-insensitive) in the claims:
-   "not", "no", "never", "none", "without", "lack of", "doesn't", "does not", "don't", "do not", "cannot", "can't",
-   "isn't", "is not", "aren't", "are not", "wasn't", "was not", "weren't", "were not", "won't", "will not".
-
-EXCLUSION RULES
-9. Exclude: greetings, jokes, moral/motivational advice, non-medical content, pure opinions, and statements too vague or non-falsifiable to verify.
-10. If there are no medical claims, return an empty array: []
-
-STRICT OUTPUT
-A valid JSON array of strings.
-No commentary, no extra keys, no markdown.
-"""
-
-
 PROMPT_TMPL_S2 = """
 You are part of a medical fact-checking pipeline.  
 If you propagate a false statement, the system may mislead people.

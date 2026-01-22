@@ -5,15 +5,19 @@ from pipeline.test_configs.test_extraction import RESEARCH_MODULE, VERIFICATION_
 from pipeline.test_configs.kai_test import SCORES_MODULE
 from pipeline.test_configs.preprompts import PROMPT_TMPL_S3_SPECIFIC, PROMPT_TMPL_S3_BALANCED, PROMPT_TMPL_S3_ATM_ASSISTED
 
-BASE_TEMPERATURE = 0.3
-SCORES_MIN_RELEVANCE = 0.7
+BASE_TEMPERATURE = 0.1
+SCORES_MIN_RELEVANCE = 0.6
 BASE_MODEL="gemma3:27b" 
-# gemma3:27b
+# gemma3:27b / 12b
 # hf.co/mradermacher/medgemma-27b-text-it-GGUF:Q4_K_M
 # hf.co/mradermacher/DeepSeek-R1-Distill-Qwen-32B-Medical-GGUF:Q6_K
 
-STEP_7_MODEL = BASE_MODEL
-STEP_7_PROMPT = PROMPT_TMPL_S7_ACTIONABLE_ADVICE_V2
+WHISPER_MODEL = "turbo"
+# large-v3
+# turbo
+
+STEP_7_MODEL = "gemma3:27b"
+STEP_7_PROMPT = PROMPT_TMPL_S7_ACTIONABLE_ADVICE
 # PROMPT_TMPL_S7
 # PROMPT_TMPL_S7_METRICS
 # PROMPT_TMPL_S7_ACTIONABLE_ADVICE
@@ -38,7 +42,7 @@ VIDEO_PIPELINE_CONFIG = {
         {
             "type": "audio_to_transcript",
             "settings": {
-                "whisper_model": "large-v3",
+                "whisper_model": WHISPER_MODEL,
                 "translate_non_english": True,
             },
         },
@@ -175,7 +179,7 @@ VIDEO_URL_PIPELINE_CONFIG = {
         {
             "type": "audio_to_transcript",
             "settings": {
-                "whisper_model": "large-v3",
+                "whisper_model": WHISPER_MODEL,
                 "translate_non_english": True,
             },
         },
@@ -232,12 +236,12 @@ VIDEO_URL_PIPELINE_CONFIG = {
                 "type": "weight_evidence",  # Step 5.1
                 "settings": {"default_weight": 0.15}
             },
-            SCORES_MIN_RELEVANCE,
+            SCORES_MODULE_MIN_REL,
         {
                 "type": "truthness",
                 "settings": {
-                    "model": BASE_MODEL,
-                    "prompt_template": PROMPT_TMPL_S7,
+                    "model": STEP_7_MODEL,
+                    "prompt_template": STEP_7_PROMPT,
                     "temperature": BASE_TEMPERATURE,
                 }
             },
@@ -245,7 +249,7 @@ VIDEO_URL_PIPELINE_CONFIG = {
             {
                 "type": "scoring",
                 "settings": {
-                    "threshold": 0.3
+                    "threshold": 0.4
                 }
             }
     ],
