@@ -8,7 +8,7 @@ from pipeline.test_configs.preprompts import PROMPT_TMPL_S3_SPECIFIC, PROMPT_TMP
  
 
 BASE_TEMPERATURE = 0.1
-SCORES_MIN_RELEVANCE = 0.2
+SCORES_MIN_RELEVANCE = 0.1
 BASE_MODEL="gemma3:27b" 
 # gemma3:27b / 12b
 # hf.co/mradermacher/medgemma-27b-text-it-GGUF:Q4_K_M
@@ -51,7 +51,7 @@ VIDEO_PIPELINE_CONFIG = {
         {
             "type": "video_to_audio",
             "settings": {
-                "video_path": "Rijak.mp4",
+                "video_path": "Jana.mp4",
             },
         },
         {
