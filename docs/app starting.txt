@@ -1,3 +1,7 @@
+export OLLAMA_CONTEXT_LENGTH=65536
+
+Check models (during runtime):
+ollama ps
 
 
 ~/ollama/bin/ollama serve
