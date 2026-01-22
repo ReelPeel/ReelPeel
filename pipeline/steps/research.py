@@ -174,10 +174,10 @@ class StatementToQueryStep(PipelineStep):
                 else:
                     pmids = prefetch.get("pmids") or []
                     if pmids:
-                        self._attach_prefetched_evidence(stmt, q, pmids)
-                        if q.lower() not in fetched_queries[stmt.id]:
-                            fetched_queries[stmt.id].add(q.lower())
-                            stmt.queries_fetched.append(q)
+                        self._attach_prefetched_evidence(stmt, q, pmids, prefetch.get("meta"))
+                    if q.lower() not in fetched_queries[stmt.id]:
+                        fetched_queries[stmt.id].add(q.lower())
+                        stmt.queries_fetched.append(q)
                     self.log_artifact(
                         "PubMed Prefetch",
                         {
@@ -323,6 +323,8 @@ class StatementToQueryStep(PipelineStep):
                 "retmax": raw.get("retmax", 5),
                 "sort": raw.get("sort", "relevance"),
                 "proxy_url": raw.get("proxy_url", "http://127.0.0.1:8080/proxy"),
+                "prefetch_abstracts": self._is_truthy(raw.get("prefetch_abstracts", False)),
+                "prefetch_pubtypes": self._is_truthy(raw.get("prefetch_pubtypes", True)),
             }
         if isinstance(raw, bool):
             return {
@@ -330,6 +332,8 @@ class StatementToQueryStep(PipelineStep):
                 "retmax": self.config.get("retmax", 5),
                 "sort": self.config.get("sort", "relevance"),
                 "proxy_url": self.config.get("proxy_url", "http://127.0.0.1:8080/proxy"),
+                "prefetch_abstracts": False,
+                "prefetch_pubtypes": True,
             }
         return {"enabled": False}
 
@@ -350,11 +354,20 @@ class StatementToQueryStep(PipelineStep):
             resp = requests.get(search_url, params=params, timeout=10)
             resp.raise_for_status()
             id_list = resp.json().get("esearchresult", {}).get("idlist", [])
-            return {"pmids": id_list, "request_url": request_url}
+            meta = None
+            if id_list and cfg.get("prefetch_abstracts"):
+                meta = self._prefetch_metadata_for_pmids(id_list, cfg)
+            return {"pmids": id_list, "request_url": request_url, "meta": meta}
         except Exception as exc:
             return {"error": str(exc)}
 
-    def _attach_prefetched_evidence(self, stmt: Any, query: str, pmids: List[str]) -> None:
+    def _attach_prefetched_evidence(
+        self,
+        stmt: Any,
+        query: str,
+        pmids: List[str],
+        meta: Optional[Dict[str, Dict[str, Any]]] = None,
+    ) -> None:
         if not pmids:
             return
         for pmid in pmids:
@@ -362,15 +375,85 @@ class StatementToQueryStep(PipelineStep):
                 (e for e in stmt.evidence if getattr(e, "pubmed_id", None) == pmid),
                 None,
             )
+            info = (meta or {}).get(pmid, {}) if meta else {}
             if existing is not None:
                 if not hasattr(existing, "queries") or existing.queries is None:
                     existing.queries = []
                 if query.lower() not in {x.lower() for x in existing.queries}:
                     existing.queries.append(query)
+                if info.get("pub_type") and not getattr(existing, "pub_type", None):
+                    existing.pub_type = info.get("pub_type")
+                if info.get("title") and not getattr(existing, "title", None):
+                    existing.title = info.get("title")
+                if info.get("abstract") and not getattr(existing, "abstract", None):
+                    existing.abstract = info.get("abstract")
                 continue
             url = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
-            ev = PubMedEvidence(pubmed_id=pmid, url=url, queries=[query])
+            ev = PubMedEvidence(
+                pubmed_id=pmid,
+                url=url,
+                queries=[query],
+                pub_type=info.get("pub_type"),
+                title=info.get("title"),
+                abstract=info.get("abstract"),
+            )
             stmt.evidence.append(ev)
+
+    def _prefetch_metadata_for_pmids(self, pmids: List[str], cfg: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
+        proxy_base = cfg.get("proxy_url", "http://127.0.0.1:8080/proxy")
+        meta: Dict[str, Dict[str, Any]] = {pmid: {} for pmid in pmids}
+
+        if cfg.get("prefetch_pubtypes"):
+            ids_str = ",".join(pmids)
+            params = {"db": "pubmed", "id": ids_str, "retmode": "json"}
+            try:
+                resp = requests.get(f"{proxy_base}/esummary.fcgi", params=params, timeout=30)
+                resp.raise_for_status()
+                data = resp.json().get("result", {})
+                for pmid in pmids:
+                    rec = data.get(pmid)
+                    if not rec:
+                        continue
+                    ptypes = rec.get("pubtype", [])
+                    if ptypes:
+                        meta[pmid]["pub_type"] = [str(x) for x in ptypes if x]
+            except Exception:
+                pass
+
+        if cfg.get("prefetch_abstracts"):
+            ids_str = ",".join(pmids)
+            params = {"db": "pubmed", "id": ids_str, "retmode": "xml"}
+            try:
+                resp = requests.get(f"{proxy_base}/efetch.fcgi", params=params, timeout=30)
+                resp.raise_for_status()
+                root = ET.fromstring(resp.text)
+                for article in root.findall(".//PubmedArticle"):
+                    pmid_node = article.find(".//MedlineCitation/PMID")
+                    if pmid_node is None:
+                        continue
+                    pmid = pmid_node.text
+                    if pmid not in meta:
+                        continue
+                    title_node = article.find(".//Article/ArticleTitle")
+                    if title_node is not None and title_node.text:
+                        meta[pmid]["title"] = title_node.text.strip()
+                    abs_texts = article.findall(".//Abstract/AbstractText")
+                    if not abs_texts:
+                        abs_texts = article.findall(".//OtherAbstract/AbstractText")
+                    parts = []
+                    for el in abs_texts:
+                        txt = "".join(el.itertext()).strip()
+                        if not txt:
+                            continue
+                        label = el.attrib.get("Label") or el.attrib.get("NlmCategory")
+                        parts.append(f"{label}: {txt}" if label else txt)
+                    full_abstract = " ".join(parts).strip()
+                    if full_abstract and not full_abstract.lower().startswith("abstract available from"):
+                        meta[pmid]["abstract"] = full_abstract
+            except Exception:
+                pass
+
+        return meta
 
     def _build_llm_settings(self, base_url: str) -> Dict[str, Any]:
         settings = dict(self.config.get("llm_settings", {}) or {})
@@ -609,12 +692,16 @@ class LinkToAbstractStep(PipelineStep):
                 continue
 
             pmids = list(evidence_map.keys())
+            pmids_missing_types = [pmid for pmid in pmids if not getattr(evidence_map[pmid], "pub_type", None)]
+            pmids_missing_abs = [pmid for pmid in pmids if not getattr(evidence_map[pmid], "abstract", None)]
 
-            # 2. Fetch all Publication Types in ONE request
-            self._batch_fetch_types(pmids, evidence_map)
+            # 2. Fetch all Publication Types in ONE request (only missing)
+            if pmids_missing_types:
+                self._batch_fetch_types(pmids_missing_types, evidence_map)
 
-            # 3. Fetch all Titles & Abstracts in ONE request
-            self._batch_fetch_details(pmids, evidence_map)
+            # 3. Fetch all Titles & Abstracts in ONE request (only missing)
+            if pmids_missing_abs:
+                self._batch_fetch_details(pmids_missing_abs, evidence_map)
 
         # Update timestamp
         state.generated_at = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"

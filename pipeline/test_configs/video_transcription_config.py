@@ -8,7 +8,7 @@ from pipeline.test_configs.preprompts import PROMPT_TMPL_S3_SPECIFIC, PROMPT_TMP
  
 
 BASE_TEMPERATURE = 0.1
-SCORES_MIN_RELEVANCE = 0.1
+SCORES_MIN_RELEVANCE = 0.7
 BASE_MODEL="gemma3:27b" 
 # gemma3:27b / 12b
 # hf.co/mradermacher/medgemma-27b-text-it-GGUF:Q4_K_M
@@ -96,7 +96,7 @@ VIDEO_PIPELINE_CONFIG = {
                     # {"name": "atm_assisted_counter", "template": PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER},
                 ],
                 "parallel": {"enabled": True},
-                "prefetch_links": {"enabled": True, "retmax": RETMAX},
+                "prefetch_links": {"enabled": True, "retmax": RETMAX, "prefetch_abstracts": True},
             },
         },
         
@@ -203,7 +203,7 @@ VIDEO_URL_PIPELINE_CONFIG = {
                     # {"name": "atm_assisted_counter", "template": PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER},
                 ],
                 "parallel": {"enabled": True},
-                "prefetch_links": {"enabled": True, "retmax": RETMAX},
+                "prefetch_links": {"enabled": True, "retmax": RETMAX, "prefetch_abstracts": True},
             },
         },
        

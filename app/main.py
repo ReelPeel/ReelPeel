@@ -86,7 +86,7 @@ async def process(payload: dict = Body(...)):
         raise HTTPException(400, "JSON body must contain a 'url' field")
 
     reel_id = extract_reel_id(url)
-    mock    = _coerce_bool(payload.get("mock", False))
+    mock    = _coerce_bool(payload.get("mock", True))
 
     result = None
     try:
