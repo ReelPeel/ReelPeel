@@ -176,6 +176,7 @@ class FilterEvidenceStep(PipelineStep):
 class TruthnessStep(PipelineStep):
     def execute(self, state: PipelineState) -> PipelineState:
         prompt_tmpl = self.config.get('prompt_template', "")
+        include_evidence_text = self.config.get("include_evidence_text", True)
         transcript = state.transcript or ""
 
         for stmt in state.statements:
@@ -187,11 +188,11 @@ class TruthnessStep(PipelineStep):
             for ev in stmt.evidence:
                 source_type = _source_type_value(ev)
                 if source_type == SourceType.RAG.value:
-                    rag_lines.append(_format_rag_chunk(ev, include_text=True))
+                    rag_lines.append(_format_rag_chunk(ev, include_text=include_evidence_text))
                 elif source_type == SourceType.EPISTEMONIKOS.value:
-                    epistemonikos_lines.append(_format_evidence_line(ev, include_text=True))
+                    epistemonikos_lines.append(_format_evidence_line(ev, include_text=include_evidence_text))
                 else:
-                    pubmed_lines.append(_format_evidence_line(ev, include_text=True))
+                    pubmed_lines.append(_format_evidence_line(ev, include_text=include_evidence_text))
 
             pubmed_block = "\n".join(pubmed_lines) or "No PubMed evidence provided."
             epistemonikos_block = "\n".join(epistemonikos_lines) or "No Epistemonikos evidence provided."

@@ -12,7 +12,7 @@ def get_prompt_s3_by_name(name: str) -> str:
 # ────────────────────────────────────────────────────────────────────
 # Step 2: Extract medical claims from transcript
 # ────────────────────────────────────────────────────────────────────
-PROMPT_TMPL_S2 = """
+PROMPT_TMPL_S2_NO_NEGATIONS = """
 You are part of a medical fact-checking pipeline.
 If you propagate a false statement, the system may mislead people.
 
@@ -61,7 +61,7 @@ No commentary, no extra keys, no markdown.
 """
 
 
-PROMPT_TMPL_S2_OLD = """
+PROMPT_TMPL_S2 = """
 You are part of a medical fact-checking pipeline.  
 If you propagate a false statement, the system may mislead people.
 
@@ -449,6 +449,183 @@ Now provide the final **verdict** and **score** in the exact format below, with 
 
 STRICT OUTPUT – exactly two lines:  
 VERDICT: true|false|uncertain  
+FINALSCORE: <probability 0.00–1.00>
+"""
+
+# ────────────────────────────────────────────────────────────────────
+# Step 7: Final verdict using METRICS ONLY (no evidence text)
+# ────────────────────────────────────────────────────────────────────
+PROMPT_TMPL_S7_METRICS = """
+You are a professional medical fact-checker.  
+A wrong verdict could spread misinformation, so analyze the evidence carefully before finalizing your answer.
+
+TASK:  
+Determine whether the provided evidence **collectively** SUPPORTS the claim, REFUTES the claim, or leaves the claim UNCERTAIN.
+
+IMPORTANT:  
+The EVIDENCE lines include **ONLY METADATA** (no abstract text).  
+Base your decision strictly on the metadata signals below.
+
+METADATA (in the EVIDENCE lines, if present):  
+- **w** (weight): study type strength (0–1, higher = stronger evidence quality)  
+- **rel**: relevance to the claim (0–1, higher = more on-topic)  
+- **stance**: NLI stance label — S (supports), R (refutes), or N (neutral)  
+- **stance probabilities** may appear as S0.xx / R0.xx / N0.xx
+
+Give more weight to evidence with higher **w** and **rel**, and with strong support/refute **stance** probabilities. Downweight evidence that has low relevance or only neutral/unclear findings.
+
+CONSERVATIVE RULES:  
+- If the evidence is sparse, low-quality, low-relevance, or shows mixed/neutral findings, **choose UNCERTAIN**.  
+- Only conclude **TRUE** or **FALSE** if there are multiple high-quality, highly relevant pieces of evidence that **consistently** support or refute the claim.  
+- If no evidence is provided, default to **UNCERTAIN** (with a slight lean toward false due to lack of supporting evidence).  
+- Avoid overconfidence. When in doubt, it’s safer to be UNCERTAIN.
+
+SCORE:  
+The **FINALSCORE** is the probability that the claim is true (0.00 = certainly false, 1.00 = certainly true).  
+- For an **UNCERTAIN** verdict, use a score around 0.50 (indicating doubt).  
+- If the claim is supported or refuted by moderate evidence, choose an intermediate confidence (e.g. 0.60–0.80 range).  
+- If the evidence is very strong and unidirectional, you can go up to ~0.90.  
+- Do **not** use extreme values like 1.00 or 0.00, since conclusions should be cautious.
+
+CLAIM:  
+{claim_text}
+
+EVIDENCE (metrics-only; each source grouped separately):  
+{evidence_block}
+
+Now provide the final **verdict** and **score** in the exact format below, with no additional commentary or explanation:
+
+STRICT OUTPUT – exactly two lines:  
+VERDICT: true|false|uncertain  
+FINALSCORE: <probability 0.00–1.00>
+"""
+
+# ────────────────────────────────────────────────────────────────────
+# Step 7: Final verdict penalizing actionable advice claims
+# ────────────────────────────────────────────────────────────────────
+
+PROMPT_TMPL_S7_ACTIONABLE_ADVICE = """
+You are a professional medical fact-checker.
+A wrong verdict could spread misinformation and cause harm, so prioritize safety and evidential rigor.
+
+TASK:
+Determine whether the provided evidence collectively SUPPORTS the claim, REFUTES the claim, or leaves the claim UNCERTAIN.
+
+METADATA (in the EVIDENCE lines, if present):
+- w (weight): study type strength (0–1, higher = stronger evidence quality)
+- rel: relevance to the claim (0–1, higher = more on-topic)
+- stance: NLI stance for each abstract — S (supports), R (refutes), or N (neutral), sometimes with a probability score.
+
+Use higher w and rel evidence more heavily. Downweight low relevance, weak study types, and neutral/unclear findings.
+
+STEP 0 — CLAIM TYPE (internal, do not output):
+Classify the claim as either:
+A) ACTIONABLE_ADVICE: tells people what to do (e.g., “should”, “must”, “recommend”, “take/apply/avoid”, dosing, self-tests, screening/diagnosis advice, treatment/prevention instructions, parenting guidance, medication/supplement advice).
+B) DESCRIPTIVE: describes an association, risk, mechanism, prevalence, or factual statement without instructing an action.
+
+DECISION RULES (safety-biased):
+1) If evidence is contradictory, sparse, low-quality, indirect, or low-relevance:
+   - If ACTIONABLE_ADVICE: choose FALSE (safety-first; avoid endorsing advice without strong direct support).
+   - If DESCRIPTIVE: choose UNCERTAIN (default).
+2) Conclude TRUE only if there are multiple high-quality (high w), highly relevant (high rel) sources that consistently support the claim and are direct (not merely tangential).
+3) Conclude FALSE if high-quality, highly relevant evidence consistently refutes the claim, OR if the claim is ACTIONABLE_ADVICE and the evidence does not directly support it (including “no evidence” cases).
+4) If no evidence is provided:
+   - ACTIONABLE_ADVICE → FALSE (because advice without evidence is unsafe to endorse).
+   - DESCRIPTIVE → UNCERTAIN.
+
+SCORE (FINALSCORE = probability the claim is true; 0.00–1.00; avoid extremes):
+- TRUE: typically 0.70–0.90 depending on strength/consistency.
+- FALSE:
+  - ACTIONABLE_ADVICE with weak/absent/indirect evidence: 0.20–0.45 (penalize strongly).
+  - Strong direct refutation: 0.10–0.35.
+- UNCERTAIN: typically 0.45–0.55 (use when genuinely mixed/insufficient for descriptive claims).
+
+CLAIM:
+{claim_text}
+
+EVIDENCE (each source grouped separately, including PubMed abstracts and any RAG findings):
+{evidence_block}
+
+Now provide the final verdict and score in the exact format below, with no additional commentary or explanation:
+
+STRICT OUTPUT – exactly two lines:
+VERDICT: true|false|uncertain
+FINALSCORE: <probability 0.00–1.00>
+"""
+
+PROMPT_TMPL_S7_ACTIONABLE_ADVICE_V2 = """
+You are a professional medical fact-checker.
+A wrong verdict could spread misinformation and cause harm, so prioritize safety and evidential rigor.
+
+TASK:
+Determine whether the provided evidence collectively SUPPORTS the claim, REFUTES the claim, or leaves the claim UNCERTAIN.
+
+METADATA (in the EVIDENCE lines, if present):
+- w (weight): study type strength (0–1, higher = stronger evidence quality)
+- rel: relevance to the claim (0–1, higher = more on-topic)
+- stance: NLI stance for each abstract — S (supports), R (refutes), or N (neutral), sometimes with a probability score.
+
+Use higher w and rel evidence more heavily. Downweight low relevance, weak study types, and neutral/unclear findings.
+
+STEP 0 — CLAIM PROFILING (internal, do not output):
+Assign BOTH:
+
+(1) RISK CLASS:
+- HIGH_RISK_ACTION: diagnostic/self-test advice, treatment instructions, medication/supplement dosing, stopping/starting meds,
+  allergy testing at home, advice that could delay professional care, or any action with plausible harm if wrong.
+- LOW_RISK_GUIDANCE: general lifestyle/feeding guidance, non-urgent preventive advice, broad health recommendations
+  where being wrong is less likely to cause immediate harm.
+- DESCRIPTIVE: association/risk/mechanism/prevalence statements without instructing an action.
+
+(2) CLAIM STRICTNESS:
+- STRICT: absolute wording or hard threshold/cutoff (e.g., "no later than", "must", "always", "never", exact month/week limits).
+- NON_STRICT: ranges/typical guidance without hard cutoff.
+
+DECISION RULES (calibrated, conservative):
+1) Evidence quality gate:
+   If evidence is contradictory, sparse, indirect, low-quality (low w), or low-relevance (low rel), treat it as insufficient.
+
+2) Defaults under insufficiency:
+   - If HIGH_RISK_ACTION and evidence is insufficient or missing: choose FALSE (do not endorse risky actions without strong direct evidence).
+   - If LOW_RISK_GUIDANCE and evidence is insufficient or missing: choose UNCERTAIN (do not over-endorse guidance; avoid false unless clearly refuted).
+   - If DESCRIPTIVE and evidence is insufficient or missing: choose UNCERTAIN.
+
+3) STRICT claims require stricter matching:
+   If the claim is STRICT (hard cutoff/absolute), you may only choose TRUE if the evidence directly supports that same cutoff/absolute.
+   If evidence supports a different cutoff, a range, or only general guidance: choose UNCERTAIN (do not "round" ranges into absolutes).
+
+4) TRUE criteria:
+   Choose TRUE only if multiple high-quality (high w), highly relevant (high rel) sources consistently support the claim
+   AND the support is direct (not tangential). For STRICT claims, direct support must match the strict wording/cutoff.
+
+5) FALSE criteria:
+   Choose FALSE if multiple high-quality, highly relevant sources consistently refute the claim.
+   Additionally, for HIGH_RISK_ACTION: if evidence does not directly support the action or indicates it is unreliable/unsafe,
+   choose FALSE even if evidence is merely absent/indirect.
+
+6) No evidence at all:
+   - HIGH_RISK_ACTION → FALSE
+   - LOW_RISK_GUIDANCE → UNCERTAIN
+   - DESCRIPTIVE → UNCERTAIN
+
+SCORE (FINALSCORE = probability the claim is true; 0.00–1.00; avoid extremes):
+- TRUE: typically 0.70–0.90 depending on strength/consistency and directness.
+- FALSE:
+  - HIGH_RISK_ACTION with weak/absent/indirect evidence: 0.15–0.40
+  - Strong direct refutation: 0.10–0.35
+  - LOW_RISK_GUIDANCE should be FALSE mainly when clearly refuted: 0.20–0.45
+- UNCERTAIN: typically 0.45–0.55 (STRICT claims with only range/guideline support should stay here).
+
+CLAIM:
+{claim_text}
+
+EVIDENCE (each source grouped separately, including PubMed abstracts and any RAG findings):
+{evidence_block}
+
+Now provide the final verdict and score in the exact format below, with no additional commentary or explanation:
+
+STRICT OUTPUT – exactly two lines:
+VERDICT: true|false|uncertain
 FINALSCORE: <probability 0.00–1.00>
 """
 
