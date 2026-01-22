@@ -8,7 +8,7 @@ from pipeline.test_configs.preprompts import PROMPT_TMPL_S3_SPECIFIC, PROMPT_TMP
  
 
 BASE_TEMPERATURE = 0.1
-SCORES_MIN_RELEVANCE = 0.6
+SCORES_MIN_RELEVANCE = 0.2
 BASE_MODEL="gemma3:27b" 
 # gemma3:27b / 12b
 # hf.co/mradermacher/medgemma-27b-text-it-GGUF:Q4_K_M
@@ -51,7 +51,7 @@ VIDEO_PIPELINE_CONFIG = {
         {
             "type": "video_to_audio",
             "settings": {
-                "video_path": "Jana.mp4",
+                "video_path": "Rijak.mp4",
             },
         },
         {
@@ -88,14 +88,15 @@ VIDEO_PIPELINE_CONFIG = {
                 "model": STEP_3_MODEL,
                 "temperature": BASE_TEMPERATURE,
                 "prompt_templates": [
-                    {"name": "balanced", "template": PROMPT_TMPL_S3_BALANCED},
-                    {"name": "balanced_counter", "template": PROMPT_TMPL_S3_BALANCED_COUNTER},
+                    # {"name": "balanced", "template": PROMPT_TMPL_S3_BALANCED},
+                    # {"name": "balanced_counter", "template": PROMPT_TMPL_S3_BALANCED_COUNTER},
                     {"name": "specific", "template": PROMPT_TMPL_S3_SPECIFIC},
                     {"name": "specific_counter", "template": PROMPT_TMPL_S3_SPECIFIC_COUNTER},
                     # {"name": "atm_assisted", "template": PROMPT_TMPL_S3_ATM_ASSISTED},
                     # {"name": "atm_assisted_counter", "template": PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER},
                 ],
                 "parallel": {"enabled": True},
+                "prefetch_links": {"enabled": True, "retmax": RETMAX},
             },
         },
         
@@ -194,14 +195,15 @@ VIDEO_URL_PIPELINE_CONFIG = {
                 "model": STEP_3_MODEL,
                 "temperature": BASE_TEMPERATURE,
                 "prompt_templates": [
-                    {"name": "balanced", "template": PROMPT_TMPL_S3_BALANCED},
-                    {"name": "balanced_counter", "template": PROMPT_TMPL_S3_BALANCED_COUNTER},
+                    # {"name": "balanced", "template": PROMPT_TMPL_S3_BALANCED},
+                    # {"name": "balanced_counter", "template": PROMPT_TMPL_S3_BALANCED_COUNTER},
                     {"name": "specific", "template": PROMPT_TMPL_S3_SPECIFIC},
                     {"name": "specific_counter", "template": PROMPT_TMPL_S3_SPECIFIC_COUNTER},
                     # {"name": "atm_assisted", "template": PROMPT_TMPL_S3_ATM_ASSISTED},
                     # {"name": "atm_assisted_counter", "template": PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER},
                 ],
                 "parallel": {"enabled": True},
+                "prefetch_links": {"enabled": True, "retmax": RETMAX},
             },
         },
        

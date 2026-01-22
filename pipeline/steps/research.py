@@ -63,10 +63,14 @@ class StatementToQueryStep(PipelineStep):
         if not prompt_defs:
             raise ValueError("generate_query requires prompt_template or prompt_templates in settings.")
 
+        prefetch_cfg = self._prefetch_links_settings()
+
         # Ensure list exists (in case of older states)
         for stmt in statements:
             if not hasattr(stmt, "queries") or stmt.queries is None:
                 stmt.queries = []
+            if not hasattr(stmt, "queries_fetched") or stmt.queries_fetched is None:
+                stmt.queries_fetched = []
 
         tasks = []
         for stmt in statements:
@@ -76,6 +80,7 @@ class StatementToQueryStep(PipelineStep):
                         "stmt_id": stmt.id,
                         "stmt_text": stmt.text,
                         "prompt_def": prompt_def,
+                        "prefetch": prefetch_cfg,
                     }
                 )
 
@@ -107,6 +112,9 @@ class StatementToQueryStep(PipelineStep):
         stmt_lookup = {s.id: s for s in statements}
         existing_queries = {
             s.id: {q.lower() for q in (s.queries or [])} for s in statements
+        }
+        fetched_queries = {
+            s.id: {q.lower() for q in (s.queries_fetched or [])} for s in statements
         }
 
         total_tokens = 0
@@ -151,6 +159,34 @@ class StatementToQueryStep(PipelineStep):
 
             if q:
                 print(f"   Statement {stmt.id}: + query ({prompt_name}): {q}")
+
+            prefetch = result.get("prefetch")
+            if prefetch:
+                if prefetch.get("error"):
+                    self.log_artifact(
+                        "PubMed Prefetch",
+                        {
+                            "statement_id": stmt.id,
+                            "query": q,
+                            "error": prefetch.get("error"),
+                        },
+                    )
+                else:
+                    pmids = prefetch.get("pmids") or []
+                    if pmids:
+                        self._attach_prefetched_evidence(stmt, q, pmids)
+                        if q.lower() not in fetched_queries[stmt.id]:
+                            fetched_queries[stmt.id].add(q.lower())
+                            stmt.queries_fetched.append(q)
+                    self.log_artifact(
+                        "PubMed Prefetch",
+                        {
+                            "statement_id": stmt.id,
+                            "query": q,
+                            "count": len(pmids),
+                            "request_url": prefetch.get("request_url"),
+                        },
+                    )
 
         if total_tokens:
             self.add_step_tokens(total_tokens)
@@ -210,6 +246,7 @@ class StatementToQueryStep(PipelineStep):
         source = "llm"
         query = ""
         tokens = 0
+        prefetch_info = None
 
         try:
             from ..core.llm import LLMService
@@ -226,10 +263,17 @@ class StatementToQueryStep(PipelineStep):
             raw = resp.replace("\n", " ")
             query = self.clean_pubmed_query(raw)
             tokens = int(llm.token_usage.get("total_tokens") or 0)
+
+            prefetch_cfg = task.get("prefetch") or {}
+            if prefetch_cfg.get("enabled") and query:
+                prefetch_info = self._prefetch_links_for_query(query, prefetch_cfg)
         except Exception as exc:
             error = str(exc)
             source = "fallback"
             query = self._fallback_query(task["stmt_text"])
+            prefetch_cfg = task.get("prefetch") or {}
+            if prefetch_cfg.get("enabled") and query:
+                prefetch_info = self._prefetch_links_for_query(query, prefetch_cfg)
 
         return {
             "stmt_id": task["stmt_id"],
@@ -239,6 +283,7 @@ class StatementToQueryStep(PipelineStep):
             "error": error,
             "source": source,
             "tokens": tokens,
+            "prefetch": prefetch_info,
         }
 
     def _resolve_max_workers(self, task_count: int, base_urls: List[str]) -> int:
@@ -268,6 +313,64 @@ class StatementToQueryStep(PipelineStep):
         if max_workers < 1:
             return 1
         return min(max_workers, task_count)
+
+    def _prefetch_links_settings(self) -> Dict[str, Any]:
+        raw = self.config.get("prefetch_links")
+        if isinstance(raw, dict):
+            enabled = raw.get("enabled", True)
+            return {
+                "enabled": self._is_truthy(enabled),
+                "retmax": raw.get("retmax", 5),
+                "sort": raw.get("sort", "relevance"),
+                "proxy_url": raw.get("proxy_url", "http://127.0.0.1:8080/proxy"),
+            }
+        if isinstance(raw, bool):
+            return {
+                "enabled": raw,
+                "retmax": self.config.get("retmax", 5),
+                "sort": self.config.get("sort", "relevance"),
+                "proxy_url": self.config.get("proxy_url", "http://127.0.0.1:8080/proxy"),
+            }
+        return {"enabled": False}
+
+    def _prefetch_links_for_query(self, query: str, cfg: Dict[str, Any]) -> Dict[str, Any]:
+        retmax = cfg.get("retmax", 5)
+        sort = cfg.get("sort", "relevance")
+        proxy_base = cfg.get("proxy_url", "http://127.0.0.1:8080/proxy")
+        search_url = f"{proxy_base}/esearch.fcgi"
+        params = {
+            "db": "pubmed",
+            "term": query,
+            "retmax": retmax,
+            "retmode": "json",
+            "sort": sort,
+        }
+        try:
+            request_url = requests.Request("GET", search_url, params=params).prepare().url
+            resp = requests.get(search_url, params=params, timeout=10)
+            resp.raise_for_status()
+            id_list = resp.json().get("esearchresult", {}).get("idlist", [])
+            return {"pmids": id_list, "request_url": request_url}
+        except Exception as exc:
+            return {"error": str(exc)}
+
+    def _attach_prefetched_evidence(self, stmt: Any, query: str, pmids: List[str]) -> None:
+        if not pmids:
+            return
+        for pmid in pmids:
+            existing = next(
+                (e for e in stmt.evidence if getattr(e, "pubmed_id", None) == pmid),
+                None,
+            )
+            if existing is not None:
+                if not hasattr(existing, "queries") or existing.queries is None:
+                    existing.queries = []
+                if query.lower() not in {x.lower() for x in existing.queries}:
+                    existing.queries.append(query)
+                continue
+            url = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
+            ev = PubMedEvidence(pubmed_id=pmid, url=url, queries=[query])
+            stmt.evidence.append(ev)
 
     def _build_llm_settings(self, base_url: str) -> Dict[str, Any]:
         settings = dict(self.config.get("llm_settings", {}) or {})
@@ -414,8 +517,11 @@ class QueryToLinkStep(PipelineStep):
             queries = getattr(stmt, "queries", []) or []
             if not queries:
                 continue
+            fetched = {q.lower() for q in (getattr(stmt, "queries_fetched", []) or [])}
 
             for q in queries:
+                if q.lower() in fetched:
+                    continue
                 try:
                     params = {
                         "db": "pubmed",
@@ -457,6 +563,10 @@ class QueryToLinkStep(PipelineStep):
                         stmt.evidence.append(PubMedEvidence(pubmed_id=pmid, url=url))
 
                     print(f"   Statement {stmt.id}: Found {len(id_list)} links.")
+
+                    if hasattr(stmt, "queries_fetched"):
+                        if q.lower() not in {x.lower() for x in (stmt.queries_fetched or [])}:
+                            stmt.queries_fetched.append(q)
 
                 except Exception as e:
                     print(f"   [Error] Failed to fetch links for '{q}': {e}")
