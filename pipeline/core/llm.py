@@ -7,8 +7,30 @@ from .logging import PipelineObserver
 
 class LLMService:
     def __init__(self, config: Dict[str, Any], observer: Optional[PipelineObserver] = None):
-        self.base_url = config.get("base_url", "http://localhost:11434/v1")
-        self.api_key = config.get("api_key", "ollama")
+        env_base_url = os.environ.get("LLM_BASE_URL") or os.environ.get("OLLAMA_BASE_URL")
+        multi_enabled = str(os.environ.get("OLLAMA_MULTI_INSTANCE", "")).strip().lower() in {
+            "1",
+            "true",
+            "yes",
+            "y",
+            "on",
+        }
+        if not env_base_url and multi_enabled:
+            host = os.environ.get("OLLAMA_MULTI_HOST", "127.0.0.1")
+            base_port = os.environ.get("OLLAMA_MULTI_BASE_PORT", "11434")
+            env_base_url = f"http://{host}:{base_port}/v1"
+
+        self.base_url = (
+            config.get("base_url")
+            or env_base_url
+            or "http://localhost:11434/v1"
+        )
+        self.api_key = (
+            config.get("api_key")
+            or os.environ.get("LLM_API_KEY")
+            or os.environ.get("OLLAMA_API_KEY")
+            or "ollama"
+        )
         self.client = openai.OpenAI(base_url=self.base_url, api_key=self.api_key)
 
         self.observer = observer

@@ -88,7 +88,24 @@ def _collect_models_recursive(data: Any) -> Tuple[Set[str], Set[str]]:
 def _validate_ollama_models(config: Dict, models: Set[str]) -> List[str]:
     """Checks if models exist on the Ollama server."""
     llm_settings = config.get("llm_settings", {})
-    base_url = llm_settings.get("base_url", "http://localhost:11434/v1")
+    env_base_url = os.environ.get("LLM_BASE_URL") or os.environ.get("OLLAMA_BASE_URL")
+    multi_enabled = str(os.environ.get("OLLAMA_MULTI_INSTANCE", "")).strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "y",
+        "on",
+    }
+    if not env_base_url and multi_enabled:
+        host = os.environ.get("OLLAMA_MULTI_HOST", "127.0.0.1")
+        base_port = os.environ.get("OLLAMA_MULTI_BASE_PORT", "11434")
+        env_base_url = f"http://{host}:{base_port}/v1"
+
+    base_url = (
+        llm_settings.get("base_url")
+        or env_base_url
+        or "http://localhost:11434/v1"
+    )
     ctx_len = _resolve_llm_context_length(config)
 
     available_models = set()
@@ -144,7 +161,24 @@ def _resolve_llm_context_length(config: Dict[str, Any]) -> int:
         or os.environ.get("OLLAMA_CONTEXT_LENGTH")
     )
     if ctx_val is None:
-        base_url = llm_settings.get("base_url", "")
+        env_base_url = os.environ.get("LLM_BASE_URL") or os.environ.get("OLLAMA_BASE_URL")
+        multi_enabled = str(os.environ.get("OLLAMA_MULTI_INSTANCE", "")).strip().lower() in {
+            "1",
+            "true",
+            "yes",
+            "y",
+            "on",
+        }
+        if not env_base_url and multi_enabled:
+            host = os.environ.get("OLLAMA_MULTI_HOST", "127.0.0.1")
+            base_port = os.environ.get("OLLAMA_MULTI_BASE_PORT", "11434")
+            env_base_url = f"http://{host}:{base_port}/v1"
+
+        base_url = (
+            llm_settings.get("base_url")
+            or env_base_url
+            or ""
+        )
         base_url_lower = str(base_url).lower()
         if "ollama" in base_url_lower or "11434" in base_url_lower:
             return 65536

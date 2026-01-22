@@ -34,10 +34,13 @@ Operational notes:
 - All network failures are caught and logged; evidence may remain partial.
 """
 
+import concurrent.futures
+import os
 import re
+import socket
 import xml.etree.ElementTree as ET
 from datetime import datetime
-from typing import List, Tuple, Any, Dict
+from typing import List, Tuple, Any, Dict, Optional
 
 import requests
 
@@ -52,61 +55,308 @@ class StatementToQueryStep(PipelineStep):
     def execute(self, state: PipelineState) -> PipelineState:
         print(f"[{self.__class__.__name__}] Generating PubMed queries...")
 
-        for stmt in state.statements:
-            # Ensure list exists (in case of older states)
+        statements = getattr(state, "statements", None) or []
+        if not statements:
+            return state
+
+        prompt_defs = self._build_prompt_defs()
+        if not prompt_defs:
+            raise ValueError("generate_query requires prompt_template or prompt_templates in settings.")
+
+        # Ensure list exists (in case of older states)
+        for stmt in statements:
             if not hasattr(stmt, "queries") or stmt.queries is None:
                 stmt.queries = []
 
-            prompt = self.config.get("prompt_template").format(claim=stmt.text)
-
-            try:
-                resp = self.llm.call(
-                    model=self.config.get("model"),
-                    temperature=self.config.get("temperature", 0.0),
-                    # stop=self.config.get("stop", ["\n"]),  # fine if 1 query/line
-                    prompt=prompt,
-                )
-                self.log_artifact(f"Raw Output for Statement {stmt.id} Query Generation", resp)
-                raw = resp.replace("\n", " ")  # collapse to one line
-                q = self.clean_pubmed_query(raw)
-
-                # Append if not duplicate
-                added = False
-                if q and q.lower() not in {x.lower() for x in stmt.queries}:
-                    stmt.queries.append(q)
-                    added = True
-                if q:
-                    self.log_artifact(
-                        "PubMed Query",
-                        {
-                            "statement_id": stmt.id,
-                            "query": q,
-                            "source": "llm",
-                            "added": added,
-                        },
-                    )
-
-                print(f"   Statement {stmt.id}: + query: {q}")
-
-            except Exception as e:
-                print(f"   [Error] ID {stmt.id}: {e}")
-                fb = self._fallback_query(stmt.text)
-                added = False
-                if fb.lower() not in {x.lower() for x in stmt.queries}:
-                    stmt.queries.append(fb)
-                    added = True
-                self.log_artifact(
-                    "PubMed Query",
+        tasks = []
+        for stmt in statements:
+            for prompt_def in prompt_defs:
+                tasks.append(
                     {
-                        "statement_id": stmt.id,
-                        "query": fb,
-                        "source": "fallback",
-                        "added": added,
-                        "error": str(e),
-                    },
+                        "stmt_id": stmt.id,
+                        "stmt_text": stmt.text,
+                        "prompt_def": prompt_def,
+                    }
                 )
+
+        if not tasks:
+            return state
+
+        base_urls = self._resolve_base_urls()
+        if not base_urls:
+            base_urls = ["http://localhost:11434/v1"]
+
+        max_workers = self._resolve_max_workers(len(tasks), base_urls)
+        results_by_task = {}
+
+        if max_workers <= 1:
+            for task_id, task in enumerate(tasks):
+                base_url = base_urls[task_id % len(base_urls)]
+                results_by_task[task_id] = self._run_task(task, base_url)
+        else:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+                future_map = {}
+                for task_id, task in enumerate(tasks):
+                    base_url = base_urls[task_id % len(base_urls)]
+                    future = executor.submit(self._run_task, task, base_url)
+                    future_map[future] = task_id
+                for future in concurrent.futures.as_completed(future_map):
+                    task_id = future_map[future]
+                    results_by_task[task_id] = future.result()
+
+        stmt_lookup = {s.id: s for s in statements}
+        existing_queries = {
+            s.id: {q.lower() for q in (s.queries or [])} for s in statements
+        }
+
+        total_tokens = 0
+        for task_id, task in enumerate(tasks):
+            result = results_by_task.get(task_id)
+            if not result:
+                continue
+            stmt = stmt_lookup.get(result["stmt_id"])
+            if not stmt:
+                continue
+
+            total_tokens += int(result.get("tokens") or 0)
+
+            q = result.get("query") or ""
+            prompt_name = result.get("prompt_name") or "prompt"
+
+            if result.get("raw_output"):
+                self.log_artifact(
+                    f"Raw Output for Statement {stmt.id} Query Generation ({prompt_name})",
+                    result["raw_output"],
+                )
+
+            added = False
+            if q:
+                lower = q.lower()
+                if lower not in existing_queries[stmt.id]:
+                    stmt.queries.append(q)
+                    existing_queries[stmt.id].add(lower)
+                    added = True
+
+            artifact = {
+                "statement_id": stmt.id,
+                "query": q,
+                "source": result.get("source"),
+                "added": added,
+                "prompt": prompt_name,
+            }
+            if result.get("error"):
+                artifact["error"] = result["error"]
+            if q:
+                self.log_artifact("PubMed Query", artifact)
+
+            if q:
+                print(f"   Statement {stmt.id}: + query ({prompt_name}): {q}")
+
+        if total_tokens:
+            self.add_step_tokens(total_tokens)
 
         return state
+
+    def _build_prompt_defs(self) -> List[Dict[str, Any]]:
+        prompt_templates = self.config.get("prompt_templates")
+        if prompt_templates:
+            defs = []
+            for idx, item in enumerate(prompt_templates, 1):
+                if isinstance(item, str):
+                    template = item
+                    name = f"prompt_{idx}"
+                    overrides = {}
+                elif isinstance(item, dict):
+                    template = item.get("template") or item.get("prompt_template")
+                    name = item.get("name") or item.get("id") or f"prompt_{idx}"
+                    overrides = item
+                else:
+                    continue
+                if not template:
+                    continue
+                defs.append(self._prompt_def(template, name=name, overrides=overrides))
+            return defs
+
+        template = self.config.get("prompt_template")
+        if not template:
+            return []
+        name = self.config.get("name") or "prompt"
+        return [self._prompt_def(template, name=name)]
+
+    def _prompt_def(
+        self,
+        template: str,
+        *,
+        name: str,
+        overrides: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        overrides = overrides or {}
+        return {
+            "name": name,
+            "template": template,
+            "model": overrides.get("model", self.config.get("model")),
+            "temperature": overrides.get("temperature", self.config.get("temperature", 0.0)),
+            "max_tokens": overrides.get("max_tokens", self.config.get("max_tokens")),
+            "stop": overrides.get("stop", self.config.get("stop")),
+        }
+
+    def _run_task(self, task: Dict[str, Any], base_url: str) -> Dict[str, Any]:
+        prompt_def = task["prompt_def"]
+        prompt = prompt_def["template"].format(claim=task["stmt_text"])
+        llm_settings = self._build_llm_settings(base_url)
+
+        raw_output = None
+        error = None
+        source = "llm"
+        query = ""
+        tokens = 0
+
+        try:
+            from ..core.llm import LLMService
+
+            llm = LLMService(llm_settings, observer=self.observer)
+            resp = llm.call(
+                model=prompt_def.get("model"),
+                temperature=prompt_def.get("temperature", 0.0),
+                max_tokens=prompt_def.get("max_tokens"),
+                stop=prompt_def.get("stop"),
+                prompt=prompt,
+            )
+            raw_output = resp
+            raw = resp.replace("\n", " ")
+            query = self.clean_pubmed_query(raw)
+            tokens = int(llm.token_usage.get("total_tokens") or 0)
+        except Exception as exc:
+            error = str(exc)
+            source = "fallback"
+            query = self._fallback_query(task["stmt_text"])
+
+        return {
+            "stmt_id": task["stmt_id"],
+            "prompt_name": prompt_def.get("name") or "prompt",
+            "query": query,
+            "raw_output": raw_output,
+            "error": error,
+            "source": source,
+            "tokens": tokens,
+        }
+
+    def _resolve_max_workers(self, task_count: int, base_urls: List[str]) -> int:
+        parallel = self.config.get("parallel")
+        enabled = False
+        max_workers = None
+
+        if isinstance(parallel, dict):
+            enabled = parallel.get("enabled", parallel.get("max_workers") is not None)
+            max_workers = parallel.get("max_workers")
+        elif isinstance(parallel, bool):
+            enabled = parallel
+        elif isinstance(parallel, int):
+            enabled = parallel > 1
+            max_workers = parallel
+
+        if not enabled:
+            return 1
+
+        if max_workers is None:
+            max_workers = len(base_urls)
+        try:
+            max_workers = int(max_workers)
+        except Exception:
+            max_workers = 1
+
+        if max_workers < 1:
+            return 1
+        return min(max_workers, task_count)
+
+    def _build_llm_settings(self, base_url: str) -> Dict[str, Any]:
+        settings = dict(self.config.get("llm_settings", {}) or {})
+        settings.pop("base_urls", None)
+
+        if base_url:
+            settings["base_url"] = base_url
+        settings.setdefault(
+            "api_key",
+            os.environ.get("LLM_API_KEY") or os.environ.get("OLLAMA_API_KEY") or "ollama",
+        )
+
+        ctx = (
+            settings.get("context_length")
+            or settings.get("num_ctx")
+            or settings.get("max_context")
+            or os.environ.get("LLM_CONTEXT_LENGTH")
+            or os.environ.get("OLLAMA_CONTEXT_LENGTH")
+        )
+        if ctx and "context_length" not in settings:
+            settings["context_length"] = ctx
+
+        return settings
+
+    def _resolve_base_urls(self) -> List[str]:
+        llm_settings = self.config.get("llm_settings", {}) or {}
+        base_urls = llm_settings.get("base_urls")
+        if isinstance(base_urls, list) and base_urls:
+            return [u for u in base_urls if u]
+
+        if self._is_truthy(os.environ.get("OLLAMA_MULTI_INSTANCE")):
+            host = os.environ.get("OLLAMA_MULTI_HOST", "127.0.0.1")
+            try:
+                base_port = int(os.environ.get("OLLAMA_MULTI_BASE_PORT", "11434"))
+            except Exception:
+                base_port = 11434
+            count = self._resolve_multi_count()
+            return [f"http://{host}:{base_port + i}/v1" for i in range(count)]
+
+        env_base = os.environ.get("LLM_BASE_URL") or os.environ.get("OLLAMA_BASE_URL")
+        if env_base:
+            return [env_base]
+
+        base_url = llm_settings.get("base_url") or "http://localhost:11434/v1"
+        return [base_url]
+
+    def _resolve_multi_count(self) -> int:
+        for key in ("OLLAMA_MULTI_COUNT", "OLLAMA_MULTI_INSTANCES", "OLLAMA_MULTI_WORKERS"):
+            raw = os.environ.get(key)
+            if not raw:
+                continue
+            try:
+                val = int(raw)
+                if val > 0:
+                    return val
+            except Exception:
+                continue
+
+        cuda = os.environ.get("CUDA_VISIBLE_DEVICES")
+        if cuda is not None:
+            ids = [p.strip() for p in cuda.split(",") if p.strip()]
+            if ids:
+                return len(ids)
+
+        # Fallback: probe consecutive ports for running Ollama instances.
+        host = os.environ.get("OLLAMA_MULTI_HOST", "127.0.0.1")
+        try:
+            base_port = int(os.environ.get("OLLAMA_MULTI_BASE_PORT", "11434"))
+        except Exception:
+            base_port = 11434
+
+        max_probe = 8
+        count = 0
+        for i in range(max_probe):
+            port = base_port + i
+            if self._is_port_open(host, port):
+                count += 1
+            else:
+                break
+
+        return count if count > 0 else 1
+
+    def _is_port_open(self, host: str, port: int) -> bool:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.settimeout(0.2)
+            return sock.connect_ex((host, port)) == 0
+
+    def _is_truthy(self, value: Optional[str]) -> bool:
+        return str(value).strip().lower() in {"1", "true", "yes", "y", "on"}
     _ALLOWED_TAGS = {"mh", "tiab"}
     def clean_pubmed_query(self, raw: str) -> str:
         q = raw.strip()

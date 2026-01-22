@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import threading
 from datetime import datetime
 from typing import Any, Dict, Protocol, Optional
 
@@ -28,6 +29,7 @@ class PipelineLogger:
         self.log_file = None
         self.prompt_log_file = None
         self._pending_prompt_entries = {}
+        self._lock = threading.RLock()
 
         # Reset loguru to clear default handlers
         logger.remove()
@@ -91,8 +93,9 @@ class PipelineLogger:
         if not self.debug or not self.prompt_log_file:
             return
         try:
-            with open(self.prompt_log_file, "a", encoding="utf-8") as f:
-                f.write(text + "\n")
+            with self._lock:
+                with open(self.prompt_log_file, "a", encoding="utf-8") as f:
+                    f.write(text + "\n")
         except Exception as e:
             print(f"Prompt logging error: {e}")
 
@@ -123,24 +126,26 @@ class PipelineLogger:
     def _flush_prompt_entry(self, usage: Optional[Dict[str, Any]]):
         if not self.debug or not self.prompt_log_file:
             return
-        call_id = usage.get("call_id") if isinstance(usage, dict) else None
-        entry = None
-        if call_id and call_id in self._pending_prompt_entries:
-            entry = self._pending_prompt_entries.pop(call_id)
-        elif call_id is None and len(self._pending_prompt_entries) == 1:
-            entry = self._pending_prompt_entries.pop(next(iter(self._pending_prompt_entries)))
-        if not entry:
-            return
-        self._write_prompt_entry(entry["timestamp"], entry["content"], usage)
+        with self._lock:
+            call_id = usage.get("call_id") if isinstance(usage, dict) else None
+            entry = None
+            if call_id and call_id in self._pending_prompt_entries:
+                entry = self._pending_prompt_entries.pop(call_id)
+            elif call_id is None and len(self._pending_prompt_entries) == 1:
+                entry = self._pending_prompt_entries.pop(next(iter(self._pending_prompt_entries)))
+            if not entry:
+                return
+            self._write_prompt_entry(entry["timestamp"], entry["content"], usage)
 
     def _flush_pending_prompt_entries(self):
         if not self.debug or not self.prompt_log_file:
             return
-        if not self._pending_prompt_entries:
-            return
-        for entry in list(self._pending_prompt_entries.values()):
-            self._write_prompt_entry(entry["timestamp"], entry["content"], usage=None)
-        self._pending_prompt_entries.clear()
+        with self._lock:
+            if not self._pending_prompt_entries:
+                return
+            for entry in list(self._pending_prompt_entries.values()):
+                self._write_prompt_entry(entry["timestamp"], entry["content"], usage=None)
+            self._pending_prompt_entries.clear()
 
     # -------------------------------------------------------------------------
     # PUBLIC EVENTS
@@ -198,24 +203,25 @@ class PipelineLogger:
         if label == "LLM Prompt":
             if not self.debug:
                 return
-            timestamp = datetime.now().strftime("%H:%M:%S")
-            call_id = None
-            prompt_data = data
-            if isinstance(data, dict):
-                call_id = data.get("call_id")
-                prompt_data = dict(data)
-                prompt_data.pop("call_id", None)
-            if isinstance(prompt_data, (dict, list)):
-                content = self._format_json(prompt_data)
-            else:
-                content = str(prompt_data)
-            if call_id:
-                self._pending_prompt_entries[call_id] = {
-                    "timestamp": timestamp,
-                    "content": content,
-                }
-            else:
-                self._write_prompt_entry(timestamp, content, usage=None)
+            with self._lock:
+                timestamp = datetime.now().strftime("%H:%M:%S")
+                call_id = None
+                prompt_data = data
+                if isinstance(data, dict):
+                    call_id = data.get("call_id")
+                    prompt_data = dict(data)
+                    prompt_data.pop("call_id", None)
+                if isinstance(prompt_data, (dict, list)):
+                    content = self._format_json(prompt_data)
+                else:
+                    content = str(prompt_data)
+                if call_id:
+                    self._pending_prompt_entries[call_id] = {
+                        "timestamp": timestamp,
+                        "content": content,
+                    }
+                else:
+                    self._write_prompt_entry(timestamp, content, usage=None)
             return
 
         if label == "LLM Usage Stats":

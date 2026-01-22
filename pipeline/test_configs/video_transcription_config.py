@@ -1,9 +1,11 @@
 import copy
 
-from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER, PROMPT_TMPL_S3_BALANCED_COUNTER, PROMPT_TMPL_S3_HIGHLY_SPECIFIC, PROMPT_TMPL_S3_HIGHLY_SPECIFIC_COUNTER, PROMPT_TMPL_S3_SPECIFIC_COUNTER, PROMPT_TMPL_S7, PROMPT_TMPL_S7_ACTIONABLE_ADVICE, PROMPT_TMPL_S7_ACTIONABLE_ADVICE_V2, PROMPT_TMPL_S7_METRICS
+from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER, PROMPT_TMPL_S3_BALANCED_COUNTER, PROMPT_TMPL_S3_HIGHLY_SPECIFIC, PROMPT_TMPL_S3_HIGHLY_SPECIFIC_COUNTER, PROMPT_TMPL_S3_SPECIFIC_COUNTER, PROMPT_TMPL_S6, PROMPT_TMPL_S7, PROMPT_TMPL_S7_ACTIONABLE_ADVICE, PROMPT_TMPL_S7_ACTIONABLE_ADVICE_V2, PROMPT_TMPL_S7_METRICS
 from pipeline.test_configs.test_extraction import RESEARCH_MODULE, VERIFICATION_MODULE
 from pipeline.test_configs.kai_test import SCORES_MODULE
 from pipeline.test_configs.preprompts import PROMPT_TMPL_S3_SPECIFIC, PROMPT_TMPL_S3_BALANCED, PROMPT_TMPL_S3_ATM_ASSISTED
+
+
 
 BASE_TEMPERATURE = 0.1
 SCORES_MIN_RELEVANCE = 0.6
@@ -12,11 +14,17 @@ BASE_MODEL="gemma3:27b"
 # hf.co/mradermacher/medgemma-27b-text-it-GGUF:Q4_K_M
 # hf.co/mradermacher/DeepSeek-R1-Distill-Qwen-32B-Medical-GGUF:Q6_K
 
-WHISPER_MODEL = "turbo"
+WHISPER_MODEL = "tiny.en"
 # large-v3
 # turbo
+# tiny
 
-STEP_7_MODEL = "gemma3:27b"
+STEP_3_MODEL = "gemma3:12b" # Query Generation Model
+RETMAX = 10  # Number of articles per query
+
+FILTER_VERIFICATION_MODULE_ENABLED = False
+
+STEP_7_MODEL = "gemma3:27b" # Final Truthness Model
 STEP_7_PROMPT = PROMPT_TMPL_S7_ACTIONABLE_ADVICE
 # PROMPT_TMPL_S7
 # PROMPT_TMPL_S7_METRICS
@@ -28,6 +36,13 @@ INCLUDE_EVIDENCE_TEXT = True
 
 SCORES_MODULE_MIN_REL = copy.deepcopy(SCORES_MODULE)
 SCORES_MODULE_MIN_REL["settings"]["steps"][0]["settings"]["min_relevance"] = SCORES_MIN_RELEVANCE
+
+
+
+
+# -----------------------------------------------------------------------------
+# Test config
+# -----------------------------------------------------------------------------
 
 VIDEO_PIPELINE_CONFIG = {
     "name": "Video_To_Audio_Run",
@@ -68,59 +83,25 @@ VIDEO_PIPELINE_CONFIG = {
         
         
         {
-                "type": "generate_query",  # Step 3
-                "settings": {
-                    "model": BASE_MODEL,
-                    "prompt_template": PROMPT_TMPL_S3_BALANCED,
-                    "temperature": BASE_TEMPERATURE,
-                }
+            "type": "generate_query",  # Step 3 (multi-prompt)
+            "settings": {
+                "model": STEP_3_MODEL,
+                "temperature": BASE_TEMPERATURE,
+                "prompt_templates": [
+                    {"name": "balanced", "template": PROMPT_TMPL_S3_BALANCED},
+                    {"name": "balanced_counter", "template": PROMPT_TMPL_S3_BALANCED_COUNTER},
+                    {"name": "specific", "template": PROMPT_TMPL_S3_SPECIFIC},
+                    {"name": "specific_counter", "template": PROMPT_TMPL_S3_SPECIFIC_COUNTER},
+                    # {"name": "atm_assisted", "template": PROMPT_TMPL_S3_ATM_ASSISTED},
+                    # {"name": "atm_assisted_counter", "template": PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER},
+                ],
+                "parallel": {"enabled": True},
             },
-            {
-                "type": "generate_query",  # Step 3
-                "settings": {
-                    "model": BASE_MODEL,
-                    "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER,
-                    "temperature": BASE_TEMPERATURE,
-                }
-            },
-            
-        # {
-        #         "type": "generate_query",  # Step 3
-        #         "settings": {
-        #             "model": BASE_MODEL,
-        #             "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED,
-        #             "temperature": BASE_TEMPERATURE,
-        #         }
-        #     },
-        # {
-        #         "type": "generate_query",  # Step 3
-        #         "settings": {
-        #             "model": BASE_MODEL,
-        #             "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER,
-        #             "temperature": BASE_TEMPERATURE,
-        #         }
-        #     },
-       
-        {
-                "type": "generate_query",  # Step 3
-                "settings": {
-                    "model": BASE_MODEL,
-                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC,
-                    "temperature": BASE_TEMPERATURE,
-                }
-            },
-        {
-                "type": "generate_query",  # Step 3
-                "settings": {
-                    "model": BASE_MODEL,
-                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER,
-                    "temperature": BASE_TEMPERATURE,
-                }
-            },
+        },
         
             {
                 "type": "fetch_links",  # Step 4
-                "settings": {"retmax": 20}
+                "settings": {"retmax": RETMAX}
             },
             {
                 "type": "abstract_evidence",  # Step 5
@@ -131,6 +112,14 @@ VIDEO_PIPELINE_CONFIG = {
                 "settings": {"default_weight": 0.15}
             },
             SCORES_MODULE_MIN_REL,
+        *(
+            [{
+                "type": "filter_evidence",
+                "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6},
+            }]
+            if FILTER_VERIFICATION_MODULE_ENABLED
+            else []
+        ),
         {
                 "type": "truthness",
                 "settings": {
@@ -144,7 +133,7 @@ VIDEO_PIPELINE_CONFIG = {
             {
                 "type": "scoring",
                 "settings": {
-                    "threshold": 0.3
+                    "threshold": 0.4
                 }
             }
     ],
@@ -160,6 +149,14 @@ VIDEO_PIPELINE_CONFIG = {
         #         "min_score": 0.25,
         #     },
         # },
+
+
+
+
+
+# -----------------------------------------------------------------------------
+# APP Config
+# -----------------------------------------------------------------------------
 
 VIDEO_URL_PIPELINE_CONFIG = {
     "name": "Video_URL_End_to_End_Run",
@@ -192,41 +189,25 @@ VIDEO_URL_PIPELINE_CONFIG = {
             },
         },
         {
-                "type": "generate_query",  # Step 3
-                "settings": {
-                    "model": BASE_MODEL,
-                    "prompt_template": PROMPT_TMPL_S3_BALANCED,
-                    "temperature": BASE_TEMPERATURE,
-                }
+            "type": "generate_query",  # Step 3 (multi-prompt)
+            "settings": {
+                "model": STEP_3_MODEL,
+                "temperature": BASE_TEMPERATURE,
+                "prompt_templates": [
+                    {"name": "balanced", "template": PROMPT_TMPL_S3_BALANCED},
+                    {"name": "balanced_counter", "template": PROMPT_TMPL_S3_BALANCED_COUNTER},
+                    {"name": "specific", "template": PROMPT_TMPL_S3_SPECIFIC},
+                    {"name": "specific_counter", "template": PROMPT_TMPL_S3_SPECIFIC_COUNTER},
+                    # {"name": "atm_assisted", "template": PROMPT_TMPL_S3_ATM_ASSISTED},
+                    # {"name": "atm_assisted_counter", "template": PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER},
+                ],
+                "parallel": {"enabled": True},
             },
-        {
-                "type": "generate_query",  # Step 3
-                "settings": {
-                    "model": BASE_MODEL,
-                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC,
-                    "temperature": BASE_TEMPERATURE,
-                }
-            },
-        {
-                "type": "generate_query",  # Step 3
-                "settings": {
-                    "model": BASE_MODEL,
-                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER,
-                    "temperature": BASE_TEMPERATURE,
-                }
-            },
-            {
-                "type": "generate_query",  # Step 3
-                "settings": {
-                    "model": BASE_MODEL,
-                    "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER,
-                    "temperature": BASE_TEMPERATURE,
-                }
-            },
+        },
        
             {
                 "type": "fetch_links",  # Step 4
-                "settings": {"retmax": 20}
+                "settings": {"retmax": RETMAX}
             },
             {
                 "type": "abstract_evidence",  # Step 5
@@ -237,6 +218,14 @@ VIDEO_URL_PIPELINE_CONFIG = {
                 "settings": {"default_weight": 0.15}
             },
             SCORES_MODULE_MIN_REL,
+        *(
+            [{
+                "type": "filter_evidence",
+                "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6},
+            }]
+            if FILTER_VERIFICATION_MODULE_ENABLED
+            else []
+        ),
         {
                 "type": "truthness",
                 "settings": {

@@ -25,29 +25,18 @@ AUDIO_PIPELINE_CONFIG = {
             },
         },
         {
-                "type": "generate_query",  # Step 3
-                "settings": {
-                    "model": "gemma3:12b",
-                    "prompt_template": PROMPT_TMPL_S3_BALANCED,
-                    "temperature": BASE_TEMPERATURE,
-                }
+            "type": "generate_query",  # Step 3 (multi-prompt)
+            "settings": {
+                "model": "gemma3:12b",
+                "temperature": BASE_TEMPERATURE,
+                "prompt_templates": [
+                    {"name": "balanced", "template": PROMPT_TMPL_S3_BALANCED},
+                    {"name": "specific", "template": PROMPT_TMPL_S3_SPECIFIC},
+                    {"name": "atm_assisted", "template": PROMPT_TMPL_S3_ATM_ASSISTED},
+                ],
+                "parallel": {"enabled": True},
             },
-        {
-                "type": "generate_query",  # Step 3
-                "settings": {
-                    "model": "gemma3:12b",
-                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC,
-                    "temperature": BASE_TEMPERATURE,
-                }
-            },
-        {
-                "type": "generate_query",  # Step 3
-                "settings": {
-                    "model": "gemma3:12b",
-                    "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED,
-                    "temperature": BASE_TEMPERATURE,
-                }
-            },
+        },
             {
                 "type": "fetch_links",  # Step 4
                 "settings": {"retmax": 5}
@@ -77,6 +66,5 @@ AUDIO_PIPELINE_CONFIG = {
             }
     ],
 }
-
 
 

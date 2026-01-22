@@ -6,7 +6,9 @@ ollama ps
 
 ~/ollama/bin/ollama serve
 
-uvicorn app.main:app --host 0.0.0.0 --port 6006 
+
+uvicorn app.main:app --host 0.0.0.0 --port 6006
+
 
 curl.exe http://im-redstone02.hs-regensburg.de:32311/number
 
@@ -54,3 +56,41 @@ ollama ls
 
 python -m pip install -r requirements.txt
 conda env create -f environment.yml
+
+
+
+
+Multiprocessing:
+Bash 1:
+export OLLAMA_MULTI_INSTANCE=1
+export OLLAMA_MULTI_HOST=127.0.0.1
+export OLLAMA_MULTI_BASE_PORT=11434
+
+CUDA_VISIBLE_DEVICES=0 OLLAMA_HOST=127.0.0.1:11434 ollama serve &
+CUDA_VISIBLE_DEVICES=1 OLLAMA_HOST=127.0.0.1:11435 ollama serve &
+CUDA_VISIBLE_DEVICES=2 OLLAMA_HOST=127.0.0.1:11436 ollama serve &
+CUDA_VISIBLE_DEVICES=3 OLLAMA_HOST=127.0.0.1:11437 ollama serve &
+wait
+
+
+Bash 2:
+export OLLAMA_MULTI_INSTANCE=1
+export OLLAMA_MULTI_HOST=127.0.0.1
+export OLLAMA_MULTI_BASE_PORT=11434
+uvicorn app.main:app --host 0.0.0.0 --port 6006
+
+Config for Multiprocessing:
+"type": "generate_query",  # Step 3 (multi-prompt)
+            "settings": {
+                "model": BASE_MODEL,
+                "temperature": BASE_TEMPERATURE,
+                "prompt_templates": [
+                    {"name": "balanced", "template": PROMPT_TMPL_S3_BALANCED},
+                    {"name": "balanced_counter", "template": PROMPT_TMPL_S3_BALANCED_COUNTER},
+                    {"name": "specific", "template": PROMPT_TMPL_S3_SPECIFIC},
+                    {"name": "specific_counter", "template": PROMPT_TMPL_S3_SPECIFIC_COUNTER},
+                    # {"name": "atm_assisted", "template": PROMPT_TMPL_S3_ATM_ASSISTED},
+                    # {"name": "atm_assisted_counter", "template": PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER},
+                ],
+                "parallel": {"enabled": True},
+            },
