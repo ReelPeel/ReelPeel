@@ -99,7 +99,7 @@ SCORES_MODULE = {
                     "max_length": 4096,
                     "score_fields": ["abstract"],
                     "empty_relevance": 0.0,
-                    "min_relevance": 0.6,
+                    "min_relevance": 0.7,
                 },
             },
             {

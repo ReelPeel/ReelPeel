@@ -13,6 +13,55 @@ def get_prompt_s3_by_name(name: str) -> str:
 # Step 2: Extract medical claims from transcript
 # ────────────────────────────────────────────────────────────────────
 PROMPT_TMPL_S2 = """
+You are part of a medical fact-checking pipeline.
+If you propagate a false statement, the system may mislead people.
+
+INPUT TRANSCRIPT
+---------------
+{transcript}
+---------------
+
+TASK
+Extract medical claims suitable for fact-checking.
+
+GOAL
+Extract all distinct, checkable medical claims that appear in the transcript. The number of returned claims must adapt to the transcript content.
+
+SELECTION RULES
+1. Return as many distinct medical claims as are present, up to a maximum of 8. Prefer the most clinically important and/or potentially harmful if there are more.
+2. A "medical claim" is an assertion about health, disease, symptoms, diagnosis, treatment, prevention, risk, prognosis, nutrition/supplements, physiology, medical tests, medication safety, or health outcomes.
+3. Aim for high recall: if a statement is plausibly a medical claim and is checkable, include it rather than omitting it.
+4. Prefer specific, testable assertions over vague advice. Keep the speaker's implied certainty (do not add extra hedging or extra certainty).
+5. Split compound statements into separate claims when they can be checked independently (e.g., "X reduces Y and Z" -> two claims). Merge duplicates / near-duplicates into one concise claim.
+6. Preserve key qualifiers when present (population, dosage, timing, comparator, directionality like increases vs decreases). Rewrite each claim to be self-contained and context-independent, while preserving meaning.
+
+AFFIRMATIVE-ONLY NORMALIZATION (CRITICAL)
+7. Every returned claim MUST be phrased as an affirmative statement (no negations).
+   - If the transcript states a NEGATED claim, INVERT it into its affirmative counterpart.
+     Examples:
+       - "Vitamin D supplementation does NOT reduce cancer incidence." -> "Vitamin D supplementation reduces cancer incidence."
+       - "X is NOT effective for Y." -> "X is effective for Y."
+       - "X does NOT increase risk of Y." -> "X increases risk of Y."
+       - "X is NOT associated with Y." -> "X is associated with Y."
+       - "You should NEVER do X." -> "You should do X."
+       - "X causes NO side effects." -> "X causes side effects."
+       - "X prevents NO infections." -> "X prevents infections."
+   - Preserve modality and qualifiers when possible (e.g., "may", "can", "in adults", "at 2000 IU/day"), but remove the negation and flip the direction accordingly.
+8. HARD BAN: Do not output any of these tokens/phrases (case-insensitive) in the claims:
+   "not", "no", "never", "none", "without", "lack of", "doesn't", "does not", "don't", "do not", "cannot", "can't",
+   "isn't", "is not", "aren't", "are not", "wasn't", "was not", "weren't", "were not", "won't", "will not".
+
+EXCLUSION RULES
+9. Exclude: greetings, jokes, moral/motivational advice, non-medical content, pure opinions, and statements too vague or non-falsifiable to verify.
+10. If there are no medical claims, return an empty array: []
+
+STRICT OUTPUT
+A valid JSON array of strings.
+No commentary, no extra keys, no markdown.
+"""
+
+
+PROMPT_TMPL_S2_OLD = """
 You are part of a medical fact-checking pipeline.  
 If you propagate a false statement, the system may mislead people.
 
@@ -362,60 +411,6 @@ Respond with only: yes | no
 # Step 7: Final verdict and truthfulness scoring
 # ────────────────────────────────────────────────────────────────────
 PROMPT_TMPL_S7 = """
-You are a medical evidence auditor. Your priority is to avoid false positives (calling something TRUE when it is not well-supported). Be skeptical, not accommodating.
-
-TASK:
-Using ALL provided evidence, determine whether it collectively SUPPORTS the claim, REFUTES the claim, or leaves it UNCERTAIN.
-
-EVIDENCE INTERPRETATION RULES (STRICT):
-1) Quality over count:
-   - Do NOT decide by “number of papers.” Medical literature is subject to publication bias and abstract-level spin.
-   - A few weak/positive studies do not outweigh one strong negative/neutral study.
-2) Prefer higher-grade evidence:
-   - Highest: systematic reviews/meta-analyses of RCTs, well-powered RCTs with clinically meaningful outcomes.
-   - Medium: prospective cohorts with good controls.
-   - Low: cross-sectional, mechanistic, animal/in-vitro, narrative reviews, editorials/letters.
-3) Directness required:
-   - Evidence must match the claim’s population, exposure/dose, comparator, and outcome.
-   - If evidence only supports a narrower claim (subgroup, short-term, surrogate endpoint) but the claim is broad/general, treat that as NOT supported.
-4) “No effect / safe” claims require strong proof:
-   - Claims like “does not increase risk / is safe / has no effect” need high-quality evidence designed to detect harm or show non-inferiority/equivalence.
-   - Absence of reported harm in limited studies is NOT proof of safety.
-5) Conflicts and ambiguity:
-   - If evidence is mixed, low-quality, indirect, or largely neutral → choose UNCERTAIN.
-
-METADATA USE (if present in EVIDENCE lines):
-- w (weight): higher = stronger study type/quality
-- rel: higher = more directly on-claim
-- stance: S/R/N (supports/refutes/neutral) possibly with probability
-Use metadata as a tie-breaker, not as a substitute for actual evidentiary strength.
-
-VERDICT THRESHOLDS (STRICT):
-- TRUE only if there are MULTIPLE high-quality, high-relevance sources that consistently support the claim, with no credible high-quality refutation.
-- FALSE if high-quality, high-relevance evidence consistently refutes the claim OR if the claim is overly broad and the best evidence contradicts its generality.
-- Otherwise UNCERTAIN.
-
-SCORING (FINALSCORE = P(claim true)):
-- Default skeptical prior:
-  - If evidence is absent OR only low-relevance/neutral/low-quality evidence is present: UNCERTAIN with FINALSCORE = 0.45.
-- UNCERTAIN range: 0.40–0.60 (use 0.45 unless evidence clearly leans one way).
-- TRUE range: 0.65–0.90 (use 0.75 for solid support; up to 0.85–0.90 only for strong, consistent top-grade evidence).
-- FALSE range: 0.10–0.35 (use ~0.25 for solid refutation; avoid 0.00).
-Do not use 0.00 or 1.00.
-
-CLAIM:
-{claim_text}
-
-EVIDENCE:
-{evidence_block}
-
-Return ONLY the two lines below, with no additional text:
-
-VERDICT: true|false|uncertain
-FINALSCORE: <probability 0.00–1.00>
-"""
-
-PROMPT_TMPL_S7_OLD = """
 You are a professional medical fact-checker.  
 A wrong verdict could spread misinformation, so analyze the evidence carefully before finalizing your answer.
 

@@ -1,5 +1,9 @@
 export OLLAMA_CONTEXT_LENGTH=65536
 
+Check models (during runtime):
+ollama ps
+
+
 ~/ollama/bin/ollama serve
 
 uvicorn app.main:app --host 0.0.0.0 --port 6006 
