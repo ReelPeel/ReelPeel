@@ -1,6 +1,8 @@
 # main.py ──────────────────────────────────────────────────────────────
 from fastapi import FastAPI, Body, HTTPException
-import shutil, os
+import asyncio
+import shutil
+import os
 from .pipeline import run_pipeline
   # ← your existing heavy pipeline
 from typing import Any, Dict, List, Optional
@@ -26,6 +28,9 @@ SUMMARY_MAX_TOKENS = int(os.getenv("SUMMARY_MAX_TOKENS", "120"))
 SUMMARY_MAX_CHARS = int(os.getenv("SUMMARY_MAX_CHARS", "2000"))
 LLM_BASE_URL = os.getenv("LLM_BASE_URL", "http://localhost:11434/v1")
 LLM_API_KEY = os.getenv("LLM_API_KEY", "ollama")
+
+# Serialize heavy operations to avoid parallel LLM/pipeline loads.
+_PIPELINE_LOCK = asyncio.Lock()
 
 def extract_reel_id(instagram_url: str) -> str:
     """
@@ -79,73 +84,75 @@ def _build_llm_service() -> LLMService:
 
 @app.post("/process")
 async def process(payload: dict = Body(...)):
-    print("Received payload:", payload)
-    url  = payload.get("url")
-    print(url)
-    if not url:
-        raise HTTPException(400, "JSON body must contain a 'url' field")
+    async with _PIPELINE_LOCK:
+        print("Received payload:", payload)
+        url = payload.get("url")
+        print(url)
+        if not url:
+            raise HTTPException(400, "JSON body must contain a 'url' field")
 
-    reel_id = extract_reel_id(url)
-    mock    = _coerce_bool(payload.get("mock", False))
+        reel_id = extract_reel_id(url)
+        mock = _coerce_bool(payload.get("mock", False))
 
-    result = None
-    try:
-        if mock:
-            # Mock mode: just look for a pre-made WAV named <reel_id>.wav
-            wav_path = os.path.abspath(f"{reel_id}.wav")
-            if not os.path.exists(wav_path):
-                raise HTTPException(400, f"Mock WAV not found: {wav_path}")
-            result = run_pipeline(audio_path=wav_path)     # your existing inference step
-        else:
-            result = run_pipeline(video_url=url)
-        return result
-    finally:
-        if not mock and result:
-            video_path = result.get("video_path")
-            audio_path = result.get("audio_path")
-            cleanup_path = video_path or audio_path
-            if cleanup_path:
-                shutil.rmtree(os.path.dirname(cleanup_path), ignore_errors=True)
+        result = None
+        try:
+            if mock:
+                # Mock mode: just look for a pre-made WAV named <reel_id>.wav
+                wav_path = os.path.abspath(f"{reel_id}.wav")
+                if not os.path.exists(wav_path):
+                    raise HTTPException(400, f"Mock WAV not found: {wav_path}")
+                result = run_pipeline(audio_path=wav_path)  # your existing inference step
+            else:
+                result = run_pipeline(video_url=url)
+            return result
+        finally:
+            if not mock and result:
+                video_path = result.get("video_path")
+                audio_path = result.get("audio_path")
+                cleanup_path = video_path or audio_path
+                if cleanup_path:
+                    shutil.rmtree(os.path.dirname(cleanup_path), ignore_errors=True)
 
 @app.post("/evidence_summary")
 async def evidence_summary(payload: dict = Body(...)):
-    statement = _clean_text(payload.get("statement") or payload.get("statement_text"), SUMMARY_MAX_CHARS)
-    evidence = payload.get("evidence") or {}
-    abstract = _clean_text(
-        evidence.get("abstract") or evidence.get("text") or evidence.get("summary"),
-        SUMMARY_MAX_CHARS,
-    )
-
-    if not statement:
-        raise HTTPException(400, "JSON body must contain a 'statement' field")
-    if not abstract:
-        raise HTTPException(400, "Evidence abstract is required for summary")
-
-    stance = _clean_text(
-        evidence.get("stance")
-        or evidence.get("Stance")
-        or evidence.get("STANCE")
-        or "Unknown",
-        SUMMARY_MAX_CHARS,
-    )
-
-    prompt = PROMPT_TMPL_EVIDENCE_SUMMARY.format(
-        statement=statement,
-        stance=stance,
-        abstract=abstract,
-    )
-
-    try:
-        summary = _build_llm_service().call(
-            prompt=prompt,
-            model=SUMMARY_MODEL,
-            temperature=SUMMARY_TEMPERATURE,
-            max_tokens=SUMMARY_MAX_TOKENS,
+    async with _PIPELINE_LOCK:
+        statement = _clean_text(payload.get("statement") or payload.get("statement_text"), SUMMARY_MAX_CHARS)
+        evidence = payload.get("evidence") or {}
+        abstract = _clean_text(
+            evidence.get("abstract") or evidence.get("text") or evidence.get("summary"),
+            SUMMARY_MAX_CHARS,
         )
-    except Exception as exc:
-        raise HTTPException(500, f"Summary generation failed: {exc}") from exc
 
-    return {"summary": summary}
+        if not statement:
+            raise HTTPException(400, "JSON body must contain a 'statement' field")
+        if not abstract:
+            raise HTTPException(400, "Evidence abstract is required for summary")
+
+        stance = _clean_text(
+            evidence.get("stance")
+            or evidence.get("Stance")
+            or evidence.get("STANCE")
+            or "Unknown",
+            SUMMARY_MAX_CHARS,
+        )
+
+        prompt = PROMPT_TMPL_EVIDENCE_SUMMARY.format(
+            statement=statement,
+            stance=stance,
+            abstract=abstract,
+        )
+
+        try:
+            summary = _build_llm_service().call(
+                prompt=prompt,
+                model=SUMMARY_MODEL,
+                temperature=SUMMARY_TEMPERATURE,
+                max_tokens=SUMMARY_MAX_TOKENS,
+            )
+        except Exception as exc:
+            raise HTTPException(500, f"Summary generation failed: {exc}") from exc
+
+        return {"summary": summary}
 
 @app.get("/number")
 async def get_number():

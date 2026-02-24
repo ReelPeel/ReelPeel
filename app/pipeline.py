@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional
 from pipeline.core.models import PipelineState
 from pipeline.core.orchestrator import PipelineOrchestrator
 from pipeline.test_configs.audio_transcription_config import AUDIO_PIPELINE_CONFIG
-from pipeline.test_configs.video_transcription_config import VIDEO_URL_PIPELINE_CONFIG
+from pipeline.test_configs.dis_config import VIDEO_URL_PIPELINE_CONFIG
 
 
 def _build_audio_config(audio_path: str) -> Dict[str, Any]:

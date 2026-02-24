@@ -22,7 +22,7 @@ INPUT TRANSCRIPT
 ---------------
 
 TASK  
-Extract **medical claims** suitable for fact-checking.
+Extract **medical claims** suitable for fact-checking. 
 
 GOAL
 Extract all distinct, checkable medical claims that appear in the transcript. The number of returned claims must adapt to the transcript content.
@@ -37,8 +37,9 @@ SELECTION RULES
 7. Exclude: greetings, jokes, moral/motivational advice, non-medical content, pure opinions, and statements too vague or non-falsifiable to verify.
 8. If there are **no** medical claims, return an empty array: []
 
+
 STRICT OUTPUT  
-A valid JSON array of 1–5 strings.  
+A valid JSON array of **0–5** strings.  
 No commentary, no extra keys, no markdown.
 """
 

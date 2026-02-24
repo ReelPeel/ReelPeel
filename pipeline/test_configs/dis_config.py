@@ -1,7 +1,6 @@
-from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_BALANCED_COUNTER, PROMPT_TMPL_S3_SPECIFIC_COUNTER, PROMPT_TMPL_S7
-from pipeline.test_configs.test_extraction import RESEARCH_MODULE, VERIFICATION_MODULE
+from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_SPECIFIC, PROMPT_TMPL_S3_SPECIFIC_COUNTER
+from pipeline.test_configs.test_extraction import RESEARCH_MODULE
 from pipeline.test_configs.kai_test import SCORES_MODULE
-from pipeline.test_configs.preprompts import PROMPT_TMPL_S3_SPECIFIC, PROMPT_TMPL_S3_BALANCED, PROMPT_TMPL_S3_ATM_ASSISTED
 
 
 VIDEO_PIPELINE_CONFIG = {
@@ -71,8 +70,6 @@ VIDEO_PIPELINE_CONFIG = {
         
         
             
-        VERIFICATION_MODULE,
-
     ],
 }
 
@@ -136,20 +133,7 @@ VIDEO_URL_PIPELINE_CONFIG = {
                 "type": "weight_evidence",  # Step 5.1
                 "settings": {"default_weight": 0.15}
             },
-            SCORES_MODULE,
-        {
-                "type": "truthness",
-                "settings": {
-                    "model": "gemma3:27b",
-                    "prompt_template": PROMPT_TMPL_S7
-                }
-            },
-            # Step 8: Final Score
-            {
-                "type": "scoring",
-                "settings": {
-                    "threshold": 0.15
-                }
-            }
+            SCORES_MODULE,      
+          
     ],
 }

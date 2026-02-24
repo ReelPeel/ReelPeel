@@ -76,12 +76,6 @@ function isReelUrl() {
   );
 }
 
-function getScoreColor(score) {
-  if (score <= 30) return "low-score";
-  if (score <= 75) return "medium-score";
-  return "high-score";
-}
-
 function formatScore(value) {
   if (value === null || value === undefined || value === "") return "N/A";
   const num = Number(value);
@@ -98,6 +92,12 @@ function formatPubType(pubType) {
     return cleaned.length ? cleaned.join(", ") : "Unknown";
   }
   return String(pubType);
+}
+
+function formatStatementCount(count) {
+  if (!Number.isFinite(count)) return "Statements to inspect";
+  const label = count === 1 ? "statement" : "statements";
+  return `${count} ${label} to inspect`;
 }
 
 function formatEvidenceTitle(evidence) {
@@ -120,22 +120,6 @@ function getEvidenceUrl(evidence) {
   if (evidence.epistemonikos_id)
     return `https://www.epistemonikos.org/en/documents/${evidence.epistemonikos_id}`;
   return null;
-}
-
-function normalizeScore(rawValue) {
-  if (rawValue === null || rawValue === undefined || rawValue === "") {
-    return null;
-  }
-  const num = Number(rawValue);
-  if (!Number.isFinite(num)) return null;
-  let percent = num;
-  if (num >= 0 && num <= 1) {
-    percent = num * 100;
-  }
-  if (percent < 0 || percent > 100) {
-    return null;
-  }
-  return Math.round(percent);
 }
 
 function getMetaContent(key) {
@@ -360,19 +344,21 @@ function createEvidenceItem(evidence, options = {}) {
 }
 
 function createPopupState() {
-  const medicalScore = 0;
-  const needleRotation = medicalScore * 1.8 - 90; // Convert score to degrees (-90 to 90)
-
   const popup = document.createElement("div");
   popup.className = "reel-alert";
   popup.innerHTML = `
-    <div class="dial-container">
-      <div class="dial-background">
-        <div class="loading-needle dial-needle" style="transform: rotate(${needleRotation}deg);"></div>
-      </div>
-      <span style="display: none;" id="percent-number" class="score-percentage"><span style="font-size: 14px;">Loading...</span></span>
+    <div class="inspect-container">
+      <button class="inspect-button" type="button" aria-label="Inspect statements">
+        <span class="inspect-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle>
+            <line x1="16.65" y1="16.65" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+          </svg>
+        </span>
+        <span id="statement-count" class="inspect-count">Analyzing statements...</span>
+      </button>
     </div>
-    
+
     <div class="dropdown-container">
       <div id="statements-view" class="panel-view active">
         <div class="dropdown-content">
@@ -413,9 +399,8 @@ function createPopupState() {
   document.body.appendChild(popup);
   const state = {
     popup,
-    dialContainer: popup.querySelector(".dial-container"),
-    needle: popup.querySelector(".dial-needle"),
-    percentNumber: popup.querySelector("#percent-number"),
+    inspectButton: popup.querySelector(".inspect-button"),
+    statementCount: popup.querySelector("#statement-count"),
     statementsView: popup.querySelector("#statements-view"),
     evidenceView: popup.querySelector("#evidence-view"),
     evidenceTitle: popup.querySelector("#evidence-title"),
@@ -439,8 +424,10 @@ function createPopupState() {
 
   state.setExpanded = function (isExpanded) {
     state.popup.classList.toggle("expanded", isExpanded);
-    state.dialContainer.style.height = isExpanded ? "auto" : "40px";
-    state.percentNumber.style.display = isExpanded ? "block" : "none";
+  };
+
+  state.setStatementCount = function (count) {
+    state.statementCount.textContent = formatStatementCount(count);
   };
 
   state.showStatementsView = function () {
@@ -663,50 +650,17 @@ function createPopupState() {
     state.activeEvidence = null;
     state.activeEvidenceIndex = null;
     state.activeSummaryKey = null;
-    state.setScore(null);
+    state.setStatementCount(0);
   };
 
   state.setLoading = function () {
-    state.needle.style.display = "block";
-    state.needle.classList.add("loading-needle");
-    state.percentNumber.textContent = "Loading...";
-    state.percentNumber.classList.remove(
-      "high-score",
-      "medium-score",
-      "low-score"
-    );
-  };
-
-  state.setScore = function (score) {
-    if (!Number.isFinite(score)) {
-      state.needle.style.display = "block";
-      state.needle.classList.remove("loading-needle");
-      state.needle.style.transform = "rotate(-90deg)";
-      state.percentNumber.textContent = "N/A";
-      state.percentNumber.classList.remove(
-        "high-score",
-        "medium-score",
-        "low-score"
-      );
-      return;
-    }
-
-    const needleRotation = score * 1.8 - 90;
-    state.needle.style.display = "block";
-    state.needle.classList.remove("loading-needle");
-    state.needle.style.transform = `rotate(${needleRotation}deg)`;
-    state.percentNumber.textContent = `${score}%`;
-    state.percentNumber.classList.remove(
-      "high-score",
-      "medium-score",
-      "low-score"
-    );
-    state.percentNumber.classList.add(getScoreColor(score));
+    state.statementCount.textContent = "Analyzing statements...";
   };
 
   state.setStatements = function (statements) {
     state.listContent.innerHTML = "";
     state.statements = Array.isArray(statements) ? statements : [];
+    state.setStatementCount(state.statements.length);
 
     for (const statement of state.statements) {
       if (statement && Array.isArray(statement.evidence)) {
@@ -719,26 +673,16 @@ function createPopupState() {
       const listItem = document.createElement("li");
       listItem.className = "statement-item";
 
-      const verdictButton = document.createElement("button");
-      verdictButton.className = "feedback-button";
-      verdictButton.type = "button";
-
-      if (statement.verdict == "true") {
-        verdictButton.title = "Agree with analysis";
-        verdictButton.innerHTML = `<svg viewBox="0 0 24 24" fill="green">
-          <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
-        </svg>`;
-      } else if (statement.verdict == "false") {
-        verdictButton.title = "Disagree with analysis";
-        verdictButton.innerHTML = `<svg viewBox="0 0 24 24" fill="red">
-          <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.58-6.59c.37-.36.59-.86.59-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
-        </svg>`;
-      } else {
-        verdictButton.title = "Disagree with analysis";
-        verdictButton.innerHTML = `<svg viewBox="0 0 24 24" fill="orange" style="transform: rotate(0.25turn)">
-          <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.58-6.59c.37-.36.59-.86.59-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
-        </svg>`;
-      }
+      const evidenceCount = document.createElement("span");
+      evidenceCount.className = "statement-count";
+      const evidenceTotal =
+        statement && Array.isArray(statement.evidence)
+          ? statement.evidence.length
+          : 0;
+      evidenceCount.textContent = String(evidenceTotal);
+      evidenceCount.title = `${evidenceTotal} evidence item${
+        evidenceTotal === 1 ? "" : "s"
+      }`;
 
       const statementText = document.createElement("span");
       statementText.className = "statement-text";
@@ -763,12 +707,12 @@ function createPopupState() {
       }
       evidenceButton.dataset.statementIndex = String(i);
 
-      listItem.append(verdictButton, statementText, evidenceButton);
+      listItem.append(evidenceCount, statementText, evidenceButton);
       state.listContent.appendChild(listItem);
     }
   };
 
-  state.dialContainer.addEventListener("click", () => {
+  state.inspectButton.addEventListener("click", () => {
     if (state.viewMode === "summary") {
       if (state.activeStatement) {
         state.showEvidenceView(state.activeStatement, state.activeStatementIndex);
@@ -869,11 +813,7 @@ async function runAnalysis(reelUrl) {
     if (window.location.href !== reelUrl) return;
 
     const statements = data && data.statements ? data.statements : [];
-    const rawScore = data ? data["overall_truthiness"] : null;
-    const medicalScore = normalizeScore(rawScore);
-
     state.setStatements(statements);
-    state.setScore(medicalScore);
     lastAnalyzedUrl = reelUrl;
   } catch (error) {
     console.error("Error in content script" + error);
