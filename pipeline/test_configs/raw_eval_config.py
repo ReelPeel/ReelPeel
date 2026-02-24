@@ -29,9 +29,11 @@ from pipeline.test_configs.preprompts import (
 # 8) Final Score
 
 BASE_TEMPERATURE = 0.7
-BASE_MODEL = "gemma3:27b"
-BASE_WEIGHT = 0.4
 BASE_MIN_RELEVANCE = 0.65
+BASE_MODEL = "gemma3:27b"
+
+
+BASE_WEIGHT = 0.4
 BASE_STANCE_NEUTRAL = 0.3
 BASE_RETMAX = 60
 BASE_THRESHOLD_SCORE = 0.3      # Increased weighting for statements with low score for overall score
@@ -44,7 +46,7 @@ BASE_THRESHOLD_SCORE = 0.3      # Increased weighting for statements with low sc
 #    - Dicts mit "type": "module" (z.B. BASE_RESEARCH_MODULE) werden ignoriert
 #      und nie direkt ausgeführt.
 #    - Dicts ohne "name" oder ohne "steps" werden ebenfalls ignoriert.
-#    => Ausgeführt werden nur die Configs wie RAW_PIPELINE_CONFIG, PUBMED_*_CONFIG.
+#    => Ausgeführt werden nur die Configs wie RAW_EVAL_PIPELINE_CONFIG, PUBMED_*_CONFIG.
 #
 # 2) Multiprocessing/Parallelisierung:
 #    evaluation.py entscheidet anhand der verfügbaren GPUs:
@@ -144,11 +146,11 @@ BASE_VERIFICATION_MODULE = {
                 "type": "truthness",
                 "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE},
             },
-            # Step 8: scoring
-            {
-                "type": "scoring",
-                "settings": {"threshold": BASE_THRESHOLD_SCORE},
-            },
+            # # Step 8: scoring
+            # {
+            #     "type": "scoring",
+            #     "settings": {"threshold": BASE_THRESHOLD_SCORE},
+            # },
         ],
     },
 }
@@ -169,7 +171,7 @@ BASE_VERIFICATION_MODULE = {
 
 
 
-RAW_PIPELINE_CONFIG = {
+RAW_EVAL_PIPELINE_CONFIG = {
     "name": "Raw_Eval_Pipeline",
     "debug": True,
     "steps": [
@@ -180,27 +182,27 @@ RAW_PIPELINE_CONFIG = {
     ],
 }
 
-# RAW_MEDGEMMA_PIPELINE_CONFIG = {
-#     "name": "Raw_Medgemma_Eval_Pipeline",
-#     "debug": True,
-#     "steps": [
-#         # Step 1: mock_statements
-#         {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
-#         # Step 7: truthness
-#         {"type": "truthness", "settings": {"model": "medgemma:latest", "prompt_template": PROMPT_TMPL_S7_RAW, "temperature": BASE_TEMPERATURE}},
-#     ],
-# }
+RAW_MEDGEMMA_EVAL_PIPELINE_CONFIG = {
+    "name": "Raw_Medgemma_Eval_Pipeline",
+    "debug": True,
+    "steps": [
+        # Step 1: mock_statements
+        {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
+        # Step 7: truthness
+        {"type": "truthness", "settings": {"model": "medgemma:latest", "prompt_template": PROMPT_TMPL_S7_RAW, "temperature": BASE_TEMPERATURE}},
+    ],
+}
 
-# RAW_MEDITRON_PIPELINE_CONFIG = {
-#     "name": "Raw_Meditron_Eval_Pipeline",
-#     "debug": True,
-#     "steps": [
-#         # Step 1: mock_statements
-#         {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
-#         # Step 7: truthness
-#         {"type": "truthness", "settings": {"model": "hf.co/mradermacher/Meditron3-70B-GGUF:latest", "prompt_template": PROMPT_TMPL_S7_ASYMMETRIC_RAW, "temperature": BASE_TEMPERATURE}},
-#     ],
-# }
+RAW_MEDITRON_EVAL_PIPELINE_CONFIG = {
+    "name": "Raw_Meditron_Eval_Pipeline",
+    "debug": True,
+    "steps": [
+        # Step 1: mock_statements
+        {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
+        # Step 7: truthness
+        {"type": "truthness", "settings": {"model": "hf.co/mradermacher/Meditron3-70B-GGUF:latest", "prompt_template": PROMPT_TMPL_S7_RAW, "temperature": BASE_TEMPERATURE}},
+    ],
+}
 
 
 
@@ -212,52 +214,61 @@ def _research_module_with_prompt(prompt_template) -> dict:
     return module
 
 
-# PUBMED_ATM_ASSISTED_CONFIG = {
-#     "name": "PubMed_1Query_ATM_Assisted",
-#     "debug": True,
-#     "steps": [
-#         # Step 1: mock_statements
-#         {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
-#         # Step 3-5.1: BASE_RESEARCH_MODULE (ATM Assisted)
-#         _research_module_with_prompt(PROMPT_TMPL_S3_ATM_ASSISTED),
-#         # Step 6: filter_evidence
-#         {"type": "filter_evidence", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6, "temperature": BASE_TEMPERATURE}},
-#         # Step 7: truthness
-#         {"type": "truthness", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE}},
-#     ],
-# }
+def _verification_module_with_prompts(model, filter_prompt_template, truthness_prompt_template) -> dict:
+    module = deepcopy(BASE_VERIFICATION_MODULE)
+    module["settings"]["steps"][0]["settings"]["model"] = model
+    module["settings"]["steps"][0]["settings"]["prompt_template"] = filter_prompt_template
+    module["settings"]["steps"][1]["settings"]["model"] = model
+    module["settings"]["steps"][1]["settings"]["prompt_template"] = truthness_prompt_template
+    return module
 
-# PUBMED_ATM_ASSISTED_COUNTER_CONFIG = {
-#     "name": "PubMed_1Query_ATM_Assisted_Counter",
-#     "debug": True,
-#     "steps": [
-#         # Step 1: mock_statements
-#         {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
-#         # Step 3-5.1: BASE_RESEARCH_MODULE (ATM Assisted Counter)
-#         _research_module_with_prompt(PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER),
-#         # Step 6: filter_evidence
-#         {"type": "filter_evidence", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6, "temperature": BASE_TEMPERATURE}},
-#         # Step 7: truthness
-#         {"type": "truthness", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE}},
-#     ],
-# }
 
-# PUBMED_BALANCED_CONFIG = {
-#     "name": "PubMed_1Query_Balanced",
-#     "debug": True,
-#     "steps": [
-#         # Step 1: mock_statements
-#         {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
-#         # Step 3-5.1: BASE_RESEARCH_MODULE (Balanced)
-#         _research_module_with_prompt(PROMPT_TMPL_S3_BALANCED),
-#         # Step 6: filter_evidence
-#         {"type": "filter_evidence", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6, "temperature": BASE_TEMPERATURE}},
-#         # Step 7: truthness
-#         {"type": "truthness", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE}},
-#     ],
-# }
+PUBMED_1QUERY_ATM_ASSISTED_CONFIG = {
+    "name": "PubMed_1Query_ATM_Assisted",
+    "debug": True,
+    "steps": [
+        # Step 1: mock_statements
+        {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
+        # Step 3-5.1: BASE_RESEARCH_MODULE (ATM Assisted)
+        _research_module_with_prompt(PROMPT_TMPL_S3_ATM_ASSISTED),
+        # Step 5.99:
+        BASE_SCORES_MODULE,
+        # Step 6-7: verification
+        _verification_module_with_prompts(BASE_MODEL, PROMPT_TMPL_S6, PROMPT_TMPL_S7),
+    ],
+}
 
-PUBMED_BALANCED_COUNTER_CONFIG = {
+PUBMED_1QUERY_ATM_ASSISTED_COUNTER_CONFIG = {
+    "name": "PubMed_1Query_ATM_Assisted_Counter",
+    "debug": True,
+    "steps": [
+        # Step 1: mock_statements
+        {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
+        # Step 3-5.1: BASE_RESEARCH_MODULE (ATM Assisted Counter)
+        _research_module_with_prompt(PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER),
+        # Step 5.99:
+        BASE_SCORES_MODULE,
+        # Step 6-7: verification
+        _verification_module_with_prompts(BASE_MODEL, PROMPT_TMPL_S6, PROMPT_TMPL_S7),
+    ],
+}
+
+PUBMED_1QUERY_BALANCED_CONFIG = {
+    "name": "PubMed_1Query_Balanced",
+    "debug": True,
+    "steps": [
+        # Step 1: mock_statements
+        {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
+        # Step 3-5.1: BASE_RESEARCH_MODULE (Balanced)
+        _research_module_with_prompt(PROMPT_TMPL_S3_BALANCED),
+        # Step 5.99:
+        BASE_SCORES_MODULE,
+        # Step 6-7: verification
+        _verification_module_with_prompts(BASE_MODEL, PROMPT_TMPL_S6, PROMPT_TMPL_S7),
+    ],
+}
+
+PUBMED_1QUERY_BALANCED_COUNTER_CONFIG = {
     "name": "PubMed_1Query_Balanced_Counter",
     "debug": True,
     "steps": [
@@ -265,14 +276,14 @@ PUBMED_BALANCED_COUNTER_CONFIG = {
         {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
         # Step 3-5.1: BASE_RESEARCH_MODULE (Balanced Counter)
         _research_module_with_prompt(PROMPT_TMPL_S3_BALANCED_COUNTER),
-        # Step 6: filter_evidence
-        {"type": "filter_evidence", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6, "temperature": BASE_TEMPERATURE}},
-        # Step 7: truthness
-        {"type": "truthness", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE}},
+        # Step 5.99:
+        BASE_SCORES_MODULE,
+        # Step 6-7: verification
+        _verification_module_with_prompts(BASE_MODEL, PROMPT_TMPL_S6, PROMPT_TMPL_S7),
     ],
 }
 
-PUBMED_SPECIFIC_CONFIG = {
+PUBMED_1QUERY_SPECIFIC_CONFIG = {
     "name": "PubMed_1Query_Specific",
     "debug": True,
     "steps": [
@@ -280,14 +291,14 @@ PUBMED_SPECIFIC_CONFIG = {
         {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
         # Step 3-5.1: BASE_RESEARCH_MODULE (Specific)
         _research_module_with_prompt(PROMPT_TMPL_S3_SPECIFIC),
-        # Step 6: filter_evidence
-        {"type": "filter_evidence", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6, "temperature": BASE_TEMPERATURE}},
-        # Step 7: truthness
-        {"type": "truthness", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE}},
+        # Step 5.99:
+        BASE_SCORES_MODULE,
+        # Step 6-7: verification
+        _verification_module_with_prompts(BASE_MODEL, PROMPT_TMPL_S6, PROMPT_TMPL_S7),
     ],
 }
 
-PUBMED_SPECIFIC_COUNTER_CONFIG = {
+PUBMED_1QUERY_SPECIFIC_COUNTER_CONFIG = {
     "name": "PubMed_1Query_Specific_Counter",
     "debug": True,
     "steps": [
@@ -295,176 +306,168 @@ PUBMED_SPECIFIC_COUNTER_CONFIG = {
         {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
         # Step 3-5.1: BASE_RESEARCH_MODULE (Specific Counter)
         _research_module_with_prompt(PROMPT_TMPL_S3_SPECIFIC_COUNTER),
-        # Step 6: filter_evidence
-        {"type": "filter_evidence", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6, "temperature": BASE_TEMPERATURE}},
-        # Step 7: truthness
-        {"type": "truthness", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE}},
+        # Step 5.99:
+        BASE_SCORES_MODULE,
+        # Step 6-7: verification
+        _verification_module_with_prompts(BASE_MODEL, PROMPT_TMPL_S6, PROMPT_TMPL_S7),
     ],
 }
 
 
 
-# PUBMED_HIGHLY_SPECIFIC_CONFIG = {
-#     "name": "PubMed_1Query_Highly_Specific",
-#     "debug": True,
-#     "steps": [
-#         # Step 1: mock_statements
-#         {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
-#         # Step 3-5.1: BASE_RESEARCH_MODULE (Highly Specific)
-#         _research_module_with_prompt(PROMPT_TMPL_S3_HIGHLY_SPECIFIC),
-#         # Step 6: filter_evidence
-#         {"type": "filter_evidence", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6, "temperature": BASE_TEMPERATURE}},
-#         # Step 7: truthness
-#         {"type": "truthness", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE}},
-#     ],
-# }
+PUBMED_1QUERY_HIGHLY_SPECIFIC_CONFIG = {
+    "name": "PubMed_1Query_Highly_Specific",
+    "debug": True,
+    "steps": [
+        # Step 1: mock_statements
+        {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
+        # Step 3-5.1: BASE_RESEARCH_MODULE (Highly Specific)
+        _research_module_with_prompt(PROMPT_TMPL_S3_HIGHLY_SPECIFIC),
+        # Step 5.99:
+        BASE_SCORES_MODULE,
+        # Step 6-7: verification
+        _verification_module_with_prompts(BASE_MODEL, PROMPT_TMPL_S6, PROMPT_TMPL_S7),
+    ],
+}
 
-# PUBMED_HIGHLY_SPECIFIC_COUNTER_CONFIG = {
-#     "name": "PubMed_1Query_Highly_Specific_Counter",
-#     "debug": True,
-#     "steps": [
-#         # Step 1: mock_statements
-#         {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
-#         # Step 3-5.1: BASE_RESEARCH_MODULE (Highly Specific Counter)
-#         _research_module_with_prompt(PROMPT_TMPL_S3_HIGHLY_SPECIFIC_COUNTER),
-#         # Step 6: filter_evidence
-#         {"type": "filter_evidence", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6, "temperature": BASE_TEMPERATURE}},
-#         # Step 7: truthness
-#         {"type": "truthness", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE}},
-#     ],
-# }
+PUBMED_1QUERY_HIGHLY_SPECIFIC_COUNTER_CONFIG = {
+    "name": "PubMed_1Query_Highly_Specific_Counter",
+    "debug": True,
+    "steps": [
+        # Step 1: mock_statements
+        {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
+        # Step 3-5.1: BASE_RESEARCH_MODULE (Highly Specific Counter)
+        _research_module_with_prompt(PROMPT_TMPL_S3_HIGHLY_SPECIFIC_COUNTER),
+        # Step 5.99:
+        BASE_SCORES_MODULE,
+        # Step 6-7: verification
+        _verification_module_with_prompts(BASE_MODEL, PROMPT_TMPL_S6, PROMPT_TMPL_S7),
+    ],
+}
 
-# # Pubmed Config 2 Queries
-# PUBMED_2_QUERIES_SPECIFIC_AND_SPECIFIC_COUNTER_CONFIG= {
-#     "name": "Pubmed_2_Query_Specific_and_Specific_Counter",
-#     "debug": True,
-#     "steps": [
-#         # Step 1: mock_statements
-#         {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
-#         # Step 3-5: Research Module 2 Queries (Specific + Specific Counter)
-#         {"type": "module", "settings": {"name": "MODULE! PubMed Research Engine (No Weights)", "steps": [
-#             # Step 3: generate_query Specific
-#             {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_SPECIFIC, "temperature": BASE_TEMPERATURE}},
-#             # Step 3: generate_query SPecific Counter
-#             {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER, "temperature": BASE_TEMPERATURE}},
-#             # Step 4: fetch_links (in total 60 results, split on 2 queries)
-#             {"type": "fetch_links", "settings": {"retmax": BASE_RETMAX/2}},
-#             # Step 5: abstract_evidence
-#             {"type": "abstract_evidence", "settings": {}},
-#             # Step 5.1: weight_evidence
-#             {"type": "weight_evidence", "settings": {"default_weight": BASE_WEIGHT}},
-#         ]}},
-#         # Step 5.99: BASE_SCORES_MODULE
-#         BASE_SCORES_MODULE,
-#          # Step 6: filter_evidence
-#         {"type": "filter_evidence", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6, "temperature": BASE_TEMPERATURE}},
-#         # Step 7: truthness
-#         {"type": "truthness", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE}},
-#     ],
-# }
+# PubMed Config 2 Queries
+PUBMED_2QUERY_SPECIFIC_AND_SPECIFIC_COUNTER_CONFIG= {
+    "name": "PubMed_2Query_Specific_and_Specific_Counter",
+    "debug": True,
+    "steps": [
+        # Step 1: mock_statements
+        {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
+        # Step 3-5: Research Module 2 Queries (Specific + Specific Counter)
+        {"type": "module", "settings": {"name": "MODULE! PubMed Research Engine (No Weights)", "steps": [
+            # Step 3: generate_query Specific
+            {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_SPECIFIC, "temperature": BASE_TEMPERATURE}},
+            # Step 3: generate_query SPecific Counter
+            {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER, "temperature": BASE_TEMPERATURE}},
+            # Step 4: fetch_links (in total 60 results, split on 2 queries)
+            {"type": "fetch_links", "settings": {"retmax": BASE_RETMAX // 2}},
+            # Step 5: abstract_evidence
+            {"type": "abstract_evidence", "settings": {}},
+            # Step 5.1: weight_evidence
+            {"type": "weight_evidence", "settings": {"default_weight": BASE_WEIGHT}},
+        ]}},
+        # Step 5.99: BASE_SCORES_MODULE
+        BASE_SCORES_MODULE,
+        # Step 6-7: verification
+        _verification_module_with_prompts(BASE_MODEL, PROMPT_TMPL_S6, PROMPT_TMPL_S7),
+    ],
+}
 
 
-# # Pubmed Config 3 Queries
-# PUBMED_3_QUERIES_SPECIFIC_AND_SPECIFIC_COUNTER_AND_BALANCED_COUNTER_CONFIG= {
-#     "name": "Pubmed_3_Query_Specific_and_Specific_Counter_and_Balanced_Counter",
-#     "debug": True,
-#     "steps": [
-#         # Step 1: mock_statements
-#         {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
-#         # Step 3-5: Research Module 2 Queries (Specific + Specific Counter)
-#         {"type": "module", "settings": {"name": "MODULE! PubMed Research Engine (No Weights)", "steps": [
-#             # Step 3: generate_query Specific
-#             {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_SPECIFIC, "temperature": BASE_TEMPERATURE}},
-#             # Step 3: generate_query SPecific Counter
-#             {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER, "temperature": BASE_TEMPERATURE}},
-#             # Step 3: generate_query Balanced Counter
-#             {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER, "temperature": BASE_TEMPERATURE}},
-#             # Step 4: fetch_links (in total 60 results, split on 3 queries)
-#             {"type": "fetch_links", "settings": {"retmax": BASE_RETMAX/3}},
-#             # Step 5: abstract_evidence
-#             {"type": "abstract_evidence", "settings": {}},
-#             # Step 5.1: weight_evidence
-#             {"type": "weight_evidence", "settings": {"default_weight": BASE_WEIGHT}},
-#         ]}},
-#         # Step 5.99: BASE_SCORES_MODULE
-#         BASE_SCORES_MODULE,
-#          # Step 6: filter_evidence
-#         {"type": "filter_evidence", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6, "temperature": BASE_TEMPERATURE}},
-#         # Step 7: truthness
-#         {"type": "truthness", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE}},
-#     ],
-# }
+# PubMed Config 3 Queries
+PUBMED_3QUERY_SPECIFIC_AND_SPECIFIC_COUNTER_AND_BALANCED_COUNTER_CONFIG= {
+    "name": "PubMed_3Query_Specific_and_Specific_Counter_and_Balanced_Counter",
+    "debug": True,
+    "steps": [
+        # Step 1: mock_statements
+        {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
+        # Step 3-5: Research Module 2 Queries (Specific + Specific Counter)
+        {"type": "module", "settings": {"name": "MODULE! PubMed Research Engine (No Weights)", "steps": [
+            # Step 3: generate_query Specific
+            {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_SPECIFIC, "temperature": BASE_TEMPERATURE}},
+            # Step 3: generate_query SPecific Counter
+            {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER, "temperature": BASE_TEMPERATURE}},
+            # Step 3: generate_query Balanced Counter
+            {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER, "temperature": BASE_TEMPERATURE}},
+            # Step 4: fetch_links (in total 60 results, split on 3 queries)
+            {"type": "fetch_links", "settings": {"retmax": BASE_RETMAX // 3}},
+            # Step 5: abstract_evidence
+            {"type": "abstract_evidence", "settings": {}},
+            # Step 5.1: weight_evidence
+            {"type": "weight_evidence", "settings": {"default_weight": BASE_WEIGHT}},
+        ]}},
+        # Step 5.99: BASE_SCORES_MODULE
+        BASE_SCORES_MODULE,
+        # Step 6-7: verification
+        _verification_module_with_prompts(BASE_MODEL, PROMPT_TMPL_S6, PROMPT_TMPL_S7),
+    ],
+}
 
 
-# # Pubmed Config 4 Queries
-# PUBMED_4_QUERIES_SPECIFIC_AND_SPECIFIC_COUNTER_AND_BALANCED_COUNTER_AND_BALANCED_CONFIG= {
-#     "name": "Pubmed_4_Query_Specific_and_Specific_Counter_and_Balanced_Counter_and_Balanced",
-#     "debug": True,
-#     "steps": [
-#         # Step 1: mock_statements
-#         {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
-#         # Step 3-5: Research Module 2 Queries (Specific + Specific Counter)
-#         {"type": "module", "settings": {"name": "MODULE! PubMed Research Engine (No Weights)", "steps": [
-#             # Step 3: generate_query Specific
-#             {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_SPECIFIC, "temperature": BASE_TEMPERATURE}},
-#             # Step 3: generate_query SPecific Counter
-#             {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER, "temperature": BASE_TEMPERATURE}},
-#             # Step 3: generate_query Balanced Counter
-#             {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER, "temperature": BASE_TEMPERATURE}},
-#             # Step 3: generate_query Balanced
-#             {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_BALANCED, "temperature": BASE_TEMPERATURE}},
-#             # Step 4: fetch_links (in total 60 results, split on 4 queries)
-#             {"type": "fetch_links", "settings": {"retmax": BASE_RETMAX/4}},
-#             # Step 5: abstract_evidence
-#             {"type": "abstract_evidence", "settings": {}},
-#             # Step 5.1: weight_evidence
-#             {"type": "weight_evidence", "settings": {"default_weight": BASE_WEIGHT}},
-#         ]}},
-#         # Step 5.99: BASE_SCORES_MODULE
-#         BASE_SCORES_MODULE,
-#          # Step 6: filter_evidence
-#         {"type": "filter_evidence", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6, "temperature": BASE_TEMPERATURE}},
-#         # Step 7: truthness
-#         {"type": "truthness", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE}},
-#     ],
-# }
+# PubMed Config 4 Queries
+PUBMED_4QUERY_SPECIFIC_AND_SPECIFIC_COUNTER_AND_BALANCED_COUNTER_AND_BALANCED_CONFIG= {
+    "name": "PubMed_4Query_Specific_and_Specific_Counter_and_Balanced_Counter_and_Balanced",
+    "debug": True,
+    "steps": [
+        # Step 1: mock_statements
+        {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
+        # Step 3-5: Research Module 2 Queries (Specific + Specific Counter)
+        {"type": "module", "settings": {"name": "MODULE! PubMed Research Engine (No Weights)", "steps": [
+            # Step 3: generate_query Specific
+            {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_SPECIFIC, "temperature": BASE_TEMPERATURE}},
+            # Step 3: generate_query SPecific Counter
+            {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER, "temperature": BASE_TEMPERATURE}},
+            # Step 3: generate_query Balanced Counter
+            {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER, "temperature": BASE_TEMPERATURE}},
+            # Step 3: generate_query Balanced
+            {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_BALANCED, "temperature": BASE_TEMPERATURE}},
+            # Step 4: fetch_links (in total 60 results, split on 4 queries)
+            {"type": "fetch_links", "settings": {"retmax": BASE_RETMAX // 4}},
+            # Step 5: abstract_evidence
+            {"type": "abstract_evidence", "settings": {}},
+            # Step 5.1: weight_evidence
+            {"type": "weight_evidence", "settings": {"default_weight": BASE_WEIGHT}},
+        ]}},
+        # Step 5.99: BASE_SCORES_MODULE
+        BASE_SCORES_MODULE,
+        # Step 6-7: verification
+        _verification_module_with_prompts(BASE_MODEL, PROMPT_TMPL_S6, PROMPT_TMPL_S7),
+    ],
+}
 
-# # Pubmed Config 6 Queries
-# PUBMED_6_QUERIES_SPECIFIC_AND_SPECIFIC_COUNTER_AND_BALANCED_COUNTER_AND_BALANCED_AND_HIGHLY_SPECIFIC_AND_HIGHLY_SPECIFIC_COUNTER_CONFIG= {
-#     "name": "Pubmed_6_Query_Specific_and_Specific_Counter_and_Balanced_Counter_and_Balanced_and_highly_Specific_and_Highly_Specific_Counter",
-#     "debug": True,
-#     "steps": [
-#         # Step 1: mock_statements
-#         {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
-#         # Step 3-5: Research Module 2 Queries (Specific + Specific Counter)
-#         {"type": "module", "settings": {"name": "MODULE! PubMed Research Engine (No Weights)", "steps": [
-#             # Step 3: generate_query Specific
-#             {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_SPECIFIC, "temperature": BASE_TEMPERATURE}},
-#             # Step 3: generate_query SPecific Counter
-#             {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER, "temperature": BASE_TEMPERATURE}},
-#             # Step 3: generate_query Balanced Counter
-#             {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER, "temperature": BASE_TEMPERATURE}},
-#             # Step 3: generate_query Balanced
-#             {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_BALANCED, "temperature": BASE_TEMPERATURE}},
-#             # Step 3: generate_query Highly Specific
-#             {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_HIGHLY_SPECIFIC, "temperature": BASE_TEMPERATURE}},
-#             # Step 3: generate_query Highly Specific Counter
-#             {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_HIGHLY_SPECIFIC_COUNTER, "temperature": BASE_TEMPERATURE}},
-#             # Step 4: fetch_links (in total 60 results, split on 6 queries)
-#             {"type": "fetch_links", "settings": {"retmax": BASE_RETMAX/6}},
-#             # Step 5: abstract_evidence
-#             {"type": "abstract_evidence", "settings": {}},
-#             # Step 5.1: weight_evidence
-#             {"type": "weight_evidence", "settings": {"default_weight": BASE_WEIGHT}},
-#         ]}},
-#         # Step 5.99: BASE_SCORES_MODULE
-#         BASE_SCORES_MODULE,
-#          # Step 6: filter_evidence
-#         {"type": "filter_evidence", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6, "temperature": BASE_TEMPERATURE}},
-#         # Step 7: truthness
-#         {"type": "truthness", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE}},
-#     ],
-# }
+# PubMed Config 6 Queries
+PUBMED_6QUERY_SPECIFIC_AND_SPECIFIC_COUNTER_AND_BALANCED_COUNTER_AND_BALANCED_AND_HIGHLY_SPECIFIC_AND_HIGHLY_SPECIFIC_COUNTER_CONFIG= {
+    "name": "PubMed_6Query_Specific_and_Specific_Counter_and_Balanced_Counter_and_Balanced_and_Highly_Specific_and_Highly_Specific_Counter",
+    "debug": True,
+    "steps": [
+        # Step 1: mock_statements
+        {"type": "mock_statements", "settings": {"statements": [{"id": 1, "text": "PLATZHALTER"}]}},
+        # Step 3-5: Research Module 2 Queries (Specific + Specific Counter)
+        {"type": "module", "settings": {"name": "MODULE! PubMed Research Engine (No Weights)", "steps": [
+            # Step 3: generate_query Specific
+            {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_SPECIFIC, "temperature": BASE_TEMPERATURE}},
+            # Step 3: generate_query SPecific Counter
+            {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER, "temperature": BASE_TEMPERATURE}},
+            # Step 3: generate_query Balanced Counter
+            {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER, "temperature": BASE_TEMPERATURE}},
+            # Step 3: generate_query Balanced
+            {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_BALANCED, "temperature": BASE_TEMPERATURE}},
+            # Step 3: generate_query Highly Specific
+            {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_HIGHLY_SPECIFIC, "temperature": BASE_TEMPERATURE}},
+            # Step 3: generate_query Highly Specific Counter
+            {"type": "generate_query", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S3_HIGHLY_SPECIFIC_COUNTER, "temperature": BASE_TEMPERATURE}},
+            # Step 4: fetch_links (in total 60 results, split on 6 queries)
+            {"type": "fetch_links", "settings": {"retmax": BASE_RETMAX // 6}},
+            # Step 5: abstract_evidence
+            {"type": "abstract_evidence", "settings": {}},
+            # Step 5.1: weight_evidence
+            {"type": "weight_evidence", "settings": {"default_weight": BASE_WEIGHT}},
+        ]}},
+        # Step 5.99: BASE_SCORES_MODULE
+        BASE_SCORES_MODULE,
+        # Step 6-7: verification
+        _verification_module_with_prompts(BASE_MODEL, PROMPT_TMPL_S6, PROMPT_TMPL_S7),
+    ],
+}
 
 
 
@@ -486,10 +489,8 @@ PUBMED_SPECIFIC_COUNTER_CONFIG = {
 #         ]}},
 #         # Step 5.99: BASE_SCORES_MODULE
 #         BASE_SCORES_MODULE,
-#         # Step 6: filter_evidence
-#         {"type": "filter_evidence", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6, "temperature": BASE_TEMPERATURE}},
-#         # Step 7: truthness
-#         {"type": "truthness", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE}},
+#         # Step 6-7: verification
+#         _verification_module_with_prompts(BASE_MODEL, PROMPT_TMPL_S6, PROMPT_TMPL_S7),
 #     ],
 # }
 
@@ -506,10 +507,8 @@ PUBMED_SPECIFIC_COUNTER_CONFIG = {
 #         BASE_RESEARCH_MODULE,
 #         # Step 5.99: stance_evidence (rerank omitted)
 #         {"type": "stance_evidence", "settings": {"model_name": "cnut1648/biolinkbert-mednli", "use_fp16": True, "batch_size": 16, "max_length": 512, "evidence_fields": ["abstract"], "threshold_decisive": 0.3}},
-#         # Step 6: filter_evidence
-#         {"type": "filter_evidence", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6, "temperature": BASE_TEMPERATURE}},
-#         # Step 7: truthness
-#         {"type": "truthness", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE}},
+#         # Step 6-7: verification
+#         _verification_module_with_prompts(BASE_MODEL, PROMPT_TMPL_S6, PROMPT_TMPL_S7),
 #     ],
 # }
 
@@ -525,10 +524,8 @@ PUBMED_SPECIFIC_COUNTER_CONFIG = {
 #         BASE_RESEARCH_MODULE,
 #         # Step 5.99: rerank_evidence (stance omitted)
 #         {"type": "rerank_evidence", "settings": {"model_name": "BAAI/bge-reranker-v2-m3", "use_fp16": True, "normalize": True, "batch_size": 16, "max_length": 4096, "score_fields": ["abstract"], "empty_relevance": 0.0, "min_relevance": BASE_MIN_RELEVANCE}},
-#         # Step 6: filter_evidence
-#         {"type": "filter_evidence", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6, "temperature": BASE_TEMPERATURE}},
-#         # Step 7: truthness
-#         {"type": "truthness", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE}},
+#         # Step 6-7: verification
+#         _verification_module_with_prompts(BASE_MODEL, PROMPT_TMPL_S6, PROMPT_TMPL_S7),
 #     ],
 # }
 
@@ -558,8 +555,8 @@ PUBMED_SPECIFIC_COUNTER_CONFIG = {
 
 
 
-# # Config for full Pipeline gemma3
-# FULL_PIPELINE_GEMMA_CONFIG= {
+# # Config for full Pipeline gemma3:27b
+# FULL_PIPELINE_GEMMA3_CONFIG= {
 #     "name": "Full_Pipeline_Gemma3",
 #     "debug": True,
 #     "steps": [
@@ -569,15 +566,13 @@ PUBMED_SPECIFIC_COUNTER_CONFIG = {
 #         BASE_RESEARCH_MODULE,
 #         # Step 5.99: BASE_SCORES_MODULE
 #         BASE_SCORES_MODULE,
-#          # Step 6: filter_evidence
-#         {"type": "filter_evidence", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6, "temperature": BASE_TEMPERATURE}},
-#         # Step 7: truthness
-#         {"type": "truthness", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE}},
+#         # Step 6-7: verification
+#         _verification_module_with_prompts(BASE_MODEL, PROMPT_TMPL_S6, PROMPT_TMPL_S7),
 #     ],
 # }
 
 
-# # Config for full Pipeline meditron
+# # Config for full Pipeline meditron3:70b
 # FULL_PIPELINE_MEDITRON_CONFIG= {
 #     "name": "Full_Pipeline_Meditron",
 #     "debug": True,
@@ -588,16 +583,14 @@ PUBMED_SPECIFIC_COUNTER_CONFIG = {
 #         BASE_RESEARCH_MODULE,
 #         # Step 5.99: BASE_SCORES_MODULE
 #         BASE_SCORES_MODULE,
-#          # Step 6: filter_evidence
-#         {"type": "filter_evidence", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6, "temperature": BASE_TEMPERATURE}},
-#         # Step 7: truthness
-#         {"type": "truthness", "settings": {"model": "hf.co/mradermacher/Meditron3-70B-GGUF:latest", "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE}},
+#         # Step 6-7: verification
+#         _verification_module_with_prompts("hf.co/mradermacher/Meditron3-70B-GGUF:latest", PROMPT_TMPL_S6, PROMPT_TMPL_S7),
 #     ],
 # }
 
 
 
-# # Config for full Pipeline medgemma
+# # Config for full Pipeline medgemma:27b
 # FULL_PIPELINE_MEDGEMMA_CONFIG= {
 #     "name": "Full_Pipeline_Medgemma",
 #     "debug": True,
@@ -608,10 +601,8 @@ PUBMED_SPECIFIC_COUNTER_CONFIG = {
 #         BASE_RESEARCH_MODULE,
 #         # Step 5.99: BASE_SCORES_MODULE
 #         BASE_SCORES_MODULE,
-#          # Step 6: filter_evidence
-#         {"type": "filter_evidence", "settings": {"model": BASE_MODEL, "prompt_template": PROMPT_TMPL_S6, "temperature": BASE_TEMPERATURE}},
-#         # Step 7: truthness
-#         {"type": "truthness", "settings": {"model": xxxxxxxxxxxxxx, "prompt_template": PROMPT_TMPL_S7, "temperature": BASE_TEMPERATURE}},
+#         # Step 6-7: verification
+#         _verification_module_with_prompts("medgemma:latest", PROMPT_TMPL_S6, PROMPT_TMPL_S7),
 #     ],
 # }
 

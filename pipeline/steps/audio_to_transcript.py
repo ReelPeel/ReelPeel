@@ -7,7 +7,7 @@ from ..core.base import PipelineStep
 from ..core.models import PipelineState
 
 
-DEFAULT_WHISPER_MODEL = "turbo"
+DEFAULT_WHISPER_MODEL = "large-v3" #turbo
 
 
 class AudioToTranscriptStep(PipelineStep):
@@ -17,7 +17,7 @@ class AudioToTranscriptStep(PipelineStep):
 
     Config keys:
       - audio_path: str (optional if state.audio_path is set)
-      - whisper_model: str (default: "turbo")
+      - whisper_model: str (default: "large-v3")
       - fp16: bool (default: True)
       - translate_non_english: bool (default: True)
     """

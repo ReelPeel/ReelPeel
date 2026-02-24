@@ -175,6 +175,22 @@ LLM step models (used by `extraction`, `generate_query`, `filter_evidence`, `tru
 - `gemma3:27b` (`gemma3:27b-it-q4_K_M`) (~17 GB): instruction-tuned mid-size model; stronger reasoning than 12b with moderate VRAM cost.
 - `medgemma-27b-text-it-q4_k_m.gguf`
 
+### Model Constraints
+Ollama set to MAX_TOKEN of 64k
+
+| Modell | Architektur | Parameter | Kontextlänge (Tokens) | Embedding-Länge | Quantisierung |
+|---|---|---:|---:|---:|---|
+| `gemma3:27b` | gemma3 | 27.4B | 131072 | 5376 | Q4_K_M |
+| `gemma3:12b` | gemma3 | 12.2B | 131072 | 3840 | Q4_K_M |
+| `medgemma:latest` | gemma3 | 27.0B | 131072 | 5376 | Q4_K_M |
+| `hf.co/mradermacher/Meditron3-70B-GGUF:latest` | llama | 70.6B | 131072 | 8192 | unknown (IQ4_XS) |
+| `hf.co/mradermacher/DeepSeek-R1-Distill-Qwen-32B-Medical-GGUF:Q8_0` | qwen2 | 32.8B | 131072 | 5120 | Q8_0 |
+| `hf.co/mradermacher/Meditron3-Phi4-14B-i1-GGUF:Meditron3-Phi4-14B.i1-Q4_K_M.gguf` | phi3 | 14.7B | 16384 | 5120 | Q4_K_M |
+| `hf.co/mradermacher/Llama3-OpenBioLLM-70B-i1-GGUF:Llama3-OpenBioLLM-70B.i1-IQ4_XS.gguf` | llama | 70.6B | 8192 | 8192 | IQ4_XS  |
+| `hf.co/mradermacher/Llama3-Med42-70B-i1-GGUF:Llama3-Med42-70B.i1-IQ4_XS.gguf` | llama | 70.6B | 8192 | 8192 | IQ4_XS  |
+
+ 
+
 ### Model Evaluation (101 Samples)
 
 | Config-Name | F1-Score |

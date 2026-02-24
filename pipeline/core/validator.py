@@ -29,6 +29,9 @@ def validate_pipeline_models(config: Dict[str, Any]):
 
     # 2. Validate Ollama / LLM Models
     if llm_models:
+        ctx_len = _resolve_llm_context_length(config)
+        if ctx_len:
+            print(f"    [INFO] LLM context length configured: {ctx_len}")
         llm_errors = _validate_ollama_models(config, llm_models)
         errors.extend(llm_errors)
     else:
@@ -86,6 +89,7 @@ def _validate_ollama_models(config: Dict, models: Set[str]) -> List[str]:
     """Checks if models exist on the Ollama server."""
     llm_settings = config.get("llm_settings", {})
     base_url = llm_settings.get("base_url", "http://localhost:11434/v1")
+    ctx_len = _resolve_llm_context_length(config)
 
     available_models = set()
     missing = []
@@ -119,8 +123,76 @@ def _validate_ollama_models(config: Dict, models: Set[str]) -> List[str]:
             missing.append(f"Missing LLM: {req} (Run: 'ollama pull {req}')")
         else:
             print(f"    [OK] LLM: {req}")
+            if ctx_len:
+                model_ctx = _get_ollama_model_context_limit(base_url, req)
+                if model_ctx and model_ctx < ctx_len:
+                    print(
+                        f"    [WARNING] LLM context length {ctx_len} exceeds model limit "
+                        f"{model_ctx} for {req}. Inputs may be truncated."
+                    )
 
     return missing
+
+
+def _resolve_llm_context_length(config: Dict[str, Any]) -> int:
+    llm_settings = config.get("llm_settings", {})
+    ctx_val = (
+        llm_settings.get("context_length")
+        or llm_settings.get("num_ctx")
+        or llm_settings.get("max_context")
+        or os.environ.get("LLM_CONTEXT_LENGTH")
+        or os.environ.get("OLLAMA_CONTEXT_LENGTH")
+    )
+    if ctx_val is None:
+        base_url = llm_settings.get("base_url", "")
+        base_url_lower = str(base_url).lower()
+        if "ollama" in base_url_lower or "11434" in base_url_lower:
+            return 65536
+        return 0
+    try:
+        ctx_val = int(ctx_val)
+        return ctx_val if ctx_val > 0 else 0
+    except Exception:
+        return 0
+
+
+def _get_ollama_model_context_limit(base_url: str, model: str) -> int:
+    """Best-effort fetch of an Ollama model's context limit via /api/show."""
+    try:
+        show_url = re.sub(r"/v1$", "", base_url.rstrip("/")) + "/api/show"
+        with httpx.Client(timeout=5.0) as client:
+            resp = client.post(show_url, json={"name": model})
+            resp.raise_for_status()
+            data = resp.json()
+
+        params = data.get("parameters")
+        if isinstance(params, dict):
+            for key in ("num_ctx", "context_length", "n_ctx"):
+                val = params.get(key)
+                if val is not None:
+                    try:
+                        val = int(val)
+                        return val if val > 0 else 0
+                    except Exception:
+                        pass
+        elif isinstance(params, str):
+            m = re.search(r"(?:num_ctx|n_ctx|context_length)\s*[:=]?\s*(\d+)", params)
+            if m:
+                return int(m.group(1))
+
+        model_info = data.get("model_info") or {}
+        if isinstance(model_info, dict):
+            for key in ("context_length", "n_ctx", "num_ctx"):
+                val = model_info.get(key)
+                if val is not None:
+                    try:
+                        val = int(val)
+                        return val if val > 0 else 0
+                    except Exception:
+                        pass
+    except Exception:
+        return 0
+    return 0
 
 
 def _validate_hf_models(models: Set[str]) -> List[str]:

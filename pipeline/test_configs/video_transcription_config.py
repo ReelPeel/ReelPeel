@@ -1,8 +1,33 @@
-from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_BALANCED_COUNTER, PROMPT_TMPL_S3_SPECIFIC_COUNTER, PROMPT_TMPL_S7
+import copy
+
+from pipeline.test_configs.preprompts import PROMPT_TMPL_S2, PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER, PROMPT_TMPL_S3_BALANCED_COUNTER, PROMPT_TMPL_S3_HIGHLY_SPECIFIC, PROMPT_TMPL_S3_HIGHLY_SPECIFIC_COUNTER, PROMPT_TMPL_S3_SPECIFIC_COUNTER, PROMPT_TMPL_S7, PROMPT_TMPL_S7_ACTIONABLE_ADVICE, PROMPT_TMPL_S7_ACTIONABLE_ADVICE_V2, PROMPT_TMPL_S7_METRICS
 from pipeline.test_configs.test_extraction import RESEARCH_MODULE, VERIFICATION_MODULE
 from pipeline.test_configs.kai_test import SCORES_MODULE
 from pipeline.test_configs.preprompts import PROMPT_TMPL_S3_SPECIFIC, PROMPT_TMPL_S3_BALANCED, PROMPT_TMPL_S3_ATM_ASSISTED
 
+BASE_TEMPERATURE = 0.1
+SCORES_MIN_RELEVANCE = 0.6
+BASE_MODEL="gemma3:27b" 
+# gemma3:27b / 12b
+# hf.co/mradermacher/medgemma-27b-text-it-GGUF:Q4_K_M
+# hf.co/mradermacher/DeepSeek-R1-Distill-Qwen-32B-Medical-GGUF:Q6_K
+
+WHISPER_MODEL = "turbo"
+# large-v3
+# turbo
+
+STEP_7_MODEL = "gemma3:27b"
+STEP_7_PROMPT = PROMPT_TMPL_S7_ACTIONABLE_ADVICE
+# PROMPT_TMPL_S7
+# PROMPT_TMPL_S7_METRICS
+# PROMPT_TMPL_S7_ACTIONABLE_ADVICE
+# PROMPT_TMPL_S7_ACTIONABLE_ADVICE_V2
+INCLUDE_EVIDENCE_TEXT = True
+
+
+
+SCORES_MODULE_MIN_REL = copy.deepcopy(SCORES_MODULE)
+SCORES_MODULE_MIN_REL["settings"]["steps"][0]["settings"]["min_relevance"] = SCORES_MIN_RELEVANCE
 
 VIDEO_PIPELINE_CONFIG = {
     "name": "Video_To_Audio_Run",
@@ -11,71 +36,130 @@ VIDEO_PIPELINE_CONFIG = {
         {
             "type": "video_to_audio",
             "settings": {
-                "video_path": "downloads/downloads_vitamind/C4dki_DoayB.mp4",
+                "video_path": "Jana.mp4",
             },
         },
         {
             "type": "audio_to_transcript",
             "settings": {
-                "whisper_model": "turbo",
+                "whisper_model": WHISPER_MODEL,
                 "translate_non_english": True,
             },
         },
+        # {
+        #     "type": "mock_transcript",
+        #     "settings": {
+        #         "transcript_text": (
+        #             "Okay, these are three health hacks I wish I knew earlier. Save this for your read. Vitamin C every day basically stops you from catching colds, especially in the winter. There is something doctors won't tell you, but if you ever feel bloated or toxic, a detox tea can clear out your liver in like 24 hours. You'll thank me the next day. Also, this might sound boring, but washing your hands for 25 seconds makes all the difference. So try out these hacks and comment down below if they helped you."
+        #         )
+        #         # "transcript_text": (    #ORIGINALES TRANSCRIPT MIT FEHLERN (VITAMIN C -> COMING TO SEA)
+        #         # "Okay, these are three health hacks I wish I knew earlier. Save this for your read. Vitamin C every day basically stops you from catching colds, especially in the winter. There is something doctors won't tell you, but if you ever feel bloated or toxic, a detox tea can clear out your liver in like 24 hours. You'll thank me the next day. Also, this might sound boring, but washing your hands for 25 seconds makes all the difference. So try out these hacks and comment down below if they helped you.",
+        #         # )
+        #     }
+        # },
         {
             "type": "extraction",
             "settings": {
-                "model": "gemma3:27b",
+                "model": BASE_MODEL,
                 "prompt_template": PROMPT_TMPL_S2,
-                "temperature": 0.0,
+                "temperature": BASE_TEMPERATURE,
             },
         },
-        RESEARCH_MODULE,
-        SCORES_MODULE, 
+        
+        
         {
-            "type": "retrieve_guideline_facts",
-            "settings": {
-                "db_path": "pipeline/RAG_vdb/guidelines_vdb.sqlite",
-                "top_k": 5,
-                "min_score": 0.25,
-            },
-        },
-        {
-            "type": "rerank_evidence",
-            "settings": {
-                    "model_name": "BAAI/bge-reranker-v2-m3", # BAAI/bge-reranker-v2-gemma bigger but slower
-                    "use_fp16": True,
-                    "normalize": True,
-                    "batch_size": 16,
-                    "max_length": 4096,
-                    "score_fields": ["abstract"],
-                    "empty_relevance": 0.0,
-                    "min_relevance": 0.5,
-                },
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED,
+                    "temperature": BASE_TEMPERATURE,
+                }
             },
             {
-                "type": "stance_evidence",
+                "type": "generate_query",  # Step 3
                 "settings": {
-                    "model_name": "cnut1648/biolinkbert-mednli",
-                    "use_fp16": True,
-                    "batch_size": 16,
-                    "max_length": 512,
-                    "evidence_fields": ["abstract"],
-
-                    # optional: only compute stance on Top-M evidence per statement (by ev.relevance)
-                    # "top_m_by_relevance": 5,
-
-                    # optional: if both support/refute are weak, force "neutral"
-                    "threshold_decisive": 0.3,
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER,
+                    "temperature": BASE_TEMPERATURE,
                 }
-                },
-        
-        
+            },
             
-        VERIFICATION_MODULE,
-
+        # {
+        #         "type": "generate_query",  # Step 3
+        #         "settings": {
+        #             "model": BASE_MODEL,
+        #             "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED,
+        #             "temperature": BASE_TEMPERATURE,
+        #         }
+        #     },
+        # {
+        #         "type": "generate_query",  # Step 3
+        #         "settings": {
+        #             "model": BASE_MODEL,
+        #             "prompt_template": PROMPT_TMPL_S3_ATM_ASSISTED_COUNTER,
+        #             "temperature": BASE_TEMPERATURE,
+        #         }
+        #     },
+       
+        {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+        {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+        
+            {
+                "type": "fetch_links",  # Step 4
+                "settings": {"retmax": 20}
+            },
+            {
+                "type": "abstract_evidence",  # Step 5
+                "settings": {}
+            },
+            {
+                "type": "weight_evidence",  # Step 5.1
+                "settings": {"default_weight": 0.15}
+            },
+            SCORES_MODULE_MIN_REL,
+        {
+                "type": "truthness",
+                "settings": {
+                    "model": STEP_7_MODEL,
+                    "prompt_template": STEP_7_PROMPT,
+                    "include_evidence_text": INCLUDE_EVIDENCE_TEXT,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            # Step 8: Final Score
+            {
+                "type": "scoring",
+                "settings": {
+                    "threshold": 0.3
+                }
+            }
     ],
 }
 
+
+
+# {
+        #     "type": "retrieve_guideline_facts",
+        #     "settings": {
+        #         "db_path": "pipeline/RAG_vdb/guidelines_vdb.sqlite",
+        #         "top_k": 5,
+        #         "min_score": 0.25,
+        #     },
+        # },
 
 VIDEO_URL_PIPELINE_CONFIG = {
     "name": "Video_URL_End_to_End_Run",
@@ -95,34 +179,50 @@ VIDEO_URL_PIPELINE_CONFIG = {
         {
             "type": "audio_to_transcript",
             "settings": {
-                "whisper_model": "turbo",
+                "whisper_model": WHISPER_MODEL,
                 "translate_non_english": True,
             },
         },
         {
             "type": "extraction",
             "settings": {
-                "model": "gemma3:27b",
+                "model": BASE_MODEL,
                 "prompt_template": PROMPT_TMPL_S2,
-                "temperature": 0.0,
+                "temperature": BASE_TEMPERATURE,
             },
         },
-        
         {
                 "type": "generate_query",  # Step 3
                 "settings": {
-                    "model": "gemma3:27b",
-                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED,
+                    "temperature": BASE_TEMPERATURE,
                 }
             },
         {
                 "type": "generate_query",  # Step 3
                 "settings": {
-                    "model": "gemma3:27b",
-                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC,
+                    "temperature": BASE_TEMPERATURE,
                 }
             },
-           
+        {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_SPECIFIC_COUNTER,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
+            {
+                "type": "generate_query",  # Step 3
+                "settings": {
+                    "model": BASE_MODEL,
+                    "prompt_template": PROMPT_TMPL_S3_BALANCED_COUNTER,
+                    "temperature": BASE_TEMPERATURE,
+                }
+            },
        
             {
                 "type": "fetch_links",  # Step 4
@@ -136,19 +236,20 @@ VIDEO_URL_PIPELINE_CONFIG = {
                 "type": "weight_evidence",  # Step 5.1
                 "settings": {"default_weight": 0.15}
             },
-            SCORES_MODULE,
+            SCORES_MODULE_MIN_REL,
         {
                 "type": "truthness",
                 "settings": {
-                    "model": "gemma3:27b",
-                    "prompt_template": PROMPT_TMPL_S7
+                    "model": STEP_7_MODEL,
+                    "prompt_template": STEP_7_PROMPT,
+                    "temperature": BASE_TEMPERATURE,
                 }
             },
             # Step 8: Final Score
             {
                 "type": "scoring",
                 "settings": {
-                    "threshold": 0.15
+                    "threshold": 0.4
                 }
             }
     ],
