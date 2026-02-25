@@ -5,7 +5,7 @@
   "permissions": ["activeTab", "scripting", "storage"],
   "host_permissions": [
     "*://*.instagram.com/*",
-    "http://im-redstone02.hs-regensburg.de:38843*"
+    "http://im-redstone02.hs-regensburg.de:38843/*"
    
   ],
   "background": {
@@ -30,6 +30,6 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src http://im-redstone02.hs-regensburg.de:38843"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' http://im-redstone02.hs-regensburg.de:38843"
   }
 }
