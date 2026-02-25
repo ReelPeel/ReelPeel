@@ -1,0 +1,289 @@
+1
+00:00:00,000 --> 00:00:04,000
+Hi, I'm Alison Durst from the University of Regensburg in Germany.
+
+2
+00:00:04,000 --> 00:00:07,000
+And I'm Kai Jannsen from the OTH in Regensburg in Germany.
+
+3
+00:00:07,000 --> 00:00:15,000
+And together we present ReelPeel, our progressive in-place evidence inspection application for medical claims in short-form videos.
+
+4
+00:00:15,000 --> 00:00:23,000
+Reels on Instagram or also other social media platforms shape public health beliefs, but they may have harmful implications.
+
+5
+00:00:23,000 --> 00:00:27,000
+This is especially crucial in medical videos.
+
+6
+00:00:27,000 --> 00:00:31,000
+Leaving Instagram to verify medical claims is infeasible for most users.
+
+7
+00:00:31,000 --> 00:00:36,000
+ReelPeel brings evidence inspection and claim assessment directly into the feed.
+
+8
+00:00:36,000 --> 00:00:39,000
+Let's see how ReelPeel works in action.
+
+9
+00:00:41,000 --> 00:00:44,000
+Hi, I'm Jana and I'm a nutritionist.
+
+10
+00:00:44,000 --> 00:00:49,000
+I'm a mom of three myself and I also work in early childhood allergy prevention.
+
+11
+00:00:49,000 --> 00:00:55,000
+My husband and I have hay fever, which means our kids have a higher risk of allergies.
+
+12
+00:00:55,000 --> 00:00:57,000
+Diet is super important.
+
+13
+00:00:57,000 --> 00:01:05,000
+for reducing the risk of allergies, you should start feeding your kids solid foods after they are seven months old at the latest.
+
+14
+00:01:06,000 --> 00:01:13,000
+So ReelPeel first communicates status and a glanceable overall assessment.
+
+15
+00:01:13,000 --> 00:01:15,000
+Here on the right with the barometer.
+
+16
+00:01:15,000 --> 00:01:21,000
+Here users can either ignore it and continue scrolling on Instagram or they can engage.
+
+17
+00:01:21,000 --> 00:01:25,000
+You engage with ReelPeel by clicking on the barometer.
+
+18
+00:01:25,000 --> 00:01:27,000
+Clicking on it
+
+19
+00:01:27,000 --> 00:01:30,000
+then expands into a statement list.
+
+20
+00:01:30,000 --> 00:01:34,000
+Here you see the different extracted statements from the video.
+
+21
+00:01:34,000 --> 00:01:39,000
+On the left, you see evidence cues.
+
+22
+00:01:39,000 --> 00:01:49,000
+So the thumbs in the middle, thumb up and thumb down options, depending on the evidence stance and also the coverage of evidences.
+
+23
+00:01:49,000 --> 00:01:55,000
+This is really important since videos often contain multiple distinct claims.
+
+24
+00:01:55,000 --> 00:01:57,000
+As for example, in this video
+
+25
+00:01:57,000 --> 00:02:02,000
+we have one statement with mixed evidence.
+
+26
+00:02:02,000 --> 00:02:04,000
+One with supporting evidence,
+
+27
+00:02:04,000 --> 00:02:05,000
+the second one here
+
+28
+00:02:05,000 --> 00:02:12,000
+And also here on the third, we see our uncertainty first approach with our communication in ReelPeel.
+
+29
+00:02:12,000 --> 00:02:15,000
+So we have the thumb to the left because here we have no evidence.
+
+30
+00:02:15,000 --> 00:02:19,000
+This is indicated by this question mark here on the right.
+
+31
+00:02:19,000 --> 00:02:26,000
+And we also see here that one of the stated statements is actually false.
+
+32
+00:02:26,000 --> 00:02:30,000
+So now let's dig deeper into one of the statements.
+
+33
+00:02:30,000 --> 00:02:36,000
+We can now go to the next layer of our interaction by clicking here on the pin on the right.
+
+34
+00:02:36,000 --> 00:02:39,000
+And we can now view evidence.
+
+35
+00:02:39,000 --> 00:02:43,000
+So here we on top see again our statement that we are inspecting.
+
+36
+00:02:43,000 --> 00:02:47,000
+And then we can go here on to one of our evidence cards.
+
+37
+00:02:47,000 --> 00:02:54,000
+So one evidence card displays one source on the PubMed database with its title
+
+38
+00:02:54,000 --> 00:02:57,000
+and some cues on the relevance.
+
+39
+00:02:57,000 --> 00:03:01,000
+So how close is the study connected to the statement.
+
+40
+00:03:01,000 --> 00:03:03,000
+Then the type of source,
+
+41
+00:03:03,000 --> 00:03:06,000
+so here in this case it's a meta-analysis.
+
+42
+00:03:06,000 --> 00:03:09,000
+And then we have here also reliability score,
+
+43
+00:03:09,000 --> 00:03:12,000
+which indicates how reliable is this type of source.
+
+44
+00:03:12,000 --> 00:03:14,000
+This is based on the type here,
+
+45
+00:03:14,000 --> 00:03:17,000
+so this has a really high score because this is a meta-analysis.
+
+46
+00:03:17,000 --> 00:03:20,000
+Then we also see here the stance.
+
+47
+00:03:20,000 --> 00:03:24,000
+So this means how does this article or this source
+
+48
+00:03:24,000 --> 00:03:27,000
+stand with regard to the statement.
+
+49
+00:03:27,000 --> 00:03:29,000
+So this is really high level.
+
+50
+00:03:29,000 --> 00:03:34,000
+And if we now want to for example dig deeper into one evidence,
+
+51
+00:03:34,000 --> 00:03:37,000
+because maybe we have found different evidences with different stance,
+
+52
+00:03:37,000 --> 00:03:40,000
+or we really want to see what is this meta-analysis about,
+
+53
+00:03:40,000 --> 00:03:43,000
+we can here go to our summary.
+
+54
+00:03:43,000 --> 00:03:46,000
+Now a summary is getting generated.
+
+55
+00:03:46,000 --> 00:03:52,000
+And we then will see a summary what this study has to say with our statement.
+
+56
+00:03:52,000 --> 00:03:53,000
+So here for example,
+
+57
+00:03:53,000 --> 00:03:56,000
+this paper suggests early egg introduction.
+
+58
+00:03:56,000 --> 00:04:00,000
+And now we can also trace this source even further.
+
+59
+00:04:00,000 --> 00:04:02,000
+By clicking here on this title
+
+60
+00:04:02,000 --> 00:04:06,000
+and we can check exactly what kind of study it is,
+
+61
+00:04:06,000 --> 00:04:11,000
+we can check for full paper, PDFs if accessible.
+
+62
+00:04:11,000 --> 00:04:16,000
+And here we can read the abstract and stuff our own.
+
+63
+00:04:16,000 --> 00:04:22,000
+We have now completed one verification journey via our tool ReelPeel.
+
+64
+00:04:22,000 --> 00:04:27,000
+So we have seen first here our glanceable overview,
+
+65
+00:04:27,000 --> 00:04:29,000
+then the statement drop down
+
+66
+00:04:29,000 --> 00:04:31,000
+and the evidence card with the metadata,
+
+67
+00:04:31,000 --> 00:04:32,000
+its summary
+
+68
+00:04:32,000 --> 00:04:34,000
+and the link to PubMed.
+
+69
+00:04:34,000 --> 00:04:38,000
+By this ReelPeel is a credibility support tool,
+
+70
+00:04:38,000 --> 00:04:40,000
+but it's not a medical advice,
+
+71
+00:04:40,000 --> 00:04:43,000
+
+and it's designed to help users inspect evidences
+
+72
+00:04:43,000 --> 00:04:45,000
+and not replace judgement.
+
