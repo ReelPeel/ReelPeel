@@ -63,6 +63,7 @@ conda env create -f environment.yml
 Multiprocessing:
 Bash 1:
 export OLLAMA_MULTI_INSTANCE=1
+export OLLAMA_CONTEXT_LENGTH=65536
 export OLLAMA_MULTI_HOST=127.0.0.1
 export OLLAMA_MULTI_BASE_PORT=11434
 
@@ -80,7 +81,7 @@ export OLLAMA_MULTI_BASE_PORT=11434
 uvicorn app.main:app --host 0.0.0.0 --port 6006
 
 
-
+export OLLAMA_CONTEXT_LENGTH=65536
 
 Config for Multiprocessing:
 {
