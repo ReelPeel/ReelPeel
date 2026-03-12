@@ -1,34 +1,36 @@
 {
   "manifest_version": 3,
-  "name": "DocNot",
-  "version": "1.0",
-  "permissions": ["activeTab", "scripting", "storage"],
+  "name": "ReelPeel - Inquiry Vault Handoff",
+  "version": "1.1",
+  "version_name": "30_inquiry_vault_handoff",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
   "host_permissions": [
     "*://*.instagram.com/*",
     "http://im-redstone02.hs-regensburg.de:38843/*"
-   
   ],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": ["*://*.instagram.com/*"],
-      "js": ["content.js"],
-      "css": ["overlay.css"]
+      "matches": [
+        "*://*.instagram.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "overlay.css"
+      ]
     }
   ],
   "icons": {
     "128": "icons/healthcare.png"
   },
-  "web_accessible_resources": [
-    {
-      "matches": ["<all_urls>"],
-      "resources": [
-        "chrome-extension://anjdlgodbhainbemheeabbigjkoflpao/icons/poor_to_good_progress_meter-small.png"
-      ]
-    }
-  ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' http://im-redstone02.hs-regensburg.de:38843"
   }
