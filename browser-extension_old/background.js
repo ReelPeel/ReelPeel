@@ -21,8 +21,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     /* -----------------------------------------
        2.  Forward that URL to your backend.      */
-    // fetch(`${API_BASE}/process`, {
-    fetch(`${API_BASE}/json`, {
+    fetch("http://im-redstone02.hs-regensburg.de:38843/process", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -30,21 +29,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         mock: false,
       }),
     })
-      .then(async (response) => {
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          throw new Error(data.detail || "Process request failed");
-        }
-        return data;
-      })
+      .then((response) => response.json())
       .then((data) => {
         console.log(data);
         sendResponse(data);
       })
-      .catch((error) => {
-        console.error("Error at API call in background:", error);
-        sendResponse({ error: String(error) });
-      });
+      .catch((error) =>
+        console.error("Error at API call in background:", error)
+      );
 
     return true; // Keep message channel open for async response
   }

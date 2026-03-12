@@ -6,7 +6,8 @@ let analysisInFlight = false;
 let pendingAnalysisUrl = null;
 let lastSeenUrl = null;
 const scrollPauseDelayMs = 1000;
-const inquiryHoldDelayMs = 2000;
+const TOOLTIP_RELIABILITY =
+  "Reliability: Score based on PubMed publication type. Note: reliability ultimately depends on the study design.";
 const TOOLTIP_STANCE =
   "Stance: Whether the evidence supports, refutes, or is neutral toward the statement.";
 const TOOLTIP_RELEVANCE =
@@ -75,6 +76,12 @@ function isReelUrl() {
   );
 }
 
+function getScoreColor(score) {
+  if (score <= 30) return "low-score";
+  if (score <= 75) return "medium-score";
+  return "high-score";
+}
+
 function formatScore(value) {
   if (value === null || value === undefined || value === "") return "N/A";
   const num = Number(value);
@@ -91,19 +98,6 @@ function formatPubType(pubType) {
     return cleaned.length ? cleaned.join(", ") : "Unknown";
   }
   return String(pubType);
-}
-
-function formatStatementCount(count) {
-  if (!Number.isFinite(count)) return "Statements to inspect";
-  const label = count === 1 ? "statement" : "statements";
-  return `${count} ${label} to inspect`;
-}
-
-function formatBreadcrumbLabel(text, fallback, maxLength = 30) {
-  const raw = String(text || "").trim();
-  if (!raw) return fallback;
-  if (raw.length <= maxLength) return raw;
-  return `${raw.slice(0, maxLength - 1)}…`;
 }
 
 function formatEvidenceTitle(evidence) {
@@ -126,6 +120,22 @@ function getEvidenceUrl(evidence) {
   if (evidence.epistemonikos_id)
     return `https://www.epistemonikos.org/en/documents/${evidence.epistemonikos_id}`;
   return null;
+}
+
+function normalizeScore(rawValue) {
+  if (rawValue === null || rawValue === undefined || rawValue === "") {
+    return null;
+  }
+  const num = Number(rawValue);
+  if (!Number.isFinite(num)) return null;
+  let percent = num;
+  if (num >= 0 && num <= 1) {
+    percent = num * 100;
+  }
+  if (percent < 0 || percent > 100) {
+    return null;
+  }
+  return Math.round(percent);
 }
 
 function getMetaContent(key) {
@@ -333,41 +343,37 @@ function createEvidenceItem(evidence, options = {}) {
   pubType.textContent = `Type: ${formatPubType(evidence.pub_type)}`;
   pubType.title = TOOLTIP_TYPE;
 
+  const reliability = document.createElement("span");
+  reliability.className = "evidence-meta-item";
+  reliability.textContent = `Reliability: ${formatScore(evidence.weight)}`;
+  reliability.title = TOOLTIP_RELIABILITY;
+
   const stance = formatStance(evidence);
   const stanceEl = document.createElement("span");
   stanceEl.className = `evidence-meta-item ${stance.className}`;
   stanceEl.textContent = `Stance: ${stance.label}`;
   stanceEl.title = TOOLTIP_STANCE;
 
-  meta.append(relevance, pubType, stanceEl);
+  meta.append(relevance, pubType, reliability, stanceEl);
   item.append(header, meta);
   return item;
 }
 
 function createPopupState() {
+  const medicalScore = 0;
+  const needleRotation = medicalScore * 1.8 - 90; // Convert score to degrees (-90 to 90)
+
   const popup = document.createElement("div");
   popup.className = "reel-alert";
   popup.innerHTML = `
-    <div class="inspect-container">
-      <button class="inspect-button" type="button" aria-label="Inspect statements">
-        <span class="inspect-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none">
-            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle>
-            <line x1="16.65" y1="16.65" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
-          </svg>
-        </span>
-        <span id="statement-count" class="inspect-count">Analyzing statements...</span>
-      </button>
-    </div>
-
-    <div class="dropdown-container">
-      <div id="layer-breadcrumb" class="layer-breadcrumb" aria-label="Layer navigation">
-        <button type="button" class="peel-crumb active" data-layer="statements">Statements</button>
-        <span class="crumb-separator crumb-hidden" data-separator="evidence">›</span>
-        <button type="button" class="peel-crumb crumb-hidden" data-layer="evidence">Evidence</button>
-        <span class="crumb-separator crumb-hidden" data-separator="summary">›</span>
-        <button type="button" class="peel-crumb crumb-hidden" data-layer="summary">Summary</button>
+    <div class="dial-container">
+      <div class="dial-background">
+        <div class="loading-needle dial-needle" style="transform: rotate(${needleRotation}deg);"></div>
       </div>
+      <span style="display: none;" id="percent-number" class="score-percentage"><span style="font-size: 14px;">Loading...</span></span>
+    </div>
+    
+    <div class="dropdown-container">
       <div id="statements-view" class="panel-view active">
         <div class="dropdown-content">
           <ul id="dropdown-list"></ul>
@@ -404,15 +410,12 @@ function createPopupState() {
     <button id="close-alert">×</button>
   `;
 
-  const inquiryBackdrop = document.createElement("div");
-  inquiryBackdrop.className = "inquiry-backdrop";
-  document.body.appendChild(inquiryBackdrop);
   document.body.appendChild(popup);
   const state = {
     popup,
-    inquiryBackdrop,
-    inspectButton: popup.querySelector(".inspect-button"),
-    statementCount: popup.querySelector("#statement-count"),
+    dialContainer: popup.querySelector(".dial-container"),
+    needle: popup.querySelector(".dial-needle"),
+    percentNumber: popup.querySelector("#percent-number"),
     statementsView: popup.querySelector("#statements-view"),
     evidenceView: popup.querySelector("#evidence-view"),
     evidenceTitle: popup.querySelector("#evidence-title"),
@@ -423,12 +426,6 @@ function createPopupState() {
     summaryLoading: popup.querySelector("#summary-loading"),
     summaryText: popup.querySelector("#summary-text"),
     listContent: popup.querySelector("#dropdown-list"),
-    breadcrumbTrail: popup.querySelector("#layer-breadcrumb"),
-    crumbStatements: popup.querySelector('[data-layer="statements"]'),
-    crumbEvidence: popup.querySelector('[data-layer="evidence"]'),
-    crumbSummary: popup.querySelector('[data-layer="summary"]'),
-    crumbSepEvidence: popup.querySelector('[data-separator="evidence"]'),
-    crumbSepSummary: popup.querySelector('[data-separator="summary"]'),
     viewMode: "statements",
     statements: [],
     summaryCache: new Map(),
@@ -438,84 +435,12 @@ function createPopupState() {
     activeEvidence: null,
     activeEvidenceIndex: null,
     activeSummaryKey: null,
-    inquiryModeActive: false,
   };
-
-  let inspectHoldTimer = null;
-  let activePointerId = null;
-  let suppressInspectClick = false;
-
-  function clearInspectHoldTimer() {
-    if (!inspectHoldTimer) return;
-    clearTimeout(inspectHoldTimer);
-    inspectHoldTimer = null;
-  }
-
-  state.setInquiryMode = function (isActive) {
-    const active = Boolean(isActive);
-    state.inquiryModeActive = active;
-    state.inquiryBackdrop.classList.toggle("active", active);
-    state.popup.classList.toggle("inquiry-active", active);
-  };
-
-  state.updateBreadcrumb = function () {
-    const hasEvidenceContext = Boolean(state.activeStatement);
-    const hasSummaryContext = hasEvidenceContext && Boolean(state.activeEvidence);
-
-    state.crumbStatements.classList.toggle("active", state.viewMode === "statements");
-    state.crumbEvidence.classList.toggle("active", state.viewMode === "evidence");
-    state.crumbSummary.classList.toggle("active", state.viewMode === "summary");
-
-    state.crumbEvidence.classList.toggle("crumb-hidden", !hasEvidenceContext);
-    state.crumbSepEvidence.classList.toggle("crumb-hidden", !hasEvidenceContext);
-    state.crumbSummary.classList.toggle("crumb-hidden", !hasSummaryContext);
-    state.crumbSepSummary.classList.toggle("crumb-hidden", !hasSummaryContext);
-
-    state.crumbStatements.disabled = state.viewMode === "statements";
-    state.crumbEvidence.disabled = !hasEvidenceContext || state.viewMode === "evidence";
-    state.crumbSummary.disabled = !hasSummaryContext || state.viewMode === "summary";
-
-    state.crumbEvidence.textContent = hasEvidenceContext
-      ? formatBreadcrumbLabel(state.activeStatement?.text, "Evidence")
-      : "Evidence";
-    state.crumbSummary.textContent = hasSummaryContext
-      ? formatBreadcrumbLabel(formatEvidenceTitle(state.activeEvidence), "Summary")
-      : "Summary";
-
-    state.crumbEvidence.title = hasEvidenceContext
-      ? String(state.activeStatement?.text || "Evidence")
-      : "Evidence";
-    state.crumbSummary.title = hasSummaryContext
-      ? formatEvidenceTitle(state.activeEvidence)
-      : "Summary";
-  };
-
-  function endInspectHold(event) {
-    if (
-      event &&
-      Number.isFinite(activePointerId) &&
-      Number.isFinite(event.pointerId) &&
-      event.pointerId !== activePointerId
-    ) {
-      return;
-    }
-    clearInspectHoldTimer();
-    activePointerId = null;
-  }
-
-  function handleVisibilityChange() {
-    if (document.hidden) {
-      clearInspectHoldTimer();
-      activePointerId = null;
-    }
-  }
 
   state.setExpanded = function (isExpanded) {
     state.popup.classList.toggle("expanded", isExpanded);
-  };
-
-  state.setStatementCount = function (count) {
-    state.statementCount.textContent = formatStatementCount(count);
+    state.dialContainer.style.height = isExpanded ? "auto" : "40px";
+    state.percentNumber.style.display = isExpanded ? "block" : "none";
   };
 
   state.showStatementsView = function () {
@@ -523,7 +448,6 @@ function createPopupState() {
     state.statementsView.classList.add("active");
     state.evidenceView.classList.remove("active");
     state.summaryView.classList.remove("active");
-    state.updateBreadcrumb();
   };
 
   state.renderEvidenceList = function (statement, statementIndex) {
@@ -593,7 +517,6 @@ function createPopupState() {
     state.activeEvidenceIndex = null;
     state.activeSummaryKey = null;
     state.renderEvidenceList(statement, statementIndex);
-    state.updateBreadcrumb();
   };
 
   state.setSummaryLoading = function (isLoading) {
@@ -636,7 +559,6 @@ function createPopupState() {
     const key = getEvidenceKey(statementIndex, evidenceIndex);
     state.activeSummaryKey = key;
     const cached = state.summaryCache.get(key);
-    state.updateBreadcrumb();
     if (cached) {
       state.setSummaryLoading(false);
       state.summaryText.textContent = cached;
@@ -721,7 +643,6 @@ function createPopupState() {
     state.activeEvidenceIndex = null;
     state.activeSummaryKey = null;
     state.setLoading();
-    state.updateBreadcrumb();
   };
 
   state.setNotApplicable = function () {
@@ -742,18 +663,50 @@ function createPopupState() {
     state.activeEvidence = null;
     state.activeEvidenceIndex = null;
     state.activeSummaryKey = null;
-    state.setStatementCount(0);
-    state.updateBreadcrumb();
+    state.setScore(null);
   };
 
   state.setLoading = function () {
-    state.statementCount.textContent = "Analyzing statements...";
+    state.needle.style.display = "block";
+    state.needle.classList.add("loading-needle");
+    state.percentNumber.textContent = "Loading...";
+    state.percentNumber.classList.remove(
+      "high-score",
+      "medium-score",
+      "low-score"
+    );
+  };
+
+  state.setScore = function (score) {
+    if (!Number.isFinite(score)) {
+      state.needle.style.display = "block";
+      state.needle.classList.remove("loading-needle");
+      state.needle.style.transform = "rotate(-90deg)";
+      state.percentNumber.textContent = "N/A";
+      state.percentNumber.classList.remove(
+        "high-score",
+        "medium-score",
+        "low-score"
+      );
+      return;
+    }
+
+    const needleRotation = score * 1.8 - 90;
+    state.needle.style.display = "block";
+    state.needle.classList.remove("loading-needle");
+    state.needle.style.transform = `rotate(${needleRotation}deg)`;
+    state.percentNumber.textContent = `${score}%`;
+    state.percentNumber.classList.remove(
+      "high-score",
+      "medium-score",
+      "low-score"
+    );
+    state.percentNumber.classList.add(getScoreColor(score));
   };
 
   state.setStatements = function (statements) {
     state.listContent.innerHTML = "";
     state.statements = Array.isArray(statements) ? statements : [];
-    state.setStatementCount(state.statements.length);
 
     for (const statement of state.statements) {
       if (statement && Array.isArray(statement.evidence)) {
@@ -766,16 +719,26 @@ function createPopupState() {
       const listItem = document.createElement("li");
       listItem.className = "statement-item";
 
-      const evidenceCount = document.createElement("span");
-      evidenceCount.className = "statement-count";
-      const evidenceTotal =
-        statement && Array.isArray(statement.evidence)
-          ? statement.evidence.length
-          : 0;
-      evidenceCount.textContent = String(evidenceTotal);
-      evidenceCount.title = `${evidenceTotal} evidence item${
-        evidenceTotal === 1 ? "" : "s"
-      }`;
+      const verdictButton = document.createElement("button");
+      verdictButton.className = "feedback-button";
+      verdictButton.type = "button";
+
+      if (statement.verdict == "true") {
+        verdictButton.title = "Agree with analysis";
+        verdictButton.innerHTML = `<svg viewBox="0 0 24 24" fill="green">
+          <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+        </svg>`;
+      } else if (statement.verdict == "false") {
+        verdictButton.title = "Disagree with analysis";
+        verdictButton.innerHTML = `<svg viewBox="0 0 24 24" fill="red">
+          <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.58-6.59c.37-.36.59-.86.59-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
+        </svg>`;
+      } else {
+        verdictButton.title = "Disagree with analysis";
+        verdictButton.innerHTML = `<svg viewBox="0 0 24 24" fill="orange" style="transform: rotate(0.25turn)">
+          <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.58-6.59c.37-.36.59-.86.59-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
+        </svg>`;
+      }
 
       const statementText = document.createElement("span");
       statementText.className = "statement-text";
@@ -800,47 +763,12 @@ function createPopupState() {
       }
       evidenceButton.dataset.statementIndex = String(i);
 
-      listItem.append(evidenceCount, statementText, evidenceButton);
+      listItem.append(verdictButton, statementText, evidenceButton);
       state.listContent.appendChild(listItem);
     }
   };
 
-  state.inspectButton.addEventListener("pointerdown", (event) => {
-    const isTouchLike = event.pointerType === "touch" || event.pointerType === "pen";
-    if (!isTouchLike && event.button !== 0) return;
-
-    activePointerId = event.pointerId;
-    suppressInspectClick = false;
-    clearInspectHoldTimer();
-
-    if (state.inspectButton.setPointerCapture) {
-      try {
-        state.inspectButton.setPointerCapture(event.pointerId);
-      } catch (_error) {
-        // No-op: pointer capture can fail for non-primary pointers.
-      }
-    }
-
-    inspectHoldTimer = setTimeout(() => {
-      state.setInquiryMode(!state.inquiryModeActive);
-      suppressInspectClick = true;
-    }, inquiryHoldDelayMs);
-  });
-
-  state.inspectButton.addEventListener("pointerup", endInspectHold);
-  state.inspectButton.addEventListener("pointercancel", endInspectHold);
-  state.inspectButton.addEventListener("lostpointercapture", endInspectHold);
-  window.addEventListener("blur", endInspectHold);
-  document.addEventListener("visibilitychange", handleVisibilityChange);
-
-  state.inspectButton.addEventListener("click", (event) => {
-    if (suppressInspectClick) {
-      suppressInspectClick = false;
-      event.preventDefault();
-      event.stopPropagation();
-      return;
-    }
-
+  state.dialContainer.addEventListener("click", () => {
     if (state.viewMode === "summary") {
       if (state.activeStatement) {
         state.showEvidenceView(state.activeStatement, state.activeStatementIndex);
@@ -856,34 +784,6 @@ function createPopupState() {
       return;
     }
     state.setExpanded(!state.popup.classList.contains("expanded"));
-  });
-
-  state.breadcrumbTrail.addEventListener("click", (event) => {
-    const crumb = event.target.closest(".peel-crumb");
-    if (!crumb || crumb.disabled) return;
-
-    const layer = crumb.dataset.layer;
-    if (layer === "statements") {
-      state.showStatementsView();
-      state.setExpanded(true);
-      return;
-    }
-
-    if (layer === "evidence") {
-      if (!state.activeStatement) return;
-      state.showEvidenceView(state.activeStatement, state.activeStatementIndex);
-      return;
-    }
-
-    if (layer === "summary") {
-      if (!state.activeStatement || !state.activeEvidence) return;
-      state.showSummaryView(
-        state.activeStatement,
-        state.activeEvidence,
-        state.activeStatementIndex,
-        state.activeEvidenceIndex
-      );
-    }
   });
 
   state.listContent.addEventListener("click", (event) => {
@@ -912,16 +812,6 @@ function createPopupState() {
   popup.querySelector("#close-alert").addEventListener("click", () => {
     removePopup();
   });
-
-  state.cleanup = function () {
-    clearInspectHoldTimer();
-    state.setInquiryMode(false);
-    window.removeEventListener("blur", endInspectHold);
-    document.removeEventListener("visibilitychange", handleVisibilityChange);
-    state.inquiryBackdrop.remove();
-  };
-
-  state.updateBreadcrumb();
 
   return state;
 }
@@ -979,7 +869,11 @@ async function runAnalysis(reelUrl) {
     if (window.location.href !== reelUrl) return;
 
     const statements = data && data.statements ? data.statements : [];
+    const rawScore = data ? data["overall_truthiness"] : null;
+    const medicalScore = normalizeScore(rawScore);
+
     state.setStatements(statements);
+    state.setScore(medicalScore);
     lastAnalyzedUrl = reelUrl;
   } catch (error) {
     console.error("Error in content script" + error);
@@ -1001,9 +895,6 @@ function showPopup() {
 }
 
 function removePopup() {
-  if (popupState && typeof popupState.cleanup === "function") {
-    popupState.cleanup();
-  }
   if (currentPopup) {
     currentPopup.remove();
   }

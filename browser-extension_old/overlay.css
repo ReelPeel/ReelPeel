@@ -15,122 +15,99 @@
   border: 1px solid #e0e0e0;
   align-items: center;
   justify-content: center;
-  width: 160px;
+  width: 100px;
   flex-direction: column;
   transition: all 0.3s ease;
 }
 
-.inquiry-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(80, 80, 80, 0.45);
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
-  opacity: 0;
-  pointer-events: none;
-  z-index: 9998;
-  transition: opacity 0.2s ease;
-}
-
-.inquiry-backdrop.active {
-  opacity: 1;
-}
-
-.inspect-container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.inspect-button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  width: 100%;
-  padding: 4px 2px;
-  border: none;
-  background: none;
-  color: #222;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.inspect-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  color: #222;
-}
-
-.inspect-icon svg {
-  width: 100%;
-  height: 100%;
-}
-
-.inspect-count {
-  font-size: 11px;
-  line-height: 1.2;
-  text-align: center;
-}
-
-.layer-breadcrumb {
-  display: none;
-  align-items: center;
-  gap: 4px;
-  width: 100%;
-  margin: 2px 0 6px;
-  padding: 0 2px;
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
-
-.expanded .layer-breadcrumb {
-  display: flex;
-}
-
-.peel-crumb {
-  border: 0;
-  border-radius: 999px;
-  padding: 3px 9px;
-  font-family: "Montserrat", sans-serif;
-  font-size: 9px;
-  line-height: 1.1;
-  color: #5d6673;
-  background: linear-gradient(160deg, #f5f7fa 0%, #e4e8ef 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 1px 2px rgba(16, 24, 40, 0.14);
-  cursor: pointer;
-  white-space: nowrap;
-  max-width: 115px;
-  text-overflow: ellipsis;
+.dial-container {
+  position: relative;
+  /* width: 80px; */
+  height: 40px;
   overflow: hidden;
+  /* margin-right: 0; */
+  cursor: pointer;
 }
 
-.peel-crumb:hover:not(:disabled) {
-  transform: translateY(-1px);
+.dial-background {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 270deg,
+    #e82d48 0deg 36deg,
+    #eda537 36deg 72deg,
+    #f0d933 72deg 108deg,
+    #8ce249 108deg 144deg,
+    #3fd14a 144deg 180deg
+  );
+  position: relative;
+  clip-path: inset(0 0 50% 0);
+  /* transform: translateY(50%); */
 }
 
-.peel-crumb.active {
-  color: #ffffff;
-  background: linear-gradient(160deg, #0a5bd8 0%, #0f72ff 100%);
-  box-shadow: 0 2px 6px rgba(12, 78, 180, 0.35);
+@keyframes needleswing {
+  from {
+    transform: rotate(-90deg);
+  }
+  to {
+    transform: rotate(90deg);
+  }
 }
 
-.peel-crumb:disabled {
-  cursor: default;
+.loading-needle {
+  animation: needleswing 0.75s ease;
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
 }
 
-.crumb-separator {
-  font-family: "Montserrat", sans-serif;
-  font-size: 10px;
-  color: #8b95a5;
-  user-select: none;
+.dial-needle {
+  position: absolute;
+  width: 4px;
+  height: 35%;
+  background: #333;
+  left: 50%;
+  bottom: 50%;
+  transform-origin: bottom center;
+  transition: transform 0.5s ease;
 }
 
-.crumb-hidden {
-  display: none;
+#percent-number {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 20px;
+  font-weight: bolder;
+}
+
+.score-text {
+  flex: 1;
+  margin-top: 5px;
+  font-size: 15px;
+}
+
+.score-title {
+  font-size: 16px;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.score-description {
+  font-size: 12px;
+  line-height: 1.4;
+  opacity: 0.8;
+}
+
+.high-score {
+  color: #4caf50;
+}
+.medium-score {
+  color: #ffc107;
+}
+.low-score {
+  color: #e82d48;
 }
 
 #close-alert {
@@ -213,20 +190,6 @@
   gap: 6px;
   align-items: start;
   margin-bottom: 6px;
-}
-
-.statement-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  padding: 2px 6px;
-  border-radius: 999px;
-  background: #f0f0f0;
-  color: #333;
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 1;
 }
 
 .statement-text {

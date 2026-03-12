@@ -73,6 +73,9 @@ class PipelineOrchestrator:
         # Generate and print summary
         self._print_and_log_summary(state, total_duration)
 
+        # Persist the complete final state once at the end (without truncation)
+        self.logger.log_final_output_json(state.model_dump(mode="json"))
+
         return state
 
     def _print_and_log_summary(self, state: PipelineState, total_duration: float):

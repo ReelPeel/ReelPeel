@@ -248,3 +248,22 @@ class PipelineLogger:
                 f.write("\n" + summary_text + "\n")
         except Exception as e:
             print(f"Logging error: {e}")
+
+    def log_final_output_json(self, final_output: Any):
+        if not self.debug or not self.log_file:
+            return
+        try:
+            full_json = json.dumps(final_output, indent=2, ensure_ascii=False, default=str)
+            divider = "=" * 80
+            with open(self.log_file, "a", encoding="utf-8") as f:
+                f.write(
+                    "\n"
+                    + divider
+                    + "\nFINAL OUTPUT JSON (FULL, UNTRUNCATED)\n"
+                    + divider
+                    + "\n"
+                    + full_json
+                    + "\n"
+                )
+        except Exception as e:
+            print(f"Logging error: {e}")
