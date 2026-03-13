@@ -17,6 +17,16 @@ ReelPeel is for research and demonstration only. It is not medical advice, not a
 - `services/`: PubMed proxy used by the pipeline
 - `evaluation/`: evaluation scripts and datasets
 
+## Core Architecture
+
+For system descriptions, the paper-relevant runtime path is the live path built around `POST /process` plus `POST /evidence_summary`.
+
+- Browser extension: a Manifest V3 service worker plus a content script that watches Reel pages, triggers backend analysis after a short scroll pause, renders a claim list, opens per-claim source views, and requests short evidence explanations on demand.
+- FastAPI backend: `app/main.py` exposes the live analysis route, the evidence-summary route, and a separate fixed demo route.
+- Config-driven pipeline: `app/pipeline.py` selects an audio or video config, then `PipelineOrchestrator` executes an ordered list of `PipelineStep` implementations over a shared `PipelineState`.
+- Retrieval infrastructure: the pipeline uses a local PubMed proxy that rate-limits and caches NCBI requests in SQLite.
+- Shared data contract: the backend returns a `PipelineState` containing `Statement` objects, and each statement carries typed evidence records (`PubMed`, optional guideline `RAG`, schema-level `Epistemonikos`).
+
 ## Demo Modes
 
 | Mode | Endpoint | Purpose |
@@ -24,6 +34,8 @@ ReelPeel is for research and demonstration only. It is not medical advice, not a
 | Fixed demo | `POST /json` | Returns a bundled example result for stable, repeatable UI demos |
 | Live processing | `POST /process` | Runs the full reel-to-evidence pipeline |
 | Evidence context | `POST /evidence_summary` | Produces a short explanation for a single evidence item |
+
+For architecture descriptions or papers, describe `POST /process` and `POST /evidence_summary`. `POST /json` is a bundled demo shortcut and does not execute the live retrieval and verification pipeline.
 
 The browser extension, as currently committed, uses `POST /json` and an artificial delay to keep the demo interaction deterministic.
 
@@ -168,6 +180,8 @@ The extension adds a floating overlay on Instagram Reels and supports:
 - on-demand evidence context summaries
 - a local Claim Vault stored in browser storage
 
+The overlay is driven primarily by the structured `statements[]` response returned by the backend. In the committed build, the service worker calls the demo endpoint for repeatability, but the content script is organized around the live response shape: a list of statements, each with evidence items carrying titles, links, publication types, relevance scores, and stance signals.
+
 ### Configure the Backend Origin
 
 Before loading the extension, set the backend origin in both files below.
@@ -297,7 +311,7 @@ PIPELINE_CONFIG = {
    `truthness` formats the evidence block and prompts an LLM to output `VERDICT` and `FINALSCORE` for each statement. `scoring` aggregates statement scores into `overall_truthiness`, currently up-weighting low scores below a threshold to penalize likely false or uncertain claims.
 
 9. Optional guideline retrieval
-   `retrieve_guideline_facts` can attach `RAG` evidence from the local SQLite vector database. Retrieved chunks are embedded into the same evidence flow as PubMed results.
+   `retrieve_guideline_facts` can attach `RAG` evidence from the local SQLite vector database. Retrieved chunks are embedded into the same evidence flow as PubMed results. This step is available in the framework but is not enabled in the current FastAPI live configuration.
 
 ### Default Live App Configuration
 
@@ -348,6 +362,17 @@ The nested `stance` object stores:
 - `abstract_p_refutes`
 - `abstract_p_neutral`
 
+### UI-Relevant Response Fields
+
+The current overlay mainly consumes:
+
+- `statements[].text` for claim display
+- `statements[].evidence[]` for source inspection
+- evidence `title`, `url`, `pub_type`, `relevance`, and `stance` for source metadata
+- evidence `abstract` when the user requests a short explanation through `POST /evidence_summary`
+
+`overall_truthiness`, `verdict`, and `score` are part of the backend response, but the committed UI is organized first around claim triage and evidence inspection rather than a single global score display.
+
 ## Output Shape
 
 A successful analysis response contains:
@@ -384,6 +409,14 @@ evaluation/                Evaluation scripts and datasets
 docs/                      Notes and internal setup material
 zzz_videos/                Video and subtitle artifacts
 ```
+
+## Modularity and Current Scope
+
+- The execution model is modular at the pipeline level: step ordering, model choices, prompt templates, and optional modules are declared in config rather than hardcoded in the orchestrator.
+- LLM-backed stages such as extraction, query generation, evidence filtering, verdict generation, and evidence summarization are replaceable through config and prompt changes.
+- The current prototype is still medically specialized. The checked-in prompts target medical claim extraction and PubMed query generation, the evidence weighting rules encode biomedical publication types, and the default ranking and stance models are biomedical models.
+- PubMed retrieval is the only fully wired literature retrieval path in the current live system. Guideline RAG is implemented as an optional add-on, while `Epistemonikos` is present in the shared schema but not connected to a retrieval step in the default pipeline.
+- Test and demo shortcuts such as `POST /json`, `mock: true`, `mock_transcript`, `mock_statements`, cached JSON outputs, and other offline conveniences are useful for demos and debugging but should not be treated as the core architecture.
 
 ## Troubleshooting
 
