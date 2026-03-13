@@ -17,6 +17,7 @@ ReelPeel is for research and demonstration only. It is not medical advice, not a
 - `services/`: PubMed proxy used by the pipeline
 - `evaluation/`: evaluation scripts and datasets
 
+
 ## Core Architecture
 
 For system descriptions, the paper-relevant runtime path is the live path built around `POST /process` plus `POST /evidence_summary`.
