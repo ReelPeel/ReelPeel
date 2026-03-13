@@ -34,10 +34,13 @@ Operational notes:
 - All network failures are caught and logged; evidence may remain partial.
 """
 
+import concurrent.futures
+import os
 import re
+import socket
 import xml.etree.ElementTree as ET
 from datetime import datetime
-from typing import List, Tuple, Any, Dict
+from typing import List, Tuple, Any, Dict, Optional
 
 import requests
 
@@ -52,61 +55,494 @@ class StatementToQueryStep(PipelineStep):
     def execute(self, state: PipelineState) -> PipelineState:
         print(f"[{self.__class__.__name__}] Generating PubMed queries...")
 
-        for stmt in state.statements:
-            # Ensure list exists (in case of older states)
+        statements = getattr(state, "statements", None) or []
+        if not statements:
+            return state
+
+        prompt_defs = self._build_prompt_defs()
+        if not prompt_defs:
+            raise ValueError("generate_query requires prompt_template or prompt_templates in settings.")
+
+        prefetch_cfg = self._prefetch_links_settings()
+
+        # Ensure list exists (in case of older states)
+        for stmt in statements:
             if not hasattr(stmt, "queries") or stmt.queries is None:
                 stmt.queries = []
+            if not hasattr(stmt, "queries_fetched") or stmt.queries_fetched is None:
+                stmt.queries_fetched = []
 
-            prompt = self.config.get("prompt_template").format(claim=stmt.text)
-
-            try:
-                resp = self.llm.call(
-                    model=self.config.get("model"),
-                    temperature=self.config.get("temperature", 0.0),
-                    # stop=self.config.get("stop", ["\n"]),  # fine if 1 query/line
-                    prompt=prompt,
+        tasks = []
+        for stmt in statements:
+            for prompt_def in prompt_defs:
+                tasks.append(
+                    {
+                        "stmt_id": stmt.id,
+                        "stmt_text": stmt.text,
+                        "prompt_def": prompt_def,
+                        "prefetch": prefetch_cfg,
+                    }
                 )
-                self.log_artifact(f"Raw Output for Statement {stmt.id} Query Generation", resp)
-                raw = resp.replace("\n", " ")  # collapse to one line
-                q = self.clean_pubmed_query(raw)
 
-                # Append if not duplicate
-                added = False
-                if q and q.lower() not in {x.lower() for x in stmt.queries}:
+        if not tasks:
+            return state
+
+        base_urls = self._resolve_base_urls()
+        if not base_urls:
+            base_urls = ["http://localhost:11434/v1"]
+
+        max_workers = self._resolve_max_workers(len(tasks), base_urls)
+        results_by_task = {}
+
+        if max_workers <= 1:
+            for task_id, task in enumerate(tasks):
+                base_url = base_urls[task_id % len(base_urls)]
+                results_by_task[task_id] = self._run_task(task, base_url)
+        else:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+                future_map = {}
+                for task_id, task in enumerate(tasks):
+                    base_url = base_urls[task_id % len(base_urls)]
+                    future = executor.submit(self._run_task, task, base_url)
+                    future_map[future] = task_id
+                for future in concurrent.futures.as_completed(future_map):
+                    task_id = future_map[future]
+                    results_by_task[task_id] = future.result()
+
+        stmt_lookup = {s.id: s for s in statements}
+        existing_queries = {
+            s.id: {q.lower() for q in (s.queries or [])} for s in statements
+        }
+        fetched_queries = {
+            s.id: {q.lower() for q in (s.queries_fetched or [])} for s in statements
+        }
+
+        total_tokens = 0
+        for task_id, task in enumerate(tasks):
+            result = results_by_task.get(task_id)
+            if not result:
+                continue
+            stmt = stmt_lookup.get(result["stmt_id"])
+            if not stmt:
+                continue
+
+            total_tokens += int(result.get("tokens") or 0)
+
+            q = result.get("query") or ""
+            prompt_name = result.get("prompt_name") or "prompt"
+
+            if result.get("raw_output"):
+                self.log_artifact(
+                    f"Raw Output for Statement {stmt.id} Query Generation ({prompt_name})",
+                    result["raw_output"],
+                )
+
+            added = False
+            if q:
+                lower = q.lower()
+                if lower not in existing_queries[stmt.id]:
                     stmt.queries.append(q)
+                    existing_queries[stmt.id].add(lower)
                     added = True
-                if q:
+
+            artifact = {
+                "statement_id": stmt.id,
+                "query": q,
+                "source": result.get("source"),
+                "added": added,
+                "prompt": prompt_name,
+            }
+            if result.get("error"):
+                artifact["error"] = result["error"]
+            if q:
+                self.log_artifact("PubMed Query", artifact)
+
+            if q:
+                print(f"   Statement {stmt.id}: + query ({prompt_name}): {q}")
+
+            prefetch = result.get("prefetch")
+            if prefetch:
+                if prefetch.get("error"):
                     self.log_artifact(
-                        "PubMed Query",
+                        "PubMed Prefetch",
                         {
                             "statement_id": stmt.id,
                             "query": q,
-                            "source": "llm",
-                            "added": added,
+                            "error": prefetch.get("error"),
+                        },
+                    )
+                else:
+                    pmids = prefetch.get("pmids") or []
+                    if pmids:
+                        self._attach_prefetched_evidence(stmt, q, pmids, prefetch.get("meta"))
+                    if q.lower() not in fetched_queries[stmt.id]:
+                        fetched_queries[stmt.id].add(q.lower())
+                        stmt.queries_fetched.append(q)
+                    self.log_artifact(
+                        "PubMed Prefetch",
+                        {
+                            "statement_id": stmt.id,
+                            "query": q,
+                            "count": len(pmids),
+                            "request_url": prefetch.get("request_url"),
                         },
                     )
 
-                print(f"   Statement {stmt.id}: + query: {q}")
-
-            except Exception as e:
-                print(f"   [Error] ID {stmt.id}: {e}")
-                fb = self._fallback_query(stmt.text)
-                added = False
-                if fb.lower() not in {x.lower() for x in stmt.queries}:
-                    stmt.queries.append(fb)
-                    added = True
-                self.log_artifact(
-                    "PubMed Query",
-                    {
-                        "statement_id": stmt.id,
-                        "query": fb,
-                        "source": "fallback",
-                        "added": added,
-                        "error": str(e),
-                    },
-                )
+        if total_tokens:
+            self.add_step_tokens(total_tokens)
 
         return state
+
+    def _build_prompt_defs(self) -> List[Dict[str, Any]]:
+        prompt_templates = self.config.get("prompt_templates")
+        if prompt_templates:
+            defs = []
+            for idx, item in enumerate(prompt_templates, 1):
+                if isinstance(item, str):
+                    template = item
+                    name = f"prompt_{idx}"
+                    overrides = {}
+                elif isinstance(item, dict):
+                    template = item.get("template") or item.get("prompt_template")
+                    name = item.get("name") or item.get("id") or f"prompt_{idx}"
+                    overrides = item
+                else:
+                    continue
+                if not template:
+                    continue
+                defs.append(self._prompt_def(template, name=name, overrides=overrides))
+            return defs
+
+        template = self.config.get("prompt_template")
+        if not template:
+            return []
+        name = self.config.get("name") or "prompt"
+        return [self._prompt_def(template, name=name)]
+
+    def _prompt_def(
+        self,
+        template: str,
+        *,
+        name: str,
+        overrides: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        overrides = overrides or {}
+        return {
+            "name": name,
+            "template": template,
+            "model": overrides.get("model", self.config.get("model")),
+            "temperature": overrides.get("temperature", self.config.get("temperature", 0.0)),
+            "max_tokens": overrides.get("max_tokens", self.config.get("max_tokens")),
+            "stop": overrides.get("stop", self.config.get("stop")),
+        }
+
+    def _run_task(self, task: Dict[str, Any], base_url: str) -> Dict[str, Any]:
+        prompt_def = task["prompt_def"]
+        prompt = prompt_def["template"].format(claim=task["stmt_text"])
+        llm_settings = self._build_llm_settings(base_url)
+
+        raw_output = None
+        error = None
+        source = "llm"
+        query = ""
+        tokens = 0
+        prefetch_info = None
+
+        try:
+            from ..core.llm import LLMService
+
+            llm = LLMService(llm_settings, observer=self.observer)
+            resp = llm.call(
+                model=prompt_def.get("model"),
+                temperature=prompt_def.get("temperature", 0.0),
+                max_tokens=prompt_def.get("max_tokens"),
+                stop=prompt_def.get("stop"),
+                prompt=prompt,
+            )
+            raw_output = resp
+            raw = resp.replace("\n", " ")
+            query = self.clean_pubmed_query(raw)
+            tokens = int(llm.token_usage.get("total_tokens") or 0)
+
+            prefetch_cfg = task.get("prefetch") or {}
+            if prefetch_cfg.get("enabled") and query:
+                prefetch_info = self._prefetch_links_for_query(query, prefetch_cfg)
+        except Exception as exc:
+            error = str(exc)
+            source = "fallback"
+            query = self._fallback_query(task["stmt_text"])
+            prefetch_cfg = task.get("prefetch") or {}
+            if prefetch_cfg.get("enabled") and query:
+                prefetch_info = self._prefetch_links_for_query(query, prefetch_cfg)
+
+        return {
+            "stmt_id": task["stmt_id"],
+            "prompt_name": prompt_def.get("name") or "prompt",
+            "query": query,
+            "raw_output": raw_output,
+            "error": error,
+            "source": source,
+            "tokens": tokens,
+            "prefetch": prefetch_info,
+        }
+
+    def _resolve_max_workers(self, task_count: int, base_urls: List[str]) -> int:
+        parallel = self.config.get("parallel")
+        enabled = False
+        max_workers = None
+
+        if isinstance(parallel, dict):
+            enabled = parallel.get("enabled", parallel.get("max_workers") is not None)
+            max_workers = parallel.get("max_workers")
+        elif isinstance(parallel, bool):
+            enabled = parallel
+        elif isinstance(parallel, int):
+            enabled = parallel > 1
+            max_workers = parallel
+
+        if not enabled:
+            return 1
+
+        if max_workers is None:
+            max_workers = len(base_urls)
+        try:
+            max_workers = int(max_workers)
+        except Exception:
+            max_workers = 1
+
+        if max_workers < 1:
+            return 1
+        return min(max_workers, task_count)
+
+    def _prefetch_links_settings(self) -> Dict[str, Any]:
+        raw = self.config.get("prefetch_links")
+        if isinstance(raw, dict):
+            enabled = raw.get("enabled", True)
+            return {
+                "enabled": self._is_truthy(enabled),
+                "retmax": raw.get("retmax", 5),
+                "sort": raw.get("sort", "relevance"),
+                "proxy_url": raw.get("proxy_url", "http://127.0.0.1:8080/proxy"),
+                "prefetch_abstracts": self._is_truthy(raw.get("prefetch_abstracts", False)),
+                "prefetch_pubtypes": self._is_truthy(raw.get("prefetch_pubtypes", True)),
+            }
+        if isinstance(raw, bool):
+            return {
+                "enabled": raw,
+                "retmax": self.config.get("retmax", 5),
+                "sort": self.config.get("sort", "relevance"),
+                "proxy_url": self.config.get("proxy_url", "http://127.0.0.1:8080/proxy"),
+                "prefetch_abstracts": False,
+                "prefetch_pubtypes": True,
+            }
+        return {"enabled": False}
+
+    def _prefetch_links_for_query(self, query: str, cfg: Dict[str, Any]) -> Dict[str, Any]:
+        retmax = cfg.get("retmax", 5)
+        sort = cfg.get("sort", "relevance")
+        proxy_base = cfg.get("proxy_url", "http://127.0.0.1:8080/proxy")
+        search_url = f"{proxy_base}/esearch.fcgi"
+        params = {
+            "db": "pubmed",
+            "term": query,
+            "retmax": retmax,
+            "retmode": "json",
+            "sort": sort,
+        }
+        try:
+            request_url = requests.Request("GET", search_url, params=params).prepare().url
+            resp = requests.get(search_url, params=params, timeout=10)
+            resp.raise_for_status()
+            id_list = resp.json().get("esearchresult", {}).get("idlist", [])
+            meta = None
+            if id_list and cfg.get("prefetch_abstracts"):
+                meta = self._prefetch_metadata_for_pmids(id_list, cfg)
+            return {"pmids": id_list, "request_url": request_url, "meta": meta}
+        except Exception as exc:
+            return {"error": str(exc)}
+
+    def _attach_prefetched_evidence(
+        self,
+        stmt: Any,
+        query: str,
+        pmids: List[str],
+        meta: Optional[Dict[str, Dict[str, Any]]] = None,
+    ) -> None:
+        if not pmids:
+            return
+        for pmid in pmids:
+            existing = next(
+                (e for e in stmt.evidence if getattr(e, "pubmed_id", None) == pmid),
+                None,
+            )
+            info = (meta or {}).get(pmid, {}) if meta else {}
+            if existing is not None:
+                if not hasattr(existing, "queries") or existing.queries is None:
+                    existing.queries = []
+                if query.lower() not in {x.lower() for x in existing.queries}:
+                    existing.queries.append(query)
+                if info.get("pub_type") and not getattr(existing, "pub_type", None):
+                    existing.pub_type = info.get("pub_type")
+                if info.get("title") and not getattr(existing, "title", None):
+                    existing.title = info.get("title")
+                if info.get("abstract") and not getattr(existing, "abstract", None):
+                    existing.abstract = info.get("abstract")
+                continue
+            url = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
+            ev = PubMedEvidence(
+                pubmed_id=pmid,
+                url=url,
+                queries=[query],
+                pub_type=info.get("pub_type"),
+                title=info.get("title"),
+                abstract=info.get("abstract"),
+            )
+            stmt.evidence.append(ev)
+
+    def _prefetch_metadata_for_pmids(self, pmids: List[str], cfg: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
+        proxy_base = cfg.get("proxy_url", "http://127.0.0.1:8080/proxy")
+        meta: Dict[str, Dict[str, Any]] = {pmid: {} for pmid in pmids}
+
+        if cfg.get("prefetch_pubtypes"):
+            ids_str = ",".join(pmids)
+            params = {"db": "pubmed", "id": ids_str, "retmode": "json"}
+            try:
+                resp = requests.get(f"{proxy_base}/esummary.fcgi", params=params, timeout=30)
+                resp.raise_for_status()
+                data = resp.json().get("result", {})
+                for pmid in pmids:
+                    rec = data.get(pmid)
+                    if not rec:
+                        continue
+                    ptypes = rec.get("pubtype", [])
+                    if ptypes:
+                        meta[pmid]["pub_type"] = [str(x) for x in ptypes if x]
+            except Exception:
+                pass
+
+        if cfg.get("prefetch_abstracts"):
+            ids_str = ",".join(pmids)
+            params = {"db": "pubmed", "id": ids_str, "retmode": "xml"}
+            try:
+                resp = requests.get(f"{proxy_base}/efetch.fcgi", params=params, timeout=30)
+                resp.raise_for_status()
+                root = ET.fromstring(resp.text)
+                for article in root.findall(".//PubmedArticle"):
+                    pmid_node = article.find(".//MedlineCitation/PMID")
+                    if pmid_node is None:
+                        continue
+                    pmid = pmid_node.text
+                    if pmid not in meta:
+                        continue
+                    title_node = article.find(".//Article/ArticleTitle")
+                    if title_node is not None and title_node.text:
+                        meta[pmid]["title"] = title_node.text.strip()
+                    abs_texts = article.findall(".//Abstract/AbstractText")
+                    if not abs_texts:
+                        abs_texts = article.findall(".//OtherAbstract/AbstractText")
+                    parts = []
+                    for el in abs_texts:
+                        txt = "".join(el.itertext()).strip()
+                        if not txt:
+                            continue
+                        label = el.attrib.get("Label") or el.attrib.get("NlmCategory")
+                        parts.append(f"{label}: {txt}" if label else txt)
+                    full_abstract = " ".join(parts).strip()
+                    if full_abstract and not full_abstract.lower().startswith("abstract available from"):
+                        meta[pmid]["abstract"] = full_abstract
+            except Exception:
+                pass
+
+        return meta
+
+    def _build_llm_settings(self, base_url: str) -> Dict[str, Any]:
+        settings = dict(self.config.get("llm_settings", {}) or {})
+        settings.pop("base_urls", None)
+
+        if base_url:
+            settings["base_url"] = base_url
+        settings.setdefault(
+            "api_key",
+            os.environ.get("LLM_API_KEY") or os.environ.get("OLLAMA_API_KEY") or "ollama",
+        )
+
+        ctx = (
+            settings.get("context_length")
+            or settings.get("num_ctx")
+            or settings.get("max_context")
+            or os.environ.get("LLM_CONTEXT_LENGTH")
+            or os.environ.get("OLLAMA_CONTEXT_LENGTH")
+        )
+        if ctx and "context_length" not in settings:
+            settings["context_length"] = ctx
+
+        return settings
+
+    def _resolve_base_urls(self) -> List[str]:
+        llm_settings = self.config.get("llm_settings", {}) or {}
+        base_urls = llm_settings.get("base_urls")
+        if isinstance(base_urls, list) and base_urls:
+            return [u for u in base_urls if u]
+
+        if self._is_truthy(os.environ.get("OLLAMA_MULTI_INSTANCE")):
+            host = os.environ.get("OLLAMA_MULTI_HOST", "127.0.0.1")
+            try:
+                base_port = int(os.environ.get("OLLAMA_MULTI_BASE_PORT", "11434"))
+            except Exception:
+                base_port = 11434
+            count = self._resolve_multi_count()
+            return [f"http://{host}:{base_port + i}/v1" for i in range(count)]
+
+        env_base = os.environ.get("LLM_BASE_URL") or os.environ.get("OLLAMA_BASE_URL")
+        if env_base:
+            return [env_base]
+
+        base_url = llm_settings.get("base_url") or "http://localhost:11434/v1"
+        return [base_url]
+
+    def _resolve_multi_count(self) -> int:
+        for key in ("OLLAMA_MULTI_COUNT", "OLLAMA_MULTI_INSTANCES", "OLLAMA_MULTI_WORKERS"):
+            raw = os.environ.get(key)
+            if not raw:
+                continue
+            try:
+                val = int(raw)
+                if val > 0:
+                    return val
+            except Exception:
+                continue
+
+        cuda = os.environ.get("CUDA_VISIBLE_DEVICES")
+        if cuda is not None:
+            ids = [p.strip() for p in cuda.split(",") if p.strip()]
+            if ids:
+                return len(ids)
+
+        # Fallback: probe consecutive ports for running Ollama instances.
+        host = os.environ.get("OLLAMA_MULTI_HOST", "127.0.0.1")
+        try:
+            base_port = int(os.environ.get("OLLAMA_MULTI_BASE_PORT", "11434"))
+        except Exception:
+            base_port = 11434
+
+        max_probe = 8
+        count = 0
+        for i in range(max_probe):
+            port = base_port + i
+            if self._is_port_open(host, port):
+                count += 1
+            else:
+                break
+
+        return count if count > 0 else 1
+
+    def _is_port_open(self, host: str, port: int) -> bool:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.settimeout(0.2)
+            return sock.connect_ex((host, port)) == 0
+
+    def _is_truthy(self, value: Optional[str]) -> bool:
+        return str(value).strip().lower() in {"1", "true", "yes", "y", "on"}
     _ALLOWED_TAGS = {"mh", "tiab"}
     def clean_pubmed_query(self, raw: str) -> str:
         q = raw.strip()
@@ -164,8 +600,11 @@ class QueryToLinkStep(PipelineStep):
             queries = getattr(stmt, "queries", []) or []
             if not queries:
                 continue
+            fetched = {q.lower() for q in (getattr(stmt, "queries_fetched", []) or [])}
 
             for q in queries:
+                if q.lower() in fetched:
+                    continue
                 try:
                     params = {
                         "db": "pubmed",
@@ -208,6 +647,10 @@ class QueryToLinkStep(PipelineStep):
 
                     print(f"   Statement {stmt.id}: Found {len(id_list)} links.")
 
+                    if hasattr(stmt, "queries_fetched"):
+                        if q.lower() not in {x.lower() for x in (stmt.queries_fetched or [])}:
+                            stmt.queries_fetched.append(q)
+
                 except Exception as e:
                     print(f"   [Error] Failed to fetch links for '{q}': {e}")
 
@@ -249,12 +692,16 @@ class LinkToAbstractStep(PipelineStep):
                 continue
 
             pmids = list(evidence_map.keys())
+            pmids_missing_types = [pmid for pmid in pmids if not getattr(evidence_map[pmid], "pub_type", None)]
+            pmids_missing_abs = [pmid for pmid in pmids if not getattr(evidence_map[pmid], "abstract", None)]
 
-            # 2. Fetch all Publication Types in ONE request
-            self._batch_fetch_types(pmids, evidence_map)
+            # 2. Fetch all Publication Types in ONE request (only missing)
+            if pmids_missing_types:
+                self._batch_fetch_types(pmids_missing_types, evidence_map)
 
-            # 3. Fetch all Titles & Abstracts in ONE request
-            self._batch_fetch_details(pmids, evidence_map)
+            # 3. Fetch all Titles & Abstracts in ONE request (only missing)
+            if pmids_missing_abs:
+                self._batch_fetch_details(pmids_missing_abs, evidence_map)
 
         # Update timestamp
         state.generated_at = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"

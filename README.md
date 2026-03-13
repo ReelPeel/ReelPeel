@@ -1,338 +1,434 @@
-# ReelPeel Medical Fact-Checking Pipeline
+# ReelPeel
 
-End-to-end, config-driven pipeline for medical claim extraction, PubMed evidence retrieval, optional guideline RAG retrieval, and conservative truth scoring.
+ReelPeel is a research prototype for examining health claims in short-form videos. It combines a config-driven medical fact-checking pipeline, a FastAPI backend, and a browser extension that overlays claims and evidence directly on Instagram Reels.
 
-This project treats statement scores as truth scores: 0.0 = claim is false, 1.0 = claim is true (with uncertainty in between).
+The repository supports two complementary workflows:
 
-## Pipeline overview (config-driven)
+- a repeatable demo flow based on a bundled JSON response
+- a live analysis flow that downloads a reel, transcribes it, retrieves biomedical evidence, and scores claim truthfulness
 
-The pipeline is defined by a config dict with an ordered list of steps. The `PipelineOrchestrator` builds each step and runs them sequentially. A step can be a simple operation or a `module` that groups nested steps (still executed in order). The exact ordering and which steps are enabled is controlled by the config; the outline below describes the typical flow used in this repo.
+ReelPeel is for research and demonstration only. It is not medical advice, not a diagnostic system, and not a clinical decision-support tool.
 
-## Detailed pipeline flow (typical order)
+## What Is Included
 
-1. Transcript extraction (`audio_to_transcript`)
-  - Extracts the transcript from a audio .wav file
-  - Produces `Transcipt`object
-  - Optional pre-step: `video_to_audio` converts a local video file into audio
-
-2. Claim extraction (`extraction`)
-   - LLM turns the transcript into 1-3 medical claims.
-   - Output is parsed as JSON; if parsing fails the step falls back to sentence splitting.
-   - Produces `Statement` objects with `id` and `text`.
-
-3. Research module: query generation -> retrieval -> metadata -> weighting
-   - One or more `generate_query` steps expand each claim into PubMed Boolean queries.
-     - Queries are normalized (tags, operators, parentheses) and deduplicated per statement.
-     - Multiple query strategies can be chained, including counter-evidence oriented prompts.
-   - `fetch_links` calls PubMed ESearch via a local proxy to retrieve PMIDs per query.
-     - Evidence items are created (or updated). When an existing PMID is seen again, the query is recorded for provenance.
-   - `abstract_evidence` batch-fetches publication types (esummary) and title/abstract text (efetch).
-     - Titles are stored when available; abstracts are stored as raw text.
-   - `weight_evidence` converts publication types to numeric weights using regex rules with a default fallback.
-
-4. Optional guideline RAG retrieval (`retrieve_guideline_facts`)
-   - Loads a SQLite vector DB built from guideline PDFs.
-   - Reads the embedding model recorded in the DB, encodes each claim, computes cosine similarity, and returns top-k chunks above `min_score`.
-   - Adds `RAGEvidence` items with `score`, `relevance`, and `weight` set from the similarity.
-
-5. Scores module: relevance reranking + stance inference
-   - `rerank_evidence` uses a cross-encoder (BAAI/bge-reranker-v2-m3 by default) to score claim/evidence relevance.
-     - Titles are prefixed to abstracts when available.
-     - `min_relevance` can drop low-scoring evidence.
-   - `stance_evidence` uses an NLI model (BioLinkBERT MedNLI by default) to estimate support/refute/neutral probabilities.
-     - `top_m_by_relevance` can limit stance computation to the most relevant items.
-
-6. Verification module: filter -> verdict -> aggregate
-   - `filter_evidence` uses an LLM to drop off-topic evidence based on abstract text plus metadata (weight, relevance, stance).
-     - Evidence without text is kept for manual review.
-     - All evidence types are eligible for filtering if they include text.
-   - `truthness` builds a grouped evidence block (PubMed, Epistemonikos, RAG) and asks an LLM for a verdict and score.
-     - Evidence is sorted by relevance (lowest to highest) before formatting.
-     - The transcript context is provided to the prompt.
-   - `scoring` aggregates statement scores into `overall_truthiness` and up-weights scores below a threshold to penalize likely false/uncertain claims.
-
-7. Output
-   - `PipelineState` contains statements, evidence, verdicts, and scores.
-   - The debug log and summary table reflect step timing and token usage.
+- `app/`: FastAPI backend for demo and live analysis endpoints
+- `browser-extension/`: Manifest V3 extension for Instagram Reels
+- `pipeline/`: config-driven extraction, retrieval, reranking, stance, and verification pipeline
+- `services/`: PubMed proxy used by the pipeline
+- `evaluation/`: evaluation scripts and datasets
 
 
-Optional: Input ingestion
-If no transcript is available or single statements want to be passed into the pipeline you can use mock steps.
-   - A step populates `PipelineState.transcript` (from ASR or a mock step), or directly populates `PipelineState.statements` (skipping extraction).
-   - The pipeline core only requires transcript text or prebuilt statements; audio ingestion lives outside the pipeline.
-## Evidence model
+## Core Architecture
 
-All evidence items share a union schema and live in `Statement.evidence`:
+For system descriptions, the paper-relevant runtime path is the live path built around `POST /process` plus `POST /evidence_summary`.
 
-- PubMed evidence (`source_type = PubMed`)
-  - `pubmed_id`, `url`, `title`, `abstract`, `pub_type`, `weight`, `relevance`, `stance`, `queries`
-- Guideline RAG evidence (`source_type = RAG`)
-  - `chunk_id`, `source_path`, `pages`, `abstract` (chunk text), `score`, `weight`, `relevance`
-- Epistemonikos evidence (`source_type = Epistemonikos`)
-  - Defined in the schema but not wired into the pipeline yet.
+- Browser extension: a Manifest V3 service worker plus a content script that watches Reel pages, triggers backend analysis after a short scroll pause, renders a claim list, opens per-claim source views, and requests short evidence explanations on demand.
+- FastAPI backend: `app/main.py` exposes the live analysis route, the evidence-summary route, and a separate fixed demo route.
+- Config-driven pipeline: `app/pipeline.py` selects an audio or video config, then `PipelineOrchestrator` executes an ordered list of `PipelineStep` implementations over a shared `PipelineState`.
+- Retrieval infrastructure: the pipeline uses a local PubMed proxy that rate-limits and caches NCBI requests in SQLite.
+- Shared data contract: the backend returns a `PipelineState` containing `Statement` objects, and each statement carries typed evidence records (`PubMed`, optional guideline `RAG`, schema-level `Epistemonikos`).
 
-## Configuration
+## Demo Modes
 
-### Config structure and modules
+| Mode | Endpoint | Purpose |
+|---|---|---|
+| Fixed demo | `POST /json` | Returns a bundled example result for stable, repeatable UI demos |
+| Live processing | `POST /process` | Runs the full reel-to-evidence pipeline |
+| Evidence context | `POST /evidence_summary` | Produces a short explanation for a single evidence item |
 
-A pipeline is defined as a dict (or JSON) with a top-level `steps` array. Each entry has a `type` and `settings`. Use the special `module` type to group nested steps.
+For architecture descriptions or papers, describe `POST /process` and `POST /evidence_summary`. `POST /json` is a bundled demo shortcut and does not execute the live retrieval and verification pipeline.
 
-```python
-PIPELINE_CONFIG = {
-    "name": "Example",
-    "debug": True,
-    "steps": [
-        {"type": "mock_transcript", "settings": {"transcript_text": "..."}},
-        {"type": "extraction", "settings": {...}},
-        {
-            "type": "module",
-            "settings": {
-                "name": "Research",
-                "steps": [
-                    {"type": "generate_query", "settings": {...}},
-                    {"type": "fetch_links", "settings": {"retmax": 20}},
-                    {"type": "abstract_evidence", "settings": {}},
-                    {"type": "weight_evidence", "settings": {"default_weight": 0.5}},
-                ],
-            },
-        },
-        {"type": "retrieve_guideline_facts", "settings": {...}},
-        {"type": "module", "settings": {"name": "Scores", "steps": [...] }},
-        {"type": "module", "settings": {"name": "Verification", "steps": [...] }},
-    ],
-}
-```
+The browser extension, as currently committed, uses `POST /json` and an artificial delay to keep the demo interaction deterministic.
 
-### Pipeline step types (reference)
+## System Requirements
 
-Key step types registered in `pipeline/core/factory.py`:
+- Linux environment recommended
+- Conda or Mamba
+- `ffmpeg` available on the system path
+- Ollama or another OpenAI-compatible local endpoint
+- Chrome or Edge for the browser extension
+- Network access for live reel downloads, PubMed retrieval, and first-time Hugging Face model downloads
 
-- `mock_transcript` and `mock_statements` for test input injection.
-- `video_to_audio` for video -> audio file conversion.
-- `audio_to_transcript` for audio -> transcript (Whisper).
-- `extraction` for transcript -> statements.
-- `generate_query`, `fetch_links`, `abstract_evidence`, `weight_evidence` for PubMed research.
-- `retrieve_guideline_facts` for guideline RAG.
-- `rerank_evidence`, `stance_evidence` for scoring.
-- `filter_evidence`, `truthness`, `scoring` for verification.
+GPU acceleration is strongly recommended for live runs. CPU-only execution is possible but slow.
 
-### Prompt templates
+## Setup
 
-Prompt templates are centralized in `pipeline/test_configs/preprompts.py` and injected per step.
-
-### LLM endpoint settings
-
-Each LLM step can override endpoint settings with `llm_settings`:
-
-```python
-{
-  "type": "extraction",
-  "settings": {
-    "model": "gemma3:27b",
-    "prompt_template": PROMPT_TMPL_S2,
-    "llm_settings": {
-      "base_url": "http://localhost:11434/v1",
-      "api_key": "ollama"
-    }
-  }
-}
-```
-
-If omitted, defaults to `http://localhost:11434/v1`.
-
-### Model validation
-
-`PipelineOrchestrator` validates required models at startup:
-
-- `model` keys are checked against the LLM endpoint (Ollama-compatible).
-- `model_name` keys are checked against the Hugging Face cache or Hub.
-
-The run fails fast if required models are missing.
-
-### Model options (LLM, relevance, stance)
-
-Relevance step (`rerank_evidence`):
-- `BAAI/bge-reranker-v2-m3` (default): cross-encoder reranker for claim/evidence relevance; slower but accurate.
-
-Stance step (`stance_evidence`):
-- `cnut1648/biolinkbert-mednli` (default): BioLinkBERT NLI model trained on MedNLI; outputs Supports/Refutes/Neutral.
-
-LLM step models (used by `extraction`, `generate_query`, `filter_evidence`, `truthness`, etc.):
-
----------------------- Instruct tuned, Medical Domain Models ----------------------
-- `hf.co/mradermacher/Llama3-OpenBioLLM-70B-i1-GGUF:Llama3-OpenBioLLM-70B.i1-IQ4_XS.gguf` (~37 GB): Llama 3 biomedical finetune; strong medical vocabulary and domain reasoning; i1 (imatrix) GGUF IQ4_XS to fit single A100 40GB without sharding.
-- `hf.co/mradermacher/Llama3-Med42-70B-i1-GGUF:Llama3-Med42-70B.i1-IQ4_XS.gguf` (~37 GB): Med42 biomedical/clinical finetune; strong evidence-style reasoning; i1 (imatrix) GGUF IQ4_XS to fit single A100 40GB without sharding.
-
------------------------------- Meditron ----------------------
-- `hf.co/mradermacher/Meditron3-70B-GGUF:latest` (~38 GB): Meditron3 70B medical foundation model (not instruction-tuned); good for clinical-style summaries and evidence synthesis; GGUF format.
-- `hf.co/mradermacher/Meditron3-Phi4-14B-i1-GGUF:Meditron3-Phi4-14B.i1-Q4_K_M.gguf`
-
------------------------------- Reasoning, Medical Models ----------------------
-- `hf.co/mradermacher/DeepSeek-R1-Distill-Qwen-32B-Medical-GGUF:Q8_0` (~34 GB): distilled (R1) Qwen-based medical model; strong analytical reasoning; higher-fidelity Q8 quantization with comfortable VRAM headroom on A100 40GB.
-
----------------------- Instruct tuned, General Domain Models ----------------------
-- `gemma3:12b` (`gemma3:12b-it-q4_K_M`) (~8.1 GB): instruction-tuned general model; fast and light, good for quick extraction/filtering.
-- `gemma3:27b` (`gemma3:27b-it-q4_K_M`) (~17 GB): instruction-tuned mid-size model; stronger reasoning than 12b with moderate VRAM cost.
-- `medgemma-27b-text-it-q4_k_m.gguf`
-
-### Model Constraints
-Ollama set to MAX_TOKEN of 64k
-
-| Modell | Architektur | Parameter | Kontextlänge (Tokens) | Embedding-Länge | Quantisierung |
-|---|---|---:|---:|---:|---|
-| `gemma3:27b` | gemma3 | 27.4B | 131072 | 5376 | Q4_K_M |
-| `gemma3:12b` | gemma3 | 12.2B | 131072 | 3840 | Q4_K_M |
-| `medgemma:latest` | gemma3 | 27.0B | 131072 | 5376 | Q4_K_M |
-| `hf.co/mradermacher/Meditron3-70B-GGUF:latest` | llama | 70.6B | 131072 | 8192 | unknown (IQ4_XS) |
-| `hf.co/mradermacher/DeepSeek-R1-Distill-Qwen-32B-Medical-GGUF:Q8_0` | qwen2 | 32.8B | 131072 | 5120 | Q8_0 |
-| `hf.co/mradermacher/Meditron3-Phi4-14B-i1-GGUF:Meditron3-Phi4-14B.i1-Q4_K_M.gguf` | phi3 | 14.7B | 16384 | 5120 | Q4_K_M |
-| `hf.co/mradermacher/Llama3-OpenBioLLM-70B-i1-GGUF:Llama3-OpenBioLLM-70B.i1-IQ4_XS.gguf` | llama | 70.6B | 8192 | 8192 | IQ4_XS  |
-| `hf.co/mradermacher/Llama3-Med42-70B-i1-GGUF:Llama3-Med42-70B.i1-IQ4_XS.gguf` | llama | 70.6B | 8192 | 8192 | IQ4_XS  |
-
- 
-
-### Model Evaluation (101 Samples)
-
-| Config-Name | F1-Score |
-|---|---:|
-| PubMed_1Query_Specific_Counter_Asymmetric | 0.4643 |
-| PubMed_1Query_Specific_Counter | 0.4620 |
-| PubMed_1Query_Specific | 0.4492 |
-| PubMed_1Query_Balanced_Counter | 0.4326 |
-| Prompt New Meditron Eval Config EXTRACTION_STEP | 0.4259 |
-| Raw_Eval_Pipeline | 0.4112 |
-| PubMed_1Query_Highly_Specific_Counter | 0.4082 |
-| Prompt New Eval Config (gemma) EXTRACTION_STEP | 0.3994 |
-| PubMed_1Query_Specific_Counter_Meditron_Asymmetric | 0.3981 |
-| PubMed_1Query_ATM_Assisted | 0.3930 |
-| Prompt Old Eval Config (gemma) EXTRACTION_STEP | 0.3928 |
-| Raw_Medgemma_Eval_Pipeline | 0.3920 |
-| PubMed_1Query_Highly_Specific_Counter_Asymmetric | 0.3890 |
-| PubMed_1Query_ATM_Assisted_Counter | 0.3833 |
-| PubMed_1Query_Highly_Specific | 0.3803 |
-| Prompt New DeepSeek Eval Config EXTRACTION_STEP | 0.3796 |
-| PubMed_1Query_Highly_Specific_Asymmetric | 0.3785 |
-| PubMed_1Query_Specific_Counter_Meditron | 0.3775 |
-| PubMed_1Query_Balanced | 0.3743 |
-| Prompt New Eval Pessimist Heuristic Config (gemma) EXTRACTION_STEP | 0.3716 |
-| Prompt New Eval Pessimist Config (gemma) EXTRACTION_STEP | 0.3715 |
-| Raw_Asymmetric_Eval_Pipeline | 0.3679 |
-| Prompt New Meditron Phi Eval Config EXTRACTION_STEP | 0.3652 |
-| Raw_Meditron_Eval_Pipeline | 0.3643 |
-| Prompt New Med42 Eval Config EXTRACTION_STEP | 0.3498 |
-| Prompt New OpenBio Eval Config EXTRACTION_STEP | 0.2780 |
-| Raw_Meditron_Asymmetric_Eval_Pipeline | 0.2458
-
-
-
-### Relevance thresholding and ordering
-
-- `rerank_evidence` supports `min_relevance`. Evidence below the threshold is dropped.
-- `truthness` sorts evidence by relevance ascending before sending to the LLM.
-
-## PubMed proxy service
-
-The pipeline uses a local proxy (`services/pubmed_proxy.py`) to respect NCBI rate limits.
-`PipelineOrchestrator` will auto-start it (and wait for `/health`) if it is not running.
-You can also run it manually:
-
-```bash
-python services/pubmed_proxy.py
-```
-
-## Quick start (pipeline only)
-
-1) Create an environment:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-Or with conda:
+Use the conda environment as the primary installation path:
 
 ```bash
 conda env create -f environment.yml
 conda activate factchecker
 ```
 
-2) Start an OpenAI-compatible LLM endpoint (default is Ollama):
+If you need a stricter rebuild of the original environment, inspect `environment.resolved.yml`. The checked-in `requirements.txt` is an environment snapshot, not the preferred public install path.
+
+### Start the Local LLM Backend
+
+Default pipeline configs expect Ollama on `http://localhost:11434/v1`.
 
 ```bash
+export OLLAMA_CONTEXT_LENGTH=32768
 ollama serve
+```
+
+Pull the default LLMs used by the app configs:
+
+```bash
+ollama pull gemma3:12b
 ollama pull gemma3:27b
 ```
 
-3) Run the pipeline runner:
+On first live run, the reranking and stance components may also download Hugging Face models referenced by the pipeline configuration.
+
+## Start the Backend App
+
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port 6006
+```
+
+Useful environment variables:
+
+- `LLM_BASE_URL`: overrides the default `http://localhost:11434/v1`
+- `LLM_API_KEY`: default is `ollama`
+- `SUMMARY_MODEL`: model used by `/evidence_summary` (default: `gemma3:12b`)
+- `SUMMARY_TEMPERATURE`
+- `SUMMARY_MAX_TOKENS`
+
+Quick health check:
+
+```bash
+curl http://localhost:6006/number
+```
+
+The pipeline will try to auto-start the PubMed proxy on demand. If that fails in your environment, run it manually:
+
+```bash
+python services/pubmed_proxy.py
+```
+
+## App Usage
+
+### 1. Fixed Demo Response
+
+This route returns a bundled analysis payload and is the easiest way to drive the UI without relying on live retrieval.
+
+```bash
+curl -X POST http://localhost:6006/json \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://www.instagram.com/reels/DIRM85ZifdM/"}'
+```
+
+Notes:
+
+- the request body is accepted for interface compatibility
+- the current implementation ignores the incoming URL and always returns the same bundled demo result
+- this route does not execute the live retrieval and verification pipeline
+
+### 2. Live Reel Processing
+
+This route downloads a reel, extracts audio, transcribes it, retrieves PubMed evidence, and produces verdicts and scores.
+
+```bash
+curl -X POST http://localhost:6006/process \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://www.instagram.com/reels/C0hXZ3bNAbH/","mock":false}'
+```
+
+Notes:
+
+- `mock: false` triggers the full live workflow
+- temporary downloaded files are cleaned up after the request completes
+- live mode depends on the configured models and external services being reachable
+
+### 3. Local Mock Audio
+
+`mock: true` expects a pre-recorded WAV file in the project root. The filename must match the reel id extracted from the URL.
+
+Example:
+
+- URL: `https://www.instagram.com/reels/DIRM85ZifdM/`
+- expected file: `DIRM85ZifdM.wav`
+
+```bash
+curl -X POST http://localhost:6006/process \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://www.instagram.com/reels/DIRM85ZifdM/","mock":true}'
+```
+
+### 4. Evidence Context Summaries
+
+This route turns one abstract into a short, claim-specific explanation.
+
+```bash
+curl -X POST http://localhost:6006/evidence_summary \
+  -H "Content-Type: application/json" \
+  -d '{
+    "statement": "Early introduction of eggs prevents allergies in children.",
+    "evidence": {
+      "abstract": "Meta-analyses of randomized controlled trials have found that introducing eggs earlier during infancy reduced egg allergy risk."
+    }
+  }'
+```
+
+This endpoint still requires a reachable summary model such as `gemma3:12b`.
+
+## Browser Extension
+
+The extension adds a floating overlay on Instagram Reels and supports:
+
+- claim discovery and triage
+- source inspection per claim
+- on-demand evidence context summaries
+- a local Claim Vault stored in browser storage
+
+The overlay is driven primarily by the structured `statements[]` response returned by the backend. In the committed build, the service worker calls the demo endpoint for repeatability, but the content script is organized around the live response shape: a list of statements, each with evidence items carrying titles, links, publication types, relevance scores, and stance signals.
+
+### Configure the Backend Origin
+
+Before loading the extension, set the backend origin in both files below.
+
+1. In `browser-extension/background.js`, update:
+
+```js
+const API_BASE = "http://localhost:6006";
+```
+
+2. In `browser-extension/manifest.json`, update the same origin in:
+
+- `host_permissions`
+- `content_security_policy.extension_pages.connect-src`
+
+The origin must match exactly. If you use `127.0.0.1`, use it consistently in both places.
+
+### Install the Extension
+
+1. Open `chrome://extensions`
+2. Enable Developer Mode
+3. Click `Load unpacked`
+4. Select the `browser-extension/` directory
+
+### Use the Extension
+
+1. Open an Instagram Reel URL.
+2. Pause scrolling briefly so the extension can queue analysis.
+3. Wait until the floating overlay changes from `Finding checkable claims...`.
+4. Press and hold the floating button to enter `Inquiry Mode`.
+5. Select a claim to open its `Sources` view.
+6. Click the `?` button next to a source to request claim-specific context.
+7. Use `Pin` to store a claim in the local `Claim Vault`.
+8. Open `Vault` to revisit pinned claims later in the same browser profile.
+
+Important behavior in the current demo build:
+
+- the extension waits about 20 seconds before requesting the fixed demo payload
+- the request target is `POST /json`, not `POST /process`
+- Claim Vault entries are stored locally through browser extension storage
+
+### Switch the Extension to Live Processing
+
+If you want the extension to call the live backend instead of the fixed demo payload, change `browser-extension/background.js`:
+
+- replace `fetch(\`${API_BASE}/json\`, ...)` with `fetch(\`${API_BASE}/process\`, ...)`
+- set `JSON_FETCH_DELAY_MS` to `0` or remove the delay logic entirely
+
+## Pipeline at a Glance
+
+The default live path is:
+
+1. download reel or load local audio
+2. convert video to audio when needed
+3. transcribe speech with Whisper
+4. extract medical claims with an LLM
+5. generate PubMed queries
+6. fetch and weight evidence
+7. rerank relevance and estimate support or refute stance
+8. assign verdicts and aggregate truth scores
+
+Optional guideline retrieval is available through the RAG utilities in `pipeline/RAG_vdb/`.
+
+## Technical Pipeline
+
+The pipeline is config-driven. A `PipelineOrchestrator` receives a config with an ordered `steps` array, validates required models, ensures the PubMed proxy is available, instantiates each step through `StepFactory`, and executes everything over a shared `PipelineState`.
+
+### Execution Model
+
+- `PipelineState` is the shared state object passed through all steps
+- `PipelineStep.run()` wraps each step with timing, token accounting, and execution logging
+- `PipelineModule` allows nested step groups inside a single top-level config
+- the final state is serialized as JSON for API responses and debugging artifacts
+
+Minimal config shape:
+
+```python
+PIPELINE_CONFIG = {
+    "name": "ExampleRun",
+    "debug": True,
+    "steps": [
+        {"type": "mock_transcript", "settings": {"transcript_text": "..."}},
+        {"type": "extraction", "settings": {"model": "gemma3:27b", "prompt_template": "..."}},
+        {
+            "type": "module",
+            "settings": {
+                "name": "Research",
+                "steps": [
+                    {"type": "generate_query", "settings": {...}},
+                    {"type": "fetch_links", "settings": {"retmax": 10}},
+                    {"type": "abstract_evidence", "settings": {}},
+                    {"type": "weight_evidence", "settings": {"default_weight": 0.15}},
+                ],
+            },
+        },
+        {"type": "module", "settings": {"name": "Scores", "steps": [...] }},
+        {"type": "truthness", "settings": {...}},
+        {"type": "scoring", "settings": {"threshold": 0.4}},
+    ],
+}
+```
+
+### Step-by-Step Data Flow
+
+1. Input acquisition
+   `download_reel` fetches the target video for URL-based runs, `video_to_audio` extracts audio, and `audio_to_transcript` runs Whisper. For offline testing, `mock_transcript` or `mock_statements` can inject input directly.
+
+2. Claim extraction
+   `extraction` prompts an LLM to return a JSON list of claims. The step strips markdown fences, parses JSON, and maps claim strings into `Statement` objects. If parsing fails, it falls back to naive sentence splitting.
+
+3. Query generation
+   `generate_query` expands each statement into one or more PubMed boolean queries. The implementation deduplicates normalized queries and can run multiple prompt variants in parallel. The step also supports prefetching PubMed IDs during query generation.
+
+4. Evidence retrieval
+   `fetch_links` calls PubMed ESearch through the local proxy and creates or updates `PubMedEvidence` items for matching PMIDs. Query provenance is stored on the evidence objects.
+
+5. Metadata enrichment and weighting
+   `abstract_evidence` batch-fetches titles, abstracts, and publication types. `weight_evidence` then maps publication types to numeric evidence weights using regex-based rules with a default fallback.
+
+6. Relevance and stance scoring
+   `rerank_evidence` uses a cross-encoder reranker to score claim-evidence relevance and can drop low-relevance items using `min_relevance`. `stance_evidence` applies an NLI model to estimate `Supports`, `Refutes`, or `Neutral` probabilities for each remaining item.
+
+7. Optional evidence filtering
+   `filter_evidence` can run an LLM relevance gate over the enriched evidence set. This step exists in the framework but is disabled in the current FastAPI live configuration.
+
+8. Verdict generation and aggregation
+   `truthness` formats the evidence block and prompts an LLM to output `VERDICT` and `FINALSCORE` for each statement. `scoring` aggregates statement scores into `overall_truthiness`, currently up-weighting low scores below a threshold to penalize likely false or uncertain claims.
+
+9. Optional guideline retrieval
+   `retrieve_guideline_facts` can attach `RAG` evidence from the local SQLite vector database. Retrieved chunks are embedded into the same evidence flow as PubMed results. This step is available in the framework but is not enabled in the current FastAPI live configuration.
+
+### Default Live App Configuration
+
+The current FastAPI live path is built from `VIDEO_URL_PIPELINE_CONFIG` and uses these defaults:
+
+- Whisper transcription: `tiny.en`
+- claim extraction: `gemma3:27b`
+- PubMed query generation: `gemma3:12b`
+- reranking: `BAAI/bge-reranker-v2-m3`
+- stance estimation: `cnut1648/biolinkbert-mednli`
+- final verdict generation: `gemma3:27b`
+- evidence thresholding after reranking: `min_relevance = 0.7`
+- overall score aggregation threshold: `0.4`
+
+### State and Evidence Schema
+
+The main state object contains:
+
+- `transcript`
+- `audio_path`
+- `video_path`
+- `statements`
+- `overall_truthiness`
+- `generated_at`
+- `execution_log`
+
+Each `Statement` contains:
+
+- `id`
+- `text`
+- `verdict`
+- `rationale`
+- `score`
+- `queries`
+- `queries_fetched`
+- `evidence`
+
+Evidence is a tagged union with three source types:
+
+- `PubMed`: `pubmed_id`, `url`, `title`, `abstract`, `pub_type`, `weight`, `relevance`, `stance`
+- `RAG`: `chunk_id`, `source_path`, `pages`, `abstract`, `score`, `weight`, `relevance`
+- `Epistemonikos`: schema exists, but it is not wired into the current pipeline path
+
+The nested `stance` object stores:
+
+- `abstract_label`
+- `abstract_p_supports`
+- `abstract_p_refutes`
+- `abstract_p_neutral`
+
+### UI-Relevant Response Fields
+
+The current overlay mainly consumes:
+
+- `statements[].text` for claim display
+- `statements[].evidence[]` for source inspection
+- evidence `title`, `url`, `pub_type`, `relevance`, and `stance` for source metadata
+- evidence `abstract` when the user requests a short explanation through `POST /evidence_summary`
+
+`overall_truthiness`, `verdict`, and `score` are part of the backend response, but the committed UI is organized first around claim triage and evidence inspection rather than a single global score display.
+
+## Output Shape
+
+A successful analysis response contains:
+
+- `transcript`
+- `statements[]` with `id`, `text`, `verdict`, `score`, `queries`, and `evidence`
+- `overall_truthiness`
+- `execution_log`
+
+Each evidence item may include:
+
+- bibliographic metadata such as `pubmed_id`, `title`, `url`, and `pub_type`
+- ranking and verification fields such as `weight`, `relevance`, and `stance`
+
+## Running the Pipeline Without the Web App
+
+For manual end-to-end runs outside the FastAPI app:
 
 ```bash
 python pipeline/test.py
 ```
 
-The runner imports a reference config from `pipeline/test_configs`. Swap the import or call `PipelineOrchestrator` directly to run a different config.
+This uses one of the predefined configs from `pipeline/test_configs/`. In practice, you will usually adjust the selected config or its input paths before running it. The final structured result is written to `final_output.json`.
 
-## Guideline RAG setup
+## Repository Layout
 
-The RAG system uses a local SQLite vector DB and SentenceTransformers embeddings.
-
-1) Build a guideline DB:
-
-```bash
-python pipeline/RAG_vdb/build_guideline_vdb.py \
-  --pdf_dir /path/to/guidelines \
-  --db_path pipeline/RAG_vdb/guidelines_vdb.sqlite
+```text
+app/                       FastAPI app and API routes
+browser-extension/         Instagram extension overlay
+pipeline/                  Core pipeline framework and step implementations
+pipeline/test_configs/     Reference configs and prompts
+services/                  PubMed proxy and service helpers
+evaluation/                Evaluation scripts and datasets
+docs/                      Notes and internal setup material
+zzz_videos/                Video and subtitle artifacts
 ```
 
-2) Enable RAG retrieval in a pipeline config:
+## Modularity and Current Scope
 
-```python
-{
-  "type": "retrieve_guideline_facts",
-  "settings": {
-    "db_path": "pipeline/RAG_vdb/guidelines_vdb.sqlite",
-    "top_k": 5,
-    "min_score": 0.25,
-  },
-}
-```
+- The execution model is modular at the pipeline level: step ordering, model choices, prompt templates, and optional modules are declared in config rather than hardcoded in the orchestrator.
+- LLM-backed stages such as extraction, query generation, evidence filtering, verdict generation, and evidence summarization are replaceable through config and prompt changes.
+- The current prototype is still medically specialized. The checked-in prompts target medical claim extraction and PubMed query generation, the evidence weighting rules encode biomedical publication types, and the default ranking and stance models are biomedical models.
+- PubMed retrieval is the only fully wired literature retrieval path in the current live system. Guideline RAG is implemented as an optional add-on, while `Epistemonikos` is present in the shared schema but not connected to a retrieval step in the default pipeline.
+- Test and demo shortcuts such as `POST /json`, `mock: true`, `mock_transcript`, `mock_statements`, cached JSON outputs, and other offline conveniences are useful for demos and debugging but should not be treated as the core architecture.
 
-3) Optional: use a minimal RAG-only config from `pipeline/test_configs` and pass it into `PipelineOrchestrator`.
+## Troubleshooting
 
-## Output
+- If startup fails with `LLM Server Unreachable`, start Ollama or set `LLM_BASE_URL`.
+- If a model is reported missing, pull it with `ollama pull <model-name>`.
+- If live requests stall on evidence retrieval, start `python services/pubmed_proxy.py` manually.
+- If the extension cannot reach the backend, re-check the origin in both `browser-extension/background.js` and `browser-extension/manifest.json`, then reload the extension.
+- If no claims appear on Instagram, make sure you are on a Reel page rather than a general feed page.
 
-Each statement includes:
+## Limitations
 
-- `verdict`: true | false | uncertain
-- `score`: 0.00-1.00 (truth score)
-- `evidence`: mixed list of PubMed + RAG evidence
-
-The pipeline runner writes a full JSON snapshot to `final_output.json`.
-
-## Repository layout
-
-```
-app/                       # FastAPI app and reel utilities (optional ingestion)
-app/main.py                # API entry point
-app/reel_utils.py          # Reel download and audio conversion
-app/step_1_audio_to_transcript.py
-pipeline/                  # Core pipeline framework
-pipeline/core/             # Orchestrator, models, LLM client, logging
-pipeline/steps/            # Extraction, research, scoring, verification, RAG
-pipeline/RAG_vdb/          # Guideline RAG vector DB tools
-pipeline/test.py           # Local pipeline runner (loads a reference config)
-pipeline/test_configs/     # Reference configs and prompt templates
-services/                  # PubMed proxy service
-evaluation/                # Evaluation scripts and datasets
-browser-extension/         # UI experiment
-logs/                      # Debug logs (when enabled)
-final_output.json          # Example output (generated by pipeline/test.py)
-```
-
-## Notes and caveats
-
-- Evidence is abstract-only; summaries are not generated.
-- Reranker and stance models prepend the paper title to the abstract when available.
-- RAG chunk text is stored in the `abstract` field to integrate with the evidence schema.
-- `filter_evidence` only keeps items with an abstract when the LLM replies with "yes"; errors default to dropping the item.
-- Debug logs are saved as `logs/pipeline_debug_<run_id>.log` and prompt logs as `logs/pipeline_debug_<run_id>_prompts.log` when debug is enabled.
+- The committed browser extension build is tuned for stable demo playback, not live inference by default.
+- Live processing depends on external services and model availability.
+- Results are based on retrieved evidence and model outputs; they are not guaranteed to be clinically complete or correct.

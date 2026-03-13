@@ -12,6 +12,7 @@ evaluation/deberta_runs/
 downloads/
 .idea
 *.mp4
+*.srt
 *.env
 
 .vscode

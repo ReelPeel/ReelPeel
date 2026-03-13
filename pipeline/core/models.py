@@ -88,6 +88,7 @@ class Statement(BaseModel):
     rationale: Optional[str] = None
     score: Optional[float] = None
     queries: List[str] = Field(default_factory=list)
+    queries_fetched: List[str] = Field(default_factory=list)
     evidence: List[Evidence] = Field(default_factory=list)
     
 

@@ -1,0 +1,3 @@
+NAME="VIDEONAME"; ffmpeg -hide_banner -y -i "${NAME}.mp4" -c:v libx264 -preset slow -profile:v high -level 4.1 -pix_fmt yuv420p -vf "scale='if(gt(ih,1080),-2,iw)':'if(gt(ih,1080),1080,ih)',fps=30" -crf 23 -c:a aac -b:a 160k -ar 48000 -ac 2 -movflags +faststart "${NAME}_h264.mp4"
+
+NAME="VIDEONAME"; whisper "${NAME}.mp4" --model large-v3 --output_format srt --output_dir .
