@@ -38,8 +38,6 @@ For system descriptions, the paper-relevant runtime path is the live path built 
 
 For architecture descriptions or papers, describe `POST /process` and `POST /evidence_summary`. `POST /json` is a bundled demo shortcut and does not execute the live retrieval and verification pipeline.
 
-The browser extension, as currently committed, uses `POST /json` and an artificial delay to keep the demo interaction deterministic.
-
 ## System Requirements
 
 - Linux environment recommended
