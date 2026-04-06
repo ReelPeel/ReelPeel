@@ -11,7 +11,6 @@ const TOOLTIP_STANCE =
 const TOOLTIP_RELEVANCE =
   "Relevance: How closely the evidence matches the claim's scope.";
 const TOOLTIP_TYPE = "Type: Publication type (as listed in PubMed).";
-const BOOKMARKS_STORAGE_KEY = "rp_claim_bookmarks_v1";
 
 
 // Monitor URL changes
@@ -112,86 +111,6 @@ function computeStatementGaps(statement) {
   }
 
   return gaps.slice(0, 2);
-}
-
-function getStatementSortPriority(statement) {
-  const evidenceTotal =
-    statement && Array.isArray(statement.evidence) ? statement.evidence.length : 0;
-  if (evidenceTotal <= 0) return 0; // No evidence
-  if (evidenceTotal <= 3) return 1; // Low evidence
-  return 2; // Many evidence
-}
-
-function getSupportRefuteDominance(statement) {
-  const evidence = statement && Array.isArray(statement.evidence) ? statement.evidence : [];
-  let supports = 0;
-  let refutes = 0;
-
-  for (const item of evidence) {
-    const label = String(formatStance(item).label || "").toLowerCase();
-    if (label.startsWith("support")) supports += 1;
-    else if (label.startsWith("refute")) refutes += 1;
-  }
-
-  const decisiveTotal = supports + refutes;
-  if (decisiveTotal <= 0) return 1;
-  return Math.max(supports, refutes) / decisiveTotal;
-}
-
-function sortStatementsByPriority(statements) {
-  return statements
-    .map((statement, originalIndex) => ({ statement, originalIndex }))
-    .sort((a, b) => {
-      const aPriority = getStatementSortPriority(a.statement);
-      const bPriority = getStatementSortPriority(b.statement);
-      if (aPriority !== bPriority) return aPriority - bPriority;
-      const aDominance = getSupportRefuteDominance(a.statement);
-      const bDominance = getSupportRefuteDominance(b.statement);
-      if (aDominance !== bDominance) return aDominance - bDominance;
-      return a.originalIndex - b.originalIndex;
-    })
-    .map((entry) => entry.statement);
-}
-
-function getStatementKey(statement, fallbackIndex = null) {
-  const idPart =
-    statement && statement.id !== undefined && statement.id !== null
-      ? String(statement.id)
-      : "";
-  const textPart =
-    statement && statement.text !== undefined && statement.text !== null
-      ? String(statement.text).trim().toLowerCase()
-      : "";
-  if (idPart || textPart) return `${idPart}::${textPart}`;
-  return `idx::${Number.isFinite(fallbackIndex) ? fallbackIndex : "unknown"}`;
-}
-
-function getEvidenceKeyForStatement(statementKey, evidence, evidenceIndex = null) {
-  const idPart =
-    evidence && evidence.id !== undefined && evidence.id !== null
-      ? String(evidence.id)
-      : "";
-  const urlPart = evidence && evidence.url ? String(evidence.url) : "";
-  const titlePart = evidence ? formatEvidenceTitle(evidence) : "";
-  if (idPart || urlPart || titlePart) {
-    return `${statementKey}::${idPart}::${urlPart}::${titlePart}`;
-  }
-  return `${statementKey}::eidx::${Number.isFinite(evidenceIndex) ? evidenceIndex : "unknown"}`;
-}
-
-function snapshotStatement(statement) {
-  if (!statement || typeof statement !== "object") return null;
-  try {
-    return JSON.parse(JSON.stringify(statement));
-  } catch (_err) {
-    return {
-      id: statement.id ?? null,
-      text: statement.text ?? "",
-      verdict: statement.verdict ?? null,
-      score: statement.score ?? null,
-      evidence: Array.isArray(statement.evidence) ? statement.evidence.slice(0, 30) : [],
-    };
-  }
 }
 
 function safeNumber(value, fallback = 0) {
@@ -502,9 +421,6 @@ function createEvidenceItem(evidence, options = {}) {
     if (Number.isFinite(options.evidenceIndex)) {
       summaryButton.dataset.evidenceIndex = String(options.evidenceIndex);
     }
-    if (options.statementKey) {
-      summaryButton.dataset.statementKey = String(options.statementKey);
-    }
     header.appendChild(summaryButton);
   }
 
@@ -551,7 +467,6 @@ function createPopupState() {
     </div>
     <div class="modebar" id="modebar">
       <nav id="breadcrumb" class="breadcrumb" aria-label="Breadcrumb"></nav>
-      <button id="vault-button" class="vault-button" type="button">Vault</button>
     </div>
 
     <div class=\"dropdown-container\">
@@ -563,12 +478,7 @@ function createPopupState() {
 
       <div id="evidence-view" class="panel-view">
         <div class="evidence-header">
-          <div class="evidence-header-top">
-            <div class="evidence-label">Sources</div>
-            <button id="evidence-pin-button" class="evidence-pin-button" type="button" aria-pressed="false" title="Pin claim">
-              Pin
-            </button>
-          </div>
+          <div class="evidence-label">Sources</div>
           <div id="evidence-title" class="evidence-title"></div>
         </div>
         <div id="evidence-stats" class="evidence-stats"></div>
@@ -584,7 +494,7 @@ function createPopupState() {
         </div>
         <div class="summary-section">
           <button id="summary-algo-toggle" class="summary-algo-toggle" type="button" aria-expanded="false">
-            Reveal how Stance was decided
+            Show Algorithm Probabilities
           </button>
           <div id="summary-algo-panel" class="summary-algo-panel"></div>
         </div>
@@ -599,16 +509,6 @@ function createPopupState() {
             <span>Generating context...</span>
           </div>
           <div id="summary-text" class="summary-text"></div>
-        </div>
-      </div>
-
-      <div id="vault-view" class="panel-view">
-        <div class="vault-header">
-          <div class="vault-label">Claim Vault</div>
-          <div class="vault-sub">Pinned locally in this browser</div>
-        </div>
-        <div class="vault-content">
-          <ul id="vault-list"></ul>
         </div>
       </div>
     </div>
@@ -650,11 +550,6 @@ function createPopupState() {
   toast.setAttribute("aria-hidden", "true");
   document.body.appendChild(toast);
 
-  const handoff = document.createElement("div");
-  handoff.className = "rp-handoff";
-  handoff.setAttribute("aria-hidden", "true");
-  document.body.appendChild(handoff);
-
   // Top-centered inquiry header + breadcrumb (outside the popup).
   const inquiryTopbar = document.createElement("div");
   inquiryTopbar.className = "rp-inquiry-topbar";
@@ -679,18 +574,15 @@ function createPopupState() {
     spotlight,
     contract,
     toast,
-    handoff,
     inquiryTopbar,
     inspectButton: popup.querySelector(".inspect-button"),
     inspectIcon: popup.querySelector(".inspect-icon"),
     statementCount: popup.querySelector("#statement-count"),
     breadcrumb: popup.querySelector("#breadcrumb"),
-    vaultButton: popup.querySelector("#vault-button"),
     modeSubtitle: null,
     triageHint: null,
     statementsView: popup.querySelector("#statements-view"),
     evidenceView: popup.querySelector("#evidence-view"),
-    evidencePinButton: popup.querySelector("#evidence-pin-button"),
     evidenceTitle: popup.querySelector("#evidence-title"),
     evidenceStats: popup.querySelector("#evidence-stats"),
     evidenceList: popup.querySelector("#evidence-list"),
@@ -701,8 +593,6 @@ function createPopupState() {
     summaryEvidence: popup.querySelector("#summary-evidence"),
     summaryLoading: popup.querySelector("#summary-loading"),
     summaryText: popup.querySelector("#summary-text"),
-    vaultView: popup.querySelector("#vault-view"),
-    vaultList: popup.querySelector("#vault-list"),
     listContent: popup.querySelector("#dropdown-list"),
 
     viewMode: "statements",
@@ -715,21 +605,11 @@ function createPopupState() {
     activeEvidence: null,
     activeEvidenceIndex: null,
     activeSummaryKey: null,
-    activeStatementKey: null,
     summaryAlgoOpen: false,
-    bookmarks: [],
-    bookmarksLoaded: false,
-    inquirySessionMetrics: null,
-    isVaultOpen: false,
-    externalStatementsByKey: new Map(),
 
     activeVideo: null,
     videoWasPlaying: false,
   };
-
-  if (state.evidencePinButton) {
-    state.evidencePinButton.disabled = true;
-  }
 
   state.flashPeel = function () {
     state.popup.classList.remove("peel");
@@ -814,250 +694,8 @@ function createPopupState() {
     }, 1600);
   };
 
-  state.showHandoff = function (message) {
-    if (!state.handoff) return;
-    const msg = String(message || "").trim();
-    if (!msg) return;
-    state.handoff.textContent = msg;
-    state.handoff.classList.remove("active");
-    void state.handoff.offsetWidth;
-    state.handoff.classList.add("active");
-    window.clearTimeout(state._handoffTimer);
-    state._handoffTimer = window.setTimeout(() => {
-      state.handoff && state.handoff.classList.remove("active");
-    }, 3800);
-  };
-
-  state.setVaultOpen = function (isOpen) {
-    const next = Boolean(isOpen);
-    state.isVaultOpen = next;
-    if (state.vaultView) {
-      state.vaultView.classList.toggle("active", next);
-    }
-    if (state.vaultButton) {
-      state.vaultButton.classList.toggle("active", next);
-    }
-    if (next) {
-      state.renderVaultList();
-    }
-  };
-
-  state.resetInquirySessionMetrics = function () {
-    state.inquirySessionMetrics = {
-      claims: new Set(),
-      sources: new Set(),
-      agreementSources: new Set(),
-      disagreementSources: new Set(),
-    };
-  };
-
-  state.trackInquiryClaimCoverage = function (statement, statementIndex) {
-    if (!state.isInquiryMode) return;
-    if (!state.inquirySessionMetrics) state.resetInquirySessionMetrics();
-    const claimKey = getStatementKey(statement, statementIndex);
-    state.inquirySessionMetrics.claims.add(claimKey);
-  };
-
-  state.trackInquirySummarySource = function (
-    statement,
-    statementIndex,
-    evidence,
-    evidenceIndex
-  ) {
-    if (!state.isInquiryMode) return;
-    if (!state.inquirySessionMetrics) state.resetInquirySessionMetrics();
-    const claimKey = getStatementKey(statement, statementIndex);
-    state.inquirySessionMetrics.claims.add(claimKey);
-    const evidenceKey = getEvidenceKeyForStatement(claimKey, evidence, evidenceIndex);
-    state.inquirySessionMetrics.sources.add(evidenceKey);
-
-    const stanceLabel = String(formatStance(evidence).label || "").toLowerCase();
-    if (stanceLabel.startsWith("support")) {
-      state.inquirySessionMetrics.agreementSources.add(evidenceKey);
-    } else if (stanceLabel.startsWith("refute")) {
-      state.inquirySessionMetrics.disagreementSources.add(evidenceKey);
-    }
-  };
-
-  state.buildInquiryHandoffMessage = function () {
-    const metrics = state.inquirySessionMetrics;
-    if (!metrics) return "";
-    const claimCount = metrics.claims.size;
-    const sourceCount = metrics.sources.size;
-    const agreementCount = metrics.agreementSources.size;
-    const disagreementCount = metrics.disagreementSources.size;
-    return `You checked: ${claimCount} Claims and ${sourceCount} Scources --- Agreement: ${agreementCount} and Disagreement: ${disagreementCount}`;
-  };
-
-  state.statementBookmarkKey = function (statement, statementIndex = null) {
-    return getStatementKey(statement, statementIndex);
-  };
-
-  state.findStatementIndexByKey = function (statementKey) {
-    for (let i = 0; i < state.statements.length; i++) {
-      if (state.statementBookmarkKey(state.statements[i], i) === statementKey) return i;
-    }
-    return -1;
-  };
-
-  state.isBookmarkedStatement = function (statement, statementIndex = null) {
-    const key = state.statementBookmarkKey(statement, statementIndex);
-    return state.bookmarks.some((bookmark) => bookmark && bookmark.key === key);
-  };
-
-  state.updatePinButtonState = function (button, statement, statementIndex = null) {
-    if (!button) return;
-    const pinned = state.isBookmarkedStatement(statement, statementIndex);
-    button.classList.toggle("pinned", pinned);
-    button.textContent = pinned ? "Pinned" : "Pin";
-    button.setAttribute("aria-pressed", pinned ? "true" : "false");
-    button.title = pinned ? "Unpin claim" : "Pin claim";
-  };
-
-  state.refreshStatementPinButtons = function () {
-    if (!state.evidencePinButton || !state.activeStatement) {
-      if (state.evidencePinButton) {
-        state.evidencePinButton.disabled = true;
-        state.evidencePinButton.classList.remove("pinned");
-        state.evidencePinButton.textContent = "Pin";
-        state.evidencePinButton.setAttribute("aria-pressed", "false");
-        state.evidencePinButton.title = "Pin claim";
-      }
-      return;
-    }
-    state.evidencePinButton.disabled = false;
-    state.updatePinButtonState(
-      state.evidencePinButton,
-      state.activeStatement,
-      state.activeStatementIndex
-    );
-  };
-
-  state.persistBookmarks = function () {
-    if (!chrome?.storage?.local) return;
-    chrome.storage.local.set({
-      [BOOKMARKS_STORAGE_KEY]: state.bookmarks,
-    });
-  };
-
-  state.renderVaultList = function () {
-    if (!state.vaultList) return;
-    state.vaultList.innerHTML = "";
-
-    if (!state.bookmarks.length) {
-      const empty = document.createElement("li");
-      empty.className = "vault-empty";
-      empty.textContent = "No pinned claims yet.";
-      state.vaultList.appendChild(empty);
-      return;
-    }
-
-    const sorted = state.bookmarks
-      .slice()
-      .sort((a, b) => Number(b?.savedAt || 0) - Number(a?.savedAt || 0));
-
-    for (const bookmark of sorted) {
-      const item = document.createElement("li");
-      item.className = "vault-item";
-      item.dataset.bookmarkKey = bookmark.key;
-
-      const text = document.createElement("div");
-      text.className = "vault-item-text";
-      text.textContent = bookmark.text || "Unnamed claim";
-
-      const meta = document.createElement("div");
-      meta.className = "vault-item-meta";
-      const gapLabel =
-        Array.isArray(bookmark.gaps) && bookmark.gaps.length
-          ? bookmark.gaps.join(" · ")
-          : "No major gaps";
-      meta.textContent = `${bookmark.sourceCount || 0} source${
-        bookmark.sourceCount === 1 ? "" : "s"
-      } · ${gapLabel}`;
-
-      const actions = document.createElement("div");
-      actions.className = "vault-item-actions";
-
-      const openBtn = document.createElement("button");
-      openBtn.type = "button";
-      openBtn.className = "vault-open-item";
-      openBtn.dataset.bookmarkKey = bookmark.key;
-      openBtn.textContent = "Open";
-
-      const removeBtn = document.createElement("button");
-      removeBtn.type = "button";
-      removeBtn.className = "vault-remove-item";
-      removeBtn.dataset.bookmarkKey = bookmark.key;
-      removeBtn.textContent = "Remove";
-
-      actions.append(openBtn, removeBtn);
-      item.append(text, meta, actions);
-      state.vaultList.appendChild(item);
-    }
-  };
-
-  state.toggleBookmark = function (statement, statementIndex = null) {
-    if (!statement) return;
-    const key = state.statementBookmarkKey(statement, statementIndex);
-    const existingIndex = state.bookmarks.findIndex((bookmark) => bookmark.key === key);
-    if (existingIndex >= 0) {
-      state.bookmarks.splice(existingIndex, 1);
-      state.showToast("Claim removed from Vault");
-    } else {
-      const sourceCount =
-        statement && Array.isArray(statement.evidence) ? statement.evidence.length : 0;
-      const entry = {
-        key,
-        id: statement && statement.id !== undefined ? statement.id : null,
-        text: statement && statement.text ? String(statement.text) : "",
-        gaps: computeStatementGaps(statement),
-        sourceCount,
-        savedAt: Date.now(),
-        pageUrl: window.location.href,
-        statementSnapshot: snapshotStatement(statement),
-      };
-      state.bookmarks.push(entry);
-      state.showToast("Claim pinned to Vault");
-    }
-    state.persistBookmarks();
-    state.refreshStatementPinButtons();
-    state.renderVaultList();
-  };
-
-  state.loadBookmarks = function () {
-    if (!chrome?.storage?.local) {
-      state.bookmarksLoaded = true;
-      state.bookmarks = [];
-      state.renderVaultList();
-      state.refreshStatementPinButtons();
-      return;
-    }
-    chrome.storage.local.get([BOOKMARKS_STORAGE_KEY], (stored) => {
-      const raw = stored && Array.isArray(stored[BOOKMARKS_STORAGE_KEY])
-        ? stored[BOOKMARKS_STORAGE_KEY]
-        : [];
-      state.bookmarks = raw
-        .filter((item) => item && typeof item === "object")
-        .filter((item) => item.key && item.text)
-        .map((item) => ({
-          ...item,
-          statementSnapshot:
-            item.statementSnapshot && typeof item.statementSnapshot === "object"
-              ? item.statementSnapshot
-              : null,
-        }))
-        .slice(0, 300);
-      state.bookmarksLoaded = true;
-      state.renderVaultList();
-      state.refreshStatementPinButtons();
-    });
-  };
-
   state.showInquiryContract = function () {
     if (!state.contract) return;
-    window.clearTimeout(state._contractHideTimer);
-    state._contractHideTimer = null;
-    state.contract.style.pointerEvents = "";
 
     const maxW = Math.min(520, window.innerWidth - 24);
     state.contract.style.setProperty("--rp-contract-maxw", `${maxW}px`);
@@ -1128,9 +766,6 @@ function createPopupState() {
 
   state.updateBreadcrumb = function () {
     const crumbs = [];
-    if (state.vaultButton) {
-      state.vaultButton.classList.toggle("active", state.isVaultOpen);
-    }
 
     crumbs.push({
       label: "Reel",
@@ -1159,9 +794,7 @@ function createPopupState() {
         label: "Sources",
         onClick: () => {
           if (state.activeStatement) {
-            state.showEvidenceView(state.activeStatement, state.activeStatementIndex, {
-              statementKey: state.activeStatementKey,
-            });
+            state.showEvidenceView(state.activeStatement, state.activeStatementIndex);
           } else {
             state.showStatementsView();
           }
@@ -1191,21 +824,13 @@ function createPopupState() {
 
   state.showStatementsView = function () {
     state.viewMode = "statements";
-    state.setVaultOpen(false);
     state.statementsView.classList.add("active");
     state.evidenceView.classList.remove("active");
     state.summaryView.classList.remove("active");
     state.updateBreadcrumb();
   };
 
-  state.showVaultView = function () {
-    state.setVaultOpen(true);
-    state.setExpanded(true);
-    state.renderVaultList();
-    state.updateBreadcrumb();
-  };
-
-  state.renderEvidenceList = function (statement, statementIndex, statementKey = null) {
+  state.renderEvidenceList = function (statement, statementIndex) {
     state.evidenceTitle.textContent =
       statement && statement.text ? statement.text : "Sources";
 
@@ -1231,7 +856,6 @@ function createPopupState() {
         includeSummaryButton: true,
         statementIndex,
         evidenceIndex: i,
-        statementKey,
       });
       state.evidenceList.appendChild(item);
     }
@@ -1280,19 +904,11 @@ function createPopupState() {
     `;
   };
 
-  state.showEvidenceView = function (statement, statementIndex, options = {}) {
-    const statementKey =
-      options && options.statementKey
-        ? String(options.statementKey)
-        : Number.isFinite(statementIndex)
-        ? state.statementBookmarkKey(statement, statementIndex)
-        : null;
+  state.showEvidenceView = function (statement, statementIndex) {
     state.viewMode = "evidence";
-    state.setVaultOpen(false);
     state.statementsView.classList.remove("active");
     state.evidenceView.classList.add("active");
     state.summaryView.classList.remove("active");
-    state.vaultView.classList.remove("active");
 
     state.setExpanded(true);
     state.activeStatement = statement || null;
@@ -1302,14 +918,8 @@ function createPopupState() {
     state.activeEvidence = null;
     state.activeEvidenceIndex = null;
     state.activeSummaryKey = null;
-    state.activeStatementKey = statementKey;
-    state.refreshStatementPinButtons();
 
-    if (state.isInquiryMode) {
-      state.trackInquiryClaimCoverage(statement, statementIndex);
-    }
-
-    state.renderEvidenceList(statement, statementIndex, statementKey);
+    state.renderEvidenceList(statement, statementIndex);
     state.renderEvidenceStanceOverview(statement);
     state.updateBreadcrumb();
     state.flashPeel();
@@ -1328,8 +938,8 @@ function createPopupState() {
       state.summaryAlgoOpen ? "true" : "false"
     );
     state.summaryAlgoToggle.textContent = state.summaryAlgoOpen
-      ? "Hide Stance Decision Signals"
-      : "Reveal how Stance was decided";
+      ? "Hide Algorithm Probabilities"
+      : "Show Algorithm Probabilities";
   };
 
   state.renderSummaryAlgoPanel = function (statement) {
@@ -1385,21 +995,12 @@ function createPopupState() {
     statement,
     evidence,
     statementIndex,
-    evidenceIndex,
-    options = {}
+    evidenceIndex
   ) {
-    const statementKey =
-      options && options.statementKey
-        ? String(options.statementKey)
-        : Number.isFinite(statementIndex)
-        ? state.statementBookmarkKey(statement, statementIndex)
-        : state.activeStatementKey || null;
     state.viewMode = "summary";
-    state.setVaultOpen(false);
     state.statementsView.classList.remove("active");
     state.evidenceView.classList.remove("active");
     state.summaryView.classList.add("active");
-    state.vaultView.classList.remove("active");
     state.setExpanded(true);
 
     state.activeStatement = statement || null;
@@ -1410,11 +1011,6 @@ function createPopupState() {
     state.activeEvidenceIndex = Number.isFinite(evidenceIndex)
       ? evidenceIndex
       : null;
-    state.activeStatementKey = statementKey;
-
-    if (state.isInquiryMode) {
-      state.trackInquirySummarySource(statement, statementIndex, evidence, evidenceIndex);
-    }
 
     state.summaryStatement.textContent =
       (statement && statement.text) || "Claim details";
@@ -1431,9 +1027,7 @@ function createPopupState() {
       state.summaryEvidence.appendChild(card);
     }
 
-    const key = statementKey
-      ? `${statementKey}::${Number.isFinite(evidenceIndex) ? evidenceIndex : "e"}`
-      : getEvidenceKey(statementIndex, evidenceIndex);
+    const key = getEvidenceKey(statementIndex, evidenceIndex);
     state.activeSummaryKey = key;
     const cached = state.summaryCache.get(key);
     if (cached) {
@@ -1503,8 +1097,6 @@ function createPopupState() {
 
   state.enterInquiryMode = function () {
     state.isInquiryMode = true;
-    state.setVaultOpen(false);
-    state.resetInquirySessionMetrics();
     state.setReadyPulse(false);
     state.popup.classList.add("inquiry-mode");
     state.inquiryTopbar && state.inquiryTopbar.classList.add("active");
@@ -1541,30 +1133,11 @@ function createPopupState() {
   };
 
   state.exitInquiryMode = function () {
-    const wasInquiryMode = Boolean(state.isInquiryMode);
-    const handoffMessage = state.buildInquiryHandoffMessage();
     state.isInquiryMode = false;
     state.popup.classList.remove("inquiry-mode");
     state.inquiryTopbar && state.inquiryTopbar.classList.remove("active");
     state.backdrop.classList.remove("active");
-    if (state.contract) {
-      window.clearTimeout(state._contractHideTimer);
-      const shouldLingerContract =
-        wasInquiryMode && state.contract.classList.contains("active");
-      if (shouldLingerContract) {
-        state.contract.style.pointerEvents = "none";
-        state._contractHideTimer = window.setTimeout(() => {
-          if (!state.isInquiryMode && state.contract) {
-            state.contract.classList.remove("active");
-            state.contract.style.pointerEvents = "";
-          }
-          state._contractHideTimer = null;
-        }, 2000);
-      } else {
-        state.contract.classList.remove("active");
-        state.contract.style.pointerEvents = "";
-      }
-    }
+    state.contract && state.contract.classList.remove("active");
     state.toast && state.toast.classList.remove("active");
     document.documentElement.classList.remove("rp-inquiry-open");
     document.body.classList.remove("rp-inquiry-open");
@@ -1595,10 +1168,6 @@ function createPopupState() {
       state.inquiryTopbar.style.left = "";
       state.inquiryTopbar.style.top = "";
     }
-    if (handoffMessage) {
-      state.showHandoff(handoffMessage);
-    }
-    state.inquirySessionMetrics = null;
     state.updateBreadcrumb();
   };
 
@@ -1763,7 +1332,6 @@ function createPopupState() {
 
 state.resetForNewReel = function () {
     state.setExpanded(false);
-    state.setVaultOpen(false);
     state.exitInquiryMode();
     state.showStatementsView();
     state.evidenceTitle.textContent = "";
@@ -1784,9 +1352,6 @@ state.resetForNewReel = function () {
     state.activeEvidence = null;
     state.activeEvidenceIndex = null;
     state.activeSummaryKey = null;
-    state.activeStatementKey = null;
-    state.externalStatementsByKey = new Map();
-    state.refreshStatementPinButtons();
     state.setLoading();
     state.setReadyPulse(false);
     state.updateBreadcrumb();
@@ -1794,8 +1359,7 @@ state.resetForNewReel = function () {
 
   state.setStatements = function (statements) {
     state.listContent.innerHTML = "";
-    const rawStatements = Array.isArray(statements) ? statements : [];
-    state.statements = sortStatementsByPriority(rawStatements);
+    state.statements = Array.isArray(statements) ? statements : [];
     state.setStatementCount(state.statements.length);
     state.setReadyPulse(state.statements.length > 0 && !state.isInquiryMode);
     if (state.statements.length > 0 && !state.isInquiryMode) state.bumpAttention();
@@ -1874,8 +1438,9 @@ state.resetForNewReel = function () {
         <path d="M9 18l6-6-6-6"/>
         </svg>`;
       } else {
-        actionButton.title = "Open sources (none found yet)";
-        actionButton.classList.add("no-sources");
+        actionButton.title = "No sources found";
+        actionButton.classList.add("disabled", "no-sources");
+        actionButton.disabled = true;
         actionButton.innerHTML = `<span class="no-sources-mark" aria-hidden="true">!</span>`;
       }
 
@@ -1883,7 +1448,6 @@ state.resetForNewReel = function () {
       state.listContent.appendChild(listItem);
     }
 
-    state.refreshStatementPinButtons();
     state.updateBreadcrumb();
   };
 
@@ -1976,50 +1540,9 @@ const attachReelExitHold = () => {
     holdTimer = null;
   };
 
-  const findScrollableAncestor = (startEl) => {
-    let el = startEl instanceof Element ? startEl : null;
-    while (el && el !== document.body) {
-      const style = window.getComputedStyle(el);
-      const overflowY = style.overflowY || style.overflow;
-      const canScrollY =
-        (overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay") &&
-        el.scrollHeight > el.clientHeight + 1;
-      if (canScrollY) return el;
-      el = el.parentElement;
-    }
-    return null;
-  };
-
   // Prevent scroll during Inquiry Mode (sociotechnical interruption).
   const blockScroll = (e) => {
     if (!state.isInquiryMode) return;
-    const target = e && e.target;
-    const inOverlay =
-      target &&
-      target.closest &&
-      (target.closest(".reel-alert") ||
-        target.closest(".rp-inquiry-topbar") ||
-        target.closest(".rp-inquiry-contract"));
-
-    // Allow mouse-wheel scrolling inside ReelPeel panels while keeping page scroll locked.
-    if (e.type === "wheel" && inOverlay) {
-      const scrollEl = findScrollableAncestor(target);
-      if (scrollEl) {
-        const deltaY = Number(e.deltaY) || 0;
-        if (deltaY !== 0) {
-          const before = scrollEl.scrollTop;
-          scrollEl.scrollTop += deltaY;
-          if (scrollEl.scrollTop !== before) {
-            e.preventDefault();
-            return;
-          }
-        }
-      }
-      // If nothing scrolls inside the panel, still suppress page scroll.
-      e.preventDefault();
-      return;
-    }
-
     e.preventDefault();
   };
   state._globalBlockScroll = blockScroll;
@@ -2089,16 +1612,9 @@ const attachReelExitHold = () => {
     state.inspectButton.classList.remove("holding");
     if (holdTriggered) return;
 
-    if (state.isVaultOpen) {
-      state.setVaultOpen(false);
-      return;
-    }
-
     if (state.isInquiryMode) {
       if (state.viewMode === "summary") {
-        state.showEvidenceView(state.activeStatement, state.activeStatementIndex, {
-          statementKey: state.activeStatementKey,
-        });
+        state.showEvidenceView(state.activeStatement, state.activeStatementIndex);
         return;
       }
       if (state.viewMode === "evidence") {
@@ -2117,9 +1633,7 @@ const attachReelExitHold = () => {
     }
 
     if (state.viewMode === "summary") {
-      state.showEvidenceView(state.activeStatement, state.activeStatementIndex, {
-        statementKey: state.activeStatementKey,
-      });
+      state.showEvidenceView(state.activeStatement, state.activeStatementIndex);
       return;
     }
 
@@ -2146,70 +1660,23 @@ const attachReelExitHold = () => {
 
   // Statement -> sources
   state.listContent.addEventListener("click", (event) => {
+    const actionBtn = event.target.closest(".statement-action");
+    if (actionBtn && actionBtn.disabled) return;
+
     const row = event.target.closest(".statement-item");
     if (!row) return;
     const index = Number(row.dataset.statementIndex);
     const statement = state.statements[index];
     if (!statement) return;
+    const evidenceTotal =
+      statement && Array.isArray(statement.evidence) ? statement.evidence.length : 0;
+    if (evidenceTotal <= 0) return;
     state.showEvidenceView(statement, index);
   });
-
-  if (state.evidencePinButton) {
-    state.evidencePinButton.addEventListener("click", () => {
-      if (!state.activeStatement) return;
-      state.toggleBookmark(state.activeStatement, state.activeStatementIndex);
-      state.refreshStatementPinButtons();
-    });
-  }
 
   if (state.summaryAlgoToggle) {
     state.summaryAlgoToggle.addEventListener("click", () => {
       state.setSummaryAlgoVisible(!state.summaryAlgoOpen);
-    });
-  }
-
-  if (state.vaultButton) {
-    state.vaultButton.addEventListener("click", () => {
-      state.setVaultOpen(!state.isVaultOpen);
-      if (state.isVaultOpen) {
-        state.setExpanded(true);
-        state.updateBreadcrumb();
-        return;
-      }
-      state.updateBreadcrumb();
-    });
-  }
-
-  if (state.vaultList) {
-    state.vaultList.addEventListener("click", (event) => {
-      const removeBtn = event.target.closest(".vault-remove-item");
-      if (removeBtn) {
-        const key = String(removeBtn.dataset.bookmarkKey || "");
-        const idx = state.bookmarks.findIndex((bookmark) => bookmark.key === key);
-        if (idx >= 0) {
-          state.bookmarks.splice(idx, 1);
-          state.persistBookmarks();
-          state.renderVaultList();
-          state.refreshStatementPinButtons();
-          state.showToast("Claim removed from Vault");
-        }
-        return;
-      }
-
-      const openBtn = event.target.closest(".vault-open-item");
-      if (!openBtn) return;
-      const key = String(openBtn.dataset.bookmarkKey || "");
-      const bookmark = state.bookmarks.find((entry) => entry && entry.key === key);
-      if (!bookmark || !bookmark.statementSnapshot) {
-        state.showToast("Saved claim data missing");
-        return;
-      }
-      const statement = bookmark.statementSnapshot;
-      state.externalStatementsByKey.set(key, statement);
-      state.setVaultOpen(false);
-      state.setExpanded(true);
-      state.showEvidenceView(statement, null, { statementKey: key });
-      state.showToast("Loaded claim from Vault");
     });
   }
 
@@ -2219,21 +1686,13 @@ const attachReelExitHold = () => {
     if (!summaryButton) return;
     const statementIndex = Number(summaryButton.dataset.statementIndex);
     const evidenceIndex = Number(summaryButton.dataset.evidenceIndex);
-    const statementKey = summaryButton.dataset.statementKey
-      ? String(summaryButton.dataset.statementKey)
-      : null;
-    const statement =
-      statementKey && state.externalStatementsByKey.has(statementKey)
-        ? state.externalStatementsByKey.get(statementKey)
-        : state.statements[statementIndex];
+    const statement = state.statements[statementIndex];
     const evidence =
       statement && Array.isArray(statement.evidence)
         ? statement.evidence[evidenceIndex]
         : null;
     if (!statement || !evidence) return;
-    state.showSummaryView(statement, evidence, statementIndex, evidenceIndex, {
-      statementKey,
-    });
+    state.showSummaryView(statement, evidence, statementIndex, evidenceIndex);
   });
 
   // Escape: exit Inquiry Mode / collapse
@@ -2268,8 +1727,6 @@ popup.querySelector("#close-alert").addEventListener("click", () => {
     removePopup();
   });
 
-  state.loadBookmarks();
-  state.renderVaultList();
   state.updateBreadcrumb();
   return state;
 }
@@ -2349,15 +1806,6 @@ function showPopup() {
 }
 
 function removePopup() {
-  if (popupState && popupState._contractHideTimer) {
-    clearTimeout(popupState._contractHideTimer);
-  }
-  if (popupState && popupState._handoffTimer) {
-    clearTimeout(popupState._handoffTimer);
-  }
-  if (popupState && popupState._toastTimer) {
-    clearTimeout(popupState._toastTimer);
-  }
   if (currentPopup) {
     currentPopup.remove();
   }
@@ -2372,9 +1820,6 @@ function removePopup() {
   }
   if (popupState && popupState.toast) {
     popupState.toast.remove();
-  }
-  if (popupState && popupState.handoff) {
-    popupState.handoff.remove();
   }
   if (popupState && popupState.inquiryTopbar) {
     popupState.inquiryTopbar.remove();

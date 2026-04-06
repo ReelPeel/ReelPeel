@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "ReelPeel - Inquiry Vault Handoff",
+  "name": "ReelPeel - Inquiry Layers Shifted",
   "version": "1.1",
-  "version_name": "30_inquiry_vault_handoff",
+  "version_name": "29_inquiry_layers_shifted",
   "permissions": [
     "activeTab",
     "scripting",
