@@ -1,5 +1,4 @@
 const API_BASE = "http://im-redstone02.hs-regensburg.de:38843";
-const JSON_FETCH_DELAY_MS = 20000; // Demo: hard delay before calling /json
 
 /**
  * Background service worker: forwards content-script requests to the backend.
@@ -11,18 +10,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (type === "getReelAnalysis" || type === "getMedicalScore") {
     const reelUrl = request.url || sender?.url || sender?.tab?.url || "";
 
-    // fetch(`${API_BASE}/process`, {
-    new Promise((resolve) => setTimeout(resolve, JSON_FETCH_DELAY_MS))
-      .then(() =>
-        fetch(`${API_BASE}/json`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            url: reelUrl,
-            mock: Boolean(request.mock) || false,
-          }),
-        })
-      )
+    fetch(`${API_BASE}/json`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        url: reelUrl,
+        mock: Boolean(request.mock) || false,
+      }),
+    })
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.detail || "Process request failed");
