@@ -152,14 +152,15 @@ class StanceEvidenceStep(PipelineStep):
       - threshold_decisive: float (default: 0.0)
           If max(p_supports, p_refutes) < threshold, force label to Neutral.
     """
-
+    
     def execute(self, state: PipelineState) -> PipelineState:
+        print("Entering StanceEvidenceStep...")
         model_name = self.config.get("model_name", "cnut1648/biolinkbert-mednli")
         device = _pick_device(self.config.get("device"))
         use_fp16 = bool(self.config.get("use_fp16", True))
         batch_size = int(self.config.get("batch_size", 16))
         max_length = int(self.config.get("max_length", 512))
-
+        print("StanceEvidenceStep Flag1")
         evidence_fields = self.config.get("evidence_fields", ["abstract", "text"])
         if "abstract" not in evidence_fields and "text" not in evidence_fields:
             evidence_fields = ["abstract", "text"]

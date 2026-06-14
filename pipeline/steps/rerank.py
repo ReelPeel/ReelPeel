@@ -110,13 +110,14 @@ class RerankEvidenceStep(PipelineStep):
     """
 
     def execute(self, state: PipelineState) -> PipelineState:
+        print("Entering RerankEvidenceStep...")
         model_name = self.config.get("model_name", "BAAI/bge-reranker-v2-m3")
         device = _pick_device(self.config.get("device"))
         use_fp16 = bool(self.config.get("use_fp16", True))
         normalize = bool(self.config.get("normalize", True))
         batch_size = int(self.config.get("batch_size", 16))
         max_length = int(self.config.get("max_length", 4096))
-
+        print("RerankEvidenceStep: Flag1")
         score_fields = self.config.get("score_fields", ["abstract"])
         score_fields = [field for field in score_fields if field == "abstract"]
         if not score_fields:
@@ -213,5 +214,4 @@ class RerankEvidenceStep(PipelineStep):
                     ev for ev in stmt.evidence
                     if float(getattr(ev, "relevance", 0.0) or 0.0) >= min_relevance
                 ]
-
         return state
