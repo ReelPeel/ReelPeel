@@ -1,0 +1,4226 @@
+[
+  {
+    "statement": "Kids need calcium and vitamin D for their proper growth, specifically bones.",
+    "id": 0
+  },
+  {
+    "statement": "Kids need calcium and vitamin D for their proper growth, specifically teeth. ",
+    "id": 1
+  },
+  {
+    "statement": "Kids need calcium and vitamin D for their proper development, specifically bones.",
+    "id": 2
+  },
+  {
+    "statement": "Kids need calcium and vitamin D for their proper development, specifically teeth. ",
+    "id": 3
+  },
+  {
+    "statement": "Cow milk is a source of vitamin D.",
+    "id": 4
+  },
+  {
+    "statement": "Cow milk is not the only source of vitamin D.",
+    "id": 5
+  },
+  {
+    "statement": "Vitamin D Präparate werden zwecks Knochenbildung gegeben.",
+    "id": 6
+  },
+  {
+    "statement": "Es ist wichtig Babys Vitamin D Supplemente zu geben.",
+    "id": 7
+  },
+  {
+    "statement": "Kinder sollten Vitamin D Supplemente mit Fluor gegeben werden.",
+    "id": 8
+  },
+  {
+    "statement": "Vitamin D Supplementation in Kombination mit Fluor dient der Kariesprophylaxe bezogen auf Kinder ohne Zähne.",
+    "id": 9
+  },
+  {
+    "statement": "Vitamin D Supplemente in Kombination mit Fluor unterstützen bei der Bildung von Zähnen bezogen auf Kinder ohne Zähne.",
+    "id": 10
+  },
+  {
+    "statement": "Vitamin D Supplemente sollen zusammen mit Fluor verabreicht werden, solange ein Kind keine Zähne hat.",
+    "id": 11
+  },
+  {
+    "statement": "Sobald Kinder Zähne haben, soll entweder auf eine flurhaltige Zahncreme zurückgegriffen werden oder Vitamin D mit Fluor zusammen verabreicht werden.",
+    "id": 12
+  },
+  {
+    "statement": "Eltern müssen ihren Babys nach der Geburt Vitamin D geben.",
+    "id": 13
+  },
+  {
+    "statement": "Vitamin D ist wichtig für die Gesundheit des Babys.",
+    "id": 14
+  },
+  {
+    "statement": "Vitamin D ist bei Babys wichtig für die Entwicklung von Knochen.",
+    "id": 15
+  },
+  {
+    "statement": "Vitamin D ist bei Babys wichtig für die Entwicklung von Zähnen.",
+    "id": 16
+  },
+  {
+    "statement": "Babys bekommen nicht genug Vitamin D durch die Muttermilch.",
+    "id": 17
+  },
+  {
+    "statement": "Babys bekommen nicht genug Vitamin D durch die Formularnahrung. ",
+    "id": 18
+  },
+  {
+    "statement": "Es ist wichtig, ab dem 10. Lebenstag dem Baby Vitamin D zu verabreichen. ",
+    "id": 19
+  },
+  {
+    "statement": "Wer seinen Kindern kein Vitamin D gibt, begeht schwere Körperverletzungen.",
+    "id": 20
+  },
+  {
+    "statement": "Vitamin D ist wichtig für den Knochenaufbau.",
+    "id": 21
+  },
+  {
+    "statement": "Vitamin D ist wichtig für das Immunsystem.",
+    "id": 22
+  },
+  {
+    "statement": "Vitamin D ist wichtig für Muskelfunktion.",
+    "id": 23
+  },
+  {
+    "statement": "Vitamin D ist wichtig für Zellwachstum.",
+    "id": 24
+  },
+  {
+    "statement": "Vitamin D ist wichtig für die Vorbeugung von Rachitis.",
+    "id": 25
+  },
+  {
+    "statement": "Ein Vitamin D Präparat mit einer Dosierung von 1000 IE ist für Kinder, die 11 kg wiegen, geeignet.",
+    "id": 26
+  },
+  {
+    "statement": "Vitamin D Präparate mit K2, Magnesium, Vitamin C und ein Multikomplex für die restlichen Vitamin D Kofaktoren sind geeignet für Kinder.",
+    "id": 27
+  },
+  {
+    "statement": "It's recommended to give a baby vitamin D supplements.",
+    "id": 28
+  },
+  {
+    "statement": "A suitable method for giving a baby vitamin D is to give it straight into the baby's mouth.",
+    "id": 29
+  },
+  {
+    "statement": "Babies need 400 IU vitamin D for the day.",
+    "id": 30
+  },
+  {
+    "statement": "A suitable method for giving a baby vitamin D is to give the D drops in a bottle.",
+    "id": 31
+  },
+  {
+    "statement": "Just one drop of vitamin D is the exact amount that a baby needs for the day. ",
+    "id": 32
+  },
+  {
+    "statement": "Most infants tolerate vitamin D very well.",
+    "id": 33
+  },
+  {
+    "statement": "If for some reason a baby does spit up after the bottle in which the vitamin D supplement is served, it is always an option to try dosing it again later in the day.",
+    "id": 34
+  },
+  {
+    "statement": "If for some reason a baby does spit up after the bottle in which the vitamin D supplement is served, it is an option to wait until the next day altogether.",
+    "id": 35
+  },
+  {
+    "statement": "Säuglinge bekommen im ersten Lebensjahr vom Kinderarzt Vitamin D verschrieben.",
+    "id": 36
+  },
+  {
+    "statement": "Vitamin D wird als Sonnenhormon bezeichnet.",
+    "id": 37
+  },
+  {
+    "statement": "Der Körper kann in gewissem Maß Vitamin D selbst synthetisieren, wenn UV-Strahlung auf die ungeschützte Haut trifft.",
+    "id": 38
+  },
+  {
+    "statement": "Wenn Säuglinge in der Sonne sind, dann definitiv mit Sonnenschutz und deshalb wird Vitamin D nicht in gewissem Maß selbst synthetisieren.",
+    "id": 39
+  },
+  {
+    "statement": "Eine ausreichende Vitamin D Versorgung ist essenziell für ein normales Wachstum.",
+    "id": 40
+  },
+  {
+    "statement": "Eine ausreichende Vitamin D Versorgung ist essenziell für gesunde Knochen.",
+    "id": 41
+  },
+  {
+    "statement": "Über 60% der Kinder und Jugendlichen haben einen Vitamin D-Mangel.",
+    "id": 42
+  },
+  {
+    "statement": "Kinder spielen heutzutage weniger draußen.",
+    "id": 43
+  },
+  {
+    "statement": "Das Problem an vielen Supplementen, die der Kinderarzt für das erste Lebensjahr verschreibt, ist, dass sie kein K2 enthalten. ",
+    "id": 44
+  },
+  {
+    "statement": "K2 wird zwingend gebraucht, damit sich Calcium in den Knochen einlagert.",
+    "id": 45
+  },
+  {
+    "statement": "K2 wird zwingend gebraucht, damit sich Calcium nicht in Form von Plaque in den Blutgefäßen ablagert.",
+    "id": 46
+  },
+  {
+    "statement": "Vitamin D Supplemente ohne K2 schaden mehr, als sie helfen.",
+    "id": 47
+  },
+  {
+    "statement": "Der Vitamin D3-Status von Kindern sollte über ein Blutbild überprüft werden.",
+    "id": 48
+  },
+  {
+    "statement": "Es sollte sichergestellt werden, dass bei dem Vitamin D3, auch ein K2 enthalten ist.",
+    "id": 49
+  },
+  {
+    "statement": "Eltern müssen ihre Kinder mit Vitamin D Supplementen versorgen.",
+    "id": 50
+  },
+  {
+    "statement": "Wenn Kinder nicht mit Vitamin D versorgt werden, werden diese kein vernünftiges Knochenskelett entwickeln.",
+    "id": 51
+  },
+  {
+    "statement": "Bis zum 25. Lebensjahr muss die Entwicklung des Knochenskeletts abgeschlossen sein.",
+    "id": 52
+  },
+  {
+    "statement": "Wenn die Entwicklung des Knochenskeletts nicht vernünftig abläuft, werden die Kinder keine vernünftige Knochendichte haben.",
+    "id": 53
+  },
+  {
+    "statement": "Wenn Kinder keine vernünftige Knochendichte haben werden sie zum Beispiel später schneller in den Bereich der Osteoporose kommen.",
+    "id": 54
+  },
+  {
+    "statement": "Es ist wichtig Kindern auch im Sommer Vitamin D Supplemente zu geben.",
+    "id": 55
+  },
+  {
+    "statement": "Eine Dosis von 1000 IE Vitamin D pro 10 kg Körpergewicht in Bezug auf Kinder wird empfohlen.",
+    "id": 56
+  },
+  {
+    "statement": "Vitamin D sollte am besten mit Vitamin K2 kombiniert werden.",
+    "id": 57
+  },
+  {
+    "statement": "Vitamin D is famous for making strong bones.",
+    "id": 58
+  },
+  {
+    "statement": "Vitamin D is famous for making strong teeth. ",
+    "id": 59
+  },
+  {
+    "statement": "Vitamin D is really important for the child's immune system. ",
+    "id": 60
+  },
+  {
+    "statement": "People who have enough vitamin D in their system get less colds than people who don't. ",
+    "id": 61
+  },
+  {
+    "statement": "Making a child get enough vitamin D is often achieved through supplements.",
+    "id": 62
+  },
+  {
+    "statement": "Making a child get enough vitamin D will help your child stay healthy. ",
+    "id": 63
+  },
+  {
+    "statement": "Babys dürfen im ersten Lebensjahr nicht in die direkte Sonne.",
+    "id": 64
+  },
+  {
+    "statement": "Babys brauchen im ersten Lebensjahr im Sommer Vitamin-D-Präparate, da sie nicht in die direkte Sonne dürfen.",
+    "id": 65
+  },
+  {
+    "statement": "Ab dem zweiten Lebensjahr brauchen Kinder im Sommer kein Vitamin-D-Präparate, da sie dann ganz kurz in die Sonne gehen können.",
+    "id": 66
+  },
+  {
+    "statement": "Vitamin D ist wichtig.",
+    "id": 67
+  },
+  {
+    "statement": "Die unkontrollierte Einnahme von Vitamin D Supplementen kann bei Säuglingen zu hohen Calciumwerten führen.",
+    "id": 68
+  },
+  {
+    "statement": "Die unkontrollierte Einnahme von Vitamin D Supplementen kann bei Säuglingen zu einer Schädigung der Niere führen.",
+    "id": 69
+  },
+  {
+    "statement": "Die unkontrollierte Einnahme von Vitamin D Supplementen kann bei Säuglingen zu der Supprimierung des Parathormons führen.",
+    "id": 70
+  },
+  {
+    "statement": "Für Säuglinge wird eine Vitamin D Dosis von 500 IE empfohlen.",
+    "id": 71
+  },
+  {
+    "statement": "Die Einnahme von Vitamin D-Präparaten mit einer Dosis von 40.000 IE über einen Zeitraum von 5 Monaten kann bei Kindern zu einem 80-fach erhöhtem Vitamin D Spiegel führen.",
+    "id": 72
+  },
+  {
+    "statement": "Die Einnahme von Vitamin D-Präparaten mit einer Dosis von 40.000 IE über einen Zeitraum von 5 Monaten kann bei Kindern zu einer massiven Entgleisung der Elektrolyte (vor allem vom Calcium) führen.",
+    "id": 73
+  },
+  {
+    "statement": "Es ist logisch, dass die Einnahme von Vitamin D-Präparaten mit einer Dosis von 40.000 IE über einen Zeitraum von 5 Monaten bei Kindern zu einer Nierenschädigung führt.",
+    "id": 74
+  },
+  {
+    "statement": "Vitamin D wird von manchen Hausärzten viel zu niedrig dosiert. ",
+    "id": 75
+  },
+  {
+    "statement": "Unkontrolliert auf Empfehlung von Laien, ein Nahrungsergänzungsmittel in öliger Form dem Kind in dieser Dosis (40.000 IE Vitamin D) zu geben, ist nicht empfehlenswert.",
+    "id": 76
+  },
+  {
+    "statement": "Es ist nicht empfehlenswert Vitamin D auf Teufel komm raus zu geben, wenn Unsicherheiten hinsichtlich der Dosis an Vitamin D bestehen und vielleicht der Kinderarzt, Kinderärztin nicht so adäquat die Antwort gibt, die erwartet wird.",
+    "id": 77
+  },
+  {
+    "statement": "Vitamin D ist gesund.",
+    "id": 78
+  },
+  {
+    "statement": "Vitamin D ist lebenserhaltend.",
+    "id": 79
+  },
+  {
+    "statement": "Nahrungsergänzungsmittel, wie Vitamin D können in der Überdosierung toxisch werden und haben dann signifikante Nebenwirkungen.",
+    "id": 80
+  },
+  {
+    "statement": "Für die gesunde Entwicklung von Kindern sind Vitamine absolut entscheidend.",
+    "id": 81
+  },
+  {
+    "statement": "Für das Wachstum von Kindern sind Vitamine absolut entscheidend.",
+    "id": 82
+  },
+  {
+    "statement": "Vitamin D gehört zu den wichtigsten Nährstoffen für Kinder.",
+    "id": 83
+  },
+  {
+    "statement": "Die Sonne ist eine Quellen von Vitamin D.",
+    "id": 84
+  },
+  {
+    "statement": "Fisch ist eine Quellen von Vitamin D.",
+    "id": 85
+  },
+  {
+    "statement": "Vitamin D ist unerlässlich für gesunde Knochen.",
+    "id": 86
+  },
+  {
+    "statement": "Der Großteil von Vitamin D wird durch das Sonnenlicht gebildet.",
+    "id": 87
+  },
+  {
+    "statement": "Fettreiche Fische wie Lachs und Hering liefern Vitamin D.",
+    "id": 88
+  },
+  {
+    "statement": "Pilze liefern Vitamin D.",
+    "id": 89
+  },
+  {
+    "statement": "Es ist empfehlenswert öfter raus in die Sonne zu gehen. (Reel bezieht sich auf Kinder)",
+    "id": 90
+  },
+  {
+    "statement": "Es ist empfehlenswert ab und zu Seefisch zu essen. (Reel bezieht sich auf Kinder)",
+    "id": 91
+  },
+  {
+    "statement": "Naturbelassener Lebertran ist eine hervorragende Quelle für essentielle Nährstoffe wie z.B. Vitamin D.",
+    "id": 92
+  },
+  {
+    "statement": "Ideal ist die Gabe von Lebertran beginnend zwischen dem vierten und sechsten Monat, idealerweise vor dem Beikoststart.",
+    "id": 93
+  },
+  {
+    "statement": "Die Osteomalazie bei Kindern wird Rachitis genannt.",
+    "id": 94
+  },
+  {
+    "statement": "Rachitis entsteht, wenn nicht genügend Vitamin D3 gebaut wird.",
+    "id": 95
+  },
+  {
+    "statement": "Rachitis entsteht, wenn nicht genügend Calcitriol gebaut wird.",
+    "id": 96
+  },
+  {
+    "statement": "Die Rachitis wird auch als englische Krankheit bezeichnet, weil dort noch weniger Sonneneinstrahlung ist.",
+    "id": 97
+  },
+  {
+    "statement": "Die Rachitis wird auch als englische Krankheit bezeichnet, weil in den Ballungsgebieten die Kinder eher im Hinterhof spielen als vorne, wo die Sonne scheint, an der Schnellstraße. ",
+    "id": 98
+  },
+  {
+    "statement": "Vitamin D2 wird über die pflanzliche Nahrung aufgenommen.",
+    "id": 99
+  },
+  {
+    "statement": "Es gibt zu wenig Sonnenstrahlung, und dadurch kann kein Vitamin D produziert werden.",
+    "id": 100
+  },
+  {
+    "statement": "Ohne die Produktion von Vitamin D wird kein Hormon D-Calcitriol gebaut.",
+    "id": 101
+  },
+  {
+    "statement": "Wenn kein Hormon D-Calcitriol gebaut wird fällt die enterale Resorption von Calcium weg. ",
+    "id": 102
+  },
+  {
+    "statement": "Wenn die enterale Resorption von Calcium weg fällt müssen Parathormonen angreifen, um Calcium aus den Knochen rauszuziehen.",
+    "id": 103
+  },
+  {
+    "statement": "Bei Rachitis kommt es zu einer Knochenerweichung.",
+    "id": 104
+  },
+  {
+    "statement": "Man spricht von einer Rachitis, wenn kein Vitamin D produziert werden kann und dadurch kein Hormon D-Calcitriol gebaut wird und dadurch die enterale Resorption von Calcium wegfällt und dadurch Parathormonen angreifen müssen, um Calcium aus den Knochen rauszuziehen. ",
+    "id": 105
+  },
+  {
+    "statement": "Doctors tell mothers to supplement their babies with vitamin D because their breast milk is deficient. ",
+    "id": 106
+  },
+  {
+    "statement": "Low vitamin D in breast milk is crucial for a baby's  mental health.",
+    "id": 107
+  },
+  {
+    "statement": "Low vitamin D in breast milk is crucial for a baby's physical development.",
+    "id": 108
+  },
+  {
+    "statement": "Breast milk is naturally dominant in retinol over vitamin D because it's crucial for copper bioavailability.",
+    "id": 109
+  },
+  {
+    "statement": "Breast milk is naturally dominant in retinol over vitamin D because it's crucial for iron management.",
+    "id": 110
+  },
+  {
+    "statement": "Suppressing vitamin A activity in a baby with high vitamin D dosages causes hypercalcemia.",
+    "id": 111
+  },
+  {
+    "statement": "Suppressing vitamin A activity in a baby with high vitamin D dosages causes systemic inflammation.",
+    "id": 112
+  },
+  {
+    "statement": "Hypercalcemia in babies results in asthma.",
+    "id": 113
+  },
+  {
+    "statement": "Hypercalcemia in babies results in eczema.",
+    "id": 114
+  },
+  {
+    "statement": "Systemic inflammation in babies results in worse outcomes than asthma and eczema. ",
+    "id": 115
+  },
+  {
+    "statement": "Vitamin D supplements as a single compound without further context result in immune system dysregulation by default, especially in babies. ",
+    "id": 116
+  },
+  {
+    "statement": "Breast milk is not deficient in anything in a healthy state.",
+    "id": 117
+  },
+  {
+    "statement": "Vitamin D intoxication is one of the most common root causes for constantly sick children.",
+    "id": 118
+  },
+  {
+    "statement": "Vitamin D aktiviert die Nervenzellen.",
+    "id": 119
+  },
+  {
+    "statement": "Die Einnahme von Vitamin D3 K2 Tropfen unterstützen bei Kindern das Immunsystem.",
+    "id": 120
+  },
+  {
+    "statement": "Vitamin D3 trägt zur normalen Funktion des Immunsystems bei.",
+    "id": 121
+  },
+  {
+    "statement": "Vitamin D3 trägt zur Erhaltung normaler Zähne bei.",
+    "id": 122
+  },
+  {
+    "statement": "Vitamin D3 und K2 sind das perfekte Duo, da sie synergetisch miteinander wirken. ",
+    "id": 123
+  },
+  {
+    "statement": "Präparate mit Vitamin D3 und K2 stärken die normale Muskelfunktion.",
+    "id": 124
+  },
+  {
+    "statement": "Präparate mit Vitamin D3 und K2 stärken das Immunsystem.",
+    "id": 125
+  },
+  {
+    "statement": "Präparate mit Vitamin D3 und K2 stärken eine normale Blutgerinnung. ",
+    "id": 126
+  },
+  {
+    "statement": "Geeignet ist es, die Vitamin D Tropfen ins Müsli, in ein Getränk oder auf einem Esslöffel zu geben.",
+    "id": 127
+  },
+  {
+    "statement": "Ein Faktor dafür, dass Allergien bei neugeborenen Säuglingen zunehmen, ist eine mangelhafte Vitamin-D-Versorgung der Mutter während der Schwangerschaft. ",
+    "id": 128
+  },
+  {
+    "statement": "Ein Faktor dafür, dass insbesondere Hautekzeme bei neugeborenen Säuglingen zunehmen, ist eine mangelhafte Vitamin-D-Versorgung der Mutter während der Schwangerschaft. ",
+    "id": 129
+  },
+  {
+    "statement": "Ein niedriger Vitamin-D-Spiegel bei Neugeborenen ist für Ekzeme in den ersten 25 Lebensjahren mitverantwortlich.",
+    "id": 130
+  },
+  {
+    "statement": "Die Schwangerschaft steigert das Risiko des Neugeborenen für die Entwicklung von Ekzemen.",
+    "id": 131
+  },
+  {
+    "statement": "Wenn der Vitamin-D-Spiegel von Neugeborenen mit erhöhtem Allergie-Risiko leicht erhöht wird, dann geht mit jeder Erhöhung des Spiegels nach 25 Jahren eine Senkung des Risikos für Ekzeme einher.",
+    "id": 132
+  },
+  {
+    "statement": "Vitamin D-Präparate werden während der Schwangerschaft gegeben, um das Risiko von Ekzemen zu senken.",
+    "id": 133
+  },
+  {
+    "statement": "Um den Vitamin D-Spiegel während der Schwangerschaft zu messen ist der freie Vitamin-D-Spiegel geeignet, weil ansonsten verfälschte Werte (während der Schwangerschaft) herauskommen können. ",
+    "id": 134
+  },
+  {
+    "statement": "Die Sonne und Ernährung versorgen Kinder nicht genug mit Vitamin D.",
+    "id": 135
+  },
+  {
+    "statement": "Wenn Eltern glauben, dass ihr Kind genug Vitamin D durch Sonne oder Ernährung bekommt, dann gehören diese wahrscheinlich zu den meisten Eltern, die das Unterschätzen.",
+    "id": 136
+  },
+  {
+    "statement": "Es kann gefährlich sein zu den Eltern zu gehören, die glauben, dass ihr Kind genug Vitamin D durch Sonne oder Ernährung bekommt.",
+    "id": 137
+  },
+  {
+    "statement": "Vitamin D ist kein normales Vitamin, sondern ein Hormon.",
+    "id": 138
+  },
+  {
+    "statement": "Der Körper bildet Vitamin D mithilfe von Sonnenlicht.",
+    "id": 139
+  },
+  {
+    "statement": "Bei Babys ist Vitamin D enorm wichtig für starke Knochen.",
+    "id": 140
+  },
+  {
+    "statement": "Bei Kleinkindern ist Vitamin D enorm wichtig für starke Knochen.",
+    "id": 141
+  },
+  {
+    "statement": "Bei Babys ist Vitamin D enorm wichtig für ein gesundes Wachstum.",
+    "id": 142
+  },
+  {
+    "statement": "Bei Kleinkindern ist Vitamin D enorm wichtig für ein gesundes Wachstum.",
+    "id": 143
+  },
+  {
+    "statement": "Bei Babys ist Vitamin D enorm wichtig für ein stabiles Immunsystem. ",
+    "id": 144
+  },
+  {
+    "statement": "Bei Kleinkindern ist Vitamin D enorm wichtig für ein stabiles Immunsystem. ",
+    "id": 145
+  },
+  {
+    "statement": "Ohne Vitamin D kann Calcium nicht richtig in die Knochen eingebaut werden.",
+    "id": 146
+  },
+  {
+    "statement": "Wenn Vitamin D fehlt, kann das zu Rachitis führen.",
+    "id": 147
+  },
+  {
+    "statement": "Rachitis ist eine Störung des Knochenwachstums.",
+    "id": 148
+  },
+  {
+    "statement": "Bei Rachitis bleiben die Knochen weich.",
+    "id": 149
+  },
+  {
+    "statement": "Bei Rachitis verbiegen sich die Knochen leicht.",
+    "id": 150
+  },
+  {
+    "statement": "Es wird in Deutschland empfohlen, dass Babys ab dem 5. bis 7. Lebenstag täglich durchgehend im ersten Lebensjahr etwa 400 bis 500 Einheiten Vitamin D in Form von kleinen Tabletten oder Tropfen bekommen sollen, um Rachitis zu verhindern.",
+    "id": 151
+  },
+  {
+    "statement": "Im zweiten Lebensjahr wird nicht mehr automatisch für alle Kinder die Supplementation von Vitamin D empfohlen. ",
+    "id": 152
+  },
+  {
+    "statement": "Ob Vitamin D im zweiten Lebensjahr supplementiert werden sollte, hängt davon ab, wie viel Sonne das Kind täglich bekommt oder wie oft es draußen unterwegs ist und deswegen werden tägliche Gaben hier nicht immer automatisch empfohlen. ",
+    "id": 153
+  },
+  {
+    "statement": "Bei Kindern, die im Winter ihren ersten Geburtstag feiern, sollte die Vitamin D-Prophylaxe bis zum nächsten Frühling weitergeführt werden. ",
+    "id": 154
+  },
+  {
+    "statement": "Bei Kindern mit dunklerer Hautfarbe kann es schwieriger sein, in unseren Breitengraden genug Vitamin D zu bilden (bezogen auf Deutschland).",
+    "id": 155
+  },
+  {
+    "statement": "Ob eine Fortsetzung der Gabe sinnvoll ist, sollte immer individuell mit der Kinderärztin oder dem Kinderarzt besprochen werden.",
+    "id": 156
+  },
+  {
+    "statement": "Vitamin D steckt auch in Lebensmitteln.",
+    "id": 157
+  },
+  {
+    "statement": "Vitamin D ist in zu geringen Mengen in Lebensmitteln enthalten, um den Bedarf zu decken.",
+    "id": 158
+  },
+  {
+    "statement": "Ein Kind müsste jeden Tag Fisch essen um den Bedarf an Vitamin D zu decken. ",
+    "id": 159
+  },
+  {
+    "statement": "Ein Kind müsste jeden Tag 10 Eier essen, um den Bedarf an Vitamin D zu decken. ",
+    "id": 160
+  },
+  {
+    "statement": "Vitamin D ist kein Trend, sondern eine Grundlage für gesunde Entwicklung.",
+    "id": 161
+  },
+  {
+    "statement": "Die Gabe von Vitamin K2, zusätzlich zur Vitamin D-Gabe, wird für Kinder nicht empfohlen.",
+    "id": 162
+  },
+  {
+    "statement": "Vitamin D is one mandatory supplement that has to be given from 0 to 1 year.",
+    "id": 163
+  },
+  {
+    "statement": "Giving vitamin D from 0 to 1 year has the benefit of helping in calcium absorption.",
+    "id": 164
+  },
+  {
+    "statement": "Vitamin D has a lot of role in building the child's immunity.",
+    "id": 165
+  },
+  {
+    "statement": "Vitamin D has a lot of role in the development of the child. ",
+    "id": 166
+  },
+  {
+    "statement": "For a healthy term baby, vitamin D3 is the only supplement that is needed.",
+    "id": 167
+  },
+  {
+    "statement": "Babys sollten Vitamin D Präparate gegeben werden.",
+    "id": 168
+  },
+  {
+    "statement": "Vitamin D Präparate sollten ab der Geburt gegeben werden. (Regel 1)",
+    "id": 169
+  },
+  {
+    "statement": "Babys sollen keine Vitamin D Präparat einnehmen, in welchen Fluorid enthalten ist. ",
+    "id": 170
+  },
+  {
+    "statement": "Vitamin D3 soll nicht alleine genommen werden, sondern immer mit K2 kombiniert werden. (Regel 2)",
+    "id": 171
+  },
+  {
+    "statement": "Vitamin D3, K2 ist fettlöslich.",
+    "id": 172
+  },
+  {
+    "statement": "Vitamin D3, K2 sollte unbedingt mit zum Beispiel Omega 3 oder zu einer Mahlzeit eingenommen werden. (Regel 3)",
+    "id": 173
+  },
+  {
+    "statement": "Für Babys ist die Einnahme von Omega 3, Vitamin D3, K2 und Magnesium zusammen geeignet, da sich diese drei prima ergänzen und das super mit der Aufnahme funktioniert.",
+    "id": 174
+  },
+  {
+    "statement": "Breast milk doesn't give a baby enough vitamin D. ",
+    "id": 175
+  },
+  {
+    "statement": "Babies can't safely get enough sunlight to get enough vitamin D.",
+    "id": 176
+  },
+  {
+    "statement": "It is recommended that babies be given 400 IU of vitamin D daily, because they cannot get enough vitamin D from sunlight and breast milk. ",
+    "id": 177
+  },
+  {
+    "statement": "A vitamin D supplement is essential for strong bones.",
+    "id": 178
+  },
+  {
+    "statement": "A vitamin D supplement is essential for strong teeth.",
+    "id": 179
+  },
+  {
+    "statement": "A vitamin D supplement is essential for calcium absorption.",
+    "id": 180
+  },
+  {
+    "statement": "A vitamin D supplement is essential for supporting the immune system. ",
+    "id": 181
+  },
+  {
+    "statement": "It is suitable to give one tiny drop of vitamin D a day into a baby's water, food, or even straight on a spoon.",
+    "id": 182
+  },
+  {
+    "statement": "For best absorption, pair vitamin D with a healthy fat like avocado.",
+    "id": 183
+  },
+  {
+    "statement": "For best absorption, pair vitamin D with a healthy fat like Greek yogurt.",
+    "id": 184
+  },
+  {
+    "statement": "For best absorption, pair vitamin D with a healthy fat like bone marrow. ",
+    "id": 185
+  },
+  {
+    "statement": "Vitamin D supplements, which are made with organic MCT oil, are well absorbed by babies on their own.",
+    "id": 186
+  },
+  {
+    "statement": "Vitamin D supplements containing preservatives are less suitable for babies than those without. ",
+    "id": 187
+  },
+  {
+    "statement": "Vitamin D supplements containing artificial flavors are less suitable for babies than those without. ",
+    "id": 188
+  },
+  {
+    "statement": "Vitamin D supplements containing common allergens are less suitable for babies than those without. ",
+    "id": 189
+  },
+  {
+    "statement": "Vitamin D hat eine große Bedeutung, die jedem bekannt sein sollte.",
+    "id": 190
+  },
+  {
+    "statement": "Gerade in der Schwangerschaft ist Vitamin D extrem wichtig für die Zukunft des Kindes. ",
+    "id": 191
+  },
+  {
+    "statement": "Fehlgeburten haben nicht nur, aber auch mit der Vitamin D Versorgung der werdenden Mutter zu tun. (Es besteht ein Zusammenhang)",
+    "id": 192
+  },
+  {
+    "statement": "Frühgeburten haben nicht nur, aber auch mit der Vitamin D Versorgung der werdenden Mutter zu tun. (Es besteht ein Zusammenhang)",
+    "id": 193
+  },
+  {
+    "statement": "Kardiovaskuläre Erkrankungen, haben nicht nur, aber auch mit der Vitamin D Versorgung der Mutter während der Schwangerschaft zu tun. (Es besteht ein Zusammenhang)",
+    "id": 194
+  },
+  {
+    "statement": "Autoimmunerkrankungen haben nicht nur, aber auch mit der Vitamin D Versorgung der Mutter während der Schwangerschaft zu tun. (Es besteht ein Zusammenhang)",
+    "id": 195
+  },
+  {
+    "statement": "Fettleibigkeit hat nicht nur, aber auch mit der Vitamin D Versorgung der Mutter während der Schwangerschaft zu tun. (Es besteht ein Zusammenhang)",
+    "id": 196
+  },
+  {
+    "statement": "Bei der Messung des Vitamin D Spiegels, wird für gewöhnlich das Gesamtvitamin D gemessen.",
+    "id": 197
+  },
+  {
+    "statement": "Das Gesamtvitamin D besteht aus Vitamin D an Bindungsprotein gebunden, Vitamin D an Albumin gebunden und aus einem ganz kleinen Teil bioaktivem, freiem Vitamin D.",
+    "id": 198
+  },
+  {
+    "statement": "Der kleine Teil an bioaktivem, freiem Vitamin D im Gesamtvitamin D ist entscheidend bei der Messung des Spiegels. ",
+    "id": 199
+  },
+  {
+    "statement": "In der Schwangerschaft steigt der Östradiol Spiegel an.",
+    "id": 200
+  },
+  {
+    "statement": "Wenn der Östradiol Spiegel ansteigt, dann steigt die Produktion des Vitamin D Bindungsproteins an. ",
+    "id": 201
+  },
+  {
+    "statement": "Wenn die Produktion des Vitamin D Bindungsproteins ansteigt, bedeutet das, dass der Gesamtvitamin D Spiegel ansteigt, obwohl das freie bioaktive Vitamin D relativ konstant bleibt.",
+    "id": 202
+  },
+  {
+    "statement": "Schwangere könnten rein theoretisch einen relativ guten Wert des Gesamtvitamin D haben, aber einen geringen, zu kleinen, zu tiefen Wert von bioaktivem, freiem Vitamin D. ",
+    "id": 203
+  },
+  {
+    "statement": "In der Schwangerschaft könnte man zur noch besseren Differenzierung der Vitamin D Versorgung das bioaktive, freie Vitamin D messen.",
+    "id": 204
+  },
+  {
+    "statement": "Exclusively breastfed infants need to be supplemented with vitamin D.",
+    "id": 205
+  },
+  {
+    "statement": "Vitamin D helps support healthy bone development.",
+    "id": 206
+  },
+  {
+    "statement": "Vitamin D helps prevent something called rickets.",
+    "id": 207
+  },
+  {
+    "statement": "Rickets is a condition that causes weak bones in babies.",
+    "id": 208
+  },
+  {
+    "statement": "Rickets is a condition that causes deformed bones in babies.",
+    "id": 209
+  },
+  {
+    "statement": "Breast milk alone does not provide enough vitamin D for babies. ",
+    "id": 210
+  },
+  {
+    "statement": "It's recommended to supplement breastfed babies with 400 IUs of vitamin D daily, starting within the first few days of life.",
+    "id": 211
+  },
+  {
+    "statement": "It's suitable to get a baby-specific vitamin D supplement.",
+    "id": 212
+  },
+  {
+    "statement": "If a baby is exclusively breastfed at the breast, the mother could put a drop on her nipple. ",
+    "id": 213
+  },
+  {
+    "statement": "If a baby is getting bottles, a drop could be put in their bottle.",
+    "id": 214
+  },
+  {
+    "statement": "If a baby is exclusively breastfed, vitamin D is a recommended supplement to support healthy growth.",
+    "id": 215
+  },
+  {
+    "statement": "If a baby is exclusively breastfed, vitamin D is a recommended supplement to support healthy bone development. ",
+    "id": 216
+  },
+  {
+    "statement": "One drop of vitamin D provides the recommended daily amount of vitamin D. ",
+    "id": 217
+  },
+  {
+    "statement": "Vitamin D supplementation should start from day one.",
+    "id": 218
+  },
+  {
+    "statement": "Vitamin D is also called the sunshine vitamin.",
+    "id": 219
+  },
+  {
+    "statement": "Many babies need an extra boost of vitamin D, often in the form of a supplement. ",
+    "id": 220
+  },
+  {
+    "statement": "Babies may get vitamin D through a liquid vitamin D supplement, or if the caregiver is nursing, then they can take a higher dose vitamin D supplement.",
+    "id": 221
+  },
+  {
+    "statement": "Vitamin D supplementation for babies should be done under clinical supervision. ",
+    "id": 222
+  },
+  {
+    "statement": "Vitamin D isn't a nutrient that's found in a lot of foods.",
+    "id": 223
+  },
+  {
+    "statement": "If a baby has a deficiency, it is recommended to lean on that vitamin D supplement.",
+    "id": 224
+  },
+  {
+    "statement": "There are a few foods that do have vitamin D, like oily fish.",
+    "id": 225
+  },
+  {
+    "statement": "There are a few foods that do have vitamin D, like egg yolks.",
+    "id": 226
+  },
+  {
+    "statement": "There are a few foods that do have vitamin D, like oily fish, egg yolks, and UV treated mushrooms.",
+    "id": 227
+  },
+  {
+    "statement": "There are a few foods that do have vitamin D, like some vitamin D fortified foods. ",
+    "id": 228
+  },
+  {
+    "statement": "Vitamin D is known as a sunshine vitamin.",
+    "id": 229
+  },
+  {
+    "statement": "It's important to actually limit sun exposure for a baby, due to the increased risk of dehydration.",
+    "id": 230
+  },
+  {
+    "statement": "It's important to actually limit sun exposure for a baby, due to the increased risk of sunburns. ",
+    "id": 231
+  },
+  {
+    "statement": "Vitamin D supports bone health.",
+    "id": 232
+  },
+  {
+    "statement": "Vitamin D may help with immune health.",
+    "id": 233
+  },
+  {
+    "statement": "Vitamin D may help with hormone health.",
+    "id": 234
+  },
+  {
+    "statement": "Vitamin D may help with more apart from immune health and hormone health.",
+    "id": 235
+  },
+  {
+    "statement": "It's really common to have low vitamin D levels.",
+    "id": 236
+  },
+  {
+    "statement": "X-rays from forearms of children with rickets may show that the ends of the bones, kind of where the growth plates are, are flared out like really wide.",
+    "id": 237
+  },
+  {
+    "statement": "Rickets is a low vitamin D level.",
+    "id": 238
+  },
+  {
+    "statement": "We see rickets in babies who are breastfed and not given vitamin D Supplementation. ",
+    "id": 239
+  },
+  {
+    "statement": "A vitamin D level of less than 3 is low. ",
+    "id": 240
+  },
+  {
+    "statement": "Vitamin D is important for calcium absorption.",
+    "id": 241
+  },
+  {
+    "statement": "A vitamin D deficiency can lead to low calcium levels.",
+    "id": 242
+  },
+  {
+    "statement": "Since it is known that maternal breast milk is low in vitamin D, it is recommended that infants who are fed breast milk start taking vitamin D supplements in the first few days of life.",
+    "id": 243
+  },
+  {
+    "statement": "It is generally recommended to take about 400 units of vitamin D per day so babies getting rickets can be avoided. ",
+    "id": 244
+  },
+  {
+    "statement": "If a little guy with rickets has a fracture from a low mechanism fall, it was probably because of the rickets.",
+    "id": 245
+  },
+  {
+    "statement": "If a baby is receiving breast milk, it is recommended to talk to a pediatrician about supplementing with vitamin D. ",
+    "id": 246
+  },
+  {
+    "statement": "Es ist Schulmedizinisch anerkannt, dass Säuglingen zur Rachitisprophylaxe Vitamin D gegeben wird. ",
+    "id": 247
+  },
+  {
+    "statement": "Es ist Schulmedizinisch anerkannt, dass Vitamin D Säuglingen für die Knochenbildung gegeben wird.",
+    "id": 248
+  },
+  {
+    "statement": "For children with autism, a test that needs to get done is a measure of vitamin D levels.",
+    "id": 249
+  },
+  {
+    "statement": "Vitamin D affects how the brain neurons connect with each other.",
+    "id": 250
+  },
+  {
+    "statement": "Vitamin D affects how children communicate. ",
+    "id": 251
+  },
+  {
+    "statement": "If a child's vitamin D is low, there are chances there might be delays in speech.",
+    "id": 252
+  },
+  {
+    "statement": "In den ersten 12 bis 18 Lebensmonaten, also bis zum zweiten Frühsommer, sollte laut offiziellen Empfehlungen täglich Vitamin D gegeben werden. ",
+    "id": 253
+  },
+  {
+    "statement": "Viele Eltern setzten nach den ersten 12 bis 18 Lebensmonaten, also bis zum zweiten Frühsommer, das Vitamin D ab, oft auf Anraten eines Arztes. ",
+    "id": 254
+  },
+  {
+    "statement": "Es ist falsch, dass viele Eltern nach den ersten 12 bis 18 Lebensmonaten, also bis zum zweiten Frühsommer, das Vitamin D absetzten.",
+    "id": 255
+  },
+  {
+    "statement": "Eine tägliche Vitamin D Substitution jenseits des zweiten Lebensjahres bringt Vorteile, wie die Vermeidung von Rachitis mit sich.",
+    "id": 256
+  },
+  {
+    "statement": "Eine tägliche Vitamin D Substitution jenseits des zweiten Lebensjahres bringt Vorteile, wie die Vermeidung von Autoimmunerkrankungen mit sich.",
+    "id": 257
+  },
+  {
+    "statement": "Eine tägliche Vitamin D Substitution jenseits des zweiten Lebensjahres bringt Vorteile, wie die Vermeidung von Asthma Bronchial und ähnlichen Erkrankungen mit sich.",
+    "id": 258
+  },
+  {
+    "statement": "In Wintermonaten ist viel zu wenig Sonnenlicht da, um genügend Vitamin D zu bilden (Standort des Kontos: Deutschland). ",
+    "id": 259
+  },
+  {
+    "statement": "Im Sommer wird die Haut von Kinder mit Sonnencreme oder UV-Kleidung geschützt, sodass das Sonnenlicht nicht genug durch die Haut dringen kann, um das Vitamin D zu bilden. ",
+    "id": 260
+  },
+  {
+    "statement": "Viele Kinder in deutschsprachigen Ländern haben ein Vitamin D Mangel und teilweise sogar schwer.",
+    "id": 261
+  },
+  {
+    "statement": "Es ist für Kinder empfehlenswert täglich Vitamin D zu substituiert, um sie zu schützen. ",
+    "id": 262
+  },
+  {
+    "statement": "Die Bedeutung von Vitamin D für die Gesundheit von Kindern ist unumstritten. ",
+    "id": 263
+  },
+  {
+    "statement": "Die Bedeutung von Vitamin D für die Entwicklung von Kindern ist unumstritten. ",
+    "id": 264
+  },
+  {
+    "statement": "Vitamin D wird in den ersten Lebensmonaten meist im Rahmen der U-Untersuchungen vom Kinderarzt via Rezept verschrieben. ",
+    "id": 265
+  },
+  {
+    "statement": "Vitamin D wird mit Eintritt in das zweite Lebensjahr im Rahmen der U-Untersuchungen vom Kinderarzt via Rezept nicht mehr verschrieben. ",
+    "id": 266
+  },
+  {
+    "statement": "Mit Eintritt in das zweite Lebensjahr wird davon ausgegangen, dass Vitamin D via Ernährung und Sonne ausreichend zur Verfügung steht. ",
+    "id": 267
+  },
+  {
+    "statement": "Mit Eintritt in das zweite Lebensjahr rutscht die Versorgung mit Vitamin D bei vielen Kindern in einen defizitären Bereich.",
+    "id": 268
+  },
+  {
+    "statement": "Insbesondere saisonal besteht ein hoher Bedarf einer weiterführenden Supplementierung von Vitamin D nach Eintritt des zweiten Lebensjahres.",
+    "id": 269
+  },
+  {
+    "statement": "Breastfeeding moms have probably been told by their doctor to supplement with vitamin D drops because their breast milk is deficient. ",
+    "id": 270
+  },
+  {
+    "statement": "Maybe breast milk is deficient in vitamin D for a reason.",
+    "id": 271
+  },
+  {
+    "statement": "Breast milk is naturally dominant in retinol, which is vitamin A, over vitamin D because it's crucial for copper bioavailability.",
+    "id": 272
+  },
+  {
+    "statement": "Breast milk is naturally dominant in retinol, which is vitamin A, over vitamin D because it's crucial for iron management.",
+    "id": 273
+  },
+  {
+    "statement": "If a baby is given too much vitamin D, this can actually suppress the vitamin A. ",
+    "id": 274
+  },
+  {
+    "statement": "Too much vitamin D for babies can result in systemic inflammation.",
+    "id": 275
+  },
+  {
+    "statement": "Systemic inflammation can result in chronic symptoms such as eczema.",
+    "id": 276
+  },
+  {
+    "statement": "Systemic inflammation can result in chronic symptoms such as asthma.",
+    "id": 277
+  },
+  {
+    "statement": "Systemic inflammation can result in worse outcomes than chronic symptoms such as eczema and asthma.",
+    "id": 278
+  },
+  {
+    "statement": "Vitamin D as a single compound without cofactors can cause immune dysregulation in children. ",
+    "id": 279
+  },
+  {
+    "statement": "Vitamin D as a single compound without cofactors can cause immune dysregulation in babies. ",
+    "id": 280
+  },
+  {
+    "statement": "Breast milk is deficient in vitamin D for a reason.",
+    "id": 281
+  },
+  {
+    "statement": "Vitamin D ist bei Kindern entscheidend für die Entwicklung.",
+    "id": 282
+  },
+  {
+    "statement": "Vitamin D fördert starke Knochen.",
+    "id": 283
+  },
+  {
+    "statement": "Vitamin D unterstützt bei Kinder das Immunsystem, um sie gesund zu halten. ",
+    "id": 284
+  },
+  {
+    "statement": "Vitamin D-Mangel bei Kindern kann zu Wachstumsstörungen führen.",
+    "id": 285
+  },
+  {
+    "statement": "Müdigkeit kann ein mögliches Anzeichen für ein Vitamin D Mangel sein. ",
+    "id": 286
+  },
+  {
+    "statement": "Konzentrationsschwierigkeiten können ein mögliches Anzeichen für ein Vitamin D Mangel sein.",
+    "id": 287
+  },
+  {
+    "statement": "Ein schwaches Immunsystem kann ein mögliches Anzeichen für ein Vitamin D Mangel sein.",
+    "id": 288
+  },
+  {
+    "statement": "Schwindel kann ein mögliches Anzeichen für ein Vitamin D Mangel sein.",
+    "id": 289
+  },
+  {
+    "statement": "Kreislaufprobleme können ein mögliches Anzeichen für ein Vitamin D Mangel sein.",
+    "id": 290
+  },
+  {
+    "statement": "Muskelschmerzen können ein mögliches Anzeichen für ein Vitamin D Mangel sein.",
+    "id": 291
+  },
+  {
+    "statement": "Gelenkschmerzen können ein mögliches Anzeichen für ein Vitamin D Mangel sein.",
+    "id": 292
+  },
+  {
+    "statement": "Kopfschmerzen können ein mögliches Anzeichen für ein Vitamin D Mangel sein.",
+    "id": 293
+  },
+  {
+    "statement": "Karies kann ein Anzeichen für einen Vitamin-D-Mangel bei Kindern sein. ",
+    "id": 294
+  },
+  {
+    "statement": "Häufige Verstopfungen können Anzeichen für einen Vitamin-D-Mangel bei Kindern sein. ",
+    "id": 295
+  },
+  {
+    "statement": "Sonnenlicht ist eine hervorragende Quelle für Vitamin D.",
+    "id": 296
+  },
+  {
+    "statement": "Neben dem Sonnenlicht gibt es weitere Möglichkeiten, um genug Vitamin D zu bekommen. ",
+    "id": 297
+  },
+  {
+    "statement": "Nahrungsergänzungsmittel können dabei helfen, den Vitamin-D-Spiegel eines Kindes zu erhalten. ",
+    "id": 298
+  },
+  {
+    "statement": "Vitamin D ist für Kinder von Bedeutung. ",
+    "id": 299
+  },
+  {
+    "statement": "Vitamin D Supplementation sorgt bei Kindern für eine gesunde Entwicklung.",
+    "id": 300
+  },
+  {
+    "statement": "Vitamin D Supplementation sorgt bei Kindern für ein starkes Immunsystem.",
+    "id": 301
+  },
+  {
+    "statement": "Vitamin D supplementation is recommended for all exclusively breastfed babies living in Ireland.",
+    "id": 302
+  },
+  {
+    "statement": "Vitamin D supplementation is recommended if a baby is living in Ireland and is combined feeding and taking less than 300 mls of formula a day.",
+    "id": 303
+  },
+  {
+    "statement": "If a baby is formula feeding in those early days and they are not taking 300 mls then it is recommended the baby takes 5 micrograms of vitamin D daily. ",
+    "id": 304
+  },
+  {
+    "statement": "If a baby is formula feeding and taking more than 300 mls of formula a day, then there is no need to worry, as formulas are supplemented with vitamin D nowadays. ",
+    "id": 305
+  },
+  {
+    "statement": "Vitamin D is really important for healthy development. ",
+    "id": 306
+  },
+  {
+    "statement": "Vitamin D is really important for healthy brain growth.",
+    "id": 307
+  },
+  {
+    "statement": "Es ist empfehlenswert bei Neugeborenen im ersten Lebensjahr Vitamin D zusätzlich zu geben.",
+    "id": 308
+  },
+  {
+    "statement": "Die offizielle Empfehlung lautet ab dem ersten Lebensjahr kein Vitamin D zu supplementieren, da die Kinder draußen sind und Vitamin D dann auch selber gut aufnehmen können. ",
+    "id": 309
+  },
+  {
+    "statement": "Wenn die Sonne scheint cremen Eltern ihre Kinder mit Sonnencreme ein und das bedeutet, dass Vitamin D nicht gebildet werden kann. ",
+    "id": 310
+  },
+  {
+    "statement": "Es empfiehlt sich nach dem ersten Lebensjahr weiterhin Vitamin D zu geben. ",
+    "id": 311
+  },
+  {
+    "statement": "Bei einem einjährigen Kind werden andere Vitamin D Dosierungen als bei Erwachsenen gegeben.",
+    "id": 312
+  },
+  {
+    "statement": "Geeignet ist eine Dosierung von 1.000 Einheiten Vitamin D pro Tag bei einem einjährigen Kind.",
+    "id": 313
+  },
+  {
+    "statement": "Geeignet ist eine Dosierung von 2.000 Einheiten Vitamin D pro Tag bei einem fast dreijährigem Kind.",
+    "id": 314
+  },
+  {
+    "statement": "Eine Supplementierung von Vitamin D ist sehr gut bei Allergien.",
+    "id": 315
+  },
+  {
+    "statement": "Eine Supplementierung von Vitamin D ist sehr gut bei Neurodermitis.",
+    "id": 316
+  },
+  {
+    "statement": "Eine Supplementierung von Vitamin D ist sehr gut bei ADHS.",
+    "id": 317
+  },
+  {
+    "statement": "Ein Vitamin D Mangel bei Schwangeren ist keine Seltenheit. ",
+    "id": 318
+  },
+  {
+    "statement": "Ein Vitamin D Mangel bei Schwangeren erhöht die Empfänglichkeit des Säuglings für Infektionen mit dem respiratorischen RSV. ",
+    "id": 319
+  },
+  {
+    "statement": "Das Immunsystem eines Kindes bei der Geburt hängt von Vitamin D3-Spiegel seiner Mutter ab. ",
+    "id": 320
+  },
+  {
+    "statement": "Hat die Mutter einen niedrigen Vitamin D3-Spiegel, kommen Kinder mit niedrigem Vitamin D3-Spiegel zur Welt. ",
+    "id": 321
+  },
+  {
+    "statement": "Kinder, deren Mütter kein Vitamin D3 hat, hatten ein sechsfach erhöhtes Risiko, sich mit einer tiefen Atemerkrankung, mit RSV, sich zu infizieren. ",
+    "id": 322
+  },
+  {
+    "statement": "Ohne Vitamin D3 der Mutter während der Schwangerschaft kommen Kinder mit allerlei Behinderungen zur Welt.",
+    "id": 323
+  },
+  {
+    "statement": "Ohne Vitamin D3 der Mutter während der Schwangerschaft kommen Kinder mit halbem Herz zur Welt.",
+    "id": 324
+  },
+  {
+    "statement": "Schwangere sollten den Vitamin D3 Spiegel hochfahren, damit diese die Schwangerschaft überstehe.",
+    "id": 325
+  },
+  {
+    "statement": "Schwangere sollten den Vitamin D3 Spiegel hochfahren, damit diese keinen früheren Schwangerschaftsabort kriegen. ",
+    "id": 326
+  },
+  {
+    "statement": "Schwangere sollten den Vitamin D3 Spiegel hochfahren, damit diese keinen Schwangerschaftsblutdruck kriegen. ",
+    "id": 327
+  },
+  {
+    "statement": "Schwangere sollten den Vitamin D3 Spiegel hochfahren, damit diese kein Schwangerschaftsdiabetes kriegen. ",
+    "id": 328
+  },
+  {
+    "statement": "Ist der Vitamin D3 Spiegel der Schwangeren hoch, dann hat das Kind, wenn es auf die Welt kommt, einen tollen Vitamin D3-Spiegel.",
+    "id": 329
+  },
+  {
+    "statement": "Ist der Vitamin D3 Spiegel der Schwangeren hoch, dann hat das Kind, wenn es auf die Welt kommt, ein natürliches Immunsystem.",
+    "id": 330
+  },
+  {
+    "statement": "Hat eine Schwangere ein Mangel an Vitamin D3 wegen der Schwangerschaft, kann das negative Folgen für Mutter und Fötus haben, wie z.B. schlechtes Wachstum.",
+    "id": 331
+  },
+  {
+    "statement": "Hat eine Schwangere ein Mangel an Vitamin D3 wegen der Schwangerschaft, kann das negative Folgen für Mutter und Fötus haben, wie z.B. erhöhtes Risiko für Frühgeburten.",
+    "id": 332
+  },
+  {
+    "statement": "Hat eine Schwangere ein Mangel an Vitamin D3 wegen der Schwangerschaft, kann das negative Folgen für Mutter und Fötus haben, wie z.B. erhöhtes Risiko für angeborene Missbildungen. ",
+    "id": 333
+  },
+  {
+    "statement": "Haben Schwangere einen tollen Vitamin D3 Spiegel, was in Deutschland nicht der Fall ist, haben die Kinder ein schwaches Immunsystem. ",
+    "id": 334
+  },
+  {
+    "statement": "In Deutschland ist es nicht der Fall, dass Schwangere einen tollen Vitamin D3 Spiegel haben.",
+    "id": 335
+  },
+  {
+    "statement": "Als Schwangere ist es empfehlenswert den Vitamin D Spiegel zwischen 80 und 100 Nanogramm pro Millimeter hochzufahren, damit das Kind für die Nachwelt gewappnet ist. ",
+    "id": 336
+  },
+  {
+    "statement": "Es gibt einen Zusammenhang zwischen der Entstehung von einer frühkindlichen Karies, also einer Karies, die innerhalb der ersten drei Lebensjahre auftritt und einem Vitamin D Mangel.",
+    "id": 337
+  },
+  {
+    "statement": "Wenn Schwangere ihrem Kind einen möglichst guten Start geben wollen, sollte der Vitamin D Spiegel bei einem Gynäkologen getestet werden.",
+    "id": 338
+  },
+  {
+    "statement": "Wenn Schwangere das Risiko in Bezug auf Kreidezähne senken wollen, sollte der Vitamin D Spiegel bei einem Gynäkologen getestet werden. ",
+    "id": 339
+  },
+  {
+    "statement": "Wenn Schwangere das Risiko in Bezug auf Karies senken wollen, sollte der Vitamin D Spiegel bei einem Gynäkologen getestet werden. ",
+    "id": 340
+  },
+  {
+    "statement": "Vitamin D sollte gerade jetzt im Winter, für ganz, ganz wichtig genommen werden.",
+    "id": 341
+  },
+  {
+    "statement": "Most breastfed babies do need a vitamin D supplement because they are probably deficient in vitamin D, because the mother doesn't go out into the sun very much, and when she does, she is told to cover herself with sunscreen.",
+    "id": 342
+  },
+  {
+    "statement": "Vitamin D is made from the sunshine. ",
+    "id": 343
+  },
+  {
+    "statement": "Babies are never put out in the sun or else putting sunscreen all over them.",
+    "id": 344
+  },
+  {
+    "statement": "Babies don't get any sun, which means that unless they get it through the breast milk, they are not really getting it.",
+    "id": 345
+  },
+  {
+    "statement": "When the levels in the milk are low because the mother is low, the baby needs vitamin D. ",
+    "id": 346
+  },
+  {
+    "statement": "One great option to talk about with the pediatrician is vitamin D drops. ",
+    "id": 347
+  },
+  {
+    "statement": "One way to provide a baby with vitamin D is for the mother to take a vitamin D supplement in a larger amount to take care of her own vitamin D deficiency, and then it comes through the milk, and the baby gets it through the milk.",
+    "id": 348
+  },
+  {
+    "statement": "When a mother is not deficient, the baby should be just fine.",
+    "id": 349
+  },
+  {
+    "statement": "Sun exposure for babies should be discussed with a pediatrician first so that the mother gets some sun and the baby gets a little bit of sun without exposing themself to harmful cancerous rays. ",
+    "id": 350
+  },
+  {
+    "statement": "Formula-fed babies get vitamin D through the formula.",
+    "id": 351
+  },
+  {
+    "statement": "They put the right amount in the formula so exclusively formula-fed babies don't take vitamin D drops. ",
+    "id": 352
+  },
+  {
+    "statement": "Breastfed babies take vitamin D drops.",
+    "id": 353
+  },
+  {
+    "statement": "Kinder können Nahrungsergänzungsmittel zu sich nehmen. ",
+    "id": 354
+  },
+  {
+    "statement": "Kleine Kinder sollten bei Nahrungsergänzungsmitteln ungefähr ein Viertel der Erwachsenen-Dosis einnehmen. ",
+    "id": 355
+  },
+  {
+    "statement": "Schulkinder sollten bei Nahrungsergänzungsmitteln ungefähr die Hälfte der Erwachsenen-Dosis einnehmen. ",
+    "id": 356
+  },
+  {
+    "statement": "Auch Kinder können unterversorgt sein.",
+    "id": 357
+  },
+  {
+    "statement": "Vitamin D ist gerade in den Wintermonaten ein relevantes Thema.",
+    "id": 358
+  },
+  {
+    "statement": "Vitamin D solltet Kindern auf jeden Fall verabreicht werden, damit sie lange gesund bleiben.",
+    "id": 359
+  },
+  {
+    "statement": "Vitamin D solltet Kindern auf jeden Fall verabreicht werden, damit sie ohne großartige Erkältungen durch den Winter kommen.",
+    "id": 360
+  },
+  {
+    "statement": "Die empfohlene tägliche Vitamin-D-Dosis für Neugeborene liegt bei 500 IE.",
+    "id": 361
+  },
+  {
+    "statement": "Es ist wichtig Vitamin-D-Präparate mit Vitamin-K2 zu kombinieren. ",
+    "id": 362
+  },
+  {
+    "statement": "If a child, if a baby is born and they're vitamin D deficient, it increases their risk for schizophrenia.",
+    "id": 363
+  },
+  {
+    "statement": "If a child, if a baby is born and they're vitamin D deficient, it increases their risk for autism.",
+    "id": 364
+  },
+  {
+    "statement": "If a child, if a baby is born and they're vitamin D deficient, it increases their risk for ADHD.",
+    "id": 365
+  },
+  {
+    "statement": "Vitamin D deficiency doesn't cause autism.",
+    "id": 366
+  },
+  {
+    "statement": "Vitamin D deficiency doesn't cause schizophrenia. ",
+    "id": 367
+  },
+  {
+    "statement": "There is a correlation between a vitamin D deficiency and a whole plethora of different mental health disorders. ",
+    "id": 368
+  },
+  {
+    "statement": "A lot of people don't realize they should be taking vitamin D when they are pregnant. ",
+    "id": 369
+  },
+  {
+    "statement": "Vitamin D should be taken during pregnancy.",
+    "id": 370
+  },
+  {
+    "statement": "Vitamin D deficiency is seen all the time in kids.",
+    "id": 371
+  },
+  {
+    "statement": "Vitamin D deficiency is even more common in adults than in kids.",
+    "id": 372
+  },
+  {
+    "statement": "If a woman is trying to get pregnant, it's highly recommended to get her vitamin D levels checked because if a pregnant mom has a vitamin D deficiency, that ultimately ties over to the baby.",
+    "id": 373
+  },
+  {
+    "statement": "If a woman is trying to get pregnant, it's highly recommended to get her vitamin D levels checked because if a pregnant mom has a vitamin D deficiency, it can have some sort of impact on the baby's neurodevelopment.",
+    "id": 374
+  },
+  {
+    "statement": "If a woman is pregnant, it's highly recommended to get the vitamin D levels checked because if a pregnant mom has a vitamin D deficiency, that ultimately ties over to the baby.",
+    "id": 375
+  },
+  {
+    "statement": "If a woman is pregnant, it's highly recommended to get her vitamin D levels checked because if a pregnant mom has a vitamin D deficiency, it can have some sort of impact on the baby's neurodevelopment.",
+    "id": 376
+  },
+  {
+    "statement": "Maternal vitamin D deficiency increases the risk for autism. ",
+    "id": 377
+  },
+  {
+    "statement": "Vitamin D is important.",
+    "id": 378
+  },
+  {
+    "statement": "People realize that vitamin D is important, but they don't realize how important it actually is.",
+    "id": 379
+  },
+  {
+    "statement": "Vitamin D more so acts as a hormone in our body since the body is able to naturally produce it. ",
+    "id": 380
+  },
+  {
+    "statement": "Vitamin D has an influence on just about every single system in the body, from the brain, to the stomach, to the muscles, to the bones.",
+    "id": 381
+  },
+  {
+    "statement": "If somebody has a vitamin D deficiency, their body is just not going to feel good. ",
+    "id": 382
+  },
+  {
+    "statement": "Vitamin D deficiency is correlated with depression.",
+    "id": 383
+  },
+  {
+    "statement": "Vitamin D deficiency is correlated with anxiety. ",
+    "id": 384
+  },
+  {
+    "statement": "It is recommended to get the vitamin D levels checked when doing blood lab.",
+    "id": 385
+  },
+  {
+    "statement": "Sometimes being out in the sun or even taking a vitamin D supplement isn't enough, and it requires more than just that. ",
+    "id": 386
+  },
+  {
+    "statement": "The standard range for vitamin D is between 30 and 100.",
+    "id": 387
+  },
+  {
+    "statement": "Vitamin D is a fat-soluble vitamin.",
+    "id": 388
+  },
+  {
+    "statement": "Vitamin D toxicity can occur. ",
+    "id": 389
+  },
+  {
+    "statement": "It is recommended to not have too much vitamin D because it gets stored in the body. ",
+    "id": 390
+  },
+  {
+    "statement": "It is recommended to always get the levels checked before doing vitamin D supplementation, especially a higher dose of supplementation.",
+    "id": 391
+  },
+  {
+    "statement": "If someone has a vitamin D deficiency and starts getting the right dose of vitamin D, the body is going to feel a whole lot better.",
+    "id": 392
+  },
+  {
+    "statement": "If someone has a vitamin D deficiency and starts getting the right dose of vitamin D, the brain is going to feel a whole lot better.",
+    "id": 393
+  },
+  {
+    "statement": "Babies need to be given vitamin D drops.",
+    "id": 394
+  },
+  {
+    "statement": "Vitamin D is a vitamin within the body.",
+    "id": 395
+  },
+  {
+    "statement": "Vitamin D is pretty important for bone development. ",
+    "id": 396
+  },
+  {
+    "statement": "Vitamin D is pretty important for some really big benefits other than bone development. ",
+    "id": 397
+  },
+  {
+    "statement": "Vitamin D is found in usually fairly low quantities within breast milk, so they normally recommend vitamin D supplementation.",
+    "id": 398
+  },
+  {
+    "statement": "There are vitamin D drops that can be given directly to babies.",
+    "id": 399
+  },
+  {
+    "statement": "The recommended dosage for a baby is between 400 to 600 units of vitamin D once a day.",
+    "id": 400
+  },
+  {
+    "statement": "400 to 600 units of vitamin D are usually well tolerated by most babies.",
+    "id": 401
+  },
+  {
+    "statement": "Breastfeeding mothers can take 6,400 units of vitamin D, and this will increase the amount of vitamin D that's actually found within the breast milk to then transfer over to the baby.",
+    "id": 402
+  },
+  {
+    "statement": "If a mother is breastfeeding, she can either just take a vitamin D supplement and not have to worry about also giving it to the baby or she can just give the vitamin D drops to the baby. ",
+    "id": 403
+  },
+  {
+    "statement": "Selbst wenn Kinder im Sommer viel sausen waren ist der Vitamin-D Speicher spätestens im Herbst komplett leer. ",
+    "id": 404
+  },
+  {
+    "statement": "Die meisten Menschen merken nicht, dass der Vitamin-D Speicher eines Kindes komplett leer ist, bis das Immunsystem von Kindern schlapp macht.",
+    "id": 405
+  },
+  {
+    "statement": "Wenn das Immunsystem von Kindern schlapp macht, kann das darauf zurückzuführen sein, dass der Vitamin-D Speicher komplett leer ist.",
+    "id": 406
+  },
+  {
+    "statement": "Es ist empfehlenswert jedes Jahr im Herbst bei den Kindern den Vitamin-D-Spiegel mit einem Testkit zu prüfen.",
+    "id": 407
+  },
+  {
+    "statement": "Der Bedarf an Vitamin D ist in der Schwangerschaft sehr hoch.",
+    "id": 408
+  },
+  {
+    "statement": "Es ist empfehlenswert jedes Jahr im Herbst den Vitamin-D-Spiegel bei Kindern mit einem Testkit zu prüfen, da nur so sicher gegangen werden kann, dass gezielt Vitamin D supplementiert wird.",
+    "id": 409
+  },
+  {
+    "statement": "Es ist empfehlenswert jedes Jahr im Herbst den Vitamin-D-Spiegel bei Schwangeren mit einem Testkit zu prüfen, da nur so sicher gegangen werden kann, dass gezielt Vitamin D supplementiert wird.",
+    "id": 410
+  },
+  {
+    "statement": "Es ist geeignet für Schwangere Vitamin D-Supplemente mit K2 und Magnesium zu kombinieren.",
+    "id": 411
+  },
+  {
+    "statement": "Es ist geeignet für Kinder Vitamin D-Supplemente mit K2 und Magnesium zu kombinieren.",
+    "id": 412
+  },
+  {
+    "statement": "Die Empfehlung für Kinder in Deutschland, die ab dem siebten Tag nach der Geburt Vitamin D kriegen, ist dieses bis zum ersten Geburtstag und wenn es Winter ist bis zum nächsten Frühling zu geben.",
+    "id": 413
+  },
+  {
+    "statement": "Bei bestimmten Menschengruppen, z.B. aus anderen Ländern, ist der Vitamin-D-Bedarf höher.",
+    "id": 414
+  },
+  {
+    "statement": "Je dunkler die Haut, desto mehr Sonneneinstrahlung mit einem bestimmten Winkel aus dem Weltall, wird gebraucht, damit der Körper Vitamin-D produziert.",
+    "id": 415
+  },
+  {
+    "statement": "Je heller die Haut wird, desto weniger Sonneneinstrahlung mit einem bestimmten Winkel aus dem Weltall wird gebraucht, damit der Körper Vitamin-D produziert.",
+    "id": 416
+  },
+  {
+    "statement": "Im Winter ist die Sonneneinstrahlung viel flacher.",
+    "id": 417
+  },
+  {
+    "statement": "Damit Menschen Vitamin-D produzieren können, braucht die Sonne einen bestimmten Winkel.",
+    "id": 418
+  },
+  {
+    "statement": "Im Winter wird der Winkel nicht erreicht, den die Sonne braucht, damit Menschen Vitamin-D produzieren können.",
+    "id": 419
+  },
+  {
+    "statement": "Im Sommer muss gut Vitamin-D aufgenommen werden, damit für den Winter ein Polster vorhanden ist. ",
+    "id": 420
+  },
+  {
+    "statement": "Die meisten Menschen haben einen Vitamin-D-Mangel, auch im Winter und gerade gegen Ende des Winters, weil es sehr dunkel und sehr grau ist. ",
+    "id": 421
+  },
+  {
+    "statement": "Über die Wintermonate kann Vitamin-D in den normalen Dosierungen gegeben werden. ",
+    "id": 422
+  },
+  {
+    "statement": "Es wird empfohlen Kinder, die älter sind, nur Vitamin D zu geben, wenn ein Mangel besteht, weil eine Vergiftung mit Vitamin-D möglich ist.",
+    "id": 423
+  },
+  {
+    "statement": "Vitamin-D ist ein fettlösliches Vitamin.",
+    "id": 424
+  },
+  {
+    "statement": "Bei der Einnahme von zu hohen Dosierungen von Vitamin-D, kann sich das in den Organen anreichern und deswegen muss man dabei vorsichtig sein.",
+    "id": 425
+  },
+  {
+    "statement": "Vitamin D ist ein Sonnenvitamin.",
+    "id": 426
+  },
+  {
+    "statement": "Vitamin D hat ganz viele, wichtige Vorteile für die Gesundheit von Kindern.",
+    "id": 427
+  },
+  {
+    "statement": "Vitamin D ist ganz wichtig für die Knochengesundheit.",
+    "id": 428
+  },
+  {
+    "statement": "Vitamin D ist ganz wichtig für die Knochengesundheit, denn es trägt zur normalen Aufnahme und Verwertung von Calcium und Phosphor bei.",
+    "id": 429
+  },
+  {
+    "statement": "Calcium ist essentiell für die Entwicklung starker Knochen. ",
+    "id": 430
+  },
+  {
+    "statement": "Phosphor ist essentiell für die Entwicklung starker Knochen. ",
+    "id": 431
+  },
+  {
+    "statement": "Vitamin D ist ganz wichtig für das Immunsystem. ",
+    "id": 432
+  },
+  {
+    "statement": "Vitamin D kann Kindern helfen, eine gesunde Immunantwort aufzubauen.",
+    "id": 433
+  },
+  {
+    "statement": "Vitamin D kann Kindern helfen, eine gesunde Immunantwort aufrecht zu erhalten. ",
+    "id": 434
+  },
+  {
+    "statement": "Vitamin D trägt zur Erhaltung einer normalen Muskelfunktion bei, was super wichtig ist, da Kinder noch im Wachstum sind.",
+    "id": 435
+  },
+  {
+    "statement": "Fast jedes zweite Kind in Deutschland bekommt zu wenig Vitamin D.",
+    "id": 436
+  },
+  {
+    "statement": "Viele Kinderärzte empfehlen die Vitamin D Einnahme nur bis zum ersten Lebensjahr. ",
+    "id": 437
+  },
+  {
+    "statement": "Der Körper braucht das ganze Leben lang ausreichend Vitamin D, egal ob Sommer oder Winter. ",
+    "id": 438
+  },
+  {
+    "statement": "Mehr als die Hälfte aller Kinder zwischen 1 und 17 Jahren leiden an einem Vitamin D Mangel, weil über Sonne und Ernährung nicht genug Vitamin D aufgenommen werden kann. (Standort des Kontos: Deutschland)",
+    "id": 439
+  },
+  {
+    "statement": "Es ist besonders wichtig, dass Kinder Vitamin D3 regelmäßig einnehmen. ",
+    "id": 440
+  },
+  {
+    "statement": "Es ist besonders wichtig, dass Kinder Vitamin D3 am besten in Kombination mit K2 einnehmen. ",
+    "id": 441
+  },
+  {
+    "statement": "Vitamin D3 hilft dem Körper, Calcium aus der Nahrung im Darm aufzunehmen.",
+    "id": 442
+  },
+  {
+    "statement": "Vitamin K2 sorgt dafür, dass das Calcium in den Knochen landet.",
+    "id": 443
+  },
+  {
+    "statement": "Vitamin K2 sorgt dafür, dass das Calcium in den Zähnen landet.",
+    "id": 444
+  },
+  {
+    "statement": "Vitamin K2 sorgt dafür, dass das Calcium sich nicht in den Gefäßen ablagert. ",
+    "id": 445
+  },
+  {
+    "statement": "Calcium gehört in die Knochen und Zähnen.",
+    "id": 446
+  },
+  {
+    "statement": "Vitamin D3 unterstützt den Aufbau gesunder Knochen.",
+    "id": 447
+  },
+  {
+    "statement": "Vitamin D3 unterstützt den Erhalt gesunder Knochen.",
+    "id": 448
+  },
+  {
+    "statement": "Der Prozess (Vitamin D3 unterstützt den Aufbau und Erhalt gesunder Knochen) läuft bis zum 25. Lebensjahr. ",
+    "id": 449
+  },
+  {
+    "statement": "Vitamin D3 verbessert die Knochendichte.",
+    "id": 450
+  },
+  {
+    "statement": "Vitamin D3 senkt das Risiko für Osteoporose.",
+    "id": 451
+  },
+  {
+    "statement": "Vitamin D3 stärkt das Immunsystem.",
+    "id": 452
+  },
+  {
+    "statement": "Vitamin D3 kann das Risiko für Infektionserkrankungen verringern.",
+    "id": 453
+  },
+  {
+    "statement": "Vitamin D3 kann das Risiko für Autoimmunerkrankungen verringern.",
+    "id": 454
+  },
+  {
+    "statement": "Vitamin D wirkt sich positiv auf das Herz-Kreislauf-System aus.",
+    "id": 455
+  },
+  {
+    "statement": "Vitamin D spielt eine entscheidende Rolle bei der Entwicklung des Gehirns.",
+    "id": 456
+  },
+  {
+    "statement": "Vitamin D spielt eine entscheidende Rolle bei der Funktion des Gehirns.",
+    "id": 457
+  },
+  {
+    "statement": "Kinder mit einer guten Vitamin D Versorgung leiden deutlich seltener an Atemwegsinfekten.",
+    "id": 458
+  },
+  {
+    "statement": "Kinder, die täglich etwa 30 Mikrogramm Vitamin D erhalten, haben ein 62% geringeres Risiko an Grippe zu erkranken.",
+    "id": 459
+  },
+  {
+    "statement": "Kinder, die täglich etwa 30 Mikrogramm Vitamin D erhalten, haben ein 88% niedrigeres Risiko an Diabetes Typ 1 zu erkranken. ",
+    "id": 460
+  },
+  {
+    "statement": "Eine ausreichende Versorgung mit Vitamin D3 und K2 ist für Kinder essentiell für starke Knochen.",
+    "id": 461
+  },
+  {
+    "statement": "Eine ausreichende Versorgung mit Vitamin D3 und K2 ist für Kinder essentiell für ein stabiles Immunsystem.",
+    "id": 462
+  },
+  {
+    "statement": "Eine ausreichende Versorgung mit Vitamin D3 und K2 ist für Kinder essentiell für eine gesunde Entwicklung.",
+    "id": 463
+  },
+  {
+    "statement": "Nahrungsergänzungsmittel für Kinder ist ein Trend, der Risiken birgt.",
+    "id": 464
+  },
+  {
+    "statement": "Gesunden Kindern sollten keine Nahrungsergänzungspräparate geben werden.",
+    "id": 465
+  },
+  {
+    "statement": " Nahrungsergänzungspräparate bei Kindern tun diesen nichts Gutes.",
+    "id": 466
+  },
+  {
+    "statement": " Nahrungsergänzungspräparate bei Kindern stärken nicht das Immunsystem.",
+    "id": 467
+  },
+  {
+    "statement": " Nahrungsergänzungspräparate bei Kindern helfen den Kindern nicht besser durch die Wintersaison zu kommen.",
+    "id": 468
+  },
+  {
+    "statement": " Nahrungsergänzungspräparate bei Kindern helfen den Kindern nicht dabei, weniger Infekt zu haben.",
+    "id": 469
+  },
+  {
+    "statement": "Ein gesundes, normal entwickeltes Kind mit einer normalen Mischkost braucht keine Nahrungsergänzungsmittel. ",
+    "id": 470
+  },
+  {
+    "statement": "Vitamin D ist essentiell wichtig fürs Wachstum von Kindern, daher wird es bis zum zweiten Lebensjahr verabreicht oder genauer gesagt bis zum zweiten erlebten Frühling der Kinder. ",
+    "id": 471
+  },
+  {
+    "statement": "Gesunde Kinder brauchen keine Tropfen, keine Bärchen oder irgendwelche anderen Ergänzungspräparate.",
+    "id": 472
+  },
+  {
+    "statement": "Ein gesundes, normal entwickeltes Kind mit einer normalen Mischkost braucht keine Nahrungsergänzungsmittel. ",
+    "id": 473
+  },
+  {
+    "statement": " 9,4 % der Schulkinder haben vor dem Winter einen Vitamin D-Werte über 30 Nanogramm pro Milliliter.",
+    "id": 474
+  },
+  {
+    "statement": " 9,4 % der Schulkinder sind anständig mit Vitamin D versorgt.",
+    "id": 475
+  },
+  {
+    "statement": "Mit einen Vitamin D-Werte über 30 Nanogramm pro Milliliter sind Kinder anständig versorgt",
+    "id": 476
+  },
+  {
+    "statement": "30 Nanogramm pro Milliliter ist kein toller Wert, aber es ist besser als eben noch drunter. ",
+    "id": 477
+  },
+  {
+    "statement": "Ein Vitamin D Wert von 30 Nanogramm pro Milliliter ist okay.",
+    "id": 478
+  },
+  {
+    "statement": "0,9 % der Schulkinder haben nach dem Winter einen Vitamin D-Werte über 30 Nanogramm pro Milliliter.",
+    "id": 479
+  },
+  {
+    "statement": "Kinder sollten mit Vitamin D versorgt werden.",
+    "id": 480
+  },
+  {
+    "statement": "Geeignet ist bei Kindern eine Dosierung von 1500 bis 2000 Einheiten Vitamin D ungefähr vier bis fünf Mal die Woche.",
+    "id": 481
+  },
+  {
+    "statement": "Die Einnahme von Vitamin D zusammen mit einer fettreichen Mahlzeit verbessert die Aufnahme.",
+    "id": 482
+  },
+  {
+    "statement": "Es ist empfehlenswert, dass Kinder am Anfang ihres Lebens immer Vitamin D bekommen, weil Kinder früher häufig Rachitis bekommen haben.",
+    "id": 483
+  },
+  {
+    "statement": "Bei Rachitis hatten Kinder krasse Knochenveränderungen.",
+    "id": 484
+  },
+  {
+    "statement": "Heutzutage bekommen Kinder seltener Rachitis, weil inzwischen seit den 80ern am Anfang des Lebens Vitamin D Tropfen gegeben werden.",
+    "id": 485
+  },
+  {
+    "statement": "Es macht keinen Sinn, dass Vitamin D bei Kindern abgesetzt wird.",
+    "id": 486
+  },
+  {
+    "statement": "Die Einnahme von Vitamin D Präparaten stärkt Kinder.",
+    "id": 487
+  },
+  {
+    "statement": "Die Einnahme von Vitamin D Präparaten bei Kindern fördern die Gesundheit.",
+    "id": 488
+  },
+  {
+    "statement": "Die Einnahme von Vitamin D Präparaten bei Kindern verhindert, dass sie nicht sehr krank werden.",
+    "id": 489
+  },
+  {
+    "statement": "Vitamin D kann einen stabilisierenden Faktor auf die Psyche haben.",
+    "id": 490
+  },
+  {
+    "statement": "Vitamin D stärkt unser Immunsystem, was im Winter ganz ganz wichtig ist.",
+    "id": 491
+  },
+  {
+    "statement": "Vitamin D ist sehr wichtig bei chronischen Erkrankungen.",
+    "id": 492
+  },
+  {
+    "statement": "Vitamin D ist sehr wichtig bei Krebserkrankungen.",
+    "id": 493
+  },
+  {
+    "statement": "Kindern im Alter von 0 bis 18 Jahren sollen im Sommer, sowie Winter durchgehend Vitamin D-Präparate gegeben werden. ",
+    "id": 494
+  },
+  {
+    "statement": "Es ist sinnvoll, den Kindern die ersten zwei, drei Lebensjahre 500 Einheiten Vitamin D zu geben.",
+    "id": 495
+  },
+  {
+    "statement": "Es werden je nach Quelle nach den ersten zwei, drei Lebensjahren manchmal 800 und manche 1000 Einheiten Vitamin D empfohlen.",
+    "id": 496
+  },
+  {
+    "statement": "Es ist egal, ob nach den ersten zwei, drei Lebensjahren 800 oder 1000 Einheiten Vitamin D gegeben wird.",
+    "id": 497
+  },
+  {
+    "statement": "Wenn es in Richtung Pubertät geht und die Kinder sich in Richtung Erwachsenenalter bewegen, dann können auch 2000 Einheiten täglich genommen werden. ",
+    "id": 498
+  },
+  {
+    "statement": "20.000 Depot-Einnahmen, die einmal die Woche genommen werden sind nicht Empfehlenswert, weil, wenn man diese vergisst, dann hat man nichts.",
+    "id": 499
+  },
+  {
+    "statement": "20.000 Depot-Einnahmen, die einmal die Woche genommen werden sind nicht Empfehlenswert, weil, wenn man die deutlich zu viel nimmt, kann das Schäden machen.",
+    "id": 500
+  },
+  {
+    "statement": "Es gibt Überdosierungen von Vitamin D, die schädlich sind.",
+    "id": 501
+  },
+  {
+    "statement": "Es ist nicht wichtig, dass Vitamin D Präparate mit Vitamin K kombiniert werden.",
+    "id": 502
+  },
+  {
+    "statement": "Es reichen reine Vitamin D Präparate. ",
+    "id": 503
+  },
+  {
+    "statement": "Das kontrollieren der Vitamin D Spiegel ist nicht empfehlenswert, da es zu nichts führt. (wir möchten nicht ständig die Spiegel kontrollieren, weil das im Prinzip zu nichts führt.)",
+    "id": 504
+  },
+  {
+    "statement": "Die allermeisten Menschen bei uns (Standort des Kontos: Deutschland) haben Vitamin D Spiegel, die knapp, im unteren Zielbereich sind.",
+    "id": 505
+  },
+  {
+    "statement": "Bei chronisch kranken Kindern werden routinemäßigen Spiegelkontrollen empfohlen. ",
+    "id": 506
+  },
+  {
+    "statement": "Bei Krebspatienten im Kindesalter werden routinemäßigen Spiegelkontrollen empfohlen. ",
+    "id": 507
+  },
+  {
+    "statement": "Bei Kindern, die nicht chronisch Krank oder Krebspatienten sind werden keine routinemäßigen Spiegelkontrollen, sondern eine kontinuierliche Einnahme empfohlen. ",
+    "id": 508
+  },
+  {
+    "statement": "Rezepte für Vitamin D werden bis zweit Jahre ausgestellt. ",
+    "id": 509
+  },
+  {
+    "statement": "If a baby is breastfed, it needs to get vitamin D daily.",
+    "id": 510
+  },
+  {
+    "statement": "It is recommended to get children outside, as one of the benefits is vitamin D. ",
+    "id": 511
+  },
+  {
+    "statement": "Breastfed babies need to be supplemented with vitamin D.",
+    "id": 512
+  },
+  {
+    "statement": "Vitamin D helps with calcium absorption.",
+    "id": 513
+  },
+  {
+    "statement": "Breastfed babies need to be supplemented with 400 IU vitamin D.",
+    "id": 514
+  },
+  {
+    "statement": "Babies just get one drop of vitamin D a day typically.",
+    "id": 515
+  },
+  {
+    "statement": "Babies can either be supplemented directly with 400 IUs of vitamin D, or if mom is breastfeeding, mom needs to be taking 6400 IUs.",
+    "id": 516
+  },
+  {
+    "statement": "Mothers should be taking a prenatal.",
+    "id": 517
+  },
+  {
+    "statement": "Mothers should look at what's in the prenatal.",
+    "id": 518
+  },
+  {
+    "statement": "Mothers should find out how much additional vitamin D they need to be adding besides the prenatal.",
+    "id": 519
+  },
+  {
+    "statement": "Kindern muss unbedingt Vitamin D geben werden.",
+    "id": 520
+  },
+  {
+    "statement": "Vitamin D Präparate gelten als Rachitis Prophylaxe für Neugeborene.",
+    "id": 521
+  },
+  {
+    "statement": "Es ist empfehlenswert ab dem siebten Lebenstag einem neugeborenen Kind jeden Tag bis zum zweiten Lebensjahr eine Tablette Vitamin D mit 400 bis 500 IE zu geben.",
+    "id": 522
+  },
+  {
+    "statement": "Eine Tablette enthält 400 bis 500 IE Vitamin D.",
+    "id": 523
+  },
+  {
+    "statement": "Kinder müssen Vitamin D Präparate mit 400 bis 500 IE für die Rachitis Prophylaxe gegeben werden, da die Knochen des Neugeborenen sehr weich sind.",
+    "id": 524
+  },
+  {
+    "statement": "Kinder müssen Vitamin D Präparate mit 400 bis 500 IE für die Rachitis Prophylaxe gegeben werden, da Vitamin D nicht ausreichend ist in der Muttermilch und in der Säuglingsernährung enthalten ist.",
+    "id": 525
+  },
+  {
+    "statement": "Kinder dürften zwei Jahre lang Vitamin D Präparate erhalten.",
+    "id": 526
+  },
+  {
+    "statement": "Every baby from the first day of life till it becomes one year old has to receive 400 IE vitamin D per day. ",
+    "id": 527
+  },
+  {
+    "statement": "If the vitamin D preparation contains 800 units per ml, the baby needs to be given 0.5 ml, and if it contains 400 units, the baby needs to be given 1 ml. ",
+    "id": 528
+  },
+  {
+    "statement": "Vitamin D is a fat-soluble vitamin, so it is best absorbed when it is given with food. ",
+    "id": 529
+  },
+  {
+    "statement": "In infants, it doesn't matter when vitamin D is administered. ",
+    "id": 530
+  },
+  {
+    "statement": "The vitamin D dosage (400 units) remains the same from the first day of life till the child becomes one year old, irrespective of the weight of the baby. ",
+    "id": 531
+  },
+  {
+    "statement": "The vitamin D dosage (400 units) remains the same from the first day of life till the child becomes one year old, irrespective of the age of the baby. ",
+    "id": 532
+  },
+  {
+    "statement": "An important precaution to observe before administering the vitamin D drops is to shake the bottle vigorously. ",
+    "id": 533
+  },
+  {
+    "statement": "After using the vitamin D dropper, do not close the bottle using the dropper.",
+    "id": 534
+  },
+  {
+    "statement": "After using the vitamin D dropper, use the lid that is provided with the dropper. ",
+    "id": 535
+  },
+  {
+    "statement": "The bottle containing the vitamin D drops should be kept tightly closed.",
+    "id": 536
+  },
+  {
+    "statement": "The bottle containing the vitamin D drops should be stored in a cool place.",
+    "id": 537
+  },
+  {
+    "statement": "The bottle containing the vitamin D drops should be stored in a dry place.",
+    "id": 538
+  },
+  {
+    "statement": "Taking vitamin D supplementation is very important for babies' growth.",
+    "id": 539
+  },
+  {
+    "statement": "Taking vitamin D supplementation is very important for babies' immunity.",
+    "id": 540
+  },
+  {
+    "statement": "Taking vitamin D supplementation should never be skipped, even for one day.",
+    "id": 541
+  },
+  {
+    "statement": "Ab Geburt wird die Gabe von Vitamin D in Kombination mit Fluorid empfohlen, denn in jedem Monat bis zum ersten Geburtstag kann diese Tablette das Kariesrisiko um das 2,5-fache senken. ",
+    "id": 542
+  },
+  {
+    "statement": "Eine geeignete Möglichkeit für die Verabreichung von Vitamin D ist es, die Tablette direkt in die Wangentasche zu geben und das Kind zum Stillen anzulegen.",
+    "id": 543
+  },
+  {
+    "statement": "Eine geeignete Möglichkeit für die Verabreichung von Vitamin D ist es, die Tablette auf einem Löffel mit etwas Wasser, gerne auch Muttermilch, wenn es nicht so umständlich ist, aufzulösen. ",
+    "id": 544
+  },
+  {
+    "statement": "Eine geeignete Möglichkeit für die Verabreichung von Vitamin D ist es, die Tablette im Saugeransatz aufzulösen.",
+    "id": 545
+  },
+  {
+    "statement": "Eine geeignete Möglichkeit für die Verabreichung von Vitamin D ist es, die Tabletten in das Stillhütchen zu packen.",
+    "id": 546
+  },
+  {
+    "statement": "Eine geeignete Möglichkeit für die Verabreichung von Vitamin D ist es, die Tablette aufgelöst über eine Medikamentenspritze zu verabreichen.",
+    "id": 547
+  },
+  {
+    "statement": "Was auf keinen Fall gemacht werden solltet ist die Vitamin D Tablette in eine Flasche aufzulösen, da die Gefahr besteht, dass das Kind diese nicht vollständig ausleeren wird.",
+    "id": 548
+  },
+  {
+    "statement": "If a mother is taking an adequate amount of vitamin D daily, then the baby doesn't need to be supplemented any further because her breast milk will be sufficient. ",
+    "id": 549
+  },
+  {
+    "statement": "If a mother isn't taking an adequate amount of vitamin D daily, then the baby needs to be given vitamin D drops daily. ",
+    "id": 550
+  },
+  {
+    "statement": "There are lots and lots of studies about supplementing breastfed babies with vitamin D.",
+    "id": 551
+  },
+  {
+    "statement": "There's a lot more up-to-date research and up-to-date studies about the topic \"Do breastfed babies need additional vitamin D?\"",
+    "id": 552
+  },
+  {
+    "statement": "If a baby is deficient in vitamin D, it can cause rickets, which is why it's very important that babies get the right amount of vitamin D. ",
+    "id": 553
+  },
+  {
+    "statement": "If a baby is deficient in vitamin D, it can cause cardiac problems, which is why it's very important that babies get the right amount of vitamin D.",
+    "id": 554
+  },
+  {
+    "statement": "Up until recently, it's always been advised that babies get additional vitamin D drops.",
+    "id": 555
+  },
+  {
+    "statement": "Vitamin D ist entscheidend für ein stabiles Immunsystem.",
+    "id": 556
+  },
+  {
+    "statement": "Vitamin D ist entscheidend für den Knochenaufbau.",
+    "id": 557
+  },
+  {
+    "statement": "Vitamin D ist entscheidend für die Zellteilung.",
+    "id": 558
+  },
+  {
+    "statement": "Ein Vitamin D Mangel kann zu Rachitis führen.",
+    "id": 559
+  },
+  {
+    "statement": "Bei Rachitis sind die Knochen weich.",
+    "id": 560
+  },
+  {
+    "statement": "Ein Vitamin D Mangel kann zu einem verlangsamten Wachstum führen.",
+    "id": 561
+  },
+  {
+    "statement": "Ein Vitamin D Mangel kann zu einer häufigen Infektanfälligkeit führen. ",
+    "id": 562
+  },
+  {
+    "statement": "Zur Unterstützung von Kindern eignet sich eine tägliche Vitamin D Supplementierung. ",
+    "id": 563
+  },
+  {
+    "statement": "Vitamin D is a supplement that babies need.",
+    "id": 564
+  },
+  {
+    "statement": "Breastfed babies (fully breastfed, or more than 50% of their diet is breast milk) need vitamin D supplementation.",
+    "id": 565
+  },
+  {
+    "statement": "Die tägliche Vitamin-D-Prophylaxe bei Kindern ist für Eltern heute ganz selbstverständlich.",
+    "id": 566
+  },
+  {
+    "statement": "Es ist vielen Eltern nicht so ganz klar, welche Krankheit man mit der täglichen Vitamin-D-Prophylaxe bei Kindern verhindern will. ",
+    "id": 567
+  },
+  {
+    "statement": "Rachitis ist eine Krankheit, die bei Vitamin-D-Mangel entsteht.",
+    "id": 568
+  },
+  {
+    "statement": "Bei Rachitis kann der Körper das Calcium nicht gut aufnehmen.",
+    "id": 569
+  },
+  {
+    "statement": "Bei Rachitis kann der Körper das Calcium nicht gut in die Knochen einbauen.",
+    "id": 570
+  },
+  {
+    "statement": "Kann der Körper das Calcium nicht gut aufnehmen und in die Knochen einbauen verformen sich die Knochen.",
+    "id": 571
+  },
+  {
+    "statement": "Kann der Körper das Calcium nicht gut aufnehmen und in die Knochen einbauen geben die Knochen unter dem Gewicht des Körpers nach. ",
+    "id": 572
+  },
+  {
+    "statement": "Rachitis macht neurologische Symptome.",
+    "id": 573
+  },
+  {
+    "statement": "Es gibt viele traurige Geschichten, die damals passiert sind, wenn Frauen mit durch Rachitis zusammengedrückten Becken schwanger geworden sind und nicht in der Lage waren, die Kinder durch dieses Becken zu gebären. ",
+    "id": 574
+  },
+  {
+    "statement": "In den 1920er Jahren hat man dann mit Lebertran angefangen zu substituieren, weil Lebertran sehr wirkungsvoll viel Vitamin-D enthält.",
+    "id": 575
+  },
+  {
+    "statement": "In den 1920er Jahren hat man dann mit Lebertran angefangen zu substituieren, weil Lebertran Rachitis verhindert hat.",
+    "id": 576
+  },
+  {
+    "statement": "Vitamin D spielt in der Schwangerschaft eine der entscheidendsten Rollen für das Kind.",
+    "id": 577
+  },
+  {
+    "statement": "Vitamin D spielt in der Schwangerschaft eine der entscheidendsten Rollen für die Mutter.",
+    "id": 578
+  },
+  {
+    "statement": "Ein optimaler Vitamin-D-Spiegel unterstützt die gesunde Knochenentwicklung des Babys.",
+    "id": 579
+  },
+  {
+    "statement": "Ein optimaler Vitamin-D-Spiegel unterstützt die gesunde Gehirnentwicklung des Babys.",
+    "id": 580
+  },
+  {
+    "statement": "Ein optimaler Vitamin-D-Spiegel senkt das Risiko für Komplikationen wie Frühgeburten, da Vitamin D nicht nur ein Vitamin ist, sondern ein hormonähnlicher Botenstoff.",
+    "id": 581
+  },
+  {
+    "statement": "Ein optimaler Vitamin-D-Spiegel senkt das Risiko für Schwangerschaftsdiabetes, da Vitamin D nicht nur ein Vitamin ist, sondern ein hormonähnlicher Botenstoff.",
+    "id": 582
+  },
+  {
+    "statement": "Vitamin D reguliert über 1000 Gene im Körper.",
+    "id": 583
+  },
+  {
+    "statement": "Damit Vitamin D richtig wirken kann, braucht es die passenden Partner. ",
+    "id": 584
+  },
+  {
+    "statement": "Magnesium ist notwendig, um Vitamin D in seine aktive Form umzuwandeln. ",
+    "id": 585
+  },
+  {
+    "statement": "Die Wissenschaft ist sich einig: Eine gute Versorgung mit Vitamin D, gemeinsam mit den Schlüsselnährstoffen K2, Magnesium und Omega-3 und regelmäßiger Bewegung, schafft die besten Voraussetzungen für eine gesunde Schwangerschaft.",
+    "id": 586
+  },
+  {
+    "statement": "Die Wissenschaft ist sich einig: Eine gute Versorgung mit Vitamin D, gemeinsam mit den Schlüsselnährstoffen K2, Magnesium und Omega-3 und regelmäßiger Bewegung, schafft die besten Voraussetzungen für einen optimalen Start eines Babys ins Leben.",
+    "id": 587
+  },
+  {
+    "statement": "A breastfeeding mother can give their child 400 IUs of vitamin D in drops every day. ",
+    "id": 588
+  },
+  {
+    "statement": "A pumping mother can give their child 400 IUs of vitamin D in drops every day. ",
+    "id": 589
+  },
+  {
+    "statement": "A breastfeeding mother can take 6400 IUs of vitamin D3 every day.",
+    "id": 590
+  },
+  {
+    "statement": "When a breastfeeding mother takes 6400 IUs of vitamin D3 every day, it is the equivalent of 400 IUs for the infant passing through the breast milk. ",
+    "id": 591
+  },
+  {
+    "statement": "It's known how much vitamin D children over the age of four should have during the winter months.",
+    "id": 592
+  },
+  {
+    "statement": "It's known how much vitamin D children under the age of four should have daily.",
+    "id": 593
+  },
+  {
+    "statement": "It should be ensured that vitamin D supplements for children contain 10 micrograms of vitamin D.",
+    "id": 594
+  },
+  {
+    "statement": "It is really important to give all children over five years of age daily a vitamin D supplement containing 10 micrograms during the winter months because the sun is very far away.",
+    "id": 595
+  },
+  {
+    "statement": "It is really important to give all children over five years of age daily a vitamin D supplement containing 10 micrograms during the winter months because vitamin D is not reliably eaten in lots of the foods that we have. ",
+    "id": 596
+  },
+  {
+    "statement": "A child under four should be having some vitamin D every single day through dark months and summer months, unless they're having over 500 mils of formula milk a day. ",
+    "id": 597
+  },
+  {
+    "statement": "Giving vitamin D with a meal is recommended, because it's best absorbed with fat.",
+    "id": 598
+  },
+  {
+    "statement": "It is recommended to focus on a supplement ideally that contains vitamin D3, as it's slightly better absorbed by the body. ",
+    "id": 599
+  },
+  {
+    "statement": "Die Zahnhygiene beginnt schon ab der Geburt, indem Vitamin D und Fluorid als Tabletten substituiert wird. ",
+    "id": 600
+  },
+  {
+    "statement": "Wenn das Kind den ersten Zahn bekommt, wenn dieser also durchbricht, ungefähr im Alter von sechs Monaten, dann sollte reines Vitamin D gegeben werden.",
+    "id": 601
+  },
+  {
+    "statement": "Vitamin D ist wichtig für starke Knochen.",
+    "id": 602
+  },
+  {
+    "statement": "Vitamin D ist wichtig für Zähne.",
+    "id": 603
+  },
+  {
+    "statement": "Vitamin D ist wichtig für ein gesundes Immunsystem. ",
+    "id": 604
+  },
+  {
+    "statement": "Babys können Vitamin D kaum selbst bilden, weil sie nicht direkt in die Sonne dürfen.",
+    "id": 605
+  },
+  {
+    "statement": "Weil Babys nicht direkt in die Sonne dürfen, empfehlen Kinderärztinnen und Kinderärzte eine tägliche Gabe von Vitamin D im ersten Lebensjahr.",
+    "id": 606
+  },
+  {
+    "statement": " Ältere Kinder tanken Vitamin D am besten draußen in der Sonne.",
+    "id": 607
+  },
+  {
+    "statement": "Es kann für ältere Kinder sehr viel Sinn machen, vor allem jetzt im Winter, auf ein Vitamin D Präparat zurückzugreifen.",
+    "id": 608
+  },
+  {
+    "statement": "Es ist ganz wichtig, dass Kinder täglich Vitamin D bekommen.",
+    "id": 609
+  },
+  {
+    "statement": "Vitamin D stärkt es das Immunsystem.",
+    "id": 610
+  },
+  {
+    "statement": "Mit Vitamin D Supplementation sind Kinder weniger anfällig für Infekte.",
+    "id": 611
+  },
+  {
+    "statement": "Vitamin D ist sehr wichtig für den Knochenstoffwechsel.",
+    "id": 612
+  },
+  {
+    "statement": "Alle Eltern schmieren ihre Kinder mit Sonnencreme mit Lichtschutzfaktor 50 ein.",
+    "id": 613
+  },
+  {
+    "statement": "Am Strand laufen alle Kinder in langen UV-Shirts rum.",
+    "id": 614
+  },
+  {
+    "statement": "Wenn Eltern ihre Kinder mit 50 einschmieren und die Kinder am Strand dann in langen UV-Shirts rumlaufen produzieren diese selbst nicht genug Vitamin D.",
+    "id": 615
+  },
+  {
+    "statement": "Auch Kinder brauchen Vitamin D.",
+    "id": 616
+  },
+  {
+    "statement": "Kinder von Frauen, welche in der Schwangerschaft 2800 IE Vitamin D eingenommen haben, haben nach 6 Jahren 50% weniger Schmerzdefekte, als die Kinder von Schwangeren die in der Schwangerschaft 400 IE Vitamin D eingenommen haben.",
+    "id": 617
+  },
+  {
+    "statement": "Vitamin D im letzten Trimester zu supplementieren wäre das Simpelste, um das Risiko für Kreidezähne zu minimieren.",
+    "id": 618
+  },
+  {
+    "statement": "Expecting mothers should make sure to have their vitamin D levels checked to avoid cavities in their kids.",
+    "id": 619
+  },
+  {
+    "statement": "The vitamin D level in the blood of expectant mothers should be somewhere around 60 or 70.",
+    "id": 620
+  },
+  {
+    "statement": "A way to avoid letting the vitamin D levels go too low is to not guess, get it checked.",
+    "id": 621
+  },
+  {
+    "statement": "A way to avoid letting the vitamin D levels go too low is to get enough fat in the diet. ",
+    "id": 622
+  },
+  {
+    "statement": "Cholesterol plays an important role in avoiding too low vitamin D levels.",
+    "id": 623
+  },
+  {
+    "statement": "Vitamin D is a fat-soluble hormone.",
+    "id": 624
+  },
+  {
+    "statement": "If pregnant women have low vitamin D levels, their kids' teeth have a three-fold chance of cavities.",
+    "id": 625
+  },
+  {
+    "statement": "If pregnant women have low vitamin D levels, their kids' teeth have a three-fold chance of problems with their teeth.",
+    "id": 626
+  },
+  {
+    "statement": "Maternal doses of 6400 units daily do reach adequate levels in breast milk to supplement the baby. ",
+    "id": 627
+  },
+  {
+    "statement": "It's not recommended for mothers to take 6400 units of vitamin D daily to supplement their babies' vitamin D without the guidance of their doctor because it depends on a multitude of maternal factors, including the mother's serum vitamin D level.",
+    "id": 628
+  },
+  {
+    "statement": "It's not recommended for mothers to take 6400 units of vitamin D daily to supplement their babies' vitamin D without the guidance of their doctor because it depends on a multitude of maternal factors, including the BMI of the mother.",
+    "id": 629
+  },
+  {
+    "statement": "It's not recommended for mothers to take 6400 units of vitamin D daily to supplement their babies' vitamin D without the guidance of their doctor because it depends on a multitude of maternal factors, including the weight of the mother.",
+    "id": 630
+  },
+  {
+    "statement": "It's not recommended for mothers to take 6400 units of vitamin D daily to supplement their babies' with vitamin D without the guidance of their doctor because it depends on a multitude of maternal factors, including the season, that would impact how much a mother is exposed to vitamin D. ",
+    "id": 631
+  },
+  {
+    "statement": "It's not recommended for mothers to take 6400 units of vitamin D daily to supplement their babies' with vitamin D without the guidance of their doctor because it depends on a multitude of maternal factors, including the geographic location that would impact how much a mother is exposed to vitamin D. ",
+    "id": 632
+  },
+  {
+    "statement": "Vitamin D is a fat-soluble vitamin. ",
+    "id": 633
+  },
+  {
+    "statement": "Vitamin D toxicity can occur.",
+    "id": 634
+  },
+  {
+    "statement": "People interested in taking maternal doses of vitamin D to supplement their breastfed baby should talk to a doctor about their past medical history and see if this would be a good option for them.",
+    "id": 635
+  },
+  {
+    "statement": "It is appropriate for breastfeeding women to take maternal doses of vitamin D to supplement the baby.",
+    "id": 636
+  },
+  {
+    "statement": "It is appropriate to directly supplement a baby with 400 units of vitamin D.",
+    "id": 637
+  },
+  {
+    "statement": "Kranke Kinder im ersten Lebensjahr, die zur Labordiagnostik kommen  haben einen normalen Vitamin D Spiegel.",
+    "id": 638
+  },
+  {
+    "statement": "30 Nanogramm pro Milliliter entsprechen einem normalen Vitamin D Spiegel.",
+    "id": 639
+  },
+  {
+    "statement": "Bei allen kranken Kinder im ersten Lebensjahr, die zur Labordiagnostik kommen und die sich nicht im ersten Lebensjahr befinden, sind die Vitamin D Spiegel im Keller. ",
+    "id": 640
+  },
+  {
+    "statement": "Junge Mütter bekommen alle eine Vitamin D Supplementation, weil seit dem letzten Jahrhundert bekannt ist, dass Vitamin D-Mangel bei kleinen Kindern Rachitis erzeugt.",
+    "id": 641
+  },
+  {
+    "statement": "Da Rachitis die Knochen verformt wurde künstliches Vitamin D genutzt, um die Rachitis zu beseitigen.",
+    "id": 642
+  },
+  {
+    "statement": "Da Rachitis bleibende Schäden hinterlässt wurde künstliches Vitamin D genutzt, um die Rachitis zu beseitigen.",
+    "id": 643
+  },
+  {
+    "statement": "Als man mit der Gabe von Vitamin D angefangen hat, sind die Kinder, sobald sie laufen konnten, rausgegangen und haben draußen gespielt. ",
+    "id": 644
+  },
+  {
+    "statement": "Heute gehen die Kinder nicht mehr raus.",
+    "id": 645
+  },
+  {
+    "statement": "Heute spielen die Kinder drinnen mit der Playstation oder dem Computer und das heißt, dass diese kein Vitamin D mehr machen. ",
+    "id": 646
+  },
+  {
+    "statement": "Es wird empfohlen im zweiten Lebensjahr Vitamin D abzusetzen.",
+    "id": 647
+  },
+  {
+    "statement": "Es wird empfohlen bis zum zweiten Lebensjahr Vitamin D einzunehmen.",
+    "id": 648
+  },
+  {
+    "statement": "Es wird empfohlen im zweiten Lebensjahr Vitamin D abzusetzen, da davon ausgegangen wird, dass das Kind es nicht mehr braucht. ",
+    "id": 649
+  },
+  {
+    "statement": "Alle Kinder wachsen mit Vitamin D Mangel auf. ",
+    "id": 650
+  },
+  {
+    "statement": "Was daraus kommt, dass alle Kinder mit Vitamin D Mangel auf wachsen, ist noch nicht bekannt. ",
+    "id": 651
+  },
+  {
+    "statement": "Was mit einem Kind mit Vitamin D Mangel passiert, was in der Zeit ist, wo es wächst, werden wir in 20 Jahren erfahren.",
+    "id": 652
+  },
+  {
+    "statement": "Was mit einem Kind mit Vitamin D Mangel passiert, was in der Zeit st, wo es sein Gehirn auch ausbilden soll, werden wir in 20 Jahren erfahren.",
+    "id": 653
+  },
+  {
+    "statement": "Kinder sind häufig nur bis zum 18. Lebensmonat ausreichend mit Vitamin D versorgt.",
+    "id": 654
+  },
+  {
+    "statement": "Vitamin D ist wichtig für Kinder.",
+    "id": 655
+  },
+  {
+    "statement": "Vitamin D ist unerlässlich für ein gesundes Wachstum.",
+    "id": 656
+  },
+  {
+    "statement": "Vitamin D unterstützt das Immunsystem.",
+    "id": 657
+  },
+  {
+    "statement": "Vitamin D hilft bei der stabilen Entwicklung von Knochen.",
+    "id": 658
+  },
+  {
+    "statement": "Vitamin D hilft bei der stabilen Entwicklung von Muskeln. ",
+    "id": 659
+  },
+  {
+    "statement": "Ohne genug Vitamin D kann der Körper Calcium nicht richtig aufnehmen.",
+    "id": 660
+  },
+  {
+    "statement": "Mit ausreichend Bewegung in der Sonne und an der frischen Luft. kann sichergestellt werden, dass die Familie ausreichend mit Vitamin D versorgt wird, ",
+    "id": 661
+  },
+  {
+    "statement": "Supplemente können die Zufuhr von Vitamin D unterstützen.",
+    "id": 662
+  },
+  {
+    "statement": "Vegane Vitamin D Supplemente sind für alle Kinder ab drei Jahren geeignet.",
+    "id": 663
+  },
+  {
+    "statement": "zuckerfrei Vitamin D Supplemente sind für alle Kinder ab drei Jahren geeignet.",
+    "id": 664
+  },
+  {
+    "statement": "Vitamin D Supplemente, die nach Orange schmecken sind für alle Kinder ab drei Jahren geeignet.",
+    "id": 665
+  },
+  {
+    "statement": "Low vitamin D levels may be linked to type 1 diabetes. ",
+    "id": 666
+  },
+  {
+    "statement": "It makes sense that low vitamin D levels may be linked to type 1 diabetes, because in type 1 diabetes some of our immune cells have become pathogenic. ",
+    "id": 667
+  },
+  {
+    "statement": "It makes sense that low vitamin D levels may be linked to type 1 diabetes, because in type 1 diabetes some of our immune cells have become autoreactive. ",
+    "id": 668
+  },
+  {
+    "statement": "With type 1 diabetes, a person basically turns into an autoimmune problem where tissue damage starts to occur, similar to multiple sclerosis. ",
+    "id": 669
+  },
+  {
+    "statement": "There is a link between less sunlight exposure as a kid and a higher risk of multiple sclerosis.",
+    "id": 670
+  },
+  {
+    "statement": "There are strong enough correlation signals to warrant a link between less sunlight exposure as a kid and a higher risk of type 1 diabetes.",
+    "id": 671
+  },
+  {
+    "statement": "Vitamin D has a huge role in how our immune cells work, especially t cells.",
+    "id": 672
+  },
+  {
+    "statement": "T cells are the ones being implicated the most in type 1 diabetes.",
+    "id": 673
+  },
+  {
+    "statement": "Don't let babies burn in the sun.",
+    "id": 674
+  },
+  {
+    "statement": "Don't let kids burn in the sun.",
+    "id": 675
+  },
+  {
+    "statement": "It's recommended that babies don't avoid the sunlight.",
+    "id": 676
+  },
+  {
+    "statement": "It's recommended that kids don't avoid the sunlight.",
+    "id": 677
+  },
+  {
+    "statement": "Babies need sunlight exposure to boost their vitamin D levels.",
+    "id": 678
+  },
+  {
+    "statement": "Kids need sunlight exposure to boost their vitamin D levels.",
+    "id": 679
+  },
+  {
+    "statement": "The mother or the baby should be taking vitamin D if the mother is breastfeeding.",
+    "id": 680
+  },
+  {
+    "statement": "In order for the baby to be dosed, it should be started shortly after birth with 400 to 800 units of vitamin D per day. ",
+    "id": 681
+  },
+  {
+    "statement": "Probiotics containing 600 IUs of vitamin D provide the perfect dose for babies.",
+    "id": 682
+  },
+  {
+    "statement": "One option is that the breastfeeding mother takes 6,400 IUs of vitamin D per day.",
+    "id": 683
+  },
+  {
+    "statement": "Suitable for breastfeeding mothers are supplements that are probiotic plus 2,000 IUs of vitamin D and two straight vitamin D capsules with 2,000 IUs.",
+    "id": 684
+  },
+  {
+    "statement": "The provider should be consulted to seek help and guidance when deciding how to dose vitamin D, whether for the mother or the baby.",
+    "id": 685
+  },
+  {
+    "statement": "Es ist geeignet Kindern 2 Tropfen Vitamin D täglich zu geben.",
+    "id": 686
+  },
+  {
+    "statement": "Es ist empfehlenswert Kindern 800 Einheiten Vitamin D täglich zu geben.",
+    "id": 687
+  },
+  {
+    "statement": "Es ist extrem essentiell, dass Vitamin D mit K2 genommen wird.",
+    "id": 688
+  },
+  {
+    "statement": "If mothers are exclusively breastfeeding, they need to supplement with vitamin D. ",
+    "id": 689
+  },
+  {
+    "statement": "When a baby is given formula, it is many times needed to supplement with vitamin D.",
+    "id": 690
+  },
+  {
+    "statement": "When a baby is given formula and breast milk, it is many times needed to supplement with vitamin D.",
+    "id": 691
+  },
+  {
+    "statement": "Babies need 400 IUs of vitamin D a day. ",
+    "id": 692
+  },
+  {
+    "statement": "A daily intake of 32 ounces (946.35 ml) of formula achieves 400 IU of vitamin D.",
+    "id": 693
+  },
+  {
+    "statement": "Many newborns do not consume 32 ounces (946.35 ml) of formula a day.",
+    "id": 694
+  },
+  {
+    "statement": "Many young infants do not consume 32 ounces (946.35 ml) of formula a day.",
+    "id": 695
+  },
+  {
+    "statement": "If newborns don't consume 32 ounces (946.35 ml) of formula a day, they need to supplement with vitamin D. ",
+    "id": 696
+  },
+  {
+    "statement": "If young infants don't consume 32 ounces (946.35 ml) of formula a day, they need to supplement with vitamin D. ",
+    "id": 697
+  },
+  {
+    "statement": "Vitamin D supports healthy growth in babies.",
+    "id": 698
+  },
+  {
+    "statement": "Vitamin D supports healthy bone development in babies.",
+    "id": 699
+  },
+  {
+    "statement": "Vitamin D promotes healthy bones.",
+    "id": 700
+  },
+  {
+    "statement": "Vitamin D promotes immune health. ",
+    "id": 701
+  },
+  {
+    "statement": "Vitamin D promotes respiratory health. ",
+    "id": 702
+  },
+  {
+    "statement": "The paediatrician is always the best resource for questions about vitamin D supplementation.",
+    "id": 703
+  },
+  {
+    "statement": "Ein Vitamin-D-Mangel kann sich negativ auf das Immunsystem auswirken. ",
+    "id": 704
+  },
+  {
+    "statement": "Ein Vitamin-D-Mangel kann zu höherer Infektanfälligkeit führen. ",
+    "id": 705
+  },
+  {
+    "statement": "Es bringt überhaupt  nichts extra viel Vitamin-D zu nehmen für ein extra gutes Immunsystem.",
+    "id": 706
+  },
+  {
+    "statement": "Es ist sehr kontraproduktiv, extra viel Vitamin-D zu nehmen für ein extra gutes Immunsystem.",
+    "id": 707
+  },
+  {
+    "statement": "Extra viel Vitamin-D zu nehmen für ein extra gutes Immunsystem ist falsch. ",
+    "id": 708
+  },
+  {
+    "statement": "Extra viel Vitamin-D zu nehmen für ein extra gutes Immunsystem kann lebensgefährlich werden. ",
+    "id": 709
+  },
+  {
+    "statement": "Die Darreichungsform (Tropfen oder Tabletten) von Vitamin D Präparaten ist besser, mit der besser klargekommen wird. ",
+    "id": 710
+  },
+  {
+    "statement": "Bei Vitamin D Tropfen sollte immer darauf geachtet werden, dass richtig dosiert wird, um die Gefahr der Überdosierung zu vermeiden. ",
+    "id": 711
+  },
+  {
+    "statement": "Der Dosierbereich von Vitamin D ist relativ breit und sicher.",
+    "id": 712
+  },
+  {
+    "statement": "Es sollte immer darauf geachtet werden, dass sich bei Vitamin D Tropfen an die vorgegebene Menge gehalten wird. ",
+    "id": 713
+  },
+  {
+    "statement": "Es kommt in Deutschland häufig zu einer Vitamin D Unterversorgung von Kindern.",
+    "id": 714
+  },
+  {
+    "statement": "Eine weiterführende Einnahme von Vitamin D nach den offiziellen Empfehlungen auf jeden Fall sinnvoll sein, vor allem in den Wintermonaten.",
+    "id": 715
+  },
+  {
+    "statement": "Vitamin-D kann überdosiert werden. ",
+    "id": 716
+  },
+  {
+    "statement": "Die Überdosierung von Vitamin-D kann lebensgefährlich werden.",
+    "id": 717
+  },
+  {
+    "statement": "Vitamin D in breast milk is directly impacted by the mother's vitamin D stores. ",
+    "id": 718
+  },
+  {
+    "statement": "Up to 60% of the population in the United States is deficient in vitamin D.",
+    "id": 719
+  },
+  {
+    "statement": "In other parts of the world than the United States, there is a deficiency in vitamin D worse than up to 60% of the population.",
+    "id": 720
+  },
+  {
+    "statement": "It is assumed that breast milk is deficient in vitamin D because up to 60% of the population in the United States is deficient in vitamin D, and it's even worse in other parts of the world.",
+    "id": 721
+  },
+  {
+    "statement": "It's often recommended to supplement exclusively breastfed infants with 400 IU of vitamin D daily. ",
+    "id": 722
+  },
+  {
+    "statement": "While pregnancy, the expecting mother should definitely want to work to increase the vitamin D stores.",
+    "id": 723
+  },
+  {
+    "statement": "While breastfeeding, the mother should definitely want to work to increase the vitamin D stores.",
+    "id": 724
+  },
+  {
+    "statement": "The best way to increase the vitamin D stores during pregnancy is through sun exposure and supplementation, because there are not great food sources. ",
+    "id": 725
+  },
+  {
+    "statement": "The best way to increase the vitamin D stores during breastfeeding is through sun exposure and supplementation,  because there are not great food sources. ",
+    "id": 726
+  },
+  {
+    "statement": "Beef liver is a really great source of vitamin D. ",
+    "id": 727
+  },
+  {
+    "statement": "Cheese is a really great source of vitamin D. ",
+    "id": 728
+  },
+  {
+    "statement": "Fatty fish is a really great source of vitamin D. ",
+    "id": 729
+  },
+  {
+    "statement": "Egg yolk is a really great source of vitamin D. ",
+    "id": 730
+  },
+  {
+    "statement": "Apart from beef liver, cheese, fatty fish, and egg yolk, there are no other great sources of vitamin D. ",
+    "id": 731
+  },
+  {
+    "statement": "People who aren't supplementing get up to 90% of their vitamin D levels from sun exposure.",
+    "id": 732
+  },
+  {
+    "statement": "It is recommended to supplement with vitamin D during pregnancy.",
+    "id": 733
+  },
+  {
+    "statement": "It is recommended to supplement with vitamin D during breastfeeding.",
+    "id": 734
+  },
+  {
+    "statement": "Taking vitamin D supplements can prevent a lot of pregnancy complications.",
+    "id": 735
+  },
+  {
+    "statement": "Taking vitamin D supplements during pregnancy can significantly impact the short-term health of a baby.",
+    "id": 736
+  },
+  {
+    "statement": "Taking vitamin D supplements during pregnancy can significantly impact the long-term health of a baby.",
+    "id": 737
+  },
+  {
+    "statement": "During pregnancy, vitamin D supplements should be taken on top of the prenatal vitamin because most prenatals either don't have it or don't have enough.",
+    "id": 738
+  },
+  {
+    "statement": "During breastfeeding, vitamin D supplements should be taken on top of the prenatal vitamin because most prenatals either don't have it or don't have enough.",
+    "id": 739
+  },
+  {
+    "statement": "If a mother is exclusively breastfeeding, it becomes even more important to supplement with vitamin D. ",
+    "id": 740
+  },
+  {
+    "statement": "Good outcomes can be achieved with a daily dose of 6400 IU of vitamin D during pregnancy.",
+    "id": 741
+  },
+  {
+    "statement": "Good outcomes can be achieved with a daily dose of 6400 IU of vitamin D during breastfeeding.",
+    "id": 742
+  },
+  {
+    "statement": "It is recommended to get 15 to 20 minutes of sun exposure each day without sunscreen.",
+    "id": 743
+  },
+  {
+    "statement": "When getting 15 to 20 minutes of sun exposure each day, sunscreen can be put on the face, but the arms should be left without sunscreen to be able to get that sun. ",
+    "id": 744
+  },
+  {
+    "statement": "It is recommended to talk to a provider during pregnancy because they can get a vitamin D test to test the levels to see if there is a deficiency or not.",
+    "id": 745
+  },
+  {
+    "statement": "It is recommended to talk to a provider during breastfeeding because they can get a vitamin D test to test the levels to see if there is a deficiency or not.",
+    "id": 746
+  },
+  {
+    "statement": "If pregnant women think they are vitamin D deficient, it's recommended to supplement the newborn baby with 400 IU of vitamin D daily. ",
+    "id": 747
+  },
+  {
+    "statement": "If pregnant women get their levels tested and are deficient, it's recommended to supplement the newborn baby with 400 IU of vitamin D daily. ",
+    "id": 748
+  },
+  {
+    "statement": "If breastfeeding mothers get their levels tested and are deficient, it's recommended to supplement the newborn baby with 400 IU of vitamin D daily. ",
+    "id": 749
+  },
+  {
+    "statement": "If breastfeeding mothers keep their vitamin D levels up, it is not necessary to give the newborn 400 IU of vitamin D daily. \n",
+    "id": 750
+  },
+  {
+    "statement": "It is recommended that pregnant women start to keep their vitamin D levels up because it's a win-win situation for both mother and baby.",
+    "id": 751
+  },
+  {
+    "statement": "It is recommended that breastfeeding mothers start keeping their vitamin D levels up because it's a win-win situation for both mother and baby.",
+    "id": 752
+  },
+  {
+    "statement": "Kids should be spending more time in sunlight, not less. ",
+    "id": 753
+  },
+  {
+    "statement": "If a child avoids sunlight, it might be hampering growth.",
+    "id": 754
+  },
+  {
+    "statement": "If a child avoids sunlight, it might be hampering development.",
+    "id": 755
+  },
+  {
+    "statement": "Sunlight is absolutely essential for the synthesis of vitamin D in children.",
+    "id": 756
+  },
+  {
+    "statement": "Vitamin D is essential for bone growth in children.",
+    "id": 757
+  },
+  {
+    "statement": "Vitamin D is essential for bone development in children.",
+    "id": 758
+  },
+  {
+    "statement": "Vitamin D is essential for mental development in children.",
+    "id": 759
+  },
+  {
+    "statement": "Vitamin D improves immunity in children. ",
+    "id": 760
+  },
+  {
+    "statement": "Today children are not getting enough time in sunlight. ",
+    "id": 761
+  },
+  {
+    "statement": "Children spend most of their time indoors because of various reasons, including closed classrooms, closed houses, and so on and so forth. ",
+    "id": 762
+  },
+  {
+    "statement": "Even when children want to go out and play in the sun, the parents feel it is not good for them, and thus they only send them out late in the evenings when it's beyond 5 o'clock, 5.30.",
+    "id": 763
+  },
+  {
+    "statement": "Children who are only out late in the evenings when it's beyond 5 o'clock, 5.30, don't get this essential sunlight exposure, which synthesizes vitamin D in them. ",
+    "id": 764
+  },
+  {
+    "statement": "When children get a chance to get exposed to sunlight, there are all these advertising companies talking about sunscreen for children, which means even when there is a chance they can get sunlight, they don't get sunlight. ",
+    "id": 765
+  },
+  {
+    "statement": "80% of children are vitamin D deficient right now in India. ",
+    "id": 766
+  },
+  {
+    "statement": "It is recommended to give children some exposure to sunlight.",
+    "id": 767
+  },
+  {
+    "statement": "Exposing children to sunlight is essential for their development early on in life.\n",
+    "id": 768
+  },
+  {
+    "statement": "It is recommended that children play in the sun.",
+    "id": 769
+  },
+  {
+    "statement": "It is recommended that children do not avoid sunlight.",
+    "id": 770
+  },
+  {
+    "statement": "Vitamin D ist notwendig, damit das Kalzium aus der Nahrung im Darm aufgenommen werden kann, deshalb ist im Winter ein Vitamin D Supplement relevant.",
+    "id": 771
+  },
+  {
+    "statement": "Vitamin D gehört zu den Zutaten für starken Knochen bei Kindern.",
+    "id": 772
+  },
+  {
+    "statement": "Der Aufbau von Knochenmasse durch Bewegung ist für starke Knochen bei Kindern genauso wichtig wie Kalzium und Vitamin D.",
+    "id": 773
+  },
+  {
+    "statement": "Grundlegend brauchen Kinder keine Nahrungsergänzungsmittel, mit Ausnahme von Vitamin D. ",
+    "id": 774
+  },
+  {
+    "statement": "Es wird empfohlen, die ersten zwei Lebensjahre Vitamin D zu substituieren.",
+    "id": 775
+  },
+  {
+    "statement": "Es wird empfohlen im Zweifel nach den ersten zwei Lebensjahren Vitamin D in den Wintermonaten zu supplementieren.",
+    "id": 776
+  },
+  {
+    "statement": "Vitamin D wird nicht als Immunbooster angesehen. ",
+    "id": 777
+  },
+  {
+    "statement": "Nach den ersten zwei Lebensjahren ist es wichtig, dass, falls Vitamin D Mangelzustände herrschen, diese ausgeglichen werden. ",
+    "id": 778
+  },
+  {
+    "statement": "Not all baby vitamin D drops are the same.",
+    "id": 779
+  },
+  {
+    "statement": "Some vitamin D drops for babies might be a waste of money. ",
+    "id": 780
+  },
+  {
+    "statement": "Vitamin D supplements containing 400 IU per drop are recommended for babies.",
+    "id": 781
+  },
+  {
+    "statement": "Vitamin D supplements without sugar are recommended for babies.\n",
+    "id": 782
+  },
+  {
+    "statement": "Vitamin D supplements without artificial flavors are recommended for babies.",
+    "id": 783
+  },
+  {
+    "statement": "Vitamin D supplements without preservatives are recommended for babies.",
+    "id": 784
+  },
+  {
+    "statement": "It is recommended to make sure it is vitamin D3, not D2.",
+    "id": 785
+  },
+  {
+    "statement": "D3 is absorbed way better than D2.",
+    "id": 786
+  },
+  {
+    "statement": "Vitamin D supplements that require only one drop should be chosen.",
+    "id": 787
+  },
+  {
+    "statement": "Vitamin D supplements that require only one drop are easier and safer to use, and nothing spills.",
+    "id": 788
+  },
+  {
+    "statement": "Babies should be on vitamin D supplements.",
+    "id": 789
+  },
+  {
+    "statement": "Kaum sind die Babys auf der Welt, bekommen Sie zum ersten Lebensjahr Vitamin D in Form von Tabletten oder Tropfen zur Prophylaxe der Rachitis. ",
+    "id": 790
+  },
+  {
+    "statement": "Es macht keinen Sinn, nachdem ersten Lebensjahr Vitamin D abzusetzen, denn Kinder können selber nicht genug Vitamin D produzieren.",
+    "id": 791
+  },
+  {
+    "statement": "Die Empfehlung ist, mit den Kindern nicht in die pralle Sonne zu gehen.",
+    "id": 792
+  },
+  {
+    "statement": "Wenn Kinder in die pralle Sonne gehen, dann soll man sie eincremen.",
+    "id": 793
+  },
+  {
+    "statement": "Kleine Kinder sollten im Sommer nicht ungeschützt in die pralle heiße Mittagssonne geschickt werden, weil das sehr ungesund für die Haut ist. ",
+    "id": 794
+  },
+  {
+    "statement": "Wenn das Kind im Winter auf die Welt gekommen ist, dann sollen die Vitamin D Tropfen auf jeden Fall noch in dem Winter nach dem ersten Lebensjahr weitergegeben werden, weil im Winter auf keinen Fall genug Vitamin D gebildet wird. ",
+    "id": 795
+  },
+  {
+    "statement": "Menschen sind nicht mehr so viel draußen.",
+    "id": 796
+  },
+  {
+    "statement": "Wenn man dick eingepackt ist, kommt viel zu wenig Sonne auf der Haut an.",
+    "id": 797
+  },
+  {
+    "statement": "Es ist gerade bei Winterkindern empfehlenswert das Vitamin D nach dem ersten Geburtstag weiter zu geben.",
+    "id": 798
+  },
+  {
+    "statement": "Es ist empfehlenswert, jeden Winter die Kinder mit Vitamin D zu versorgen.",
+    "id": 799
+  },
+  {
+    "statement": "One of the most critical and important outcome markers for a child, as soon as they're born, may be their vitamin D level.",
+    "id": 800
+  },
+  {
+    "statement": "Newborns who were given 2,000 IU of vitamin D daily for the first 11 months of their lives had a 78% reduction in type 1 diabetes after 7 years.",
+    "id": 801
+  },
+  {
+    "statement": "It can be assumed that newborns who were given 2,000 IU of vitamin D daily for the first 11 months of their lives had a reduction in other autoimmune diseases besides type 1 diabetes as far as helping with prevention after 7 years. ",
+    "id": 802
+  },
+  {
+    "statement": "If a child is given vitamin D every day and is consistent with that, there will probably be a 78% reduction in type 1 diabetes.",
+    "id": 803
+  },
+  {
+    "statement": "Der Nährstoffbedarf bei Kindern sollte grundsätzlich über eine ausgewogene Ernährung gedeckt werden.",
+    "id": 804
+  },
+  {
+    "statement": "Vitamin D wird, vor allem für gestillte Säuglinge, empfohlen, denn die Muttermilch enthält nur ganz geringe Mengen.",
+    "id": 805
+  },
+  {
+    "statement": "Viele Kinder haben einen Vitamin-D-Mangel, gerade in Regionen, wo die Sonne viel zu wenig scheint (Standort des Kontos: Deutschland)",
+    "id": 806
+  },
+  {
+    "statement": "Kinder, die einen Vitamin-D-Mangel haben, sollten Vitamin D substituieren, vor allem in den Wintermonaten. ",
+    "id": 807
+  },
+  {
+    "statement": "Vitamin D is recommended to support healthy bone development. ",
+    "id": 808
+  },
+  {
+    "statement": "Vitamin D supplements are recommended for children of breastfeeding mothers.",
+    "id": 809
+  },
+  {
+    "statement": "Vitamin D supplements that are certified organic are a good choice.",
+    "id": 810
+  },
+  {
+    "statement": "Vitamin D supplements that contain only two ingredients are a good choice.",
+    "id": 811
+  },
+  {
+    "statement": "Vitamin D supplements that contain no harmful fillers are a good choice.",
+    "id": 812
+  },
+  {
+    "statement": "Vitamin D supplements that are free of artificial colors are a good choice.",
+    "id": 813
+  },
+  {
+    "statement": "Vitamin D supplements that are free of parabens are a good choice.",
+    "id": 814
+  },
+  {
+    "statement": "Vitamin D supplements that are easy to use are a good choice.",
+    "id": 815
+  },
+  {
+    "statement": "Vitamin D is recommended to be supplemented during the first year of life, but this may change once solids are introduced. ",
+    "id": 816
+  },
+  {
+    "statement": "Es kann darüber nahgedacht werden Vitamin D für die Optimierung des Immunsystems von Kindern zu geben.",
+    "id": 817
+  },
+  {
+    "statement": "Geeignet ist Kinder täglich 3000 Einheiten Vitamin D zu geben. ",
+    "id": 818
+  },
+  {
+    "statement": "Wenn die Kinder schon bei 50, 60 Kilo sind, da kann man schon auf Erwachsenendosis gehen, also zweimal 3000 Einheiten Vitamin D am Tag. ",
+    "id": 819
+  },
+  {
+    "statement": "Die Gabe von Vitamin D Supplementen ist ganz wichtig für das Immunsystem, um gesund durch den Winter zu kommen. ",
+    "id": 820
+  },
+  {
+    "statement": "Vitamin D ist ein fettlösliches Vitamin.",
+    "id": 821
+  },
+  {
+    "statement": "Vitamin D Präparate sollten täglich eingenommen werden.",
+    "id": 822
+  },
+  {
+    "statement": "Wenn man Vitamin D Präparate nur einmal in der Woche einnimmt, ist der Vorrat auch da. ",
+    "id": 823
+  },
+  {
+    "statement": "Die tägliche Einnahme ist wie duschen. Die Körperzellen werden dann jeden Tag frisch geduscht damit. ",
+    "id": 824
+  },
+  {
+    "statement": "Wenn man Vitamin D Präparate nur einmal in der Woche einnimmt, bekommen die Zellen auch etwas ab, aber es ist nicht so viel, als wenn man das jeden Tag einnimmt. ",
+    "id": 825
+  },
+  {
+    "statement": "Wenn man die Vitamin D Dosis aber zum Beispiel auch für die Kinder ausrechnen will, dann kann man es anteilmäßig nehmen. ",
+    "id": 826
+  },
+  {
+    "statement": "Wenn jemand mit 70 Kilogramm 4000 Einheiten Vitamin D braucht und ein Kind wiegt 20 Kilogramm, dann gebe ich dem ein Drittel, dann gebe ich dem 1000 Einheiten Vitamin D nach dem Dreisatz.",
+    "id": 827
+  },
+  {
+    "statement": "Für Kinder ist eine tägliche Supplementierung von Vitamin D mit 1000 Einheiten geeignet.",
+    "id": 828
+  },
+  {
+    "statement": "Ein Kleinkind bekommt 400 Einheiten Vitamin D pro Tag.",
+    "id": 829
+  },
+  {
+    "statement": "Ein Säugling bekommt 400 Einheiten Vitamin D pro Tag.",
+    "id": 830
+  },
+  {
+    "statement": "Für ein Säugling mit 4 Kilogramm sind täglich 400 Einheiten Vitamin D okay, denn wenn man die Spigel misst, haben die erstaunlicherweise einen Wert von 30 bis 40 Nanogramm.",
+    "id": 831
+  },
+  {
+    "statement": "für ein Säugling ist 400 Einheiten Vitamin D pro Tag genau die richtige Dosis.",
+    "id": 832
+  },
+  {
+    "statement": "Jedes Baby in Deutschland bekommt Vitamin D, weil diese im ersten Lebensjahr nicht in die direkte Sonne dürfen.",
+    "id": 833
+  },
+  {
+    "statement": "Der Körper von Babys kann kein eigenes Vitamin D bilden.",
+    "id": 834
+  },
+  {
+    "statement": "Die körpereigene Vitamin D Bildung ist super wichtig für starke Knochen.",
+    "id": 835
+  },
+  {
+    "statement": "Die körpereigene Vitamin D Bildung ist super wichtig für ein stabiles Immunsystem.",
+    "id": 836
+  },
+  {
+    "statement": "Kinderärzte empfehlen für Babys täglich 500 IE Vitamin D.",
+    "id": 837
+  },
+  {
+    "statement": "Viele Eltern hören später irgendwann mal auf Babys täglich 500 IE Vitamin D zu geben.",
+    "id": 838
+  },
+  {
+    "statement": "Man kann Babys das Vitamin D wirklich das ganze Jahr weitergeben.",
+    "id": 839
+  },
+  {
+    "statement": "Man kann Babys das Vitamin D gerade im Winter weitergeben, wo eben die Sonne einfach nicht reicht.",
+    "id": 840
+  },
+  {
+    "statement": "Es kann Sinnvoll sein im Sommer zu supplementieren, wenn das Kind sehr viel eingecremt ist.",
+    "id": 841
+  },
+  {
+    "statement": "Es kann Sinnvoll sein im Sommer zu supplementieren, wenn das Kind kaum draußen ist.",
+    "id": 842
+  },
+  {
+    "statement": "Vitamin D sollte nicht überdosiert werden.",
+    "id": 843
+  },
+  {
+    "statement": "Viel hilft viel, stimmt bei Vitamin D nicht.",
+    "id": 844
+  },
+  {
+    "statement": "Wenn ein Kind zu viel Vitamin D bekommt, dann steigt der Calcium-Spiegel.",
+    "id": 845
+  },
+  {
+    "statement": "Wenn der Calcium-Spiegel durch zu viel Vitamin D steigt kann das auf das Herz gehen.",
+    "id": 846
+  },
+  {
+    "statement": "Wenn der Calcium-Spiegel durch zu viel Vitamin D steigt kann das auf die Niere gehen. ",
+    "id": 847
+  },
+  {
+    "statement": "If the baby is exclusively breastfed, either the mother can take 6,400 IU of vitamin D, or the infant can be supplemented with 400 IU of vitamin D.",
+    "id": 848
+  },
+  {
+    "statement": "If the baby is exclusively breastfed and the mother doesn't take 6,400 IUs of vitamin D and the infant is not supplemented with 400 IUs of vitamin D, the baby can develop rickets.",
+    "id": 849
+  },
+  {
+    "statement": "Rickets is like baby osteoporosis.",
+    "id": 850
+  },
+  {
+    "statement": "When doing half and half, let's say breast milk and then half formula, it is recommended to supplement with vitamin D because it is not known how much the infant is receiving.",
+    "id": 851
+  },
+  {
+    "statement": "If a baby is strictly formula-fed, there is no need to supplement with vitamin D, as the vitamin D is already in the formula itself.",
+    "id": 852
+  },
+  {
+    "statement": "Vitamin D3 ist essenziell ab Geburt.",
+    "id": 853
+  },
+  {
+    "statement": " In Deutschland reicht die Sonneneinstrahlung nicht aus, um ausreichend Vitamin D3 zu produzieren.",
+    "id": 854
+  },
+  {
+    "statement": "Vitamin D3 ist unerlässlich für Knochenbildung.",
+    "id": 855
+  },
+  {
+    "statement": "Vitamin D3 ist unerlässlich für Wachstum.",
+    "id": 856
+  },
+  {
+    "statement": "Vitamin D3 ist unerlässlich für viele Stoffwechselprozesse.",
+    "id": 857
+  },
+  {
+    "statement": "Die kontinuierliche Supplementation von Vitamin D3 ist empfehlenswert. ",
+    "id": 858
+  },
+  {
+    "statement": "Die kontinuierliche Supplementation von Vitamin D3 sollte jahreszeit- und standortabhängig angepasst werden. ",
+    "id": 859
+  },
+  {
+    "statement": "Es ist empfehlenswert regelmäßig mit einem Arzt zu sprechen, um die Vitamin D Dosis individuell anzupassen, besonders wenn viel Zeit im sonnenreichen Ausland verbracht wird.",
+    "id": 860
+  },
+  {
+    "statement": "Empfehlenswert ist die Gabe von 500 Einheiten Vitamin D pro Tag von O bis O auch nach dem ersten Geburtstag. ",
+    "id": 861
+  },
+  {
+    "statement": "Es gibt besonders aus den letzten zwei bis drei Jahren wissenschaftlich sehr hochwertige, nämlich prospektiv randomisierte Doppelblindstudien zu dem Thema: Ist Vitamin D bei sonst gesunden und ausgewogen ernährten Kindern über die ersten 12 bis 18 Lebensmonate hinaus sinnvoll?",
+    "id": 862
+  },
+  {
+    "statement": "Die Gabe von Vitamin D bei gesunden Kindern hat keinen nachweisbaren Effekt auf Infektanfälligkeit.",
+    "id": 863
+  },
+  {
+    "statement": "Die Gabe von Vitamin D bei gesunden Kindern hat keinen nachweisbaren Effekt auf Verringerung des Risikos für Autoimmunerkrankungen.",
+    "id": 864
+  },
+  {
+    "statement": "Die Gabe von Vitamin D bei gesunden Kindern hat keinen nachweisbaren Effekt auf Wachstum.",
+    "id": 865
+  },
+  {
+    "statement": "Die Gabe von Vitamin D bei gesunden Kindern hat keinen nachweisbaren Effekt auf Knochengesundheit. ",
+    "id": 866
+  },
+  {
+    "statement": "Die Gabe von Vitamin D bei gesunden Kindern hat möglicherweise leicht positive Effekte auf Body Mass Index, aber das ist in diesem Zusammenhang eher unwichtig. ",
+    "id": 867
+  },
+  {
+    "statement": "Es wird nichts falsch gemacht, wenn Eltern ihren gesunden und ausgewogen ernährten Kindern auch im Kleinkindalter zusätzlich Vitamin D Präparate geben. ",
+    "id": 868
+  },
+  {
+    "statement": "Wenn Eltern ihren gesunden und ausgewogen ernährten Kindern auch im Kleinkindalter zusätzlich Vitamin D Präparate geben, scheint das nicht zu helfen. ",
+    "id": 869
+  },
+  {
+    "statement": "Die Vitamin D Verstoffwechslung im Darm mit künstlich hergestellten Vitamin D Präparaten funktioniert nicht so gut, wie mit Vitamin D, das an natürliche Nahrungsmittel gebunden ist. ",
+    "id": 870
+  },
+  {
+    "statement": "It is recommended that both the mother and the baby take a vitamin D supplement while breastfeeding.",
+    "id": 871
+  },
+  {
+    "statement": "In the UK, especially in autumn and winter, people get very little sunlight for their bodies to be able to create vitamin D.",
+    "id": 872
+  },
+  {
+    "statement": "Vitamin D is important to keep the bones healthy.",
+    "id": 873
+  },
+  {
+    "statement": "Vitamin D is important to keep the teeth healthy.",
+    "id": 874
+  },
+  {
+    "statement": "Vitamin D is important to keep the muscles healthy.",
+    "id": 875
+  },
+  {
+    "statement": "Vitamin D is important whilst babies are growing.",
+    "id": 876
+  },
+  {
+    "statement": "For breastfeeding mums, it's recommended they have 10 micrograms or 400 IUs of vitamin D a day, which can either be on its own or within a breastfeeding multivitamin. ",
+    "id": 877
+  },
+  {
+    "statement": "For babies having breast milk it's recommended that they have 8.5 to 10 micrograms of vitamin D a day in a liquid form. ",
+    "id": 878
+  },
+  {
+    "statement": "To give the baby the vitamin D supplements, it is suitable to put them directly into the mouth.",
+    "id": 879
+  },
+  {
+    "statement": "To give the baby the vitamin D supplements, it is suitable to pop it on the mother's nipple before they latch for a breastfeed.",
+    "id": 880
+  },
+  {
+    "statement": "To give the baby the vitamin D supplements, it is suitable to put it into their express breast milk bottle. ",
+    "id": 881
+  },
+  {
+    "statement": "If a baby is exclusively formula feeding and they're having over 500 mls of first-stage formula milk in 24 hours, they don't need any extra vitamins because they get it all included in their formula milk.",
+    "id": 882
+  },
+  {
+    "statement": "If a baby is having a combination of formula milk and breast milk, as long as they're having over 500 mls of first-stage formula milk in 24 hours, they don't need any extra vitamins because they get it all included in their formula milk.",
+    "id": 883
+  },
+  {
+    "statement": "Vitamin-D als Nahrungsergänzungsmittel kann total wichtig sein. ",
+    "id": 884
+  },
+  {
+    "statement": "Da Babys im ersten Jahr möglichst wenig in die direkte Sonne sollen, gibt man ihnen Vitamin D, denn damit der Körper genügend davon produziert, braucht er Sonnenlicht. ",
+    "id": 885
+  },
+  {
+    "statement": "Vitamin D ist sehr wichtig für die Knochen.",
+    "id": 886
+  },
+  {
+    "statement": "Vitamin D ist sehr wichtig für die Zähne.",
+    "id": 887
+  },
+  {
+    "statement": "Vitamin D ist sehr wichtig für die Muskeln.",
+    "id": 888
+  },
+  {
+    "statement": "Vitamin D ist sehr wichtig für das Immunsystem.",
+    "id": 889
+  },
+  {
+    "statement": "Vitamin D ist sehr wichtig für Stoffwechselvorgänge. ",
+    "id": 890
+  },
+  {
+    "statement": "In unseren Breitengraden kann der Körper Vitamin D nicht das ganze Jahr über ausreichend bilden, denn dafür steht die Sonne im Winter zu tief. (Standort der Kontos: Deutschland)",
+    "id": 891
+  },
+  {
+    "statement": "Babys könnte nicht genug Vitamin D bekommen, damit die Vitamin D Reserven bis zum Frühjahr ausreichen.",
+    "id": 892
+  },
+  {
+    "statement": "Es sollten bei Babys abchecken werden, ob diese Vitamin D supplementieren sollen. ",
+    "id": 893
+  },
+  {
+    "statement": "Vitamin D ist nicht wie zum Beispiel Vitamin C, welches man sich fröhlich einschmeißen kann und alles, was zu viel ist, pinkelt man wieder aus.",
+    "id": 894
+  },
+  {
+    "statement": "Bei Vitamin D gibt es eine gefährliche Überdosis, weswegen viel hilft viel keine gute Pauschalregel ist. ",
+    "id": 895
+  },
+  {
+    "statement": "Bei einer akuten Vitamin D-Vergiftung kann es zu Übelkeit kommen.",
+    "id": 896
+  },
+  {
+    "statement": "Bei einer akuten Vitamin D-Vergiftung kann es zu Appetitlosigkeit kommen.",
+    "id": 897
+  },
+  {
+    "statement": "Bei einer akuten Vitamin D-Vergiftung kann es zu Bauchkrämpfen kommen.",
+    "id": 898
+  },
+  {
+    "statement": "Bei einer akuten Vitamin D-Vergiftung kann es zu erbrechen kommen.",
+    "id": 899
+  },
+  {
+    "statement": "Bei einer akuten Vitamin D-Vergiftung kann es in schweren Fällen zu Nierenschädigungen kommen.",
+    "id": 900
+  },
+  {
+    "statement": "Bei einer akuten Vitamin D-Vergiftung kann es in schweren Fällen zu Herzrhythmusstörungen kommen.",
+    "id": 901
+  },
+  {
+    "statement": "Bei einer akuten Vitamin D-Vergiftung kann es in schweren Fällen zu Bewusstlosigkeit kommen.",
+    "id": 902
+  },
+  {
+    "statement": "Bei einer akuten Vitamin D-Vergiftung kann es in schweren Fällen zum Tod kommen. Deshalb immer ärztlich via Blutbild checken lassen und bezüglich Dosierung beraten lassen. ",
+    "id": 903
+  },
+  {
+    "statement": "Um die Gefahr einer Überdosierung und damit einhergehenden Nebenwirkungen zu verringern sollte Vitamin D immer ärztlich via Blutbild gecheckt werden und bezüglich Dosierung beraten werden. ",
+    "id": 904
+  },
+  {
+    "statement": "Vitamin D is really important for bone health because it makes sure a body can absorb enough calcium and phosphorus to help build strong bones. ",
+    "id": 905
+  },
+  {
+    "statement": "A deficiency of vitamin D can mean an increased risk of broken bones for older kids.",
+    "id": 906
+  },
+  {
+    "statement": "A deficiency of vitamin D puts older kids at an increased risk of something called rickets. ",
+    "id": 907
+  },
+  {
+    "statement": "Rickets is a bone softening disease.",
+    "id": 908
+  },
+  {
+    "statement": "Rickets affects children, especially in their first two years of life. ",
+    "id": 909
+  },
+  {
+    "statement": "Breast milk alone does not provide babies with enough vitamin D to meet their daily needs.",
+    "id": 910
+  },
+  {
+    "statement": "Because breast milk alone does not provide babies with enough vitamin D to meet their daily needs, it is recommended to give breastfed babies 400 IUs of vitamin D daily.",
+    "id": 911
+  },
+  {
+    "statement": "Most infant formulas are fortified with vitamin D.",
+    "id": 912
+  },
+  {
+    "statement": "If a baby is taking in less than 32 ounces a day, then they should still be supplemented with 400 IU of vitamin D daily.",
+    "id": 913
+  },
+  {
+    "statement": "It is fiction that if a baby is taken outside in the sun, that is enough vitamin D. ",
+    "id": 914
+  },
+  {
+    "statement": "There are many factors in flux that will affect how much vitamin D a baby absorbs from sunlight alone.",
+    "id": 915
+  },
+  {
+    "statement": "Vitamin D supplements will provide babies with enough vitamin D every single day with just one drop to help prevent vitamin D deficiency.",
+    "id": 916
+  },
+  {
+    "statement": "If a child is dealing with eczema, the doctor should be asked for a vitamin D blood test.",
+    "id": 917
+  },
+  {
+    "statement": "When having a vitamin D blood test, there shouldn't be a finger poke.",
+    "id": 918
+  },
+  {
+    "statement": "The optimum vitamin D level for children with chronic issues like eczema is between 60 and 80. ",
+    "id": 919
+  },
+  {
+    "statement": "Children with eczema versus controls show that children with low vitamin D levels have more severe eczema .",
+    "id": 920
+  },
+  {
+    "statement": "Children with eczema versus controls show that children with low vitamin D levels have higher total IgE levels.",
+    "id": 921
+  },
+  {
+    "statement": "Vitamin K2 is important for the absorption of vitamin D3.",
+    "id": 922
+  },
+  {
+    "statement": "If a child is dealing with low vitamin D, vitamin D products are suitable, which are organic and contain vitamin K2, vitamin D, and organic MCT oil.",
+    "id": 923
+  },
+  {
+    "statement": "If a child is dealing with vitamin D deficiency, vitamin D products are suitable, which are organic and contain vitamin K2, vitamin D, and organic MCT oil.",
+    "id": 924
+  },
+  {
+    "statement": "Ein Nährstoff, dass Kinder brauchen ist Vitamin D, weil diese es zu wenig in den deutschen Breitengraden aus der Sonne bekommen. ",
+    "id": 925
+  },
+  {
+    "statement": "Vitamin D ist mit der wichtigste Nährstoff für Kinder.",
+    "id": 926
+  },
+  {
+    "statement": "Vitamin D ist ein Hormon. ",
+    "id": 927
+  },
+  {
+    "statement": "Vitamin D deficiency is a growing problem among Indian children.",
+    "id": 928
+  },
+  {
+    "statement": "Poor bone health is a sign of low vitamin D. ",
+    "id": 929
+  },
+  {
+    "statement": "Low immunity is a sign of low vitamin D. ",
+    "id": 930
+  },
+  {
+    "statement": "Frequent illnesses are a sign of low vitamin D. ",
+    "id": 931
+  },
+  {
+    "statement": "If poor bone health, low immunity, and frequent illnesses are signs of low vitamin D, they can be fixed with simple lifestyle changes.",
+    "id": 932
+  },
+  {
+    "statement": "It is recommended that children enjoy 20-30 minutes of daily sunlight with adequate skin exposure without applying any sunscreen, best between 10 am and 3 pm.",
+    "id": 933
+  },
+  {
+    "statement": "If a child has signs of vitamin D deficiency, it is recommended that they eat vitamin D rich foods like fatty fish.",
+    "id": 934
+  },
+  {
+    "statement": "If a child has signs of vitamin D deficiency, it is recommended that they eat vitamin D rich foods like eggs.",
+    "id": 935
+  },
+  {
+    "statement": "If a child has signs of vitamin D deficiency, it is recommended that they eat vitamin D rich foods like fortified milk. ",
+    "id": 936
+  },
+  {
+    "statement": "For vegetarians, fortified plant milk is a great option if there is a sign of a vitamin D deficiency. ",
+    "id": 937
+  },
+  {
+    "statement": "For vegetarians, sun-exposed mushrooms are a great option if there is a sign of a vitamin D deficiency. ",
+    "id": 938
+  },
+  {
+    "statement": "For kids with low vitamin D levels, the paediatrician should be consulted for the right dosage of supplements. ",
+    "id": 939
+  },
+  {
+    "statement": "The three signs of low vitamin D (poor bone health, low immunity, and frequent illnesses) can be fixed with daily sunlight, diet, and supplements.",
+    "id": 940
+  },
+  {
+    "statement": "The power of vitamin D is strong bones. ",
+    "id": 941
+  },
+  {
+    "statement": "The power of vitamin D is better immunity.",
+    "id": 942
+  },
+  {
+    "statement": "The power of vitamin D is a stronger child.",
+    "id": 943
+  },
+  {
+    "statement": "Vitamin D is a fat-soluble vitamin.",
+    "id": 944
+  },
+  {
+    "statement": "When taking a fat-soluble vitamin, the body uses what it needs and stores the rest in the fat cells. ",
+    "id": 945
+  },
+  {
+    "statement": "With fat-soluble vitamins, it is necessary to be more careful because too much can cause harm.",
+    "id": 946
+  },
+  {
+    "statement": "One option for supplementing vitamin D is to take a small amount each day.",
+    "id": 947
+  },
+  {
+    "statement": "For example, a safe amount for children over 12 months is 1,000 IUs vitamin D per day.",
+    "id": 948
+  },
+  {
+    "statement": "One option for supplementing vitamin D is to take the entire weekly dose all in one day. ",
+    "id": 949
+  },
+  {
+    "statement": "If a child is over 12 months, it could take 7,000 IUs vitamin D per week.",
+    "id": 950
+  },
+  {
+    "statement": "To calculate the weekly dose of vitamin D, the daily amount is taken, which is 1,000 IUs per day, and multiplied by seven days, which comes to 7,000 IUs.",
+    "id": 951
+  },
+  {
+    "statement": "There are two options to choose from: the child can either be given 1,000 IU vitamin D per day or take 7,000 IU vitamin D one day per week. ",
+    "id": 952
+  },
+  {
+    "statement": "Viele Eltern machen täglich den Fehler, dass ihre Kinder nicht genug von dem Nährstoff Vitamin D bekommen.",
+    "id": 953
+  },
+  {
+    "statement": "Fehlt Vitamin D kann das zu Kreidezähnen führen.",
+    "id": 954
+  },
+  {
+    "statement": "Kreidezähnen sind weichen, brüchigen Zähnen, die schnell Schaden nehmen.",
+    "id": 955
+  },
+  {
+    "statement": "Vitamin D stärkt das Immunsystem.",
+    "id": 956
+  },
+  {
+    "statement": "Vitamin D sorgt für gesunde Zähne.",
+    "id": 957
+  },
+  {
+    "statement": "Vitamin D fördert die Calciumaufnahme.",
+    "id": 958
+  },
+  {
+    "statement": "Most kids don't need multivitamin supplements.",
+    "id": 959
+  },
+  {
+    "statement": "The only supplement that all children should be on is a vitamin D supplement. ",
+    "id": 960
+  },
+  {
+    "statement": "Babies who are breastfed need vitamin D supplements from birth. ",
+    "id": 961
+  },
+  {
+    "statement": "If babies are drinking infant formula, as soon as their intake drops to less than 500 mils, that's when they should start taking a vitamin D supplement all year round. ",
+    "id": 962
+  },
+  {
+    "statement": "If younger children under the age of five are drinking infant formula, as soon as their intake drops to less than 500 mils, that's when they should start taking a vitamin D supplement all year round. ",
+    "id": 963
+  },
+  {
+    "statement": "Once a child is over the age of four, it may be chosen to give them a vitamin D supplement only during autumn and winter. ",
+    "id": 964
+  },
+  {
+    "statement": "If children are older than four and are dark-skinned, vitamin D may be given all year round. ",
+    "id": 965
+  },
+  {
+    "statement": "If children are older than four and at risk of vitamin D deficiency, vitamin D may be given all year round. ",
+    "id": 966
+  },
+  {
+    "statement": "The term “sunshine vitamin” refers to vitamin D.",
+    "id": 967
+  },
+  {
+    "statement": "The best way to get vitamin D in the system is by going out into the sunshine, especially in the early mornings and the late afternoons. ",
+    "id": 968
+  },
+  {
+    "statement": "Some foods contain vitamin D like salmon.",
+    "id": 969
+  },
+  {
+    "statement": "Some foods contain vitamin D like fortified milk.",
+    "id": 970
+  },
+  {
+    "statement": "Some foods contain vitamin D like eggs.",
+    "id": 971
+  },
+  {
+    "statement": "Because it's the summer season right now, lots of people may not be going out into the sun as much as they need to be, hence creating vitamin D deficiency. ",
+    "id": 972
+  },
+  {
+    "statement": "The signs of vitamin D deficiency in kids affect their immunity.",
+    "id": 973
+  },
+  {
+    "statement": "The signs of vitamin D deficiency in kids affect their bones.",
+    "id": 974
+  },
+  {
+    "statement": "The signs of vitamin D deficiency in kids affect their teeth.",
+    "id": 975
+  },
+  {
+    "statement": "A sign of vitamin D deficiency in kids can include getting sick more often.",
+    "id": 976
+  },
+  {
+    "statement": "A sign of vitamin D deficiency in kids can include having leg pains.",
+    "id": 977
+  },
+  {
+    "statement": "A sign of vitamin D deficiency in kids can include having poor teeth.",
+    "id": 978
+  },
+  {
+    "statement": "A sign of vitamin D deficiency in younger kids can include delayed walking. ",
+    "id": 979
+  },
+  {
+    "statement": "A sign of vitamin D deficiency in younger kids can include, in severe cases, bowing of the legs.",
+    "id": 980
+  },
+  {
+    "statement": "Vitamin D deficiency can be diagnosed clinically.",
+    "id": 981
+  },
+  {
+    "statement": "Vitamin D deficiency can be diagnosed with lab tests.",
+    "id": 982
+  },
+  {
+    "statement": "Vitamin D deficiency can be treated.",
+    "id": 983
+  },
+  {
+    "statement": "If someone thinks that their child is having signs of vitamin D deficiency, they should definitely see a paediatrician and have the child checked out.",
+    "id": 984
+  },
+  {
+    "statement": "Um sich mit Kind auf die Erkältungszeit/Infektzeit vorzubereiten ist ein guter Vitamin-D-Spiegel empfehlenswert.",
+    "id": 985
+  },
+  {
+    "statement": "Ein guter Vitamin-D-Spiegel trägt zur Immunabwehr gegen Krankheitserreger bei. ",
+    "id": 986
+  },
+  {
+    "statement": "Hierzulande bilden die meisten Menschen aufgrund der wenigen Sonnenstunden und der Kälte in Herbst und Winter zu wenig Vitamin-D. (Standort des Kontos: Deutschland)",
+    "id": 987
+  },
+  {
+    "statement": "Die Substitution von Vitamin-D reduzierte die Anzahl der Krankheitstage um 17%.",
+    "id": 988
+  },
+  {
+    "statement": "Supplementing vitamin D helps children with the symptoms of autism.",
+    "id": 989
+  },
+  {
+    "statement": "There are lots of studies on vitamin D supplementation and autism spectrum disorder, often in combination with omega-3.",
+    "id": 990
+  },
+  {
+    "statement": "Vitamin D supplements have a very high safety profile.",
+    "id": 991
+  },
+  {
+    "statement": "Vitamin D supplementation has minimal downsides.",
+    "id": 992
+  },
+  {
+    "statement": "Vitamin D supplementation doesn't work the same for everybody with ASD.",
+    "id": 993
+  },
+  {
+    "statement": "Many kids with ASD benefit from vitamin D supplementation.",
+    "id": 994
+  },
+  {
+    "statement": "For breastfeeding mothers, it is recommended to take a postnatal vitamin with 6400 IUs of vitamin D.",
+    "id": 995
+  },
+  {
+    "statement": "If breastfeeding mothers take a postnatal vitamin with 6400 IUs of vitamin D, this is enough for the mother and enough that the vitamin is passed on to the baby through breast milk.",
+    "id": 996
+  },
+  {
+    "statement": "Vitamin D spielt eine zentrale Rolle für die Knochenentwicklung von Kindern. ",
+    "id": 997
+  },
+  {
+    "statement": "Vitamin D spielt eine zentrale Rolle für das Wachstum von Kindern. ",
+    "id": 998
+  },
+  {
+    "statement": "Vitamin D unterstützt, dass Calcium und Phosphat richtig in die Knochen eingebaut werden und sorgt damit für stabile Knochen.",
+    "id": 999
+  },
+  {
+    "statement": "Vitamin D unterstützt, dass Calcium und Phosphat richtig in die Knochen eingebaut werden und sorgt damit für gesunde Knochen.",
+    "id": 1000
+  },
+  {
+    "statement": "Vitamin D unterstützt, dass Calcium und Phosphat richtig in die Knochen eingebaut werden und sorgt damit für stabile Zähne.",
+    "id": 1001
+  },
+  {
+    "statement": "Vitamin D unterstützt, dass Calcium und Phosphat richtig in die Knochen eingebaut werden und sorgt damit für gesunde Zähne.",
+    "id": 1002
+  },
+  {
+    "statement": "Vitamin D hat eine wichtige Aufgabe im Immunsystem. ",
+    "id": 1003
+  },
+  {
+    "statement": "Vitamin D hilft, den Abwehrzellen Krankheitserreger zu erkennen.",
+    "id": 1004
+  },
+  {
+    "statement": "Vitamin D hilft, den Abwehrzellen Entzündungsreaktionen zu regulieren. ",
+    "id": 1005
+  },
+  {
+    "statement": "Kinder mit einem guten Vitamin D-Status erkranken etwas seltener an schweren Atemwegsinfekten. ",
+    "id": 1006
+  },
+  {
+    "statement": "Vitamin D wird nur zu einem kleinen Teil über die Nahrung aufgenommen wird, zum Beispiel über fetten Fisch.",
+    "id": 1007
+  },
+  {
+    "statement": "Vitamin D wird nur zu einem kleinen Teil über die Nahrung aufgenommen wird, zum Beispiel über Eigelb.",
+    "id": 1008
+  },
+  {
+    "statement": "Da Vitamin D nur zu einem kleinen Teil über die Nahrung aufgenommen wird ist Sonnenlicht die wichtigste Quelle. ",
+    "id": 1009
+  },
+  {
+    "statement": "Die Haut bildet Vitamin D, wenn sie UVB-Strahlung abbekommt.",
+    "id": 1010
+  },
+  {
+    "statement": "UVB-Strahlung fehlt in unseren Breiten oft, vor allem im Herbst und Winter, wenn die Sonne tief steht und die Kinder sich viel drinnen aufhalten (Standort des Kontos: Deutschland). ",
+    "id": 1011
+  },
+  {
+    "statement": "Da in unseren Breiten oft die UVB-Strahlung fehlt kann eine zeitweise oder gezielte Supplementierung mit Vitamin D sinnvoll sein, besonders im Winterhalbjahr.",
+    "id": 1012
+  },
+  {
+    "statement": "Da in unseren Breiten oft die UVB-Strahlung fehlt kann eine zeitweise oder gezielte Supplementierung mit Vitamin D sinnvoll sein, besonders bei Säuglingen und Kleinkindern.",
+    "id": 1013
+  },
+  {
+    "statement": "Da in unseren Breiten oft die UVB-Strahlung fehlt kann eine zeitweise oder gezielte Supplementierung mit Vitamin D sinnvoll sein, besonders bei dunkler Hautfarbe.",
+    "id": 1014
+  },
+  {
+    "statement": "Da in unseren Breiten oft die UVB-Strahlung fehlt kann eine zeitweise oder gezielte Supplementierung mit Vitamin D sinnvoll sein, besonders bei wenig Aufenthalt im Freien.",
+    "id": 1015
+  },
+  {
+    "statement": "Vitamin D is a vital micronutrient.",
+    "id": 1016
+  },
+  {
+    "statement": "All breastfed babies from birth until one year of age need 10 micrograms of vitamin D every day, despite whether the mother is taking a vitamin D supplement.",
+    "id": 1017
+  },
+  {
+    "statement": "Formula-fed babies do not require any additional supplements if they are drinking more than 500 mils of formula per day, because the formula is fortified with additional vitamin D and other nutrients.",
+    "id": 1018
+  },
+  {
+    "statement": "If a baby drinks less than 500 mils of formula per day, they need 10 micrograms of vitamin D.",
+    "id": 1019
+  },
+  {
+    "statement": "Children aged one to four need 10 micrograms of vitamin D every day.",
+    "id": 1020
+  },
+  {
+    "statement": "Children can't get enough vitamin D from the sun or from their food, so it's really important that we give them a daily supplement, especially during the winter months.",
+    "id": 1021
+  },
+  {
+    "statement": "There's this common myth that there's no vitamin D in breast milk.",
+    "id": 1022
+  },
+  {
+    "statement": "That there's no vitamin D in breast milk is a complete lie.",
+    "id": 1023
+  },
+  {
+    "statement": "There is vitamin D in breast milk.",
+    "id": 1024
+  },
+  {
+    "statement": "The amount of vitamin D in breast milk doesn't meet the recommended dose for a baby.",
+    "id": 1025
+  },
+  {
+    "statement": "At the moment, both mothers and babies are told to take a vitamin D supplement.",
+    "id": 1026
+  },
+  {
+    "statement": "If the mother takes a vitamin D supplement, it will increase the vitamin D in her breast milk.",
+    "id": 1027
+  },
+  {
+    "statement": "If the mother takes a vitamin D supplement, it will be enough for her baby. ",
+    "id": 1028
+  },
+  {
+    "statement": "If a mother is taking a vitamin D supplement, the baby doesn't need to be supplemented on top if they are breastfed. ",
+    "id": 1029
+  },
+  {
+    "statement": "If a mother has great vitamin D, her breast milk will contain enough vitamin D for her baby.",
+    "id": 1030
+  },
+  {
+    "statement": "Babys in den 70ern bekamen direkt nach der Geburt 200.000 Einheiten Vitamin D gespritzt.",
+    "id": 1031
+  },
+  {
+    "statement": "Es war Standard in den 70ern Babys zur Rachitis-Vorbeugung direkt nach der Geburt 200.000 Einheiten Vitamin D zu spritzen.",
+    "id": 1032
+  },
+  {
+    "statement": "Manche Babys erhielten im ersten Lebensjahr in den 70ern bis zu 2 Millionen Einheiten Vitamin D ohne erkennbare Nebenwirkungen. ",
+    "id": 1033
+  },
+  {
+    "statement": "Heute wird bei 1.000 Einheiten Vitamin D schon gewarnt. ",
+    "id": 1034
+  },
+  {
+    "statement": "Früher wurde Lebertran mit bis zu 45.000 Einheiten Vitamin D pro Löffel jede Woche verabreicht.",
+    "id": 1035
+  },
+  {
+    "statement": "Viele Kinder bekommen heute  kein Vitamin D mehr und gleichzeitig steigen Allergien.",
+    "id": 1036
+  },
+  {
+    "statement": "Viele Kinder bekommen heute kein Vitamin D mehr und gleichzeitig steigen Autoimmunerkrankungen.",
+    "id": 1037
+  },
+  {
+    "statement": "Viele Kinder bekommen heute kein Vitamin D mehr und gleichzeitig steigt die Infektanfälligkeit.",
+    "id": 1038
+  },
+  {
+    "statement": "Bei einem einjährigen Kind ist es empfehlenswert jeden Tag 400 IE Vitamin D3 zu geben, was einem Tropfen entspricht.",
+    "id": 1039
+  },
+  {
+    "statement": "Ab zwei Jahren ist es empfehlenswert jeden Tag zwei Tropfen Vitamin D3 zu geben (800 IE).",
+    "id": 1040
+  },
+  {
+    "statement": "Knochenbrüche bei Kindern sind nicht normal.",
+    "id": 1041
+  },
+  {
+    "statement": "Knochenbrüche bei Kindern sind sehr verbreitet.",
+    "id": 1042
+  },
+  {
+    "statement": "Knochenbrüche bei Kindern sind nicht normal, weil Kinder normalerweise Knochen wie aus Gummi haben.",
+    "id": 1043
+  },
+  {
+    "statement": "Kinder sollten Knochen wie aus Gummi haben.",
+    "id": 1044
+  },
+  {
+    "statement": "Es ist von der Natur so eingerichtet, dass Kinder Knochen wie aus Gummi haben.",
+    "id": 1045
+  },
+  {
+    "statement": "Die Knochen von Kindern wachsen noch.",
+    "id": 1046
+  },
+  {
+    "statement": "Die Knochen von Kindern sind normalerweise elastisch.",
+    "id": 1047
+  },
+  {
+    "statement": "Die Knochen von Kindern sind normalerweise unkaputtbar.",
+    "id": 1048
+  },
+  {
+    "statement": "Wenn sich Kinder heutzutage bei minimalen Belastungen schon was brechen, das liegt ganz klar nur am Vitamin-D-Mangel.",
+    "id": 1049
+  },
+  {
+    "statement": "Kinder haben fast alle einen Vitamin-D-Mangel, wenn die auf die Welt kommen, weil die nur die Hälfte von der Mama haben. ",
+    "id": 1050
+  },
+  {
+    "statement": "Kinder kriegen im ersten Lebensjahr Vitamin-D, weil fast alle einen Vitamin-D-Mangel haben.",
+    "id": 1051
+  },
+  {
+    "statement": "Das Vitamin-D, welches Kinder im ersten Lebensjahr kriegen, ist viel zu gering dosiert, um die Kinder in ein gutes Level zu befördern. ",
+    "id": 1052
+  },
+  {
+    "statement": "Das Vitamin-D, welches Kinder im ersten Lebensjahr kriegen, halten das Kind gerade mal aus der Rachitis-Zone draußen. ",
+    "id": 1053
+  },
+  {
+    "statement": "Das sich Kinder etwas brechen ist in der Gesellschaft so verbreitet, deswegen sehen wir das als normal an.",
+    "id": 1054
+  },
+  {
+    "statement": "Dass Kinder sich etwas brechen wäre vermeidbar durch einen guten Vitamin-D-Spiegel.",
+    "id": 1055
+  }
+]

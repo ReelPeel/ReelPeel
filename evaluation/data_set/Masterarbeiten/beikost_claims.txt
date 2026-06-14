@@ -1,0 +1,5390 @@
+[
+  {
+    "statement": "Die Empfehlung, dass Kinder im ersten Lebensjahr keine Eier konsumieren dürfen, ist veraltet ",
+    "id": 0
+  },
+  {
+    "statement": "Die Empfehlung, dass Kinder im ersten Lebensjahr keine Milchprodukte konsumieren dürfen, ist veraltet ",
+    "id": 1
+  },
+  {
+    "statement": "Nach wissenschaftlichen Erkenntnissen gibt es in Bezug auf Allergieprävention keine Einschränkung in der Lebensmittelauswahl mehr ",
+    "id": 2
+  },
+  {
+    "statement": "Ein verzögertes Einführen von potent allergenen Lebensmitteln kann nicht mehr empfohlen werden ",
+    "id": 3
+  },
+  {
+    "statement": "Eine Restriktion potent allergener Lebensmittel hat keine positiven Auswirkungen hinsichtlich der Allergieprävention ",
+    "id": 4
+  },
+  {
+    "statement": "Allergene sollten früh angeboten werden ",
+    "id": 5
+  },
+  {
+    "statement": "Allergene sollten häufig angeboten werden ",
+    "id": 6
+  },
+  {
+    "statement": "Milchprodukte gehören zu den häufigsten Allergenen",
+    "id": 7
+  },
+  {
+    "statement": "Eier gehören zu den häufigsten Allergenen",
+    "id": 8
+  },
+  {
+    "statement": "Erdnüsse gehören zu den häufigsten Allergenen",
+    "id": 9
+  },
+  {
+    "statement": "Baumnüsse gehören zu den häufigsten Allergenen",
+    "id": 10
+  },
+  {
+    "statement": "Soja gehört zu den häufigsten Allergenen",
+    "id": 11
+  },
+  {
+    "statement": "Weizen gehört zu den häufigsten Allergenen",
+    "id": 12
+  },
+  {
+    "statement": "Fisch gehört zu den häufigsten Allergenen",
+    "id": 13
+  },
+  {
+    "statement": "Meeresfrüchte gehören zu den häufigsten Allergenen",
+    "id": 14
+  },
+  {
+    "statement": "Die Allergene sollten spätestens ab dem siebten Lebensmonat eingeführt werden ",
+    "id": 15
+  },
+  {
+    "statement": "Jedes Allergen sollte einzeln eingeführt werden, um potenzielle Reaktionen genau beobachten zu können ",
+    "id": 16
+  },
+  {
+    "statement": "Jedes Allergen sollte in kleinen Mengen eingeführt werden, um potenzielle Reaktionen genau beobachten zu können ",
+    "id": 17
+  },
+  {
+    "statement": "Im ersten Lebensjahr dürfen Babys bis zu 200 ml verarbeitete Milchprodukte am Tag konsumieren ",
+    "id": 18
+  },
+  {
+    "statement": "Milchprodukte dürfen nicht als Ersatz für Muttermilch oder Formula gegeben werden",
+    "id": 19
+  },
+  {
+    "statement": "Im ersten Lebensjahr dürfen Babys aufgrund des hohen Proteingehaltes nur ein bis zwei Eier die Woche konsumieren ",
+    "id": 20
+  },
+  {
+    "statement": "Der hohe Proteingehalt in Eiern belastet die unreifen Nieren ",
+    "id": 21
+  },
+  {
+    "statement": "Der hohe Proteingehalt in Eiern bringt den Wasserhaushalt durcheinander",
+    "id": 22
+  },
+  {
+    "statement": "Die Wahl des Zeitpunktes zur Allergeneinführung ist entscheidend ",
+    "id": 23
+  },
+  {
+    "statement": "Die Einführung neuer Lebensmittel sollte vorzugsweise am Morgen erfolgen, um mögliche Reaktionen während der nächsten Stunden genau überwachen zu können ",
+    "id": 24
+  },
+  {
+    "statement": "Lebensmittelallergien treten nicht zwangsläufig bei der ersten Gabe auf, sondern können sich über Zeit bilden ",
+    "id": 25
+  },
+  {
+    "statement": "Bei bestehenden Allergien der Bezugspersonen, sollte dies beim Kinderarzt angesprochen werden",
+    "id": 26
+  },
+  {
+    "statement": "Bei bestehenden Allergien der Geschwisterkinder, sollte dies beim Kinderarzt angesprochen werden",
+    "id": 27
+  },
+  {
+    "statement": "Zur Einschätzung, ob ein Baby bereit ist für die Beikost, soll auf Reifezeichen geachtet werden",
+    "id": 28
+  },
+  {
+    "statement": "Ein Reifezeichen zur Beikost ist, dass der Zungenschnalzreflex sich verliert",
+    "id": 29
+  },
+  {
+    "statement": "Ein Reifezeichen zur Beikost ist, dass das Baby eine aktive Hand-Mund-Koordination hat ",
+    "id": 30
+  },
+  {
+    "statement": "Ein Reifezeichen zur Beikost ist, dass das Baby Interesse am Essen zeigt ",
+    "id": 31
+  },
+  {
+    "statement": "Ein Reifezeichen zur Beikost ist, dass das Baby aufrecht sitzen kann mit leichter Hilfe ",
+    "id": 32
+  },
+  {
+    "statement": "Solange die Nahrung beim Einführen direkt wieder mit der Zunge herauskommt, soll nicht mit Beikost gestartet werden",
+    "id": 33
+  },
+  {
+    "statement": "Es wird empfohlen Beikost mit 6 Monaten einzuführen ",
+    "id": 34
+  },
+  {
+    "statement": "Beikost kann ab 4 bis 6 Monaten eingeführt werden",
+    "id": 35
+  },
+  {
+    "statement": "Regular meat consumption for young children is being really encouraged to get in all of the nutrients that they need ",
+    "id": 36
+  },
+  {
+    "statement": "Meat is quite nutrient dense ",
+    "id": 37
+  },
+  {
+    "statement": "Kids take in small amounts  ",
+    "id": 38
+  },
+  {
+    "statement": "The focus should be more on foods that hold a lot of nutrients in them like meat, dairy, eggs, legumes, nuts rather than grains ",
+    "id": 39
+  },
+  {
+    "statement": "Bis zum sechsten Lebensmonat ist die Muttermilch ein adäquates Lebensmittel ",
+    "id": 40
+  },
+  {
+    "statement": "Bis zum sechsten Lebensmonat ist die Muttermilch ein gesundes Lebensmittel ",
+    "id": 41
+  },
+  {
+    "statement": "Bis zum sechsten Lebensmonat ist die Muttermilch ein sicheres Lebensmittel ",
+    "id": 42
+  },
+  {
+    "statement": "Ab dem sechsten Lebensmonat steigt der Bedarf des Kindes über Muttermilch hinaus",
+    "id": 43
+  },
+  {
+    "statement": "Nach sechs Monaten kann davon ausgegangen werden, dass das Kind reif ist für die Beikost",
+    "id": 44
+  },
+  {
+    "statement": "Wenn das Kind die Beikostreifezeichen erfüllt, kann davon ausgegangen werden, dass der Darm bereit ist für die Beikost ",
+    "id": 45
+  },
+  {
+    "statement": "Auf Gewürze in der Beikost sollte nicht verzichtet werden, denn sie sind super wertvoll ",
+    "id": 46
+  },
+  {
+    "statement": "Gewürze fördern die Geschmacksvielfalt ",
+    "id": 47
+  },
+  {
+    "statement": "Die Förderung der Geschmacksvielfalt ist gerade im ersten Lebensjahr ein wertvoller und wichtiger Punkt",
+    "id": 48
+  },
+  {
+    "statement": "Salz ist im ersten Lebensjahr tabu ",
+    "id": 49
+  },
+  {
+    "statement": "Salz führt zu einer erhöhten Gefahr einer Nierenbelastung ",
+    "id": 50
+  },
+  {
+    "statement": "Scharfe Gewürze wie beispielsweise Pfeffer oder auch Chili sollten gemieden werden ",
+    "id": 51
+  },
+  {
+    "statement": "Milde Gewürze wie zum Beispiel Kräuter sind super für die Beikost geeignet ",
+    "id": 52
+  },
+  {
+    "statement": "Milde Gewürze wie zum Beispiel Kräuter sollten unbedingt in der Beikost eingesetzt werden",
+    "id": 53
+  },
+  {
+    "statement": "Babys darf ab Beikostreife Fisch angeboten werden wie zum Beispiel  Lachs, Makrele, Hecht, Pangasiusfilets, Seelachs",
+    "id": 54
+  },
+  {
+    "statement": "Babys dürfen ab Beikostreife Meeresfrüchte angeboten werden wie zum Beispiel Garnelen ",
+    "id": 55
+  },
+  {
+    "statement": "Alles an Fisch, was als Familie gegessen wird, darf Babys angeboten werden ",
+    "id": 56
+  },
+  {
+    "statement": "Alles an Meeresfrüchten, was als Familie gegessen wird, darf Babys angeboten werden ",
+    "id": 57
+  },
+  {
+    "statement": "Der Fisch sollte gut durchgegart sein ",
+    "id": 58
+  },
+  {
+    "statement": "In dem Fisch sollten keine Gräten enthalten sein ",
+    "id": 59
+  },
+  {
+    "statement": "Was sich am Anfang super eignet, sind kleine längliche Frikadellen aus Fischfilet ",
+    "id": 60
+  },
+  {
+    "statement": "Je älter das Kind wird, umso eher darf es auch ein Fertigprodukt wie Fischstäbchen essen ",
+    "id": 61
+  },
+  {
+    "statement": "Salt is a food babies shouldn't have before they are one years old ",
+    "id": 62
+  },
+  {
+    "statement": "salt is in sausages",
+    "id": 63
+  },
+  {
+    "statement": "salt is in crackers",
+    "id": 64
+  },
+  {
+    "statement": "salt is in crisps",
+    "id": 65
+  },
+  {
+    "statement": "Salt is really bad for babies kidneys ",
+    "id": 66
+  },
+  {
+    "statement": "The aim is to prevent decay on their teeth through sugar",
+    "id": 67
+  },
+  {
+    "statement": "Sugar intake should be as little as possible in babys before they are one years old ",
+    "id": 68
+  },
+  {
+    "statement": "Babies can have eggs from six months old",
+    "id": 69
+  },
+  {
+    "statement": "Eggs should be cooked completely beacause runny eggs can contain bacteria ",
+    "id": 70
+  },
+  {
+    "statement": "Eggs should be cooked completely beacause runny eggs are not good for babies under one years old ",
+    "id": 71
+  },
+  {
+    "statement": "Babies under one years old are allowed to eat cheddar cheese",
+    "id": 72
+  },
+  {
+    "statement": "Babies under one years old are allowed to eat cream cheese",
+    "id": 73
+  },
+  {
+    "statement": "Babies under one years old are allowed to eat cottage cheese ",
+    "id": 74
+  },
+  {
+    "statement": "Babies under one years old are not allowed to eat blue cheese  because it can contain bacteria that are not good for the babies",
+    "id": 75
+  },
+  {
+    "statement": "Babies under one years old are not allowed to eat any kinds of brie because they can contain bacteria that are not good for the babies",
+    "id": 76
+  },
+  {
+    "statement": "Babies under one years old are not allowed to eat any kinds of camembert  because they can contain bacteria that are not good for the babies",
+    "id": 77
+  },
+  {
+    "statement": "Honey can contain bacteria that are not good for babies under one",
+    "id": 78
+  },
+  {
+    "statement": "When babies eat honey, it can get stuck in their throat",
+    "id": 79
+  },
+  {
+    "statement": "When babies eat honey, it can cause choking ",
+    "id": 80
+  },
+  {
+    "statement": "Honey should be avoided before they are one year old ",
+    "id": 81
+  },
+  {
+    "statement": "Wasser ist für Babys gefährlich ",
+    "id": 82
+  },
+  {
+    "statement": "Die Nieren eines Babys können große Mengen Wasser noch nicht verarbeiten",
+    "id": 83
+  },
+  {
+    "statement": "Bei zu viel Wasser für Babys wird das Wasser im schlimmsten Fall vom Gewebe aufgenommen ",
+    "id": 84
+  },
+  {
+    "statement": "Wasser im Gewebe kann bei Babys zu Schädigungen der Zellen führen ",
+    "id": 85
+  },
+  {
+    "statement": "Bei zu viel Wasser für Babys kann es zu Krampfanfällen kommen ",
+    "id": 86
+  },
+  {
+    "statement": "Bei zu viel Wasser für Babys kann es zu Herzrhythmusstörungen kommen ",
+    "id": 87
+  },
+  {
+    "statement": "In den ersten sechs Lebensmonaten sollte Babys ausschließlich Muttermilch oder Formulanahrung zu trinken gegeben werden",
+    "id": 88
+  },
+  {
+    "statement": "Mit dem Beikoststart können Babys kleine Mengen Wasser ",
+    "id": 89
+  },
+  {
+    "statement": "Mit dem Beikoststart können Babys kleine Mengen ungesüßten Tee angeboten werden",
+    "id": 90
+  },
+  {
+    "statement": "Babies under 12 months of age do not need snacks ",
+    "id": 91
+  },
+  {
+    "statement": "Babies have super high energy needs",
+    "id": 92
+  },
+  {
+    "statement": "Most of babys energy needs are met by breast milk or formula in the first year of life",
+    "id": 93
+  },
+  {
+    "statement": "Any foods that are being served on top of breast milk or formula are considered complimentary",
+    "id": 94
+  },
+  {
+    "statement": "Complimentary foods need to be energy dense",
+    "id": 95
+  },
+  {
+    "statement": "Complimentary foods need to be iron rich",
+    "id": 96
+  },
+  {
+    "statement": "Most baby snacks are not energy dense ",
+    "id": 97
+  },
+  {
+    "statement": "Most baby snacks are not iron rich",
+    "id": 98
+  },
+  {
+    "statement": "Lesser nutritional value snacks sould not displace what babies bodies actually need",
+    "id": 99
+  },
+  {
+    "statement": "Babies sould not eat all foods consumed by adults",
+    "id": 100
+  },
+  {
+    "statement": "Exposing baby to the foods the whole family enjoys is a suitable approach when starting solids",
+    "id": 101
+  },
+  {
+    "statement": "Many foods are off limits for babies",
+    "id": 102
+  },
+  {
+    "statement": "Many foods need to be modified to be safe for babies",
+    "id": 103
+  },
+  {
+    "statement": "Consuming honey under the age of one can cause infant botulism",
+    "id": 104
+  },
+  {
+    "statement": "Infant botulism is a very serious illness",
+    "id": 105
+  },
+  {
+    "statement": "Products with baked honey should be avoided",
+    "id": 106
+  },
+  {
+    "statement": "Foods high in sodium should be avoided ",
+    "id": 107
+  },
+  {
+    "statement": "Excess sodium from Foods high in sodium can cause health concerns in babies",
+    "id": 108
+  },
+  {
+    "statement": "Foods high in sodium are not the best options in regards to nutritional intake for babies",
+    "id": 109
+  },
+  {
+    "statement": "There are many choking hazard foods like grapes, cherry tomatoes, nuts, and most raw veggies that need to be avoided or safely modified prior to giving to babies",
+    "id": 110
+  },
+  {
+    "statement": "Foods that contain added sugar are recommended to be avoided for children under 24 months",
+    "id": 111
+  },
+  {
+    "statement": "Taste preferences are being shaped during the first 24 months ",
+    "id": 112
+  },
+  {
+    "statement": "The aim is to avoid an over-reliance on super salty foods in babies",
+    "id": 113
+  },
+  {
+    "statement": "The aim is to avoid an over-reliance on super sweet foods in babies",
+    "id": 114
+  },
+  {
+    "statement": "The focus should be on providing foods that are fueling their growth",
+    "id": 115
+  },
+  {
+    "statement": "The focus should be on providing foods that are helping meet their high energy needs",
+    "id": 116
+  },
+  {
+    "statement": "The focus should be on providing foods that are helping meet their high nutrient needs",
+    "id": 117
+  },
+  {
+    "statement": "Bei Lebensmitteln mit starken Gewürzen muss bei Babys im ersten Lebensjahr besonders aufgepasst werden",
+    "id": 118
+  },
+  {
+    "statement": "Bei Lebensmitteln mit Gewürzen allgemein muss bei Babys im ersten Lebensjahr besonders aufgepasst werden",
+    "id": 119
+  },
+  {
+    "statement": "Die Zunge eines Babys ist sehr empfindlich ",
+    "id": 120
+  },
+  {
+    "statement": "Starke Gewürze können bei Babys Schmerzen verursachen",
+    "id": 121
+  },
+  {
+    "statement": "Besser als scharfe Gewürze sind für Babys milde Gewürze, zum Beispiel wie Zimt, Kurkuma oder Basilikum",
+    "id": 122
+  },
+  {
+    "statement": "Bei Salz muss bei Babys im ersten Lebensjahr besonders aufgepasst werden",
+    "id": 123
+  },
+  {
+    "statement": "Bei salzhaltigen Lebensmitteln muss bei Babys im ersten Lebensjahr besonders aufgepasst werden",
+    "id": 124
+  },
+  {
+    "statement": "Babys dürfen im ersten Lebensjahr circa 1 Gramm Salz pro Tag essen",
+    "id": 125
+  },
+  {
+    "statement": "Lebensmittel wie zum Beispiel Wurst, die sehr salzhaltig sind, sollten eher vermieden oder gar nicht gegeben werden",
+    "id": 126
+  },
+  {
+    "statement": "Lebensmittel wie zum Beispiel Wurst, die viele Zusatzstoffe enthalten, sollten eher vermieden oder gar nicht gegeben werden",
+    "id": 127
+  },
+  {
+    "statement": "Es ist vollkommen in Ordnung Nudelwasser oder Kartoffelwasser zu salzen",
+    "id": 128
+  },
+  {
+    "statement": "Ab dem ersten Geburtstag darf die Salzzufuhr leicht gesteigert werden ",
+    "id": 129
+  },
+  {
+    "statement": "Ab dem ersten Geburtstag sind bis zu 2 Gramm Salz pro Tag erlaubt ",
+    "id": 130
+  },
+  {
+    "statement": "Bei rohen Tiefkühlbeeren muss bei Babys im ersten Lebensjahr besonders aufgepasst werden",
+    "id": 131
+  },
+  {
+    "statement": "Bei rohem Getreide muss bei Babys im ersten Lebensjahr besonders aufgepasst werden",
+    "id": 132
+  },
+  {
+    "statement": "Rohe Tiefkühlbeeren sollten immer gut erhitzt werden, um Keime abzutöten ",
+    "id": 133
+  },
+  {
+    "statement": "Rohes Getreide sollten immer gut erhitzt werden, um Keime abzutöten ",
+    "id": 134
+  },
+  {
+    "statement": "Pseudogetreide wie Quinoa oder Hirse sollten immer gut gewaschen und gut weich gekocht werden ",
+    "id": 135
+  },
+  {
+    "statement": "Gut gewaschen und gut weich gekocht sind Pseudogetreide wie Quinoa oder Hirse super geeignet für die Beikost",
+    "id": 136
+  },
+  {
+    "statement": "There are eight main categories of allergens ",
+    "id": 137
+  },
+  {
+    "statement": "Peanuts are one main categories of allergens ",
+    "id": 138
+  },
+  {
+    "statement": "Tree nuts are one main categories of allergens ",
+    "id": 139
+  },
+  {
+    "statement": "fish is one main categories of allergens ",
+    "id": 140
+  },
+  {
+    "statement": "shellfish is one main categories of allergens ",
+    "id": 141
+  },
+  {
+    "statement": "Eggs are one main categories of allergens ",
+    "id": 142
+  },
+  {
+    "statement": "Dairy is one main categories of allergens ",
+    "id": 143
+  },
+  {
+    "statement": "Soy is one main categories of allergens ",
+    "id": 144
+  },
+  {
+    "statement": "Wheat is one main categories of allergens ",
+    "id": 145
+  },
+  {
+    "statement": "allergens should be introduced into a baby's diet by doing one allergen at a time",
+    "id": 146
+  },
+  {
+    "statement": "The exact same allergen should be given for at least three days in a row without introducing any other new foods",
+    "id": 147
+  },
+  {
+    "statement": "No new foods should be given during the introduction of an allergen, so there's no confusion if there is a reaction about what they are reacting to",
+    "id": 148
+  },
+  {
+    "statement": "After at least three days of allergen exposure the next allergen can be introduced",
+    "id": 149
+  },
+  {
+    "statement": "It is recommended to continue exposing babies to the allergen after the introduction",
+    "id": 150
+  },
+  {
+    "statement": "Studies have shown that early introduction of allergens has been linked to a decreased likelihood of food allergies later in life",
+    "id": 151
+  },
+  {
+    "statement": "It is a suitable approach to introduce allergens at 6 months",
+    "id": 152
+  },
+  {
+    "statement": "Six month is the perfect age to intoduce allergens because usually babies are already eating purees consistently ",
+    "id": 153
+  },
+  {
+    "statement": "Six month is the perfect age to intoduce allergens because they're old enough to get some medication in case they do have an allergic reaction ",
+    "id": 154
+  },
+  {
+    "statement": "peanut butter does not need to be given in the waiting room or parking lot of an emergency room",
+    "id": 155
+  },
+  {
+    "statement": "Anaphylaxis is very, very rare in babies, especially with the first exposure of the food",
+    "id": 156
+  },
+  {
+    "statement": "Severe, allergic reactions are very, very rare in babies, especially with the first exposure of the food",
+    "id": 157
+  },
+  {
+    "statement": "After the allergen is given for the first time, the baby should be monitored very closely, especially for signs of rash ",
+    "id": 158
+  },
+  {
+    "statement": "After the allergen is given for the first time, the baby should be monitored very closely, especially for signs of hives",
+    "id": 159
+  },
+  {
+    "statement": "If a baby develops a rash after eating a new food,  that food should not be given again ",
+    "id": 160
+  },
+  {
+    "statement": "If a baby develops a rash after eating a new food medication based on their age and weight can be given ",
+    "id": 161
+  },
+  {
+    "statement": "If a baby does have a reaction to something the doctor should be contacted immediately",
+    "id": 162
+  },
+  {
+    "statement": "Es sollte darauf geachtet werden, dass Lebensmittel keine Verschluckungsgefahr mit sich bringen",
+    "id": 163
+  },
+  {
+    "statement": "Es gibt einige Lebensmittel, die aufgrund einer potenziellen Gesundheitsgefährdung für Babys nicht empfohlen sind ",
+    "id": 164
+  },
+  {
+    "statement": "Es gibt nur ganz wenige Lebensmittel, die Babys in der Beikostzeit nicht bekommen dürfen",
+    "id": 165
+  },
+  {
+    "statement": "Honig sollte bis zum ersten Geburtstag gemieden werden",
+    "id": 166
+  },
+  {
+    "statement": "Ahornsirup sollte bis zum ersten Geburtstag gemieden werden",
+    "id": 167
+  },
+  {
+    "statement": "Maissirup sollte bis zum ersten Geburtstag gemieden werden",
+    "id": 168
+  },
+  {
+    "statement": "Rohe tierische Lebensmittel, also Rohmilchprodukte, rohe oder nicht durchgegarte Eier, rohes Fleisch, Salami sind bis zum fünften Geburtstag nicht empfohlen",
+    "id": 169
+  },
+  {
+    "statement": "Rohe tierische Lebensmittel können Keime enthalten, die das kindliche Immunsystem überfordern können ",
+    "id": 170
+  },
+  {
+    "statement": "Quinoa ist ein Pseudogetreide",
+    "id": 171
+  },
+  {
+    "statement": "Amaranth ist ein Pseudogetreide",
+    "id": 172
+  },
+  {
+    "statement": "Buchweizen ist ein Pseudogetreide",
+    "id": 173
+  },
+  {
+    "statement": "Speziell Buchweizen sollte zurückgestellt werden",
+    "id": 174
+  },
+  {
+    "statement": "Es gibt Hinweise, dass Buchweizen allergiefördernd sein könnte",
+    "id": 175
+  },
+  {
+    "statement": "Pseudogetreide enthalten gewisse Stoffe, die die Aufnahme guter Nährstoffe beeinträchtigen",
+    "id": 176
+  },
+  {
+    "statement": "Pseudogetreide außer Buchweizen sollte erst ab dem zweiten Lebensjahr gegeben werden",
+    "id": 177
+  },
+  {
+    "statement": "Buchweizensollte erst ab dem dritten Lebensjahr gegeben werden",
+    "id": 178
+  },
+  {
+    "statement": "Fenchelsamen, wie sie zum Beispiel auch in Fencheltee enthalten sind, sind bis zum vierten Geburtstag komplett zu meiden",
+    "id": 179
+  },
+  {
+    "statement": "Die Fenchelknolle ist kein Problem in der Beikostzeit",
+    "id": 180
+  },
+  {
+    "statement": "Fenchelsamen enthalten Estragol",
+    "id": 181
+  },
+  {
+    "statement": "Estragol ist ein potenziell leberschädigender Stoff",
+    "id": 182
+  },
+  {
+    "statement": "food sould be soft enough for babies to eat without any teeth",
+    "id": 183
+  },
+  {
+    "statement": "It is not necessary to wait until babies get their teeth to serve them finger foods",
+    "id": 184
+  },
+  {
+    "statement": "If food passes the squish test, it's safe enough for baby to eat with no teeth",
+    "id": 185
+  },
+  {
+    "statement": "food should be severd at the age-appropriate size",
+    "id": 186
+  },
+  {
+    "statement": "from six to nine months larger stick-shaped finger foods should be served",
+    "id": 187
+  },
+  {
+    "statement": "small pieces of food should not be served until baby is around nine to ten months old and has developed their pincer grasp ",
+    "id": 188
+  },
+  {
+    "statement": "pincer grasp means babies can pick up small pieces of food between their fingers",
+    "id": 189
+  },
+  {
+    "statement": "If a baby is struggling with chewing or swallowing the finger foods, sticks should be served again because those are going to teach how to chew",
+    "id": 190
+  },
+  {
+    "statement": "It is recommended that baby's first food should be meat ",
+    "id": 191
+  },
+  {
+    "statement": "the recommended first food swiched from iron fortified cereal to meat",
+    "id": 192
+  },
+  {
+    "statement": "It is a suitble approach not to give any grains to a baby",
+    "id": 193
+  },
+  {
+    "statement": "It is a suitble approach not to give dairy to a baby",
+    "id": 194
+  },
+  {
+    "statement": "It is a suitble approach not to give soy to a baby",
+    "id": 195
+  },
+  {
+    "statement": "It is a suitble approach if a babies diet consists of 80 % meat and fruit",
+    "id": 196
+  },
+  {
+    "statement": "Babies need iron",
+    "id": 197
+  },
+  {
+    "statement": "Not having enough iron will cause developmental delay",
+    "id": 198
+  },
+  {
+    "statement": "Not having enough iron will cause lots of issues",
+    "id": 199
+  },
+  {
+    "statement": "Most iron fortified foods like baby cereals have non-heme type of iron",
+    "id": 200
+  },
+  {
+    "statement": "Non-heme type of iron is the type of which only 5% gets absorbed",
+    "id": 201
+  },
+  {
+    "statement": "Non-heme type of iron has a very low absorption ",
+    "id": 202
+  },
+  {
+    "statement": "Meat has heme type of iron",
+    "id": 203
+  },
+  {
+    "statement": "Poultry has heme type of iron",
+    "id": 204
+  },
+  {
+    "statement": "Heme type of iron is six times more absorbable than non-heme type of iron ",
+    "id": 205
+  },
+  {
+    "statement": "bone marrow is a great option for babies starting out on solid foods",
+    "id": 206
+  },
+  {
+    "statement": "Bone marrow has highly absorbable iron",
+    "id": 207
+  },
+  {
+    "statement": "Bone marrow has lots of vitamins",
+    "id": 208
+  },
+  {
+    "statement": "Bone marrow has minerals ",
+    "id": 209
+  },
+  {
+    "statement": "Bone marrow has healthy fats like omega-3s",
+    "id": 210
+  },
+  {
+    "statement": "Highly absorbable iron is awesome for brain development",
+    "id": 211
+  },
+  {
+    "statement": "Vitamins are awesome for brain development",
+    "id": 212
+  },
+  {
+    "statement": "Minerals are awesome for brain development",
+    "id": 213
+  },
+  {
+    "statement": "Healthy fats like omega-3s are awesome for brain development",
+    "id": 214
+  },
+  {
+    "statement": "Bone marrow is not for babies less than six months ",
+    "id": 215
+  },
+  {
+    "statement": "Bone marrow needs to be pureed so it's not a choking hazard",
+    "id": 216
+  },
+  {
+    "statement": "Eier gehören zu den potenziellen allergiegefährlichen Lebensmitteln",
+    "id": 217
+  },
+  {
+    "statement": "Es wird empfohlen, Eier ab Beikostreifezeichen anzubieten ",
+    "id": 218
+  },
+  {
+    "statement": "Es ist wichtig, dass die Eier komplett durchgegart oder durchgebraten sind",
+    "id": 219
+  },
+  {
+    "statement": "Eier können in Form von Omelettstreifen angeboten werden",
+    "id": 220
+  },
+  {
+    "statement": "Eier können gebacken in Waffeln angeboten werden",
+    "id": 221
+  },
+  {
+    "statement": "Eier können gebacken in Pancakes angeboten werden",
+    "id": 222
+  },
+  {
+    "statement": "Eier können als French Toast angeboten werden",
+    "id": 223
+  },
+  {
+    "statement": "1-2 Eier die Woche sind für Babys ab Beikostreifezeichen geeignet ",
+    "id": 224
+  },
+  {
+    "statement": "Muttermilch hemmt die Eisenaufnahme nicht ",
+    "id": 225
+  },
+  {
+    "statement": "Muttermilch fördert die Eisenaufnahme ",
+    "id": 226
+  },
+  {
+    "statement": "Durch Inhaltsstoffe der Muttermilch wie Laktose, Vitamin C und besonders Lactoferrin wird Eisen viel besser aufgenommen",
+    "id": 227
+  },
+  {
+    "statement": "Lactoferrin bindet Eisen und bringt es dann direkt zu den Rezeptoren im Darm",
+    "id": 228
+  },
+  {
+    "statement": "Muttermilch enthält sehr wenig Eisen",
+    "id": 229
+  },
+  {
+    "statement": "Ab dem 6. Monat circa kann ein Eisenmangel entstehen, weil die Eisenspeicher aus der Schwangerschaft dann langsam leer sind, deshalb ist Eisen ab dem Beikosstart super wichtig ",
+    "id": 230
+  },
+  {
+    "statement": "Eisen kann ab Beikoststart durch Fleisch gegeben werden",
+    "id": 231
+  },
+  {
+    "statement": "Eisen kann ab Beikoststart durch Hülsenfrüchte gegeben werden",
+    "id": 232
+  },
+  {
+    "statement": "Eisen kann ab Beikoststart durch Hirse gegeben werden",
+    "id": 233
+  },
+  {
+    "statement": "Eisen kann ab Beikoststart durch Eisenbreie gegeben werden",
+    "id": 234
+  },
+  {
+    "statement": "Kuhmilch enthält wenig Eisen ",
+    "id": 235
+  },
+  {
+    "statement": "Kuhmilch kann die Eisenaufnahme bremsen",
+    "id": 236
+  },
+  {
+    "statement": "Wenn ein Kind mit 1,5 Jahren normal isst und ab und zu gestillt wird ist das in Bezug auf die Eisenaufnahme völlig unproblematisch",
+    "id": 237
+  },
+  {
+    "statement": "Es stimmt nicht, dass Babys bei der U4 schon mit Brei beginnen sollen, um besser zu schlafen ",
+    "id": 238
+  },
+  {
+    "statement": "Ein Beikostreifezeichen ist, dass das Kind keinen Zungestoßreflex mehr hat, um Nahrung aus dem Mund rauszutransportieren",
+    "id": 239
+  },
+  {
+    "statement": "Ein Beikostreifezeichen ist, dass das Kind eine klare Hand-Mund-Koordination hat",
+    "id": 240
+  },
+  {
+    "statement": "Hand-Mund-Koordination bedeutet, dass das Kind beide Hände zusammenführen und zum Mund führen kann ",
+    "id": 241
+  },
+  {
+    "statement": "Ein Beikostreifezeichen ist, dass das Baby mit ein bisschen Unterstützung relativ sicher sitzen kann ",
+    "id": 242
+  },
+  {
+    "statement": "Ein Beikostreifezeichen ist, dass das Baby den Kopf gut halten kann ",
+    "id": 243
+  },
+  {
+    "statement": "Eine allgemeine Beikostbereitschaf,t in Form von guter laune, einer Spielphase und Interesse, etwas Neues zu lernen, ist wichtig ",
+    "id": 244
+  },
+  {
+    "statement": "Bei der Beikost geht es ums Lernen und nicht darum, dass der Hunger gestillt wird",
+    "id": 245
+  },
+  {
+    "statement": "Beim Baby-Led-Weaning wird stückiges Essen gegeben",
+    "id": 246
+  },
+  {
+    "statement": "Mit Baby-Led-Weaning beginnt man später als mit Brei",
+    "id": 247
+  },
+  {
+    "statement": "Für das Baby-Led-Weaning sollte das Kind selber sitzen können",
+    "id": 248
+  },
+  {
+    "statement": "Muttermilch bleibt die Hauptnahrung im ersten Lebensjahr",
+    "id": 249
+  },
+  {
+    "statement": "Zwischen dem sechsten und achten Monat reicht eine Mahlzeit pro Tag aus, manchmal auch mit Pausen dazwischen",
+    "id": 250
+  },
+  {
+    "statement": "In der Beikostzeit geht es nicht darum, wie viel ein Baby isst, sondern was",
+    "id": 251
+  },
+  {
+    "statement": "Schon winzige Mengen Fleischbrühe können Babys wertvolle Fette liefern",
+    "id": 252
+  },
+  {
+    "statement": "Schon winzige Mengen Ghee können Babys wertvolle Fette liefern",
+    "id": 253
+  },
+  {
+    "statement": "Schon winzige Mengen Knochenmark können Babys wertvolle Fette liefern",
+    "id": 254
+  },
+  {
+    "statement": "Schon winzige Mengen Lebertran können Babys wertvolle Fette liefern",
+    "id": 255
+  },
+  {
+    "statement": "Schon winzige Mengen zartgegartes Eigelb können Babys wertvolle Fette liefern",
+    "id": 256
+  },
+  {
+    "statement": "Schon winzige Mengen Fleisch können Babys wertvolle Fette liefern",
+    "id": 257
+  },
+  {
+    "statement": "Schon winzige Mengen fermentierter Lebensmittel können Babys wertvolle Fette liefern",
+    "id": 258
+  },
+  {
+    "statement": "Schon winzige Mengen Fleischbrühe können Babys aufbauende Nährstoffe liefern",
+    "id": 259
+  },
+  {
+    "statement": "Schon winzige Mengen Ghee können Babys aufbauende Nährstoffe liefern",
+    "id": 260
+  },
+  {
+    "statement": "Schon winzige Mengen Knochenmark können Babys aufbauende Nährstoffe liefern",
+    "id": 261
+  },
+  {
+    "statement": "Schon winzige Mengen Lebertran können Babys aufbauende Nährstoffe liefern",
+    "id": 262
+  },
+  {
+    "statement": "Schon winzige Mengen zartgegartes Eigelb können Babys aufbauende Nährstoffe liefern",
+    "id": 263
+  },
+  {
+    "statement": "Schon winzige Mengen Fleisch können Babys aufbauende Nährstoffe liefern",
+    "id": 264
+  },
+  {
+    "statement": "Schon winzige Mengen fermentierter Lebensmittel können Babys aufbauende Nährstoffe liefern",
+    "id": 265
+  },
+  {
+    "statement": "In der Beikostzeit braucht ein Baby Fette und aufbauende Nährstoffe",
+    "id": 266
+  },
+  {
+    "statement": "Beikost ist eine Ergänzung, kein Ersatz für Muttermilch ",
+    "id": 267
+  },
+  {
+    "statement": "In der Beikostzeit sollte dem Tempo des Babys gefolgt werden, nicht einem Plan ",
+    "id": 268
+  },
+  {
+    "statement": "Durch die Orientierung am Tempo des Babys in der Beikostzeit entseht Vertrauen",
+    "id": 269
+  },
+  {
+    "statement": "Durch die Orientierung am Tempo des Babys in der Beikostzeit entseht eine gesunde Basis fürs Leben",
+    "id": 270
+  },
+  {
+    "statement": "A long time ago people suggested not introducing allergen-provoking foods like peanuts to babies",
+    "id": 271
+  },
+  {
+    "statement": "The recommendation not to introduce allergen-provoking foods to babies has recently been completely revoked",
+    "id": 272
+  },
+  {
+    "statement": "The advice now ist that parents should introduce allergens early",
+    "id": 273
+  },
+  {
+    "statement": "The advice now ist that parents should introduce allergens often",
+    "id": 274
+  },
+  {
+    "statement": "Peanuts or peanut butter should be introduced to babies at an early age like 6 months ",
+    "id": 275
+  },
+  {
+    "statement": "Peanuts or peanut butter should be introduced to babies watered down with formula or milk",
+    "id": 276
+  },
+  {
+    "statement": "Peanuts or peanut butter should be introduced in small amounts ",
+    "id": 277
+  },
+  {
+    "statement": "Es wird empfohlen die ersten sechs Monate vollzustillen  ",
+    "id": 278
+  },
+  {
+    "statement": "Es wird empfohlen nach sechs Monaten nach und nach mit den ersten Mahlzeiten zu beginnen ",
+    "id": 279
+  },
+  {
+    "statement": "Es gibt Kinder, die schon deutlich früher als nach 6 Monaten Reifezeichen aufweisen, weshalb man auch schon viel eher, mit frühestens abgeschlossenen vier Monaten, mit der Beikost starten könnte",
+    "id": 280
+  },
+  {
+    "statement": "Sechs Reifezeichen zeigen, ob ein Kind schon bereit für feste Nahrung ist",
+    "id": 281
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Kind seinen Kopf kontrollieren und selbstständig halten kann",
+    "id": 282
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Kind bewusst Interesse am Essen zeigt und es dir wegnehmen möchte, aber nicht um damit zu spielen, sondern um es selbst zu essen",
+    "id": 283
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Kind selbst zum Essen greift, automatisch den Mund aufmacht und sich das Essen selbst zum Mund führt",
+    "id": 284
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Kind mit wenig Unterstützung aufrecht sitzen kann, zum Beispiel auf dem Schoß oder angelehnt in einem Hochstuhl",
+    "id": 285
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Kind das Essen im Mund kontrolliert bewegen und von vorne nach hinten führen kann ",
+    "id": 286
+  },
+  {
+    "statement": "Ob ein Kind Essen im Mund kontrolliert bewegen und von vorne nach hinten führen kann, sieht man an Mahl- und Kaubewegungen",
+    "id": 287
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass der Zungenstoßreflex verschwunden ist",
+    "id": 288
+  },
+  {
+    "statement": "Das Verschwinden des Zungestroßreflexes ist das deutlichste Reifezeichen ",
+    "id": 289
+  },
+  {
+    "statement": "Falls ein Kind beim Essen die Nahrung mit der Zunge nach außen schiebt, ist der Zungenstoßreflex noch vorhanden ",
+    "id": 290
+  },
+  {
+    "statement": "Bei Unsicherheit in Bezug auf die Reifezeichen sollte lieber länger gewartet als zu früh angefangen werden",
+    "id": 291
+  },
+  {
+    "statement": "Die Reifezeichen können immer wieder getestet werden",
+    "id": 292
+  },
+  {
+    "statement": "Kinder verziehen manchmal das Gesicht, weil sie den Geschmack des Essens nicht kennen ",
+    "id": 293
+  },
+  {
+    "statement": "Kinder verziehen manchmal das Gesicht, weil die Konsistenz eklig für sie ist",
+    "id": 294
+  },
+  {
+    "statement": "Beikost ist für Kinder manchmal total irritierend, weil sie nichts anderes kennen als Muttermilch",
+    "id": 295
+  },
+  {
+    "statement": "Zum Thema Beikost kann sich von der Hebamme beraten werden lassen",
+    "id": 296
+  },
+  {
+    "statement": "Zum Thema Beikost kann sich von Kinderärzt:innen beraten werden lassen",
+    "id": 297
+  },
+  {
+    "statement": "Die Kosten für die Hebamme in der Beikost übernehmen die Krankenkassen ",
+    "id": 298
+  },
+  {
+    "statement": "At 6-8 months the baby should get 2 meals and 1 snack",
+    "id": 299
+  },
+  {
+    "statement": "Between 9-12 months 3-4 meals with 2 snacks should be introduced",
+    "id": 300
+  },
+  {
+    "statement": "In meals wholesome options like ragi should be given to the baby",
+    "id": 301
+  },
+  {
+    "statement": "In meals wholesome options like dal khichdi should be given to the baby",
+    "id": 302
+  },
+  {
+    "statement": "In meals wholesome options like rice should be given to the baby",
+    "id": 303
+  },
+  {
+    "statement": "In meals wholesome options like wheat should be given to the baby",
+    "id": 304
+  },
+  {
+    "statement": "In meals wholesome options like broken wheat should be given to the baby",
+    "id": 305
+  },
+  {
+    "statement": "In meals wholesome options like oats should be given to the baby",
+    "id": 306
+  },
+  {
+    "statement": "In meals wholesome options like semolina should be given to the baby",
+    "id": 307
+  },
+  {
+    "statement": "In snacks pureed fruits like apples, banana, chico, papaya can be offered",
+    "id": 308
+  },
+  {
+    "statement": "In snacks mashed fruits a like apples, banana, chico, papaya can be offered",
+    "id": 309
+  },
+  {
+    "statement": "In snacks pureed vegetables like carrots and pumpkin can be offered",
+    "id": 310
+  },
+  {
+    "statement": "In snacks vegetables like like carrots and pumpkin can be offered",
+    "id": 311
+  },
+  {
+    "statement": "At 6 months smooth purees can be introduced",
+    "id": 312
+  },
+  {
+    "statement": "By 7 months lightly mashed textures can be given",
+    "id": 313
+  },
+  {
+    "statement": "by 9 months and beyond semi-solid foods can be introduced",
+    "id": 314
+  },
+  {
+    "statement": "by 9 months and beyond soft finger foods can be introduced",
+    "id": 315
+  },
+  {
+    "statement": "At 6-7 months 3-4 tablespoons can be given",
+    "id": 316
+  },
+  {
+    "statement": "Between 8-9 months it can be gradually increased to half a small bowl that is around 125 ml",
+    "id": 317
+  },
+  {
+    "statement": "Between 10-12 months 1 small bowl around 250 ml can be served",
+    "id": 318
+  },
+  {
+    "statement": "A pinch of flavou rcan be added with mild spices like jeera, turmeric, hing or cinnamon",
+    "id": 319
+  },
+  {
+    "statement": "No sugar should be given before the baby is 1 year old",
+    "id": 320
+  },
+  {
+    "statement": "No salt should be given before the baby is 1 year old",
+    "id": 321
+  },
+  {
+    "statement": "No honey should be given before the baby is 1 year old",
+    "id": 322
+  },
+  {
+    "statement": "Solids should be introduced slowly",
+    "id": 323
+  },
+  {
+    "statement": "When introducing solids it should be watched out for allergies",
+    "id": 324
+  },
+  {
+    "statement": "The baby should explore new tastes during the introduction of solid foods",
+    "id": 325
+  },
+  {
+    "statement": "The baby should explore new textures during the introduction of solid foods",
+    "id": 326
+  },
+  {
+    "statement": "The ideal age to start solids is around 5 or 6 months of age but never before 4 months of age",
+    "id": 327
+  },
+  {
+    "statement": "Before starting solids five signs of developmental readiness should be present in a baby",
+    "id": 328
+  },
+  {
+    "statement": "One sign of develepmental readiness is that a  baby should have good consistent head control",
+    "id": 329
+  },
+  {
+    "statement": "One sign of develepmental readiness is that a baby should be able to sit upright with support without falling forwards or sidewards",
+    "id": 330
+  },
+  {
+    "statement": "One sign of develepmental readiness is that a baby shows interest in your food",
+    "id": 331
+  },
+  {
+    "statement": "One sign of develepmental readiness is that a baby is able to grab food and put it in their mouth",
+    "id": 332
+  },
+  {
+    "statement": "One sign of develepmental readiness is the loss of tongue thrust reflex",
+    "id": 333
+  },
+  {
+    "statement": "The loss of the tongue thrust reflex means that when baby is offered food or spoon, they take it in instead of throwing it out",
+    "id": 334
+  },
+  {
+    "statement": "The tongue thrust reflex is a normal protective reflex in babies in which they have a tendency to throw everything out so as to protect their airways",
+    "id": 335
+  },
+  {
+    "statement": "Bei Obst entscheidet die Darreichungsform über die Wirkung",
+    "id": 336
+  },
+  {
+    "statement": "Wird einem Baby Obst am Stück angeboten, wird es mit den Sinnen erforscht",
+    "id": 337
+  },
+  {
+    "statement": "Bei Obst-Quetschies bleiben die Sinne passiv",
+    "id": 338
+  },
+  {
+    "statement": "In Obst-Quetschies sind die natürlichen Zellstrukturen bereits zerlegt",
+    "id": 339
+  },
+  {
+    "statement": "In Obst-Quetschies sind die Ballaststoffe zerteilt",
+    "id": 340
+  },
+  {
+    "statement": "Bei Obst-Quetschies steht der Zucker direkt ohne Widerstand bereit",
+    "id": 341
+  },
+  {
+    "statement": "Bei Obst-Quetschies bekommt der Körper schnell Energie, aber ohne den natürlichen Sättigungsprozess, denn der Körper hat keine Zeit, sich darauf einzustellen",
+    "id": 342
+  },
+  {
+    "statement": "Beim Kauen entsteht viel Speichel",
+    "id": 343
+  },
+  {
+    "statement": "Der Speichel dient dem Aufspalten (der Zellstrukturen und Ballaststoffe?)",
+    "id": 344
+  },
+  {
+    "statement": "Der Speichel dient dem natürlichen Zahnschutz",
+    "id": 345
+  },
+  {
+    "statement": "Durch weniger Kauen und weniger Speichel bleibt Zucker länger an den Zähnen",
+    "id": 346
+  },
+  {
+    "statement": "Durch weniger Kauen und weniger Speichel bleibt Zucker dichter an den Zähnen",
+    "id": 347
+  },
+  {
+    "statement": "Durch weniger Kauen und weniger Speichel bleibt Fruchtsäure länger an den Zähnen",
+    "id": 348
+  },
+  {
+    "statement": "Durch weniger Kauen und weniger Speichel bleiben Fruchtsäure dichter an den Zähnen",
+    "id": 349
+  },
+  {
+    "statement": "Die ersten 1000 Lebenstage sind eine prägende Phase für Geschmack",
+    "id": 350
+  },
+  {
+    "statement": "Die ersten 1000 Lebenstage sind eine prägende Phase für Essvorlieben ",
+    "id": 351
+  },
+  {
+    "statement": "Die ersten 1000 Lebenstage sind eine prägende Phase für den Stoffwechsel",
+    "id": 352
+  },
+  {
+    "statement": "Es gibt Hinweise darauf, dass eine sehr frühe Aufnahme von Zucker und süßen Lebensmitteln die Geschmacksausprägung beeinflussen kann sodass Kinder zum Beispiel stärker Süßes bevorzugen",
+    "id": 353
+  },
+  {
+    "statement": "Es gibt Hinweise darauf, dass eine sehr hohe Aufnahme von Zucker und süßen Lebensmitteln die Geschmacksausprägung beeinflussen kann sodass Kinder zum Beispiel stärker Süßes bevorzugen",
+    "id": 354
+  },
+  {
+    "statement": "Das stärkere Bevorzugen von süßen Lebensmitteln kann Gemüse und weniger süße Lebensmittel später schwieriger machen kann ",
+    "id": 355
+  },
+  {
+    "statement": "Kinder sollten keine Obst-Quetschies bekommen",
+    "id": 356
+  },
+  {
+    "statement": "Für einen schnellen Snack eignen sich eher Gemüse-Quetschies statt Obst-Quetschies",
+    "id": 357
+  },
+  {
+    "statement": "A six month old baby can eat chicken",
+    "id": 358
+  },
+  {
+    "statement": "A six month old baby does not need teeth to eat chicken",
+    "id": 359
+  },
+  {
+    "statement": "Chicken has tons of macronutrients that help baby thrive",
+    "id": 360
+  },
+  {
+    "statement": "Chicken has tons micronutrients that help baby thrive",
+    "id": 361
+  },
+  {
+    "statement": "Chicken has proteins",
+    "id": 362
+  },
+  {
+    "statement": "Chicken has fats",
+    "id": 363
+  },
+  {
+    "statement": "Chicken has iron ",
+    "id": 364
+  },
+  {
+    "statement": "When serving chicken to babies, it should be defrosted safely to decrease the chance of foodborne illnesses",
+    "id": 365
+  },
+  {
+    "statement": "When serving chicken to babies, it should be cooked completely through to decrease the chance of foodborne illnesses",
+    "id": 366
+  },
+  {
+    "statement": "It is suitible to season the chicken as normal before serving it to a baby",
+    "id": 367
+  },
+  {
+    "statement": "It is suitible to season and bake the chicken as normal before serving it to a baby",
+    "id": 368
+  },
+  {
+    "statement": "babies can have seasoning ",
+    "id": 369
+  },
+  {
+    "statement": "babies can have small amounts of salt",
+    "id": 370
+  },
+  {
+    "statement": "To serve chicken to a baby it should be cut into two finger-length-wide strips",
+    "id": 371
+  },
+  {
+    "statement": "When serving chicken while starting solids, the goal is not for baby to eat a ton, but more to explore flavors ",
+    "id": 372
+  },
+  {
+    "statement": "When serving chicken while starting solids, the goal is not for baby to eat a ton, but more to explore textures ",
+    "id": 373
+  },
+  {
+    "statement": "When serving chicken while starting solids, the goal is not for baby to eat a ton, but more to practice chewing motions ",
+    "id": 374
+  },
+  {
+    "statement": "When serving chicken while starting solids, the goal is not for baby to eat a ton, but more to practice oral motor skills",
+    "id": 375
+  },
+  {
+    "statement": "It is okay if babies break off smaller chunks of the chicken in their mouth",
+    "id": 376
+  },
+  {
+    "statement": "If babies break off smaller chunks of chicken the baby should be given an opportunity to work them to the front of their mouth and spit them out",
+    "id": 377
+  },
+  {
+    "statement": "If babies break off smaller chunks of chicken, fingers should not be put in their mouth to sweep the food out, as this could push it further back",
+    "id": 378
+  },
+  {
+    "statement": "If baby breaks off smaller pieces in their hand or spits out a small piece, it can be taken away",
+    "id": 379
+  },
+  {
+    "statement": "Some bread is a higher choking risk than others for babies",
+    "id": 380
+  },
+  {
+    "statement": "soft breads sould be avoided as they can form a gummy mass that increases the risk of choking",
+    "id": 381
+  },
+  {
+    "statement": "instead of soft breads it should be opted for well-toasted bread or the large heel of a thick, crusty loaf",
+    "id": 382
+  },
+  {
+    "statement": "Bread that has some resistance stands up to the powerful suck of young babies",
+    "id": 383
+  },
+  {
+    "statement": "Bread that has some resistance stands up to the powerful grip of young babies",
+    "id": 384
+  },
+  {
+    "statement": "Bread that has some resistance offers valuable opportunities for lots of biting practice",
+    "id": 385
+  },
+  {
+    "statement": "Bread that has some resistance offers valuable opportunities for lots of tearing practice",
+    "id": 386
+  },
+  {
+    "statement": "sliced bread should be served toasted ",
+    "id": 387
+  },
+  {
+    "statement": "sliced bread should be served cut into wide strips",
+    "id": 388
+  },
+  {
+    "statement": "When topping the bread with something it should  be aimed for very thin spreads especially when it comes to nut butters, as these can get extra sticky in baby's mouth",
+    "id": 389
+  },
+  {
+    "statement": "breads that include additional choking hazards like large nuts or seeds should be avoided",
+    "id": 390
+  },
+  {
+    "statement": "honey should be avoided as an ingredient before babies are 12 months old",
+    "id": 391
+  },
+  {
+    "statement": "Der einzige Weg, um herauszufinden, ob ein Baby bereit ist für den Beikoststart ist abzuwarten, bis es die drei echten Reifezeichen erfüllt",
+    "id": 392
+  },
+  {
+    "statement": "Eins der Reifezeichen ist es, dass das Baby mit wenig Unterstützung im unteren Rücken aufrecht sitzen kann ",
+    "id": 393
+  },
+  {
+    "statement": "Eins der Reifezeichen ist, dass der Zungenstoß- oder Zungenstreckreflex weg ist",
+    "id": 394
+  },
+  {
+    "statement": "Eins der Reifezeichen ist, dass das Baby eine Augen-Hand-Mund-Koordination hat",
+    "id": 395
+  },
+  {
+    "statement": "Mit dem Reifezeichen des aufrechten Sitzens ist nicht gemeint, dass sich das Baby selbst in den Sitz bringen können und frei sitzen können muss, sondern dass es sich ohne Probleme und Wackeln aufrecht halten kann, wenn es angelehnt auf dem Schoß sitzt und an der Hüfte gegriffen wird ",
+    "id": 396
+  },
+  {
+    "statement": "Wenn das Baby beim Sitzen zur Seite oder nach vorne wegkippt, dann ist es noch zu früh für die Beikost",
+    "id": 397
+  },
+  {
+    "statement": "Unter anderem an der Haltung des Kopfes ist zu erkennen, wenn ein Baby bereit ist für Beikost",
+    "id": 398
+  },
+  {
+    "statement": "Der richtige Zeitpunkt, an dem ein Baby die richtige Körperspannung und die richtige Kopfkontrolle hat, um Beikost zu sich nehmen zu können, ist dann erreicht, wenn der Hals sichtbar ist und es den Kopf frei bewegen kann",
+    "id": 399
+  },
+  {
+    "statement": "Mit dem Zungenstoßreflex schützt sich das Baby davor, dass etwas in den Mund kommt und es runtergeschluckt wird",
+    "id": 400
+  },
+  {
+    "statement": "Durch den Zungenstoßrefelex stößt das Baby mit der Zunge alles raus außer Milch",
+    "id": 401
+  },
+  {
+    "statement": "Um Brei im Mund behalten zu können, muss der Zungenstoßreflex weg sein, sonst macht das Füttern keinen Sinn",
+    "id": 402
+  },
+  {
+    "statement": "Um feste Nahrung im Mund behalten zu können, muss der Zungenstoßreflex weg sein, sonst macht das selber Essen keinen Sinn",
+    "id": 403
+  },
+  {
+    "statement": "Mit dem Zungenstoßreflex schützt sich das Baby vor einem zu frühen Beikoststart bevor der Darm bereit ist",
+    "id": 404
+  },
+  {
+    "statement": "Die Augen-Hand-Mund-Koordination darf nicht damit verwechselt werden, dass ganz junge Babys ihre Hand in den Mund stecken",
+    "id": 405
+  },
+  {
+    "statement": "Die Augen-Hand-Mund-Koordination darf nicht damit verwechselt werden, dass Babys einen Gegenstand, den sie in der Hand haben, irgendwann in den Mund stecken",
+    "id": 406
+  },
+  {
+    "statement": "Bei der Augen-Hand-Mund-Koordination geht es um das bewusste Greifen nach einem Gegenstand, den das Baby sieht und das bewusste Hinführen zum Mund, was alles zielgerichtet funktioniert",
+    "id": 407
+  },
+  {
+    "statement": "Wenn die Augen-Hand-Mund-Koordination noch nicht gegeben ist, kann sich das Baby nicht füttern ",
+    "id": 408
+  },
+  {
+    "statement": "Wenn die Augen-Hand-Mund-Koordination noch nicht gegeben ist, ist ein Baby nicht bereit etwas zu essen",
+    "id": 409
+  },
+  {
+    "statement": "Es ist kein Beikostreifezeichen, dass Babys einen Zahn haben",
+    "id": 410
+  },
+  {
+    "statement": "Mit acht Monaten oder später mit Beikost zu starten ist zu spät",
+    "id": 411
+  },
+  {
+    "statement": "Es ist kein Beikostreifezeichen, wenn Kinder allem, was Bezugspersonen haben, wie  Essen, gierig hinterherschauen ",
+    "id": 412
+  },
+  {
+    "statement": "Für den Beikoststart sollten Kinder mit Unterstützung sitzen können",
+    "id": 413
+  },
+  {
+    "statement": "Für den Beikostart sollten sich die Kinder von dem Rücken auf den Bauch drehen können ",
+    "id": 414
+  },
+  {
+    "statement": "Erst wenn Kinder mit Unterstützung sitzen könne und sich von dem Rücken auf den Bauch drehen können, dann haben sie eine orale Motorik, halbfeste Nahrung erfolgreich abschlucken zu können ",
+    "id": 415
+  },
+  {
+    "statement": "Erst wenn Kinder mit Unterstützung sitzen könne und sich von dem Rücken auf den Bauch drehen können, dann haben sie eine orale Motorik, feste Nahrung erfolgreich abschlucken zu können ",
+    "id": 416
+  },
+  {
+    "statement": "Für den Beikoststart sollten Kinder eine Kopfkontrolle besitzen, also den Kopf alleine halten können",
+    "id": 417
+  },
+  {
+    "statement": "What is fed to a baby can change their face",
+    "id": 418
+  },
+  {
+    "statement": "Purees do not build the face muscles that a baby needs",
+    "id": 419
+  },
+  {
+    "statement": "Pouches do not build the face muscles that a baby needs",
+    "id": 420
+  },
+  {
+    "statement": "if the face muscles a baby needs are not build that can lead to a narrow palate ",
+    "id": 421
+  },
+  {
+    "statement": "if the face muscles a baby needs are not build that can lead to a weaker jaw",
+    "id": 422
+  },
+  {
+    "statement": "if the face muscles a baby needs are not build that can lead to droopy features",
+    "id": 423
+  },
+  {
+    "statement": "if the face muscles a baby needs are not build that can lead to mouth breathing",
+    "id": 424
+  },
+  {
+    "statement": "Chewing real food like lamb chops strengthens the jaw",
+    "id": 425
+  },
+  {
+    "statement": "Chewing real food like lamb chops widens the palate",
+    "id": 426
+  },
+  {
+    "statement": "Chewing real food like lamb chops improves tongue posture",
+    "id": 427
+  },
+  {
+    "statement": "Chewing real food like lamb chops d supports healthy facial growth",
+    "id": 428
+  },
+  {
+    "statement": "Chewing real food like lamb chops helps babies to sleep better",
+    "id": 429
+  },
+  {
+    "statement": "Chewing real food like lamb chops helps babies breathe better ",
+    "id": 430
+  },
+  {
+    "statement": "Chewing real food like lamb chops helps babies to get more oxygen",
+    "id": 431
+  },
+  {
+    "statement": "It is a suitible approach to let a baby eat meat right off the bone",
+    "id": 432
+  },
+  {
+    "statement": "Es ist ganz wichtig, dass ein Kind die Entwicklung durchmacht bei der Beikost das Essen erkunden zu dürfen ",
+    "id": 433
+  },
+  {
+    "statement": "Es kann zu Fütterstörungen führen, wenn das Kind immer wieder zwischendurch sauber gemacht wird",
+    "id": 434
+  },
+  {
+    "statement": "Es kann zu Fütterstörungen führen, wenn das Essen immer nur angereicht wird statt erkunden zu dürfen",
+    "id": 435
+  },
+  {
+    "statement": "Kinder sollten bei der Beikost die Möglichkeit haben, die Sensorik wie Haptik, Textur und Konsistenz testen zu können",
+    "id": 436
+  },
+  {
+    "statement": "Besonders am anfang sollen Kinder mit dem Essen spielen dürfen",
+    "id": 437
+  },
+  {
+    "statement": "Das Essen in der Beikostzeit soll dem Kind Spaß machen ",
+    "id": 438
+  },
+  {
+    "statement": "Das Essen in der Beikostzeit soll beim Kind Leidenschaft erwecken",
+    "id": 439
+  },
+  {
+    "statement": "Das Essen in der Beikostzeit soll kein Zwang sein ",
+    "id": 440
+  },
+  {
+    "statement": "Es gibt drei echte Beikostreifezeichen ",
+    "id": 441
+  },
+  {
+    "statement": "Es ist ein Reifezeichen, wenn das Baby mit leichter Unterstützung aufrecht sitzen kann",
+    "id": 442
+  },
+  {
+    "statement": "Mit leichter Unterstütung auf dem Schoß sitzen können bedeutet auch, dass die Kinder eine stabile Kopf- sowie Rumpfkontrolle haben",
+    "id": 443
+  },
+  {
+    "statement": "Das Reifezeichen des Sitzens mit Unterstützung ist erfüllt, sobald das Kind ganz leicht im Rücken gestützt auf dem Popo sitzen kann, dabei aufrecht bleibt, nicht herumwackelt, der Kopf stabil ist und von links nach rechts gedreht werden kann und der Hals sichtbar ist",
+    "id": 444
+  },
+  {
+    "statement": "Solange der Kopf eines Babys noch auf den Schultern liegt, hat es keine Kopfkontrolle",
+    "id": 445
+  },
+  {
+    "statement": "Solange der Kopf eines Babys noch auf den Schultern liegt, ist es nicht beikostreif",
+    "id": 446
+  },
+  {
+    "statement": "Ein Kind muss es noch nicht selber in den Sitz schaffen, um mit Beikost zu starten",
+    "id": 447
+  },
+  {
+    "statement": "Auf dem Schoß ist ein guter Platz für die Beikostgabe",
+    "id": 448
+  },
+  {
+    "statement": "Sobald ein Kind selber frei sitzen kann, kann es in den Hochstuhl gestezt werden",
+    "id": 449
+  },
+  {
+    "statement": "Ein Kind sollte niemals im Halbliegen gefüttert werden",
+    "id": 450
+  },
+  {
+    "statement": "Der Maxi-Cosi ist nicht für die Beikostgabe geeignet",
+    "id": 451
+  },
+  {
+    "statement": "Eine Babywippe ist nicht für die Beikostgabe geeignet",
+    "id": 452
+  },
+  {
+    "statement": "Der Neugeborenenaufsatz für einen Hochstuhl ist nicht für die Beikostgabe geeignet",
+    "id": 453
+  },
+  {
+    "statement": "Es gibt drei echte Beikostreifezeichen ",
+    "id": 454
+  },
+  {
+    "statement": "Stabile Kopf- und Rumpfkontrolle ist eines der Beikostreifezeichen",
+    "id": 455
+  },
+  {
+    "statement": "Stabile Kopf- und Rumpfkontrolle heißt nicht, dass das Baby schon im Raum alleine frei sitzen können muss",
+    "id": 456
+  },
+  {
+    "statement": "Stabile Kopf- und Rumpfkontrolle bedeutet ein Baby kann auf dem Schoß mit geradem Rücken und stabilem Oberkörper sitzen, ohne wegzuknicken und ohne gestützt werden zu müssen, wobei der Kopf sicher oben beliebt, der Rumpf kontrolliert ist und das aus eigener Kraft passiert ",
+    "id": 457
+  },
+  {
+    "statement": "Ein Baby soll nicht aktiv ungestützt hingesetzt werden, wenn es das motorisch noch nicht selber schafft",
+    "id": 458
+  },
+  {
+    "statement": "Für den Beikoststart reicht es, wenn ein Baby auf dem Schoß aufrecht, sicher und stabil sitzen kann",
+    "id": 459
+  },
+  {
+    "statement": "Wenn das Baby zustätlich zur stabilen Kopf- und Rumpfkontrolle eine gute Hand-Mund-Auge-Koordination hat und der Zungenstoßreflex verschwunden ist, ist es bereit für die Beikost",
+    "id": 460
+  },
+  {
+    "statement": "Es sollte niemals im Liegen gefüttert werden, sondern in einer aufrechten sitzenden Position",
+    "id": 461
+  },
+  {
+    "statement": "Es sollte niemals im Halbliegen gefüttert werden, sondern in einer aufrechten sitzenden Position",
+    "id": 462
+  },
+  {
+    "statement": "Es sollte immer in einer aufrechten, sitzenden Position gefüttert werden, sodass bei einem möglichen Verschlucken dem Kind das Abhusten gelingen kann",
+    "id": 463
+  },
+  {
+    "statement": "Solange das Kind noch nicht selbst frei sitzen kann, ist der sicherste Ort für Beikost der Schoß",
+    "id": 464
+  },
+  {
+    "statement": "In den Hochstuhl sollte ein Kind erst, wenn es selbstständig frei sitzen kann, also sich aus eigener Kraft hinsetzt und das Halten selbst übernimmt",
+    "id": 465
+  },
+  {
+    "statement": "Um den richtigen Zeitpunkt für die Beikosteinführung zu erkennen, sollte auf Beikostreifezeichen geachtet werden ",
+    "id": 466
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Kind bewusstes Interesse am Essen zeigt ",
+    "id": 467
+  },
+  {
+    "statement": "Bewusstes Interesse am Essen bedeutet nicht nur, dass das Kind jemand anderem etwas aus der Hand nehmen will, sondern wirklich interessiert daran ist, wenn jemand anderes etwas isst, selbst essen zu wollen",
+    "id": 468
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Kind mit wenig Unterstützung sitzen kann",
+    "id": 469
+  },
+  {
+    "statement": "Mit wenig Unterstütung Sitzen bedeutet nicht, dass das Kind komplett frei und selbstständig sitzen muss, aber beispielsweise in einem geeigeneten Hochstuhl ganz gut sitzen kann ",
+    "id": 470
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass der Zungenstoßreflex verschwunden ist",
+    "id": 471
+  },
+  {
+    "statement": "Der Zungenstoßrefelex ist verschwunden wenn das Kind den Löffel beim Füttern im Mund behält und ihn nicht immer wieder mit der Zunge nach draußen schiebt",
+    "id": 472
+  },
+  {
+    "statement": "In Bezug auf das Verschlucken bei der Beikost geht es darum Risiken zu erkennen und zu minimieren",
+    "id": 473
+  },
+  {
+    "statement": "Das Kind sollte bei der Beikost immer aufrecht sitzen",
+    "id": 474
+  },
+  {
+    "statement": "Nur wenn das Kind aufrecht sitzt und die Füße aufgestellt hat, hat es genug Kraft, Nahrung, die es nicht verarbeiten kann, selbstständig herauszubefördern bzw. auszuhusten",
+    "id": 475
+  },
+  {
+    "statement": "Das Husten ist ein natürlicher Schutzmechanismus",
+    "id": 476
+  },
+  {
+    "statement": "Das aufrechte Sitzen gilt für die Brei-Beikost ",
+    "id": 477
+  },
+  {
+    "statement": "Das aufrechte Sitzen gilt für das Baby-Led-Weaning",
+    "id": 478
+  },
+  {
+    "statement": "The preventative benefit of early introduction of peanuts decreases as the age of introduction increases ",
+    "id": 479
+  },
+  {
+    "statement": "The introduction of allergenic foods including peanut should not be delayed during weaning",
+    "id": 480
+  },
+  {
+    "statement": "It is recommended that solids should be commenced with children at around six months of age",
+    "id": 481
+  },
+  {
+    "statement": "consideration of peanut introduction should be at around four months of age for children who are considered at high risk of peanut allergy such as children with eczema ",
+    "id": 482
+  },
+  {
+    "statement": "consideration of peanut introduction should be at around six months of age for children who would be considered lower risk of peanut allergy",
+    "id": 483
+  },
+  {
+    "statement": "consideration of peanut introduction should be at around six months of age for children who would be considered standard risk of peanut allergy",
+    "id": 484
+  },
+  {
+    "statement": "Lange Zeit wurde empfohlen, stark allergene Lebensmittel, wie zum Beispiel auch Erdbeeren, erst nach dem ersten Lebensjahr einzuführen",
+    "id": 485
+  },
+  {
+    "statement": "Die Empfehlung stark allergene Lebensmittel, wie zum Beispiel Erdbeeren, erst nach dem ersten Lebensjahr einzuführen gilt so nicht mehr",
+    "id": 486
+  },
+  {
+    "statement": "Ein frühzeitiger Kontakt mit potenziellen Allergenen kann das Risiko für Allergien senken",
+    "id": 487
+  },
+  {
+    "statement": "Babys dürfen Erdbeeren essen, wenn sie um die sechs Monate alt sind, die Beikostreifezeichen erfüllen und keine Erdbeerallergie in der Familie besteht",
+    "id": 488
+  },
+  {
+    "statement": "Die Erdbeeren sollten reif sein",
+    "id": 489
+  },
+  {
+    "statement": "Die Erdbeeren sollten bio sein",
+    "id": 490
+  },
+  {
+    "statement": "Die Erdbeeren sollten gut gewaschen sein ",
+    "id": 491
+  },
+  {
+    "statement": "Die Erdbeeren sollten am besten püriert oder zerdrückt sein",
+    "id": 492
+  },
+  {
+    "statement": "Die Empfehlung zur späten Einführung von Lebensmitteln ist völlig überholt",
+    "id": 493
+  },
+  {
+    "statement": "Die Beikost soll von Beginn an vielfältig sein",
+    "id": 494
+  },
+  {
+    "statement": "Die Beikost soll von Beginn an ausgewogen sein",
+    "id": 495
+  },
+  {
+    "statement": "In der  Beikost sollen von Beginn an kleine Mengen an potenziellen Allergenen gut beobachtet eingeführt werden",
+    "id": 496
+  },
+  {
+    "statement": "Die Beikost sollte nicht mit Obst gestartet werden ",
+    "id": 497
+  },
+  {
+    "statement": "Es sollte infrage gestellt werden, dass Fruchtzucker im Darm gärt ",
+    "id": 498
+  },
+  {
+    "statement": "Es sollte infrage gestellt werden, dass tierische Fette empfohlen werden ",
+    "id": 499
+  },
+  {
+    "statement": "Es sollte infrage gestellt werden, dass das Mikrobiom nicht auf tropisches Obst ausgelegt ist",
+    "id": 500
+  },
+  {
+    "statement": "Man sollte Babys den Fleischsaft aus Fleisch aussaugen lassen",
+    "id": 501
+  },
+  {
+    "statement": "Über das Aussaugen des Fleischsaftes aus einem Stück Fleisch können Babys ihren Eisenbedarf decken ",
+    "id": 502
+  },
+  {
+    "statement": "Steak ist ein geeignetes Lebensmittel für Babys",
+    "id": 503
+  },
+  {
+    "statement": "Eigelb ist eine tolle Wahl als erstes Lebensmittel",
+    "id": 504
+  },
+  {
+    "statement": "Zu Beginn kann Eigelb gekocht gegeben werden ",
+    "id": 505
+  },
+  {
+    "statement": "Zu Beginn kann Eigelb weich gegart gegeben werden ",
+    "id": 506
+  },
+  {
+    "statement": "Zu Beginn sollte Eigelb nicht ganz roh gegeben werden ",
+    "id": 507
+  },
+  {
+    "statement": "Rohe Eier sind für Babys nicht gefährlich",
+    "id": 508
+  },
+  {
+    "statement": "Die Wahrscheinlichkeit, sich über ein Ei Salmonellen zu holen, ist achtmal geringer als über Obst und Gemüse",
+    "id": 509
+  },
+  {
+    "statement": "Das Risiko sich über ein Ei mit Salmonellen zu infizieren ist gering",
+    "id": 510
+  },
+  {
+    "statement": "Wenn ein Ei Bakterien enthält, dann sitzen diese auf der Schale ",
+    "id": 511
+  },
+  {
+    "statement": "Durch gutes Reinigen eines Eis und eine hochwertige Auswahl ist das Risiko von Salmonellen komplett auszuschließen",
+    "id": 512
+  },
+  {
+    "statement": "Es gibt sechs Beikostreifezeichen",
+    "id": 513
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Baby eine gute eigene Kopfkontrolle hat",
+    "id": 514
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Baby aufrecht sitzen kann mit ein bisschen Unterstützung",
+    "id": 515
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass Baby sich mit den Händen etwas zum Mund führen kann",
+    "id": 516
+  },
+  {
+    "statement": "Hand-Mund-Koordination bedeutet das Baby kann sich mit den Händen etwas zum Mund führen ",
+    "id": 517
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass der Zungenstoßreflex nachgelassen hat oder ganz weg ist",
+    "id": 518
+  },
+  {
+    "statement": "Der Zungenstoßrefelex ist weg, wenn das Kind nichts mehr mit der Zunge direkt wegstößt",
+    "id": 519
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Kind Interese am Essen zeigt",
+    "id": 520
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Kind Kaubewegungen macht",
+    "id": 521
+  },
+  {
+    "statement": "Real butter is key for your baby's growing brain",
+    "id": 522
+  },
+  {
+    "statement": "If the butter is raw, that ensures that the baby gets all of the benefits",
+    "id": 523
+  },
+  {
+    "statement": "Butter is full of healthy fats ",
+    "id": 524
+  },
+  {
+    "statement": "Butter is full of cholesterol ",
+    "id": 525
+  },
+  {
+    "statement": "healthy fats are exactly what babies brains need to build strong connections",
+    "id": 526
+  },
+  {
+    "statement": "cholesterol is exactly what babies brains need to build strong connections",
+    "id": 527
+  },
+  {
+    "statement": "Butter sould be offered and added to babys meals to support babys brains",
+    "id": 528
+  },
+  {
+    "statement": "Es sollte nicht zu früh mit der Beikost gestartet werden ",
+    "id": 529
+  },
+  {
+    "statement": "Beim Bestimmen des richtigen Zeitpunktes zum Beikoststart sind Beikostreifezeichen viel wichtiger als das Alter des Babys",
+    "id": 530
+  },
+  {
+    "statement": "Erst wenn die Reifezeichen erfüllt sind, sollte mit der Beikost gestartet werden ",
+    "id": 531
+  },
+  {
+    "statement": "Es ist nicht sicher ein Baby in der Rüppe zu füttern ",
+    "id": 532
+  },
+  {
+    "statement": "Es ist nicht sicher ein Baby im Maxi-Cosi zu füttern ",
+    "id": 533
+  },
+  {
+    "statement": "Das Baby sollte beim Essen aufrecht sitzen, denn die Liegeposition erhöht die Gefahr des Verschluckens",
+    "id": 534
+  },
+  {
+    "statement": "Es ist ein Fehler keinen Eisenlieferanten in den Mittagsbrei zu integtieren",
+    "id": 535
+  },
+  {
+    "statement": "Eisen ist einer der wichtigsten Nährstoffe in der Beikostphase",
+    "id": 536
+  },
+  {
+    "statement": "Fleisch liefert gut bioverfügbares Eisen",
+    "id": 537
+  },
+  {
+    "statement": "Haferflocken sich eine pflanzliche Eisenquelle",
+    "id": 538
+  },
+  {
+    "statement": "Ob ein Kind für die Beikost bereit ist, ist am Alter und den Beikostreifezeichen zu erkennen ",
+    "id": 539
+  },
+  {
+    "statement": "Es wird empfohlen Beikost zwischen dem vollendeten vierten und sechsten Lebensmonat zu starten, unter Beachtung der Reifezeichen ",
+    "id": 540
+  },
+  {
+    "statement": "Es wird empfohlen mit dem Beikostartat bis zum vollendeten sechsten Lebensmonat zu warten",
+    "id": 541
+  },
+  {
+    "statement": "Die Empfehlung zwischen dem vollendeten vierten und sechsten Lebensmonat zu starten ist sinniger als bis zum vollendeten 6 Lebensmonat zu warten, weil die kindliche Entwicklung individuell ist ",
+    "id": 542
+  },
+  {
+    "statement": "Die Empfehlung zwischen dem vollendeten vierten und sechsten Lebensmonat zu starten ist sinniger als bis zum vollendeten 6 Lebensmonat zu warten, weil einige Kinder schon früher beikostreif sind",
+    "id": 543
+  },
+  {
+    "statement": "Die meisten Kinder sind erst nach dem vollendeten fünften Lebensmonat breit mit der Beikost zu starten ",
+    "id": 544
+  },
+  {
+    "statement": "Es gibt drei echte Beikostreifezeichen ",
+    "id": 545
+  },
+  {
+    "statement": "Ein Reifezeichen ist eine ausreichende Hand-Mund-Auge-Koordination ",
+    "id": 546
+  },
+  {
+    "statement": "Das Kind soll unter anderem ein Lebensmittel gezielt greifen und koordiniert zum Mund führen können bevor mit der Beikost gestartet wird",
+    "id": 547
+  },
+  {
+    "statement": "Ein Reifezeichen ist eine ausreichende Kopf- und Rumpfkontrolle",
+    "id": 548
+  },
+  {
+    "statement": "Eine ausreichende Kopf- und Rumpfkontrolle bedeutet, dass das Kind mit Unterstützung auf dem Schoß sitzen kann, ohne dass es komplett in sich zusammensackt oder zur Seite wegkippt",
+    "id": 549
+  },
+  {
+    "statement": "Eine ausreichende Kopf- und Rumpfkontrolle bedeutet nicht, dass das Kind selbstständig in den Sitz kommen muss",
+    "id": 550
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass der Zungenstoßreflex rückläufig ist",
+    "id": 551
+  },
+  {
+    "statement": "Der Zungenstoßreflex ist der kindliche Reflex, der dafür sorgt, dass Fremdkörper und Lebensmittel mit der Zunge aus dem Mund herausgestoßen werden",
+    "id": 552
+  },
+  {
+    "statement": "Der Zungenstoßreflex muss noch nicht komplett erloschen sein, aber er sollte so weit rückläufig sein, dass die Nahrung im Mund bleibt ",
+    "id": 553
+  },
+  {
+    "statement": "Der Zungenstoßreflex sollte nicht umgangen werden, indem der Löffel vorbeigeführt wird, sondern es sollte auf die Signale des Kindes geachtet werden",
+    "id": 554
+  },
+  {
+    "statement": "When starting solids after six months or seven months the baby should not be fed laying down",
+    "id": 555
+  },
+  {
+    "statement": "Solid foods should be started only when the baby is able to sit with gentle support because there is a high potential risk of choking when the baby is fed in the laying position",
+    "id": 556
+  },
+  {
+    "statement": "There is a high potential risk of choking when the baby is fed in the laying position because the babys swallowing reflexes are still developing ",
+    "id": 557
+  },
+  {
+    "statement": "Babies post six month should be fed solid foods in a sitting position",
+    "id": 558
+  },
+  {
+    "statement": "Babies should not eat pizza",
+    "id": 559
+  },
+  {
+    "statement": "Babies should not eat pasta ",
+    "id": 560
+  },
+  {
+    "statement": "Es ist geeignet einem Kind, das bald sieben Monate alt ist die erste feste Nahrung zu geben",
+    "id": 561
+  },
+  {
+    "statement": "Avocado ist sehr gesund ",
+    "id": 562
+  },
+  {
+    "statement": "Avocado ist reich an Fetten ",
+    "id": 563
+  },
+  {
+    "statement": "Avocado enthält Ballsatstoffe",
+    "id": 564
+  },
+  {
+    "statement": "Avocado enthält Kalium ",
+    "id": 565
+  },
+  {
+    "statement": "Avocado enthält Vitamin E",
+    "id": 566
+  },
+  {
+    "statement": "Eigelb ist sehr gesund",
+    "id": 567
+  },
+  {
+    "statement": "Eigelb ist reich an Omega-3 ",
+    "id": 568
+  },
+  {
+    "statement": "Omega-3 ist wichtig für das Gehirn",
+    "id": 569
+  },
+  {
+    "statement": "Omega-3 ist wichtig für das Herz ",
+    "id": 570
+  },
+  {
+    "statement": "Omega-3 ist wichtig für den Darm ",
+    "id": 571
+  },
+  {
+    "statement": "Eigelb enthält reichlich Jod",
+    "id": 572
+  },
+  {
+    "statement": "Eigelb enthält fettlösliche Vitamine",
+    "id": 573
+  },
+  {
+    "statement": "Eigelb enthält Selen ",
+    "id": 574
+  },
+  {
+    "statement": "Eigelb enthält Cholin",
+    "id": 575
+  },
+  {
+    "statement": "Schwarzkümmelöl stärkt das Immunsystem ",
+    "id": 576
+  },
+  {
+    "statement": "Schwarzkümmelöl ist sehr gut für empfindliche Haut",
+    "id": 577
+  },
+  {
+    "statement": "Schwarzkümmelöl ist sehr gut für Allergiker",
+    "id": 578
+  },
+  {
+    "statement": "Ab dem sechsten Monat bis zum zweiten Lebensjahr kann man einem Baby 1 bis 2 Tropfen Schwarkümmelöl geben ",
+    "id": 579
+  },
+  {
+    "statement": "Eine Mahlzeit aus gedünsteten Karotten, Eigelb, Avocado und Schwarzkümmelöl eignet sich als erste Mahlzeit für die Beikost",
+    "id": 580
+  },
+  {
+    "statement": "In einer Mahlzeit aus gedünsteten Karotten, Eigelb, Avocado und Schwarzkümmelöl ist alles enthalten, was ein gesunder Körper braucht",
+    "id": 581
+  },
+  {
+    "statement": "Eine Mahlzeit aus gedünsteten Karotten, Eigelb, Avocado und Schwarzkümmelöl enhält reichlich Kohlenhydrate",
+    "id": 582
+  },
+  {
+    "statement": "Eine Mahlzeit aus gedünsteten Karotten, Eigelb, Avocado und Schwarzkümmelöl enhält Ballaststoffe",
+    "id": 583
+  },
+  {
+    "statement": "Eine Mahlzeit aus gedünsteten Karotten, Eigelb, Avocado und Schwarzkümmelöl enhält Fette",
+    "id": 584
+  },
+  {
+    "statement": "Eine Mahlzeit aus gedünsteten Karotten, Eigelb, Avocado und Schwarzkümmelöl enhält  fettlösliche Vitamine",
+    "id": 585
+  },
+  {
+    "statement": "Eine Mahlzeit aus gedünsteten Karotten, Eigelb, Avocado und Schwarzkümmelöl enhält Mineralien wie Selen",
+    "id": 586
+  },
+  {
+    "statement": "Eine Mahlzeit aus gedünsteten Karotten, Eigelb, Avocado und Schwarzkümmelöl enhält Mineralien wie Zink",
+    "id": 587
+  },
+  {
+    "statement": "Eine Mahlzeit aus gedünsteten Karotten, Eigelb, Avocado und Schwarzkümmelöl enhält Mineralien wie Magnesium",
+    "id": 588
+  },
+  {
+    "statement": "Eine Mahlzeit aus gedünsteten Karotten, Eigelb, Avocado und Schwarzkümmelöl enhält Mineralien wie Eisen ",
+    "id": 589
+  },
+  {
+    "statement": "Eine Mahlzeit aus gedünsteten Karotten, Eigelb, Avocado und Schwarzkümmelöl enhält Mineralien wie  Jod",
+    "id": 590
+  },
+  {
+    "statement": "Es ist ein geeigntes Vorgehen, Babys keine Jod-Tabletten zu geben sondern Jod über Muttermilch und Nahrung zu geben",
+    "id": 591
+  },
+  {
+    "statement": "Das Essen bei Kindern unter einem Jahr ist nicht nur zum Spaß",
+    "id": 592
+  },
+  {
+    "statement": "Im ersten Lebensjahr ist Muttermilch oder Pre-Nahrung die Hauptnahmeungsquelle ",
+    "id": 593
+  },
+  {
+    "statement": "Im ersten Lebensjahr sind Babys neuen Geschmäckern gegenüber aufgeschlossen",
+    "id": 594
+  },
+  {
+    "statement": "Die Aufgeschlossenheit gegenüber neuen Geschmäckern bietet eine ideale Gelegenheit Babys mit einer großen Vielfalt an Lebensmitteln vertraut zu machen",
+    "id": 595
+  },
+  {
+    "statement": "Im ersten Lebensjahr sind Babys neuen Texturen gegenüber aufgeschlossen",
+    "id": 596
+  },
+  {
+    "statement": "Die Aufgeschlossenheit gegenüber neuen Texturen bietet eine ideale Gelegenheit Babys mit einer großen Vielfalt an Lebensmitteln vertraut zu machen",
+    "id": 597
+  },
+  {
+    "statement": "Bei der Beikost ist es wichtig, dass die Nahrung nährstoffreich ist",
+    "id": 598
+  },
+  {
+    "statement": "Bei der Beikost ist es wichtig, dass die Nahrung eisenreich ist",
+    "id": 599
+  },
+  {
+    "statement": "Bei der Beikost ist es wichtig, dass die Nahrung kalorienreich ist",
+    "id": 600
+  },
+  {
+    "statement": "In der Beikost ausschließlich gedünstete Gemüsesticks anzubieten, ist zu wenig ",
+    "id": 601
+  },
+  {
+    "statement": "Die Beikostphase dient unter anderem dazu, wichtige Fähigkeiten wie das Kauen zu trainieren und zu verbessern",
+    "id": 602
+  },
+  {
+    "statement": "Die Beikostphase dient unter anderem dazu, wichtige Fähigkeiten wie die Hand-Auge-Koordination zu trainieren und zu verbessern",
+    "id": 603
+  },
+  {
+    "statement": "Die Beikostphase dient unter anderem dazu, wichtige Fähigkeiten wie den Pinzettengriff zu trainieren und zu verbessern",
+    "id": 604
+  },
+  {
+    "statement": "Die Beikostphase ist entscheidend für die Allergieprävention ",
+    "id": 605
+  },
+  {
+    "statement": "Durch das regelmäßige Anbieten potenzieller Allergene kann das Allergierisiko gesenkt werden",
+    "id": 606
+  },
+  {
+    "statement": "Die Beikostphase ist eine wertvolle Zeit, die genutzt werden sollte, da sie den Grundstein für die späteren Ernährungsgewohnheiten legt",
+    "id": 607
+  },
+  {
+    "statement": "Es ist geeignet einem Kind, das sieben Monate alt ist, Pastinakenbrei zu geben",
+    "id": 608
+  },
+  {
+    "statement": "Für ein Kind gibt es keine bessere Versorgung als frische Muttermilch ",
+    "id": 609
+  },
+  {
+    "statement": "Die Beikost sollte mit einem Brei aus einer Gemüseart angefangen werden, nicht mit mehreren ",
+    "id": 610
+  },
+  {
+    "statement": "Eine geeignete Gemüseart zum Start der Beikost ist die Pastinake",
+    "id": 611
+  },
+  {
+    "statement": "Pasinake ist leicht bekömmlich ",
+    "id": 612
+  },
+  {
+    "statement": "Beim Kochen der Pastinake sollte kein Salz verwendet werden",
+    "id": 613
+  },
+  {
+    "statement": "Beim Kochen der Pastinake sollte keine Gemüsebrühe verwendet werden",
+    "id": 614
+  },
+  {
+    "statement": "Die ersten vier Wochen der Beikost sollte dem Baby ausschließlich ein Gemüse gegeben werden",
+    "id": 615
+  },
+  {
+    "statement": "In den ersten vier Wochen der Beikost sollen keine Kohlenhydrate gegeben werden, damit sich das Kind und der Darm an alles gewöhnen kann ",
+    "id": 616
+  },
+  {
+    "statement": "Nach vier Wochen der Beikost können zum Gemüse kohlenhydratreichere Lebensmittel hinzugefügt werden wie Kartoffel oder Hirse",
+    "id": 617
+  },
+  {
+    "statement": "Gemüse sollte langsam gedünstet und nicht gekocht werden, dass die Vitamine nicht verrauchen ",
+    "id": 618
+  },
+  {
+    "statement": "Es ist geeignet ein Kind bei Beikoststart im Hochstuhl zu füttern",
+    "id": 619
+  },
+  {
+    "statement": "Zu Beginn essen Kinder bei der Beikost nur ein paar Löffel",
+    "id": 620
+  },
+  {
+    "statement": "Wenn Gemüsebrei eingefroren wird sollte Öl erst nach dem Autauen dazugegeben werden",
+    "id": 621
+  },
+  {
+    "statement": "Es ist geeignet einen Teelöffel gutes, kaltgepresstes Öl zum Gemüsebrei dazuzugeben",
+    "id": 622
+  },
+  {
+    "statement": "Durch das Zugeben von gutem, klatgepressten Öl zu Gemüsebrei, bekommt das Baby viele Vitamine ",
+    "id": 623
+  },
+  {
+    "statement": "Durch das Zugeben von gutem, klatgepressten Öl zu Gemüsebrei, kann das Baby Vitamine besser aufnehmen ",
+    "id": 624
+  },
+  {
+    "statement": "Gemüsebrei kann gefroren ein halbes Jahr aufgehoben werden ",
+    "id": 625
+  },
+  {
+    "statement": "Nach dem Auftauen ist Gemüsebrei im Kühlschrank 24 Stunden haltbar",
+    "id": 626
+  },
+  {
+    "statement": "Wann ein Kind bereit ist, neben der Milch auch feste Nahrung zu porbieren, ist individuell",
+    "id": 627
+  },
+  {
+    "statement": "Es ist geeignet einem Baby, das viereinhalb Monate alt ist, noch etwas Zeit zu geben, bis man mit der Beikost startet ",
+    "id": 628
+  },
+  {
+    "statement": "Es ist ein geeigneteres Vorgehen mit dem Beikoststart ein bisschen länger zu warten, als zu früh zu beginnen",
+    "id": 629
+  },
+  {
+    "statement": "Es gibt gewisse Beikostreifezeichen ",
+    "id": 630
+  },
+  {
+    "statement": "Zwischen dem fünften und siebten Monat kann mit der Beikost gestartet werden",
+    "id": 631
+  },
+  {
+    "statement": "Um mit der Beikost zu starten, sollten die Reifezeichen vom Baby erfüllt werden",
+    "id": 632
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Baby stabil sitzen kann ",
+    "id": 633
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Baby den Kopf halten kann ",
+    "id": 634
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass der Zungenstoßreflex weg ist",
+    "id": 635
+  },
+  {
+    "statement": "Es ist wichtig, dass Babys die Hände selbst gezielt zum Mund führen können bevor mit der Beikost begonnen wird ",
+    "id": 636
+  },
+  {
+    "statement": "Es ist kein Reifezeichen, sondern ein schönes Extra, wenn Babys Interesse am Essen zeigen",
+    "id": 637
+  },
+  {
+    "statement": "Quark als Light-Produkt sollte auf Dauer nicht als Beikost gegeben werden ",
+    "id": 638
+  },
+  {
+    "statement": "Kinder brauchen Kalorien für ihre Entwicklung",
+    "id": 639
+  },
+  {
+    "statement": "Light-Produkte machen satt, liefern aber wenig Kalorien ",
+    "id": 640
+  },
+  {
+    "statement": "Wenn in der Beikost auf Dauer Light-Produkte gegeben werden, kann es zu einer mangelnden Nährstoffaufnahme kommen",
+    "id": 641
+  },
+  {
+    "statement": "Die Vollfett-Variante hat doppelt so viele Kalorien wie die Light-Variante bei Quark",
+    "id": 642
+  },
+  {
+    "statement": "Es sollte immer die Vollfett-Variante statt der Light-Variante von Quark gewählt werden ",
+    "id": 643
+  },
+  {
+    "statement": "Die Einführung der Beikost wurde vom 6. in den 4. Lebensmonat verlegt, weil die Mutter während der Beikosteinfürung noch stillen sollte",
+    "id": 644
+  },
+  {
+    "statement": "Es ist gut dass es beide Möglichkeiten gibt, Beikoststart im 4. und im 6. Lebensmonat, da das Kind weiß wann es das erste Mal feste Nahrung probieren möchte",
+    "id": 645
+  },
+  {
+    "statement": "Es gibt ein paar wenige Lebensmittel, die einem Baby zur Beikost nicht gegeben werden sollten",
+    "id": 646
+  },
+  {
+    "statement": "Honig kann Sporen des Botulinumbakteriums enthalten ",
+    "id": 647
+  },
+  {
+    "statement": "Maissirup kann Sporen des Botulinumbakteriums enthalten ",
+    "id": 648
+  },
+  {
+    "statement": "Ahornsirup kann Sporen des Botulinumbakteriums enthalten ",
+    "id": 649
+  },
+  {
+    "statement": "Wenn Honig in der Beikost gegeben wird besteht die Gefahr eines Säuglingsbotulismus",
+    "id": 650
+  },
+  {
+    "statement": "Wenn Maissirup in der Beikost gegeben wird besteht die Gefahr eines Säuglingsbotulismus",
+    "id": 651
+  },
+  {
+    "statement": "Wenn Ahornsirup in der Beikost gegeben wird besteht die Gefahr eines Säuglingsbotulismus",
+    "id": 652
+  },
+  {
+    "statement": "Honig ist im ersten Lebensjahr nicht empfohlen",
+    "id": 653
+  },
+  {
+    "statement": "Maissirup ist im ersten Lebensjahr nicht empfohlen",
+    "id": 654
+  },
+  {
+    "statement": "Ahornsirup ist im ersten Lebensjahr nicht empfohlen",
+    "id": 655
+  },
+  {
+    "statement": "Rohe tierische Lebensmittel wie rohe Eier, rohes Fleisch, roher Fisch, Rohmilchprodukte sollten aufgrund der Gefahr einer Lebensmittelvergiftung die ersten fünf Jahre nicht gegessen werden",
+    "id": 656
+  },
+  {
+    "statement": "Amaranth enthält Stoffe, durch die die Aufnahme von Nährstoffen gemindert werden kann und die deshalb erst ab dem zweiten Lebensjahr gegeben werden sollen",
+    "id": 657
+  },
+  {
+    "statement": "Quinoa enthält Stoffe, durch die die Aufnahme von Nährstoffen gemindert werden kann und die deshalb erst ab dem zweiten Lebensjahr gegeben werden sollen",
+    "id": 658
+  },
+  {
+    "statement": "Buchweizen birgt ein erhöhtes Allergierisiko und wird deswegen erst ab dem dritten Lebensjahr empfohlen",
+    "id": 659
+  },
+  {
+    "statement": "Buchweizen ist teilweise belastet und wird deswegen erst ab dem dritten Lebensjahr empfohlen",
+    "id": 660
+  },
+  {
+    "statement": "Salz sollte besonders im ersten Lebensjahr nur in Maßen gegeben werden, also maximal ein Gramm pro Tag, da die kindlichen Nieren das noch nicht ausreichend verarbeiten",
+    "id": 661
+  },
+  {
+    "statement": "Im ersten Lebensjahr sollten maximal 200 Milliliter Tiermilchprodukte pro Tag gegeben werden, weil das Eiweiß in den Milchprodukten von den kindlichen Nieren noch nicht gut verarbeitet werden kann",
+    "id": 662
+  },
+  {
+    "statement": "In den folgenen Jahren nach dem ersten Lebensjahr sollte die Gabe von Tiermilchprodukten von maximal 200 Milliliter pro Tag nur langsam gesteigert werden ",
+    "id": 663
+  },
+  {
+    "statement": "Es wird empfohlen, dass Kinder in den ersten vier Jahren gar keinen Fencheltee trinken, da Fenchel Estragol enthält",
+    "id": 664
+  },
+  {
+    "statement": "Estragol kann in größeren Mengen leberkrebsauslösend sein",
+    "id": 665
+  },
+  {
+    "statement": "Es wird empfohlen, dass Kinder in den ersten vier Jahren gar keinen Fencheltee trinken, da nicht ganz klar ist, wie viel Estragol in einem jeweiligen Fencheltee enthalten ist",
+    "id": 666
+  },
+  {
+    "statement": "Zucker gehört zu den Lebensmitteln, die beim Baby Krankheiten auslösen oder noch nicht gut verarbeitet werden können",
+    "id": 667
+  },
+  {
+    "statement": "Zucker sollte besonders in den ersten Lebensjahren maximal in Maßen gegeben werden ",
+    "id": 668
+  },
+  {
+    "statement": "Babies need more iron between 6 to 12 months than an adult male",
+    "id": 669
+  },
+  {
+    "statement": "Babys should get iron-rich foods like beef liver, eggs, red meat, bone marrow, meat stock",
+    "id": 670
+  },
+  {
+    "statement": "Babys should not get fortified rice cereal",
+    "id": 671
+  },
+  {
+    "statement": "Babys should not get veggie purees",
+    "id": 672
+  },
+  {
+    "statement": "Plant foods like fortified rice cereal and veggie purees are known to cause digestive upsets",
+    "id": 673
+  },
+  {
+    "statement": "Plant foods like fortified rice cereal and veggie purees are known to cause allergies",
+    "id": 674
+  },
+  {
+    "statement": "Plant foods like fortified rice cereal and veggie purees are known to cause eczema",
+    "id": 675
+  },
+  {
+    "statement": "If a baby lacks iron, they run the risk of having physical delays",
+    "id": 676
+  },
+  {
+    "statement": "If a baby lacks iron, they run the risk of having developmental delays",
+    "id": 677
+  },
+  {
+    "statement": "It is an appropriate approach to start the first foods when the baby is six months old",
+    "id": 678
+  },
+  {
+    "statement": "A wedge of ripe avocado is an appropriate first food in the first week of starting solids",
+    "id": 679
+  },
+  {
+    "statement": "Smashed avocado is an appropriate first food in the first week of starting solids",
+    "id": 680
+  },
+  {
+    "statement": "A wedge of ripe avocado or smashed avocado is high in healthy fats",
+    "id": 681
+  },
+  {
+    "statement": "Healthy fats are important for neurological development",
+    "id": 682
+  },
+  {
+    "statement": "A roasted piece of sweet potato that passes the squish test is an appropriate first food in the first week of starting solids",
+    "id": 683
+  },
+  {
+    "statement": "A roasted piece of sweet potato that passes the squish test is a plant-based iron source that is important for baby",
+    "id": 684
+  },
+  {
+    "statement": "A mango pit rolled in ground flaxseed is an appropriate first food in the first week of starting solids",
+    "id": 685
+  },
+  {
+    "statement": "A mango pit rolled in ground flaxseed is amazing for practicing the Palmer grasp",
+    "id": 686
+  },
+  {
+    "statement": "A mango pit rolled in ground flaxseed is a low choking risk for baby's first food",
+    "id": 687
+  },
+  {
+    "statement": "A well-done piece of steak for baby to gnaw on and suck the juices out of is an appropriate first food in the first week of starting solids",
+    "id": 688
+  },
+  {
+    "statement": "A well-done piece of steak for baby to gnaw on and suck the juices out of is a high bioavailable source of iron",
+    "id": 689
+  },
+  {
+    "statement": "Iron is a critical nutrient that needs to be prioritized when babies first start solids",
+    "id": 690
+  },
+  {
+    "statement": "Feeding a baby the potentially allergenic foods should be done early so that they get that allergenic food in their system",
+    "id": 691
+  },
+  {
+    "statement": "Feeding a baby the potentially allergenic foods should be done often so that they get that allergenic food in their system",
+    "id": 692
+  },
+  {
+    "statement": "There is no guidance and no research that tells exactly what constitutes early when it comes to feeding your baby the potentially allergenic foods",
+    "id": 693
+  },
+  {
+    "statement": "There is no guidance and no research that tells exactly what constitutes often when it comes to feeding your baby the potentially allergenic foods",
+    "id": 694
+  },
+  {
+    "statement": "there's no benefit to waiting to introduce potentially allergenic foods so it should be done around the time a baby is ready to start solid foods ",
+    "id": 695
+  },
+  {
+    "statement": "the time a baby is ready to start solid foods is at about six months of age ",
+    "id": 696
+  },
+  {
+    "statement": "An allergic reaction never occurs on the first exposure",
+    "id": 697
+  },
+  {
+    "statement": "It is possible that a baby had an environmental exposure the the allergen and then the first time the baby had it from a food standpoint, they had the reaction",
+    "id": 698
+  },
+  {
+    "statement": "Allergenic reactions can occur on the second or subsequent exposure",
+    "id": 699
+  },
+  {
+    "statement": "Eggs are one of the most common allergens",
+    "id": 700
+  },
+  {
+    "statement": "It is a suitable approach to introduce eggs to a six months old",
+    "id": 701
+  },
+  {
+    "statement": "Early exposure to allergens can help reduce the risk of developing food allergies later on",
+    "id": 702
+  },
+  {
+    "statement": "Regular exposure to allergens can help reduce the risk of developing food allergies later on",
+    "id": 703
+  },
+  {
+    "statement": "It is a suitable approach to start giving the baby egg yolk since most of the allergenic proteins are in the white",
+    "id": 704
+  },
+  {
+    "statement": "It is a suitable approach to introduce egg whites gradually after introducing the egg yolk",
+    "id": 705
+  },
+  {
+    "statement": "It is a suitable approach to hard boil the eggs",
+    "id": 706
+  },
+  {
+    "statement": "It is a suitable approach to mash the egg yolk ",
+    "id": 707
+  },
+  {
+    "statement": " It is a suitable approach to mix egg yolk with unsalted ghee to level it up",
+    "id": 708
+  },
+  {
+    "statement": "It is a suitable approach to mix egg yolk with breast milk to keep the taste familiar",
+    "id": 709
+  },
+  {
+    "statement": "It is a suitable approach to mix egg yolk with breast milk to smooth the texture",
+    "id": 710
+  },
+  {
+    "statement": "The egg yolk is rich in choline",
+    "id": 711
+  },
+  {
+    "statement": "The egg yolk is rich in iron",
+    "id": 712
+  },
+  {
+    "statement": "The egg yolk is rich in healthy fats ",
+    "id": 713
+  },
+  {
+    "statement": "Choline is essential for baby's brain development",
+    "id": 714
+  },
+  {
+    "statement": "Iron is essential for baby's brain development",
+    "id": 715
+  },
+  {
+    "statement": "Healthy fats are essential for baby's brain development",
+    "id": 716
+  },
+  {
+    "statement": "Ghee contains healthy fats for nutrient absorption ",
+    "id": 717
+  },
+  {
+    "statement": "Instead of Ghee unsalted butter can be used",
+    "id": 718
+  },
+  {
+    "statement": "There is no need to worry about how much of the allergen they eat ",
+    "id": 719
+  },
+  {
+    "statement": "One or two bites count as exposure to allergens",
+    "id": 720
+  },
+  {
+    "statement": "It is a suitable approach to give salmon to a baby as one of the first foods",
+    "id": 721
+  },
+  {
+    "statement": "One tablespoon of salmon can meet up to 100% of babies daily omega-3 needs",
+    "id": 722
+  },
+  {
+    "statement": "omega-3 is so important for brain development",
+    "id": 723
+  },
+  {
+    "statement": "Salmon contains high-quality protein",
+    "id": 724
+  },
+  {
+    "statement": "Salmon contains iron",
+    "id": 725
+  },
+  {
+    "statement": "Salmon contains vitamin D",
+    "id": 726
+  },
+  {
+    "statement": "Salmon contains B12",
+    "id": 727
+  },
+  {
+    "statement": "Growing babies need Omega-3",
+    "id": 728
+  },
+  {
+    "statement": "Growing babies need high-quality protein",
+    "id": 729
+  },
+  {
+    "statement": "Growing babies need iron",
+    "id": 730
+  },
+  {
+    "statement": "Growing babies need vitamin D",
+    "id": 731
+  },
+  {
+    "statement": "Growing babies need B12 ",
+    "id": 732
+  },
+  {
+    "statement": "Salmon is low in mercury, making it a great fish to serve often",
+    "id": 733
+  },
+  {
+    "statement": "early exposure to common allergens, like salmon, can help prevent allergies from developing",
+    "id": 734
+  },
+  {
+    "statement": "consistent exposure to common allergens, like salmon, can help prevent allergies from developing",
+    "id": 735
+  },
+  {
+    "statement": "Salmon is a nourishing food",
+    "id": 736
+  },
+  {
+    "statement": "It is a myth that infant sleep issues such as night waking are a sign that they're ready to start solids ",
+    "id": 737
+  },
+  {
+    "statement": "It is a myth that starting solids is a helpful strategy to prevent infant sleep issues",
+    "id": 738
+  },
+  {
+    "statement": "It is a myth that starting solids is a helpful strategy to treat infant sleep issues",
+    "id": 739
+  },
+  {
+    "statement": "It is a myth that increasing solids is a helpful strategy to prevent infant sleep issues",
+    "id": 740
+  },
+  {
+    "statement": "It is a myth that increasing solids is a helpful strategy to treat infant sleep issues",
+    "id": 741
+  },
+  {
+    "statement": "It is recommended to start solids at around six months, but not before four months and according to when the baby is showing that they are developmentally ready ",
+    "id": 742
+  },
+  {
+    "statement": "There's no evidence that starting solids before a baby's developmentally ready has any benefit ",
+    "id": 743
+  },
+  {
+    "statement": "There's no evidence that starting solids before a baby's developmentally ready prevents issues such as iron deficiency",
+    "id": 744
+  },
+  {
+    "statement": "Starting solids before a baby is developmentally ready can have risks such as affecting their digesting system",
+    "id": 745
+  },
+  {
+    "statement": "Starting solids before a baby is developmentally ready can have risks such as impacting their nutrition",
+    "id": 746
+  },
+  {
+    "statement": "Starting solids before a baby is developmentally ready can have risks such as negatively impacting breastfeeding ",
+    "id": 747
+  },
+  {
+    "statement": "Starting solids before a baby is developmentally ready can have risks such as representing a choking risk",
+    "id": 748
+  },
+  {
+    "statement": "For babies who are having feeding issues the appropriate management is to increase milk feeds not starting solids before a baby is developmentally ready",
+    "id": 749
+  },
+  {
+    "statement": "For babies where there are concerns about weight the appropriate management is to increase milk feeds not starting solids before a baby is developmentally ready",
+    "id": 750
+  },
+  {
+    "statement": "Starting solids before a baby is ready might make their sleep worse",
+    "id": 751
+  },
+  {
+    "statement": "If there are concerns about the realtion of babies sleep, feeding and weight it is recommended to talk to a GP or another trusted health professional",
+    "id": 752
+  },
+  {
+    "statement": "Nicht das Alter ist entscheidend dafür wann ein Kind reif für die Beikost ist, sondern die Beikostreifezeichen. ",
+    "id": 753
+  },
+  {
+    "statement": "Es ist ein Beikostreifezeichen, dass das Kind halbwegs aufrecht sitzen kann",
+    "id": 754
+  },
+  {
+    "statement": "Es ist ein Beikostreifezeichen, dass das Kind eine stabile Kopf- und Rumpfkontrolle hat",
+    "id": 755
+  },
+  {
+    "statement": "Das Kind muss noch nicht alleine auf einem Hochstuhl sitzen können, um mit der Beikost zu starten",
+    "id": 756
+  },
+  {
+    "statement": "Es reicht aus, wenn das Kind auf den Schoß genommen wird und dort mit Untertsützung sitzen kann ",
+    "id": 757
+  },
+  {
+    "statement": "Es ist ein Beiksotreifezeichen, dass der Zungenstoßrefelx beim Kind verschwunden ist",
+    "id": 758
+  },
+  {
+    "statement": "Der Zungenstoßreflex ist verschwunden, wenn das Kind nicht mehr alles Mögliche mit der Zunge wieder rausschiebt",
+    "id": 759
+  },
+  {
+    "statement": "Es ist ein Beikostreifezeichen, dass das Kind eine Hand-Mund-Augen-Koordination hat",
+    "id": 760
+  },
+  {
+    "statement": "Hand-Mund-Augen-Koordination bedeutet, dass das Kind etwas sieht, greift und gezielt in den Mund steckt",
+    "id": 761
+  },
+  {
+    "statement": "Es gibt drei Beikostreifezeichen, die ein Kind erfüllen sollte, um bereit für die Beikost zu sein ",
+    "id": 762
+  },
+  {
+    "statement": "Das Kind ist beikostreif, wenn es die Reifezeichen erfüllt und sich im Alter von frühestens fünf Monaten und spätestens sieben Monaten befindet",
+    "id": 763
+  },
+  {
+    "statement": "It is a suitable approach to introduce nutrient-dense foods after 6 months of exclusive breastfeeding",
+    "id": 764
+  },
+  {
+    "statement": "It is a suitable approach to introduce easy-to-digest foods after 6 months of exclusive breastfeeding",
+    "id": 765
+  },
+  {
+    "statement": "Nutrient-dense foods support growth",
+    "id": 766
+  },
+  {
+    "statement": "Nutrient-dense foods support brain development ",
+    "id": 767
+  },
+  {
+    "statement": "Nutrient-dense foods support immune system",
+    "id": 768
+  },
+  {
+    "statement": "Easy-to-digest foods support growth",
+    "id": 769
+  },
+  {
+    "statement": "Easy-to-digest foods support brain development ",
+    "id": 770
+  },
+  {
+    "statement": "Easy-to-digest foods support immune system",
+    "id": 771
+  },
+  {
+    "statement": "After 6 months baby's iron requirements go up ",
+    "id": 772
+  },
+  {
+    "statement": "The best way to support a baby in relation to iron requirements is to offer animal foods like red meat, bone marrow, grass-fed butter, organ meats, eggs and meat stock",
+    "id": 773
+  },
+  {
+    "statement": "The iron found in meats is highly bioavailable",
+    "id": 774
+  },
+  {
+    "statement": "Zinc found in meats is highly bioavailable",
+    "id": 775
+  },
+  {
+    "statement": "Vitamin B12 found in meats are highly bioavailable",
+    "id": 776
+  },
+  {
+    "statement": "Essential nutrients found in meats besides iron, zinc, vitamin B12 are highly bioavailable",
+    "id": 777
+  },
+  {
+    "statement": "Nutrients found in meats support optimal growth ",
+    "id": 778
+  },
+  {
+    "statement": "Nutrients found in meats support optimal development",
+    "id": 779
+  },
+  {
+    "statement": "Proteins are essential macronutrients at 6 months",
+    "id": 780
+  },
+  {
+    "statement": "Fats are essential macronutrients at 6 months",
+    "id": 781
+  },
+  {
+    "statement": "Proteins support energy",
+    "id": 782
+  },
+  {
+    "statement": "Proteins support brain development ",
+    "id": 783
+  },
+  {
+    "statement": "Proteins support a strong body",
+    "id": 784
+  },
+  {
+    "statement": "Proteins support a healthy body",
+    "id": 785
+  },
+  {
+    "statement": "Fats support energy",
+    "id": 786
+  },
+  {
+    "statement": "Fats support brain development ",
+    "id": 787
+  },
+  {
+    "statement": "Fats support a strong body",
+    "id": 788
+  },
+  {
+    "statement": "Fats support a healthy body",
+    "id": 789
+  },
+  {
+    "statement": "It is a suitable approach to focus on nutrient density over variety",
+    "id": 790
+  },
+  {
+    "statement": "It is a suitable approach to let babies explore foods at their own pace",
+    "id": 791
+  },
+  {
+    "statement": "It is a suitable approach to introduce allergens thoughtfully to build a healthy gut",
+    "id": 792
+  },
+  {
+    "statement": "By prioritising real nutrient-rich foods the foundation for for long-term strength is build",
+    "id": 793
+  },
+  {
+    "statement": "By prioritising real nutrient-rich foods the foundation for for long-term overall wellbeing is build",
+    "id": 794
+  },
+  {
+    "statement": "By prioritising real nutrient-rich foods the foundation for for long-term focus is build",
+    "id": 795
+  },
+  {
+    "statement": "There are four signs a baby is ready to start solids that need to be looked out for before starting solids",
+    "id": 796
+  },
+  {
+    "statement": "One sign is if a baby can sit upright without any support",
+    "id": 797
+  },
+  {
+    "statement": "Sitting upright without any support means that babies are not flopping forwards and that they don't need a chair to hold their busts up",
+    "id": 798
+  },
+  {
+    "statement": "If babies are not meeting the sign of sitting upright, it means that their tummy muscles are not ready to digest food yet",
+    "id": 799
+  },
+  {
+    "statement": "One sign of readiness is if babies have lost a tongue thrust reflex",
+    "id": 800
+  },
+  {
+    "statement": "The tongue thrust reflex means babies push things out of their mouth with their tongue",
+    "id": 801
+  },
+  {
+    "statement": "babies start to loose the tongue thrust reflex when they reach about six months ",
+    "id": 802
+  },
+  {
+    "statement": "When babies loose the tongue thrust reflex they will be able to put the food in their mouth ",
+    "id": 803
+  },
+  {
+    "statement": "When babies loose the tongue thrust reflex they will be able to move food with their tongue",
+    "id": 804
+  },
+  {
+    "statement": "One sign of readiness is that a baby is able to turn their head from side to side, so they can indicate you that they've had enough food",
+    "id": 805
+  },
+  {
+    "statement": "If babies can't turn their head from side to side yet it means that there's a risk of overfeeding them",
+    "id": 806
+  },
+  {
+    "statement": "Turning the head from side to side is a very important sign",
+    "id": 807
+  },
+  {
+    "statement": "One obvious sign is baby being interested in the food ",
+    "id": 808
+  },
+  {
+    "statement": "One obvious sign is baby trying to grab the food ",
+    "id": 809
+  },
+  {
+    "statement": "One obvious sign is baby mimicking chewing motions",
+    "id": 810
+  },
+  {
+    "statement": "Generally babies meet the signs of readiness at around six months",
+    "id": 811
+  },
+  {
+    "statement": "Meeting the signs of readiness can be anywhere from five and a half months to seven months",
+    "id": 812
+  },
+  {
+    "statement": "Between four and six months is the opportunity to assess and watch a baby's cues to start solids",
+    "id": 813
+  },
+  {
+    "statement": "One sign of readiness is interest in food",
+    "id": 814
+  },
+  {
+    "statement": "It should be eaten lots around the child ",
+    "id": 815
+  },
+  {
+    "statement": "One sign of readiness is that a baby is able to sit supported with some good head and neck control",
+    "id": 816
+  },
+  {
+    "statement": "One sign of readiness is that a baby is showing a visual interest when people around them are eating ",
+    "id": 817
+  },
+  {
+    "statement": "One sign of readiness is that a baby is showing a visual interest when there is food around",
+    "id": 818
+  },
+  {
+    "statement": "Starting a baby on solids between four and six months is totally fine and appropriate ",
+    "id": 819
+  },
+  {
+    "statement": "Solids are not there to solve problems but to teach a baby how to eat",
+    "id": 820
+  },
+  {
+    "statement": "Es gibt drei Reifezeichen zur Beikost",
+    "id": 821
+  },
+  {
+    "statement": "Speisen sollten mit dem 2-Finger-Quetschtest geprüft werden",
+    "id": 822
+  },
+  {
+    "statement": "Der Hochstuhl sollte richtig eingestellt sein",
+    "id": 823
+  },
+  {
+    "statement": "Essen ist für Babys eine Multi-Sensorik-Erfahrung",
+    "id": 824
+  },
+  {
+    "statement": "Das meiste Essen landet zu Beginn nicht im Mund des Babys",
+    "id": 825
+  },
+  {
+    "statement": "Es muss nicht jeden Tag das gleiche Gemüse angeboten werden",
+    "id": 826
+  },
+  {
+    "statement": "Es muss nicht strikt nach Plan gekocht werden ",
+    "id": 827
+  },
+  {
+    "statement": "In der Zeit zwischen 6 und 18 Monaten sind Kinder kulinarisch offen für Neues",
+    "id": 828
+  },
+  {
+    "statement": "Die kulinarische Neugier der Kinder sollte genutzt werden",
+    "id": 829
+  },
+  {
+    "statement": "Es ist wichtig, dass Babys aufrecht alleine auf dem Schoß sitzen können bevor mit Beikost begonnen wird",
+    "id": 830
+  },
+  {
+    "statement": "Babys müssen zur Beikost noch nicht alleine auf dem Hochstuhl sitzen können, aber aufrecht auf dem Schoß ohne, dass der Kopf davon fällt",
+    "id": 831
+  },
+  {
+    "statement": "Es ist wichtig, dass der Zungenstoßreflex verschwundnen ist bevor mit Beikost begonnen wird",
+    "id": 832
+  },
+  {
+    "statement": "Zungenstoßreflex bedeutet wenn Essen in den Mund kommt, schiebt das Baby das Essen noch mit der Zunge aus dem Mund ",
+    "id": 833
+  },
+  {
+    "statement": "Es ist wichtig, dass Kinder eine Hand-Auge-Mund-Koordination aufweisen bevor mit Beikost begonnen wird",
+    "id": 834
+  },
+  {
+    "statement": "Das Kind sollte Essen selbstständig zum Mund führen können bevor mit Beikost gestartet wird",
+    "id": 835
+  },
+  {
+    "statement": "Ob ein Kind bereit ist für Beikost, ist unter anderem daran zu erkennen, dass das Kind Interesse und richtig Lust aufs Essen hat",
+    "id": 836
+  },
+  {
+    "statement": "Ob ein Kind bereit ist für Beikost, ist unter anderem daran zu erkennen, dass das Kind eine gute Kopfkontrolle hat",
+    "id": 837
+  },
+  {
+    "statement": "Ob ein Kind bereit ist für Beikost, ist unter anderem daran zu erkennen, dass das Kind einigermaßen kontrolliert und mit etwas Unterstützung sitzen kann",
+    "id": 838
+  },
+  {
+    "statement": "Ob ein Kind bereit ist für Beikost, ist unter anderem daran zu erkennen, dass das Kind greifen kann",
+    "id": 839
+  },
+  {
+    "statement": "Ob ein Kind bereit ist für Beikost, ist unter anderem daran zu erkennen, dass der Zungenstoßreflex nicht mehr so ausgeprägt ist",
+    "id": 840
+  },
+  {
+    "statement": "Es wird empfohlen mit ungefähr 6 Monaten mit der Beikost zu beginnen ",
+    "id": 841
+  },
+  {
+    "statement": "Es wird empfohlen frühestens mit 5 Monaten mit der Beikost zu beginnen ",
+    "id": 842
+  },
+  {
+    "statement": "Um herauszufinden, wann ein Kind bereit ist für die Beikost, soll sich nicht durch Empfehlungen verunsichert werden lassen, sondern auf die Signale der individuellen Entwicklung des Kindes geachtet werden ",
+    "id": 843
+  },
+  {
+    "statement": "Um herauszufinden, wann ein Kind bereit ist für die Beikost, soll sich nicht durch Empfehlungen verunsichert werden lassen, sondern auf  Vorlieben des Kindes geachtet werden ",
+    "id": 844
+  },
+  {
+    "statement": "Manche Kinder sind früher, mache Kinder später bereit für die Beikost",
+    "id": 845
+  },
+  {
+    "statement": "four to six month is the perfect window for babies to be exposed to as many allergens as possible to reduce the long-term risk of allergy",
+    "id": 846
+  },
+  {
+    "statement": "At home a finger can be used to give the allergen like peanut butter to the baby",
+    "id": 847
+  },
+  {
+    "statement": "Babies don't actually need to ingest any allergen, it just has to be in and around their mouth ",
+    "id": 848
+  },
+  {
+    "statement": "It is a suitable approach to give a tiny bit of smooth peanut butter to a baby between four to six months",
+    "id": 849
+  },
+  {
+    "statement": "It counts as a perfect exposure to peanuts if the baby is given a tiny bit of peanut butter, that is not enough to be swallowed and the baby palys with ist and licks it",
+    "id": 850
+  },
+  {
+    "statement": "Only exclusive breastfeeding or formula up until six months is beneficial for a baby ",
+    "id": 851
+  },
+  {
+    "statement": "It is recommended that at six months it should be started to introduce solids as complementary feeding",
+    "id": 852
+  },
+  {
+    "statement": "Breast milk and formula should still be a baby's main source of nutrition from six to 12 months",
+    "id": 853
+  },
+  {
+    "statement": "What really matters when starting solids at the right time is not whether a baby is four months old or six months old but that a baby is developmentally ready and showing all the signs of readiness",
+    "id": 854
+  },
+  {
+    "statement": "Knowing the signs of readiness is the difference between feeding with stress and feeding with confidence",
+    "id": 855
+  },
+  {
+    "statement": "Babys unter einem Jahr sollten kein Salz bekommen",
+    "id": 856
+  },
+  {
+    "statement": "Die kleinen Nieren eines Babys sind unter einem Jahr noch nicht vollständig ausgereift ",
+    "id": 857
+  },
+  {
+    "statement": "Die kleinen Nieren eines Babys können überschüssiges Natrium nicht ausscheiden",
+    "id": 858
+  },
+  {
+    "statement": "Zu viel Salz kann den Körper eines Babys unnötig belasten ",
+    "id": 859
+  },
+  {
+    "statement": "Zu viel Salz bei Babys kann später im Leben für Bluthochdruck verantwortlich sein ",
+    "id": 860
+  },
+  {
+    "statement": "Es gibt Maximalangaben von Salz pro Tag",
+    "id": 861
+  },
+  {
+    "statement": "Salz sollte beim Kochvorgang nicht aktiv in die Nahrung reingegeben werden, denn in Situationen, in denen woanders gegessen wird, bekommt das Baby automatisch Salz",
+    "id": 862
+  },
+  {
+    "statement": "Salz sollte beim Kochvorgang nicht aktiv in die Nahrung reingegeben werden, denn in Situationen, denn wenn auf eine Linsenwaffel zurückgegriffen wird, bekommt das Baby automatisch Salz",
+    "id": 863
+  },
+  {
+    "statement": "Babys haben doppelt so viele Geschmacksknospen wie Erwachsene",
+    "id": 864
+  },
+  {
+    "statement": "Essen schmeckt Babys auch ohne Salz",
+    "id": 865
+  },
+  {
+    "statement": "Mit gewissen Kräutern kann auch ohne Salz ein ein richtig guter Geschmack für die Nahrung des Kindes kreiert werden",
+    "id": 866
+  },
+  {
+    "statement": "Mit Zwiebeln kann auch ohne Salz ein ein richtig guter Geschmack für die Nahrung des Kindes kreiert werden",
+    "id": 867
+  },
+  {
+    "statement": "Mit Hefeflocken kann auch ohne Salz ein ein richtig guter Geschmack für die Nahrung des Kindes kreiert werden",
+    "id": 868
+  },
+  {
+    "statement": "Es muss sich keine Sorgen gemacht werden, wenn ein sechs Monate altes Baby noch nichts essen möchte ",
+    "id": 869
+  },
+  {
+    "statement": "Wenn ein Baby mit sechs Monaten noch nichts essen möchte, ist das kein Zeichen, dass etwas falsch gemacht wurde",
+    "id": 870
+  },
+  {
+    "statement": "Beikost ist Nahrung zusätzlich zur Milch ",
+    "id": 871
+  },
+  {
+    "statement": "Ein Baby darf die ersten Wochen der Beikost einfach ausprobieren, riechen, matschen, schmecken",
+    "id": 872
+  },
+  {
+    "statement": "Es ist okay, wenn ein Baby in den ersten Wochen der Beikost noch nicht viel isst",
+    "id": 873
+  },
+  {
+    "statement": "Milch bleibt die wichtigste Nahrungsquelle im ersten Lebensjahr",
+    "id": 874
+  },
+  {
+    "statement": "Milch liefert im ersten Lebensjahr alles, was ein Baby braucht",
+    "id": 875
+  },
+  {
+    "statement": "Das Interesse am Essen kommt meist ganz von allein, wenn ein Baby soweit ist",
+    "id": 876
+  },
+  {
+    "statement": "Liver is one of the best foods for a baby",
+    "id": 877
+  },
+  {
+    "statement": "pastured chicken liver is an appropriate food for babys",
+    "id": 878
+  },
+  {
+    "statement": "Liver and animal fat are the perfect pair because liver contains high amounts of fat-soluble vitamins",
+    "id": 879
+  },
+  {
+    "statement": "fat-soluble vitamins means in order for the body to use them properly, there must be fat",
+    "id": 880
+  },
+  {
+    "statement": "Liver and animal fat become more usable by the body when they are combined",
+    "id": 881
+  },
+  {
+    "statement": "Liver and animal fat become more useful by the body when they are combined",
+    "id": 882
+  },
+  {
+    "statement": "Putting fats and sugars in the same category in a food pyramid is just plain wrong",
+    "id": 883
+  },
+  {
+    "statement": "fats are very healthy ",
+    "id": 884
+  },
+  {
+    "statement": "Fats are one of the best foods that can be given to a baby early on in life because it's nutritional profile ",
+    "id": 885
+  },
+  {
+    "statement": "Fats are one of the best foods that can be given to a baby early on in life because it's unique flavor",
+    "id": 886
+  },
+  {
+    "statement": "When baby' taste buds are trained while young the baby is going to be a happy, healthy eater with a balanced demeanor",
+    "id": 887
+  },
+  {
+    "statement": "When baby's microbiome is shaped while young the baby is going to be a happy, healthy eater with a balanced demeanor",
+    "id": 888
+  },
+  {
+    "statement": "It is an appropriate approach to use a combination of purees and soft solids when introducing food to a baby",
+    "id": 889
+  },
+  {
+    "statement": "When starting with purees, what's important is making sure that babies still get the sensory experience that they need to keep meeting developmental milestones",
+    "id": 890
+  },
+  {
+    "statement": "When starting with purees, what's important is making sure that babies still get the motor experience that they need to keep meeting developmental milestones",
+    "id": 891
+  },
+  {
+    "statement": "When holding a spoonful of a puree and bringing it to baby's mouth and baby opens their mouth and brings it in, they're missing out on fine motor experience of reaching for a spoon and bringing it to their mouth",
+    "id": 892
+  },
+  {
+    "statement": "When holding a spoonful of a puree and bringing it to baby's mouth baby is not in control of how much food is going into their mouth",
+    "id": 893
+  },
+  {
+    "statement": "A tricky thing about purees, especially if baby is getting too much puree on a spoon, is that they spread out in baby's mouth",
+    "id": 894
+  },
+  {
+    "statement": "Spreaded purees in baby's mouth can contribute to gagging",
+    "id": 895
+  },
+  {
+    "statement": "When purees are offered on a teether, baby's still getting the fine motor experience of picking up the teether and bringing it to their mouth ",
+    "id": 896
+  },
+  {
+    "statement": "When purees are offered on a teether, baby's still getting the sensory experience of having the teether in their mouth",
+    "id": 897
+  },
+  {
+    "statement": "Chewing on the teether versus sucking the puree off of the spoon is a really important difference because for most babies between six and eight months is the best time for them to develop chewing skills",
+    "id": 898
+  },
+  {
+    "statement": "Using chewing skills helps stabilize the jaw",
+    "id": 899
+  },
+  {
+    "statement": "Stabilizing the jaw is really important for things like drinking",
+    "id": 900
+  },
+  {
+    "statement": "Teething popsicles are great for the fine motor development of picking up the popsicle from the tray ",
+    "id": 901
+  },
+  {
+    "statement": "Teething popsicles made from breast milk or formula are safe starting around four months",
+    "id": 902
+  },
+  {
+    "statement": "Popsicles with little bumps on the end are great for helping baby get their mouth ready for the sensory experience of food",
+    "id": 903
+  },
+  {
+    "statement": "A mango pit that has most of the fruit removed, that baby's going to pick up from the tray and gum on, is developing chewing skills ",
+    "id": 904
+  },
+  {
+    "statement": "A mango pit that has most of the fruit removed, that baby's going to pick up from the tray and gum on, is developing fine motor skills of hanging onto the mango pit",
+    "id": 905
+  },
+  {
+    "statement": "A feeder can be a great option for parents who are nervous about starting solids because it still gives baby that chewing experience in a high reward, low risk way",
+    "id": 906
+  },
+  {
+    "statement": "Whipped Bone Marrow ist ein Superfood, dass Babys für ein starkes Gehirn brauchen",
+    "id": 907
+  },
+  {
+    "statement": "Whipped Bone Marrow ist ein Superfood, dass Babys für eine gesunde Entwicklung brauchen",
+    "id": 908
+  },
+  {
+    "statement": "Whipped Bone Marrow ist voll mit den Fetten, die kleine Köpfe lieben",
+    "id": 909
+  },
+  {
+    "statement": "Whipped Bone Marrow ist so super für das Gehirn eines Babys, denn das Gehirn wächst nie wieder so viel wie in den ersten drei Jahren",
+    "id": 910
+  },
+  {
+    "statement": "Weil das Gehirn nie wieder so viel wie in den ersten drei Jahren wächst, ist es super wichtig, dass die Kinder gesunde und gute Fette erhalten ",
+    "id": 911
+  },
+  {
+    "statement": "Bone Marrow ist voll davon gesunden und guten Fetten ",
+    "id": 912
+  },
+  {
+    "statement": "When a baby starts solids around six months old, breast milk or formula is still their primary source of nutrition until they're at least one",
+    "id": 913
+  },
+  {
+    "statement": "Solids at around six months are more about exploration, not replacing milk feeds",
+    "id": 914
+  },
+  {
+    "statement": "Solids at around six months are more about practice and learning how to eat, not replacing milk feeds",
+    "id": 915
+  },
+  {
+    "statement": "When starting solids at around six months, it should be started with once a day",
+    "id": 916
+  },
+  {
+    "statement": "When starting solids a time that works for the family should be picked",
+    "id": 917
+  },
+  {
+    "statement": "Solids can be started at breakfast time",
+    "id": 918
+  },
+  {
+    "statement": "Solids can be started at lunchtime",
+    "id": 919
+  },
+  {
+    "statement": "Solids can be started at dinnertime",
+    "id": 920
+  },
+  {
+    "statement": "It is an appropriate approach to give solids when the family is already sitting down and having a meal for example at dinnertime",
+    "id": 921
+  },
+  {
+    "statement": "When starting solids the focus should be on single ingredient foods, especially when introducing the top nine allergens, so the baby can be watched for any reactions ",
+    "id": 922
+  },
+  {
+    "statement": "Around seven or eight months, once baby is starting to get more comfortable and excited about solids, then a second meal can be added",
+    "id": 923
+  },
+  {
+    "statement": "Portions should be kept small at around seven or eight months",
+    "id": 924
+  },
+  {
+    "statement": "Babies are not eating solids as much for nutrition",
+    "id": 925
+  },
+  {
+    "statement": "It's okay if babies don't actually swallow a lot of the food ",
+    "id": 926
+  },
+  {
+    "statement": " A few spoonfuls or bites of solid food is plenty",
+    "id": 927
+  },
+  {
+    "statement": "Around nine or ten months, most babies can handle three meals a day, so like eating breakfast, lunch, and dinner with the family ",
+    "id": 928
+  },
+  {
+    "statement": "Introducing solids should be started slow",
+    "id": 929
+  },
+  {
+    "statement": "When introducing solids variety should be added",
+    "id": 930
+  },
+  {
+    "statement": "Introducing solids should be gradually increased as the baby shows readiness",
+    "id": 931
+  },
+  {
+    "statement": "Babys dürfen Eier ab Beikostreife essen",
+    "id": 932
+  },
+  {
+    "statement": "Eier sind ein tolles Lebensmittel, weil sie hochwertiges Eiweiß enthalten",
+    "id": 933
+  },
+  {
+    "statement": "Eier sind ein tolles Lebensmittel, weil sie gesunde Fette enthalten",
+    "id": 934
+  },
+  {
+    "statement": "Eier sind ein tolles Lebensmittel, weil sie Eisen enthalten",
+    "id": 935
+  },
+  {
+    "statement": "Eier sind ein tolles Lebensmittel, weil sie viele Vitamine enthalten",
+    "id": 936
+  },
+  {
+    "statement": "Eier enthalten Vitamin B12 ",
+    "id": 937
+  },
+  {
+    "statement": "Eier enthalten Vitamin A",
+    "id": 938
+  },
+  {
+    "statement": "Eier enthalten Vitamin D ",
+    "id": 939
+  },
+  {
+    "statement": "Eier enthalten Vitamin E",
+    "id": 940
+  },
+  {
+    "statement": "Ein gekochtes Ei eignet sich super für den Beikoststart",
+    "id": 941
+  },
+  {
+    "statement": "Eier können in mundgerechte Stücke geschnitten werden, um sie dem Kind anzubieten ",
+    "id": 942
+  },
+  {
+    "statement": "Es ist wichtig, dass Eier immer komplett durchgegart sind, damit keine Salmonellengefahr besteht",
+    "id": 943
+  },
+  {
+    "statement": "Eier können Kindern als Omlett angeboten werden",
+    "id": 944
+  },
+  {
+    "statement": "Zu einem Omlett kann Paprikapulver hinzugegeben werden",
+    "id": 945
+  },
+  {
+    "statement": "Zu einem Omlett kann Pertersilie hinzugegeben werden",
+    "id": 946
+  },
+  {
+    "statement": "Zu einem Omlett kann Schnittlauch hinzugegeben werden",
+    "id": 947
+  },
+  {
+    "statement": "Das Omlett sollte ohne Salz zubereitet werden",
+    "id": 948
+  },
+  {
+    "statement": "Das Omlett kann in der Pfanne mit ein bisschen Rapsöl angebraten werden",
+    "id": 949
+  },
+  {
+    "statement": "Eier gehören zu den häufigen Allergien",
+    "id": 950
+  },
+  {
+    "statement": "Es wird empfohlen Ei frühzeitig einzuführen, um das Allergie-Risiko zu senken",
+    "id": 951
+  },
+  {
+    "statement": "Es wird empfohlen in kleinen Mengen einzuführen, um das Allergie-Risiko zu senken",
+    "id": 952
+  },
+  {
+    "statement": "Eier sollten nicht vermieden, sondern regelmäßig in den Speiseplan eingebaut werden ",
+    "id": 953
+  },
+  {
+    "statement": "Am Anfang sollten nur kleine Mengen an Ei gegeben werden ",
+    "id": 954
+  },
+  {
+    "statement": "The best way to prevent egg allergies is to feed eggs early and often",
+    "id": 955
+  },
+  {
+    "statement": "It is an appropriate approach to give scrambled egg to a six-month-old",
+    "id": 956
+  },
+  {
+    "statement": "It is an appropriate approach to add a bit of pumped milk to a scrambled egg to create a soft, squishable, safe texture",
+    "id": 957
+  },
+  {
+    "statement": "It is an appropriate approach to add a bit of formula to a scrambled egg to create a soft, squishable, safe texture",
+    "id": 958
+  },
+  {
+    "statement": "The egg sould be fully cooked ",
+    "id": 959
+  },
+  {
+    "statement": "Scrambled egg is a nutritious meal for a baby",
+    "id": 960
+  },
+  {
+    "statement": "For the overwhelming majority of kids the right thing to do is to follow the current public health advice to aim to exclusively breastfeed for six months ",
+    "id": 961
+  },
+  {
+    "statement": "For the overwhelming majority of kids the right thing to do is to follow the current public health advice to introduce solids at around six months when the baby's ready to start ",
+    "id": 962
+  },
+  {
+    "statement": "For the overwhelming majority of kids the right thing to do is to follow the current public health advice to not delay the introduction of allergenic foods such as egg and peanut",
+    "id": 963
+  },
+  {
+    "statement": "For exceptions like children who have got eczema, particularly bad eczema that started early and has been really troublesome the evidence strongly suggests that it would be a good idea to consider starting the introduction of allergens a little bit earlier than six months",
+    "id": 964
+  },
+  {
+    "statement": "For exceptions like children where there's already evidence that the infant has a food allergy issue the evidence strongly suggests that it would be a good idea to consider starting the introduction of allergens a little bit earlier than six months",
+    "id": 965
+  },
+  {
+    "statement": "In cases where babies are being breastfed and are getting problems because of milk in mum's diet there is good evidence that introducing allergenic foods such as egg or peanut or sesame from as early as 17 weeks, only when the baby is ready, would be a good idea because that can further reduce the risk of allergies developing",
+    "id": 966
+  },
+  {
+    "statement": "In cases where babies are being breastfed and are getting problems because of egg in mum's diet there is good evidence that introducing allergenic foods such as egg or peanut or sesame from as early as 17 weeks, only when the baby is ready, would be a good idea because that can further reduce the risk of allergies developing",
+    "id": 967
+  },
+  {
+    "statement": "Es gibt diverse Reifezeichen, die die Bereitschaft eines Babys für die Beikost signalisieren",
+    "id": 968
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass der Ausspruckreflex, durch den ein Baby die Zunge streckt, um feste Nahrung aus dem Mund zu schieben, verschwindet",
+    "id": 969
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass die Zähne des Babys durchbrechen  ",
+    "id": 970
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Baby weitestgehend alleine aufrecht sitzen kann mit minimaler Unterstützung, dabei den Kopf sehr gut alleine halten kann und nicht mehr nach vorn kippt",
+    "id": 971
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Baby koordinierte Hand-zu-Mund-Bewegungen durchführt",
+    "id": 972
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass sich der Mund des Kindes bei Berührungen mit dem Löffel oder mit Lebensmitteln von ganz alleine öffnet",
+    "id": 973
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Baby sich immer mehr für Lebensmittel interessiert, indem es am Familienessen teilnehmen möchte und  hier und da nach Lebensmitteln greift",
+    "id": 974
+  },
+  {
+    "statement": "The arbitrary cut-offs like starting solids at four months or at six months have no scientific basis",
+    "id": 975
+  },
+  {
+    "statement": "When you start solids in your baby depends on several factors",
+    "id": 976
+  },
+  {
+    "statement": "There is about an 8 to 6 week window in which solids can be started in a baby, depending on whether the baby is showing signs of readiness and that the caregiver is ready",
+    "id": 977
+  },
+  {
+    "statement": "It is generally preferable to wait until the baby is at least 18 to 20 weeks of age before introducing solids",
+    "id": 978
+  },
+  {
+    "statement": "It is preferable not to wait beyond 26 weeks of age to start solids",
+    "id": 979
+  },
+  {
+    "statement": "Extreme amounts of sodium consumption can be very dangerous for babies",
+    "id": 980
+  },
+  {
+    "statement": "Extreme amounts of sodium consumption in babies would generally only happen because of a medical mistake",
+    "id": 981
+  },
+  {
+    "statement": "A baby doesn't need high salted chips",
+    "id": 982
+  },
+  {
+    "statement": "High salted chips have a lot of sodium ",
+    "id": 983
+  },
+  {
+    "statement": "There are concerns about developing a high taste for high salted chips",
+    "id": 984
+  },
+  {
+    "statement": "Developing a high taste for high salted chips could lead to high blood pressure later",
+    "id": 985
+  },
+  {
+    "statement": "Developing a high taste for high salted chips could lead to other issues besides high blood pressure later",
+    "id": 986
+  },
+  {
+    "statement": "A regular amount of salt that a family would typically have in a meal that they eat at home is completely fine for babies",
+    "id": 987
+  },
+  {
+    "statement": "There is no reason to make a totally no salt meal for a baby",
+    "id": 988
+  },
+  {
+    "statement": "Salt should not be overdone ",
+    "id": 989
+  },
+  {
+    "statement": "Knochenmark ist ein Superfood für Babys",
+    "id": 990
+  },
+  {
+    "statement": "Knochenmark ist perfekt für die Gehirnentwicklung",
+    "id": 991
+  },
+  {
+    "statement": "Knochenmark ist perfekt für das Immunsystem",
+    "id": 992
+  },
+  {
+    "statement": "Knochenmark ist perfekt für die Knochengesundheit",
+    "id": 993
+  },
+  {
+    "statement": "Knochenmark baut den Darm auf",
+    "id": 994
+  },
+  {
+    "statement": "Knochenmark ist leicht verdaulich",
+    "id": 995
+  },
+  {
+    "statement": "Knochenmark ist gut bioverfügbar ",
+    "id": 996
+  },
+  {
+    "statement": "Knochenmark ist voll mit Nährstoffen ",
+    "id": 997
+  },
+  {
+    "statement": "Knochenmark kann überall mit reingemischt werden für einen Nährstoffboost",
+    "id": 998
+  },
+  {
+    "statement": "Eltern, die Allergiker:innen sind sollten nicht vorsorglich gewisse Lebensmittel meiden, um zu vermeiden, dass das Kind Allergien darauf entwickelt",
+    "id": 999
+  },
+  {
+    "statement": "Der einzige Weg zur Allergieprävention ist so viel Input wie möglich",
+    "id": 1000
+  },
+  {
+    "statement": "Zur Allergieprävention sollten Babys so viele Lebensmittel wie möglich erhalten, denn mit je mehr ein Kind konfrontiert wird während der Beikosteinführung, desto geringer ist die Wahrscheinlichkeit, dass ein Kind eine Allergie entwickelt, auch wenn bereits die Mama eine Allergie hat ",
+    "id": 1001
+  },
+  {
+    "statement": "Wenn bereits die Mama eine Allergie hat, liegt beim Kind eine gewisse Prädisposition vor",
+    "id": 1002
+  },
+  {
+    "statement": "There is no exact science on how to balance milk and solid food ",
+    "id": 1003
+  },
+  {
+    "statement": "The approach to balance milk and solid food should be individualized to the child ",
+    "id": 1004
+  },
+  {
+    "statement": "Between six and nine months of age milk feeds should be kept on relatively the same schedule",
+    "id": 1005
+  },
+  {
+    "statement": "Milk feeds between six and nine months of age should still be prioritized ",
+    "id": 1006
+  },
+  {
+    "statement": "Milk feeds between six and nine months of age should be offered about one hour before solid foods",
+    "id": 1007
+  },
+  {
+    "statement": "The main nutrition for babies between six and nine months should be coming from milk feeds ",
+    "id": 1008
+  },
+  {
+    "statement": "Forr babies between six and nine months solid foods will be complementing their milk-based diet",
+    "id": 1009
+  },
+  {
+    "statement": "Once a kid turns nine months, it can be switched to offering solid foods about one hour before milk feeds",
+    "id": 1010
+  },
+  {
+    "statement": " The goal is to make a low transition from a primarily milk-based diet to a primarily solid food diet between six to twelve months of age ",
+    "id": 1011
+  },
+  {
+    "statement": "During the transition from a primarily milk-based diet to a primarily solid food diet the child's lead should be followed",
+    "id": 1012
+  },
+  {
+    "statement": "During the transition from a primarily milk-based diet to a primarily solid food diet responsive feeding should be used ",
+    "id": 1013
+  },
+  {
+    "statement": "During the transition from a primarily milk-based diet to a primarily solid food diet solid food intake should be gradually increased",
+    "id": 1014
+  },
+  {
+    "statement": "It is not expected that milk feeds decrease when starting solids ",
+    "id": 1015
+  },
+  {
+    "statement": "It is not wanted that milk feeds decrease when starting solids ",
+    "id": 1016
+  },
+  {
+    "statement": "If there are any concerns with the child not progressing with solids it should be reached out to a pediatric dietitian ",
+    "id": 1017
+  },
+  {
+    "statement": "If there are any concerns with the child not progressing with solids it should be reached out to a pediatrician",
+    "id": 1018
+  },
+  {
+    "statement": "If there are any concerns with the child decreasing milk feeds too fast it should be reached out to a pediatric dietitian ",
+    "id": 1019
+  },
+  {
+    "statement": "If there are any concerns with the child decreasing milk feeds too fast it should be reached out to a pediatrician",
+    "id": 1020
+  },
+  {
+    "statement": "Healthy fats are one of the most essential nutrients for weaning babies",
+    "id": 1021
+  },
+  {
+    "statement": "It is an appropriate approach to give mashed egg yolk to a baby",
+    "id": 1022
+  },
+  {
+    "statement": "It is an appropriate approach to give tallow to a baby",
+    "id": 1023
+  },
+  {
+    "statement": "Egg yolk is super high in choline",
+    "id": 1024
+  },
+  {
+    "statement": "Egg yolk is super high in fat",
+    "id": 1025
+  },
+  {
+    "statement": "Egg yolk is super high in protein",
+    "id": 1026
+  },
+  {
+    "statement": "Tallow is super high in choline",
+    "id": 1027
+  },
+  {
+    "statement": "Tallow is super high in fat",
+    "id": 1028
+  },
+  {
+    "statement": "Tallow are super high in protein",
+    "id": 1029
+  },
+  {
+    "statement": "Egg yolk is one of the best first foods for babies because it contains a similar nutrient composition to breast milk",
+    "id": 1030
+  },
+  {
+    "statement": "High fat foods are essential for a baby's brain development",
+    "id": 1031
+  },
+  {
+    "statement": "Bone marrow is packed with healthy fats",
+    "id": 1032
+  },
+  {
+    "statement": "Bone marrow is packed with iron",
+    "id": 1033
+  },
+  {
+    "statement": "Bone marrow is packed with collagen",
+    "id": 1034
+  },
+  {
+    "statement": "Bone marrow is packed with essential vitamins",
+    "id": 1035
+  },
+  {
+    "statement": "Bone marrow is great for brain development ",
+    "id": 1036
+  },
+  {
+    "statement": "Bone marrow is great for growth",
+    "id": 1037
+  },
+  {
+    "statement": "Whipped bone marrow made out of lamp bone is an appropriate food when starting solids",
+    "id": 1038
+  },
+  {
+    "statement": "Whipped bone marrow can be stored in the fridge for 4 days ",
+    "id": 1039
+  },
+  {
+    "statement": "Whipped bone marrow can be frozen up to 6 months",
+    "id": 1040
+  },
+  {
+    "statement": "Steamed veggies are an appropriate food when staring solids",
+    "id": 1041
+  },
+  {
+    "statement": "Boiled veggies are an appropriate food when staring solids",
+    "id": 1042
+  },
+  {
+    "statement": "Steamed veggies can be served mashed",
+    "id": 1043
+  },
+  {
+    "statement": "Boiled veggies can be served mashed",
+    "id": 1044
+  },
+  {
+    "statement": "Steamed veggies can be served as is ",
+    "id": 1045
+  },
+  {
+    "statement": "Boiled veggies can be served as is ",
+    "id": 1046
+  },
+  {
+    "statement": "Steamed veggies can be mixed with rice",
+    "id": 1047
+  },
+  {
+    "statement": "Boiled veggies can be mixed with rice",
+    "id": 1048
+  },
+  {
+    "statement": "Steamed veggies can be mixed with pasta ",
+    "id": 1049
+  },
+  {
+    "statement": "Boiled veggies can be mixed with pasta",
+    "id": 1050
+  },
+  {
+    "statement": "Steamed veggies can be mixed with mashed potatoes",
+    "id": 1051
+  },
+  {
+    "statement": "Boiled veggies can be mixed with mashed potatoes",
+    "id": 1052
+  },
+  {
+    "statement": "Steamed veggies can be frozen in small portions for up to 6 months",
+    "id": 1053
+  },
+  {
+    "statement": "Boiled veggies can be frozen in small portions for up to 6 months",
+    "id": 1054
+  },
+  {
+    "statement": "Steamed veggies are super healthy",
+    "id": 1055
+  },
+  {
+    "statement": "Boiled veggies are super healthy",
+    "id": 1056
+  },
+  {
+    "statement": "Steamed vegetables like spinach, carrots or sweet potatoes blended with cream cheese and mixed with cooked pasta is a vitamin rich meal ",
+    "id": 1057
+  },
+  {
+    "statement": "Steamed vegetables like spinach, carrots or sweet potatoes blended with cottage cheese and mixed with cooked pasta is a vitamin rich meal ",
+    "id": 1058
+  },
+  {
+    "statement": "Boild vegetables like spinach, carrots or sweet potatoes blended with cream cheese and mixed with cooked pasta is a vitamin rich meal ",
+    "id": 1059
+  },
+  {
+    "statement": "Boild vegetables like spinach, carrots or sweet potatoes blended with cottage cheese and mixed with cooked pasta is a vitamin rich meal ",
+    "id": 1060
+  },
+  {
+    "statement": "Steamed vegetables like spinach, carrots or sweet potatoes blended with cream cheese and mixed with cooked pasta is an appropriate meal when starting solids ",
+    "id": 1061
+  },
+  {
+    "statement": "Steamed vegetables like spinach, carrots or sweet potatoes blended with cottage cheese and mixed with cooked pasta is an appropriate meal when starting solids ",
+    "id": 1062
+  },
+  {
+    "statement": "Boild vegetables like spinach, carrots or sweet potatoes blended with cream cheese and mixed with cooked pasta is an appropriate meal when starting solids ",
+    "id": 1063
+  },
+  {
+    "statement": "Boild vegetables like spinach, carrots or sweet potatoes blended with cottage cheese and mixed with cooked pasta is an appropriate meal when starting solids ",
+    "id": 1064
+  },
+  {
+    "statement": "A sauce out of steamed vegetables and cream cheese can be frozen for up to 2 months",
+    "id": 1065
+  },
+  {
+    "statement": "A sauce out of steamed  vegetables and cottage cheese can be frozen for up to 2 months",
+    "id": 1066
+  },
+  {
+    "statement": "A sauce out of boiled vegetables and cream cheese can be frozen for up to 2 months",
+    "id": 1067
+  },
+  {
+    "statement": "A sauce out of boiled vegetables and cottage cheese can be frozen for up to 2 months",
+    "id": 1068
+  },
+  {
+    "statement": "Milk is the main source of nutrition for babies",
+    "id": 1069
+  },
+  {
+    "statement": "If a baby gets three meals a day, they are going to drop their milk",
+    "id": 1070
+  },
+  {
+    "statement": "When babies drop their milk that means they're not getting a quick source of calories",
+    "id": 1071
+  },
+  {
+    "statement": "When babies drop their milk that means they're not getting a high nutrient-dense source of calories",
+    "id": 1072
+  },
+  {
+    "statement": "If babies don't get a quick, high nutrient-dense source of calories, their weight is going to slow down",
+    "id": 1073
+  },
+  {
+    "statement": "It is appropriate to give one meal a day to a six month old baby",
+    "id": 1074
+  },
+  {
+    "statement": "It is appropriate to give two meals a day to a seven month old baby",
+    "id": 1075
+  },
+  {
+    "statement": "It is appropriate to give three meals a day to an eight month old baby",
+    "id": 1076
+  },
+  {
+    "statement": "Early exposure to peanut foods and regular consumption throughout the first five years of life could reduce a child's allergy risk by up to 86%",
+    "id": 1077
+  },
+  {
+    "statement": "It is recommended that most babies start peanut foods around six months of age (The AAP recommends that most babies start peanut foods around six months of age, and high-risk babies start as early as four to six months after evaluation by a doctor)",
+    "id": 1078
+  },
+  {
+    "statement": "It is recommended that high-risk babies start peanut foods as early as four to six months after evaluation by a doctor ",
+    "id": 1079
+  },
+  {
+    "statement": "Nuts are a choking hazard for babies",
+    "id": 1080
+  },
+  {
+    "statement": "Gobs of nut butter are a choking hazard for babies",
+    "id": 1081
+  },
+  {
+    "statement": "An appropriate way too keep peanuts in a babys diet is to blend peanut butter into products like baby cereal ",
+    "id": 1082
+  },
+  {
+    "statement": "An appropriate way too keep peanuts in a babys diet is to blend peanut butter into products like purees",
+    "id": 1083
+  },
+  {
+    "statement": "An appropriate way too keep nuts in a babys diet is to blend nut butter into products like baby cereal ",
+    "id": 1084
+  },
+  {
+    "statement": "An appropriate way too keep nuts in a babys diet is to blend nut butter into products like purees",
+    "id": 1085
+  },
+  {
+    "statement": "An appropriate way too keep peanuts in a babys diet is to put a very thin smear of peanut butter on toast strips for baby-led weaning",
+    "id": 1086
+  },
+  {
+    "statement": "An appropriate way too keep nuts in a babys diet is to put a very thin smear of nut butter on toast strips for baby-led weaning",
+    "id": 1087
+  },
+  {
+    "statement": "By far the easiest way  too peanuts and nuts in a babys diet is is to serve a baby-friendly peanut product like nutty puff snacks",
+    "id": 1088
+  },
+  {
+    "statement": "Seven grams of peanuts are recommended per week to reduce allergy risk ",
+    "id": 1089
+  },
+  {
+    "statement": "It is recommended that babies should be exclusively breastfed or formula fed until six months of age",
+    "id": 1090
+  },
+  {
+    "statement": "There should be no other food introduced in a baby's diet until six months of age unless told otherwise by a pediatrician",
+    "id": 1091
+  },
+  {
+    "statement": "If there is a high risk of allergies with a baby, early introduction of allergens might be recommended",
+    "id": 1092
+  },
+  {
+    "statement": "One sign that a baby is ready to eat solids would be being able to sit pretty much independently",
+    "id": 1093
+  },
+  {
+    "statement": "Babies should be able to sit in the high chair, not be leaning forward, backwards, any which way before starting solids",
+    "id": 1094
+  },
+  {
+    "statement": "One sign that a baby is ready to start solids is that they have interest in food",
+    "id": 1095
+  },
+  {
+    "statement": "It can help  with the interest in food to bring the baby to the table in the weeks before starting soldis and have them watch other people eat",
+    "id": 1096
+  },
+  {
+    "statement": "One sign that a baby is ready to start solids is that they bring their hands to their mouth",
+    "id": 1097
+  },
+  {
+    "statement": "One sign that a baby is ready to start solids is that they grab whatever food is served and bring it to their mouth",
+    "id": 1098
+  },
+  {
+    "statement": "If a baby is six months old and is sitting, interested in food and bringing objects to their mouth, they're ready for solids",
+    "id": 1099
+  },
+  {
+    "statement": "One sign of readiness is good head and neck control",
+    "id": 1100
+  },
+  {
+    "statement": "Good head and neck control is important because the baby should be able to nod their head ",
+    "id": 1101
+  },
+  {
+    "statement": "Good head and neck control is important because the baby should be able to say no ",
+    "id": 1102
+  },
+  {
+    "statement": "Saying no with head movements is a great way for babies to communicate when they are done with feeding right now",
+    "id": 1103
+  },
+  {
+    "statement": "Most babies at four or five months start to put objects in their mouth",
+    "id": 1104
+  },
+  {
+    "statement": "Most babies at four or five months start to put objects in their hands ",
+    "id": 1105
+  },
+  {
+    "statement": "Most babies at four or five months start to put objects in their feet",
+    "id": 1106
+  },
+  {
+    "statement": "Most babies at four or five months start the mouthing process",
+    "id": 1107
+  },
+  {
+    "statement": "When babies are starting to put objects in their mouth, their hands and their feet and start that mouthing process, that is a sign that the baby might be headed in that direction of being ready for solids",
+    "id": 1108
+  },
+  {
+    "statement": "One important sign of readiness is a reduced tongue thrust reflex",
+    "id": 1109
+  },
+  {
+    "statement": "A reduced tongue thrust reflex is a baby's natural intuition or reflex to just stick their tongue out when that area is stimulated",
+    "id": 1110
+  },
+  {
+    "statement": "When giving food to a baby, the baby should not push it out of their mouth but push it back so they can swallow",
+    "id": 1111
+  },
+  {
+    "statement": "The tongue thrust reflex tends to diminish somewhere between the six and seven month mark",
+    "id": 1112
+  },
+  {
+    "statement": "One important sign of readiness is general interest in watching parents eat food",
+    "id": 1113
+  },
+  {
+    "statement": "One sign of readiness is having a baby sit with some minimal support",
+    "id": 1114
+  },
+  {
+    "statement": "To test the extrusion reflex a spoon can be put at the tip of the baby's lips to see what happens ",
+    "id": 1115
+  },
+  {
+    "statement": "If babies are sticking their tongue out and try to push a spoon away, chances are that the extrusion reflex hasn't quite diminished yet",
+    "id": 1116
+  },
+  {
+    "statement": "If the extrusion reflex hasn't diminished yet it sould be waited a week until it is gone ",
+    "id": 1117
+  },
+  {
+    "statement": "Es wird empfolen erst streng sechs Monate zu stillen ",
+    "id": 1118
+  },
+  {
+    "statement": "Es wird empfolen erst nach 6 Monaten mit der Beikost zu starten ",
+    "id": 1119
+  },
+  {
+    "statement": "Es wird empfohlen, falls möglich, bereits früher als mit sechs Monaten mit der Beikost zu starten ",
+    "id": 1120
+  },
+  {
+    "statement": "Unabhängig vom genauen Alter muss ein Kind erstmal gewisse Meilensteine der Entwicklung durchgemacht haben, damit es bereit ist, feste Kost zu sich zu nehmen",
+    "id": 1121
+  },
+  {
+    "statement": "Ein Kind ist nicht auf den Punkt nach genau 180 Tagen bereit für die Beikost ",
+    "id": 1122
+  },
+  {
+    "statement": "Der Hauptsinn der Sechs-Monats-Regel ist es, Kinder im ersten Lebensjahr erstmal so lange wie möglich vor dem Kontakt mit kontaminierten Lebensmitteln zu schützen",
+    "id": 1123
+  },
+  {
+    "statement": "Der Hauptsinn der Sechs-Monats-Regel ist es, Kinder im ersten Lebensjahr erstmal so lange wie möglich vor dem Kontakt mit kontaminiertem Trinkwasser zu schützen",
+    "id": 1124
+  },
+  {
+    "statement": "Muttermilch ist sauber ",
+    "id": 1125
+  },
+  {
+    "statement": "Muttermilch ist für das Kind sicher",
+    "id": 1126
+  },
+  {
+    "statement": "Muttermilch enthält schützende Antikörper",
+    "id": 1127
+  },
+  {
+    "statement": "Kinder können, wenn sie die Beikost-Reifezeichen erreicht haben, bereits ab dem fünften Lebensmonat Kontakt mit fester Nahrung haben ",
+    "id": 1128
+  },
+  {
+    "statement": "Wenn Kinder früher Kontakt mit Beikost haben, sinkt das Risiko für Allergien",
+    "id": 1129
+  },
+  {
+    "statement": "Wenn Kinder früher Kontakt mit Beikost haben, sinkt das Risiko für Erkrankungen wie Neurodermitis",
+    "id": 1130
+  },
+  {
+    "statement": "Es ist nicht relevant zu welcher Tageszeit begonnen wird, Beikost anzubieten",
+    "id": 1131
+  },
+  {
+    "statement": "Es ist nicht relevant zu welcher Uhrzeit begonnen wird, Beikost anzubieten",
+    "id": 1132
+  },
+  {
+    "statement": "Bei Angst vor einer allergischen Reaktion bietet es sich an, ein Lebensmittel eher morgens anzubieten, weil das Kind im Laufe des Tages beobachtet werden kann ",
+    "id": 1133
+  },
+  {
+    "statement": "Allergische Reaktionen treten normalerweise nicht beim Erstkontakt mit einem Lebensmittel auf, sondern im weiteren Verlauf",
+    "id": 1134
+  },
+  {
+    "statement": "Das Essen des Kindes darf nur lauwarm sein, damit das Kind sich nicht verbrennen kann ",
+    "id": 1135
+  },
+  {
+    "statement": "In der Beikostzeit soll das Stillen oder Flasche geben weiterhin nach Bedarf erfolgen ",
+    "id": 1136
+  },
+  {
+    "statement": "Ob das Stillen oder Flasche geben vor der Mahlzeit, nach der Mahlzeit oder zwischen den Mahlzeiten stattfindet, ist ganz egal",
+    "id": 1137
+  },
+  {
+    "statement": "Bei einem sehr, sehr guten Esser, gerade wenn Brei gefüttert wird, ist die Gefahr größer, dass das Kind überfüttert werden kann",
+    "id": 1138
+  },
+  {
+    "statement": "Bei einem sehr, sehr guten Esser, gerade wenn Brei gefüttert wird, ist es sinnvoll  immer erst zu stillen oder erst die Flasche zu geben, um sicherzustellen, dass die Milch weiterhin die Hauptnahrungsquelle im ersten Lebensjahr bleibt",
+    "id": 1139
+  },
+  {
+    "statement": "Milchprodukte sind direkt ab Beikoststart erlaubt",
+    "id": 1140
+  },
+  {
+    "statement": "Es sollte darauf geachtet werden, dass 200 Gramm Milchprodukte am Tag nicht überschritten werden",
+    "id": 1141
+  },
+  {
+    "statement": "Es sollte darauf geachtet werden, dass 200 Milliliter Milchprodukte am Tag nicht überschritten werden",
+    "id": 1142
+  },
+  {
+    "statement": "Den Zielwert von 7 Gramm Milcheiweiß pro Tag sollte ein Kind nicht überschreiten, denn die Nieren eines Babys sind noch nicht ausgereift ",
+    "id": 1143
+  },
+  {
+    "statement": "Da die Nieren eines Babys sind noch nicht ausgereift sind können sie nur eine begrenzte Eiweißmenge verarbeiten",
+    "id": 1144
+  },
+  {
+    "statement": "7 Gramm Milcheiweiß sind zum Beispiel 150 Gramm Joghurt ",
+    "id": 1145
+  },
+  {
+    "statement": "7 Gramm Milcheiweiß sind zum Beispiel 2 Scheiben Käse",
+    "id": 1146
+  },
+  {
+    "statement": "Es sollte darauf geachtet werden, dass einem Kind eher die Vollfettvariante angeboten wird, da bei der meist der Nährstoffgehalt etwas besser ist",
+    "id": 1147
+  },
+  {
+    "statement": "By six months, baby's iron needs increase exponentially",
+    "id": 1148
+  },
+  {
+    "statement": "It should be focused on offering an iron-rich food at each feeding opportunity",
+    "id": 1149
+  },
+  {
+    "statement": "If following a baby-led method, foods should be served in easily graspable stick or strip shapes",
+    "id": 1150
+  },
+  {
+    "statement": "Meats should be cooked tender ",
+    "id": 1151
+  },
+  {
+    "statement": "Vegetables should be easily smashed between two fingers",
+    "id": 1152
+  },
+  {
+    "statement": "Purees can be loaded on an age-appropriate spoon",
+    "id": 1153
+  },
+  {
+    "statement": "Ideally a high chair with foot support should be used as this facilitates a safe swallow",
+    "id": 1154
+  },
+  {
+    "statement": "It should be started with just one feeding opportunity per day",
+    "id": 1155
+  },
+  {
+    "statement": "Solids should be served after milk feeds in the beginning",
+    "id": 1156
+  },
+  {
+    "statement": "When starting solids, portions should be kept small ",
+    "id": 1157
+  },
+  {
+    "statement": "Each baby will progress at different rates ",
+    "id": 1158
+  },
+  {
+    "statement": "Each baby will take different amounts",
+    "id": 1159
+  },
+  {
+    "statement": "There's no research that proves that starting solids will help baby sleep through the night ",
+    "id": 1160
+  },
+  {
+    "statement": "It needs to be waited to start solids until the baby is around six months of age",
+    "id": 1161
+  },
+  {
+    "statement": "Around the time a baby is turning six months of age is the magic time when the motor, immunity, and gut health window overlap",
+    "id": 1162
+  },
+  {
+    "statement": "Research shows that starting solids earlier than at around six months is not a good idea",
+    "id": 1163
+  },
+  {
+    "statement": "Es ist ein geeignetes Vorgehen mit BLW zu starten, wenn ein Kind alle Reifezeichen erfüllt",
+    "id": 1164
+  },
+  {
+    "statement": "Es gibt drei Reifezeichen  ",
+    "id": 1165
+  },
+  {
+    "statement": "Ein Reifezeichen ist ein sicherer Sitz",
+    "id": 1166
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Baby Gegenstände gezielt zum Mund führt",
+    "id": 1167
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Baby Interesse am Essen hat",
+    "id": 1168
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass der Zungenstoßreflex weg ist",
+    "id": 1169
+  },
+  {
+    "statement": "Es ist geeignet einem Baby als erste Mahlzeit Kartoffeln mit Brokkoli und ein bisschen Früchten zu geben",
+    "id": 1170
+  },
+  {
+    "statement": "Das Alter spielt bei den Reifezeichen gar keine Rolle",
+    "id": 1171
+  },
+  {
+    "statement": "Jedes Kind entwickelt sich in Bezug auf Beikostreife unterschiedlich",
+    "id": 1172
+  },
+  {
+    "statement": "Es ist geeignet einem Baby bei der Beikost ganz viel Zeit zu lassen, um alles zu erkunden",
+    "id": 1173
+  },
+  {
+    "statement": "At the six month mark a baby's iron storage from birth starts to deplete ",
+    "id": 1174
+  },
+  {
+    "statement": "When starting solids, iron rich foods should be introduced",
+    "id": 1175
+  },
+  {
+    "statement": "Iron is really important for a baby's brain development",
+    "id": 1176
+  },
+  {
+    "statement": "Iron is really important for a baby's immune function",
+    "id": 1177
+  },
+  {
+    "statement": "Dietary iron is best absorbed with vitamin c",
+    "id": 1178
+  },
+  {
+    "statement": "It is a suitable approach to give applesauce with ascorbic acid for lunch",
+    "id": 1179
+  },
+  {
+    "statement": "It is a suitable approach to give whipped bone marrow for dinner",
+    "id": 1180
+  },
+  {
+    "statement": "It should be waited until the baby is six months old to introduce whipped bone marrow  ",
+    "id": 1181
+  },
+  {
+    "statement": "Whipped bone marrow is a choking risk before the baby is six months old",
+    "id": 1182
+  },
+  {
+    "statement": "Whipped bone marrow is good in the fridge for up to a couple days ",
+    "id": 1183
+  },
+  {
+    "statement": "Whipped bone marrow stored in glass jars in the freezer are good for up to six months",
+    "id": 1184
+  },
+  {
+    "statement": "Four months is just too young to start solids",
+    "id": 1185
+  },
+  {
+    "statement": "It can be waited until the baby is six months old to start solids but there is no massive difference between five and a half and six months",
+    "id": 1186
+  },
+  {
+    "statement": "Solids can be started at around four and a half months ",
+    "id": 1187
+  },
+  {
+    "statement": "Being able to sit relatively unsupported in a high chair is a sign of readiness",
+    "id": 1188
+  },
+  {
+    "statement": "A baby has to have some amount of core strength to be able to not fall over or collapse when sitting strapped in a high chair",
+    "id": 1189
+  },
+  {
+    "statement": "Having good head control is a sign of readiness",
+    "id": 1190
+  },
+  {
+    "statement": "Being able to grab food and put it in the mouth is a sign of readiness",
+    "id": 1191
+  },
+  {
+    "statement": "Having interes in food is a sign of readiness",
+    "id": 1192
+  },
+  {
+    "statement": "The loss of the tongue thrust reflex is a sign of readiness",
+    "id": 1193
+  },
+  {
+    "statement": "The tongue thrust reflex is a protective reflex to protect the airway",
+    "id": 1194
+  },
+  {
+    "statement": "If the tongue thrust reflex still exists, the baby is not ready to move food from the front of the mouth to the back ",
+    "id": 1195
+  },
+  {
+    "statement": "Solids can be started when the baby is six months old",
+    "id": 1196
+  },
+  {
+    "statement": "Avocado is a food that can be used when starting solids",
+    "id": 1197
+  },
+  {
+    "statement": "Avocado can offered mashed on a grippy spoon",
+    "id": 1198
+  },
+  {
+    "statement": "Avocado can offered in a handheld slice ",
+    "id": 1199
+  },
+  {
+    "statement": "Steamed vegetales are a food that can be used when starting solids",
+    "id": 1200
+  },
+  {
+    "statement": "Pureed vegetales are a food that can be used when starting solids",
+    "id": 1201
+  },
+  {
+    "statement": "Steamed vegetales can be offered on a grippy spoon",
+    "id": 1202
+  },
+  {
+    "statement": "Pureed vegetales can be offered on a grippy spoon ",
+    "id": 1203
+  },
+  {
+    "statement": "Pureed vegetales can be offered on a teether when staring solids",
+    "id": 1204
+  },
+  {
+    "statement": "It is an appropriate approach to let baby bring a spoon to their mouth and self-feed when starting solids",
+    "id": 1205
+  },
+  {
+    "statement": "It is an appropriate approach to introduce a common allergen on day three of starting solids",
+    "id": 1206
+  },
+  {
+    "statement": "It is an appropriate approach to introduce egg as the first common allergen ",
+    "id": 1207
+  },
+  {
+    "statement": "Egg can be served hard-boiled",
+    "id": 1208
+  },
+  {
+    "statement": "Egg can be served mashed up",
+    "id": 1209
+  },
+  {
+    "statement": "Egg can be served as a frittata-style omelet cut it into slices where baby can hold it and bring to their mouth",
+    "id": 1210
+  },
+  {
+    "statement": "On day after introducing a common allergen, another another new food can be offered as long as it's not another common allergen",
+    "id": 1211
+  },
+  {
+    "statement": "Steamed Broccoli  is a food that can be used when starting solids",
+    "id": 1212
+  },
+  {
+    "statement": "Steamed Broccoli can be offered in mashed ",
+    "id": 1213
+  },
+  {
+    "statement": "Steamed Broccoli can be offered in pureed form ",
+    "id": 1214
+  },
+  {
+    "statement": "Steamed Broccoli can be offered as a big whole floret so they can bring it to their mouth",
+    "id": 1215
+  },
+  {
+    "statement": "Banana is a food that can be used when starting solids",
+    "id": 1216
+  },
+  {
+    "statement": "Banana can be offered mashed in oatmeal ",
+    "id": 1217
+  },
+  {
+    "statement": "Banana can be offered as a little lollipop so baby has something to grab onto and mash the banana in their mouth",
+    "id": 1218
+  },
+  {
+    "statement": "Babies can eat meat",
+    "id": 1219
+  },
+  {
+    "statement": "Meat can be offered as a resistive food like a chicken drumstick with the meat on",
+    "id": 1220
+  },
+  {
+    "statement": "Meat can be offered as a resistive food like a chicken drumstick with most of the meat off so they can start to mash ",
+    "id": 1221
+  },
+  {
+    "statement": "Meat can be offered as a resistive food like a chicken drumstick with most of the meat off so they can start to oral map their mouth",
+    "id": 1222
+  },
+  {
+    "statement": "Ripe strawberry is a food that can be used when starting solids",
+    "id": 1223
+  },
+  {
+    "statement": "Ripe strawberry can be offered as a whole",
+    "id": 1224
+  },
+  {
+    "statement": "Ripe strawberry can be offered mashed in oatmeal",
+    "id": 1225
+  },
+  {
+    "statement": "Gedünstetes Gemüse kann am Anfang der Beikost ignoriert werden ",
+    "id": 1226
+  },
+  {
+    "statement": "Gedünstetes Gemüse kann am Anfang der Beikost als Zusatz gegeben werden",
+    "id": 1227
+  },
+  {
+    "statement": "Die Beikost ist vor allem dafür da, die Nährstofflücken zu schließen, die nicht mehr genug abgedeckt werden können durch Muttermilch oder Premilch",
+    "id": 1228
+  },
+  {
+    "statement": "Eine der zwei größten Nährstofflücken bei Babys ist erstmal Eisen ",
+    "id": 1229
+  },
+  {
+    "statement": "Eine der zwei größten Nährstofflücken bei Babys ist erstmal Zink",
+    "id": 1230
+  },
+  {
+    "statement": "Der Fokus in der Beikost sollte auf Lebensmittel liegen, die Eisen und Zink beinhalten",
+    "id": 1231
+  },
+  {
+    "statement": "Lebensmittel sollten Eisen möglichst in einer Form beinhalten, die das Baby super schnell aufnehmen kann ",
+    "id": 1232
+  },
+  {
+    "statement": "Lebensmittel sollten  Zink möglichst in einer Form beinhalten, die das Baby super schnell aufnehmen kann ",
+    "id": 1233
+  },
+  {
+    "statement": "Eine Top-Quelle für Eisen ist dunkles Fleisch",
+    "id": 1234
+  },
+  {
+    "statement": "Eine Top-Quelle für Eisen sind alle Innereien, wie zum Beispiel Leber",
+    "id": 1235
+  },
+  {
+    "statement": "Eine Top-Quelle für Eisen ist Knochenmark ",
+    "id": 1236
+  },
+  {
+    "statement": "Eine Top-Quelle für Eisen ist Knochenbrühe",
+    "id": 1237
+  },
+  {
+    "statement": "Eine Top-Quelle für Zink ist dunkles Fleisch",
+    "id": 1238
+  },
+  {
+    "statement": "Eine Top-Quelle für Zink sind alle Innereien, wie zum Beispiel Leber",
+    "id": 1239
+  },
+  {
+    "statement": "Eine Top-Quelle für Zink ist Knochenmark ",
+    "id": 1240
+  },
+  {
+    "statement": "Eine Top-Quelle für ZInk ist Knochenbrühe",
+    "id": 1241
+  },
+  {
+    "statement": "Knochenmark stäkt total gut die Darmwand des Babys ",
+    "id": 1242
+  },
+  {
+    "statement": "Knochenbrühe stärkt total gut die Darmwand des Babys ",
+    "id": 1243
+  },
+  {
+    "statement": "Eins der allerbesten ersten Lebensmittel ist dunkles Fleisch",
+    "id": 1244
+  },
+  {
+    "statement": "Eins der allerbesten ersten Lebensmittel sind alle Innereien, wie zum Beispiel Leber",
+    "id": 1245
+  },
+  {
+    "statement": "Eins der allerbesten ersten Lebensmittel ist Knochenmark ",
+    "id": 1246
+  },
+  {
+    "statement": "Eins der allerbesten ersten Lebensmittel ist Knochenbrühe",
+    "id": 1247
+  },
+  {
+    "statement": "Eigelb sollte, weil es ein Allergen ist nicht direkt, aber relativ schnell eingeführt werden",
+    "id": 1248
+  },
+  {
+    "statement": "Fetter Fisch sollte, weil es ein Allergen ist nicht direkt, aber relativ schnell eingeführt werden",
+    "id": 1249
+  },
+  {
+    "statement": "In der Beikost sollten tierische Fette, wie zum Beispiel Butter oder Ghee, Fleisch gegeben werden",
+    "id": 1250
+  },
+  {
+    "statement": "In der Beikost sollten gesunde Fette, wie zum Beispiel Butter oder Ghee, Fleisch oder Avocado gegeben werden",
+    "id": 1251
+  },
+  {
+    "statement": "Es gibt nicht das Alter mit vier Monaten, wo mit Beikost gestartet werden muss",
+    "id": 1252
+  },
+  {
+    "statement": "Es gibt nicht das Alter mit sechs Monaten, wo mit Beikost gestartet werden muss",
+    "id": 1253
+  },
+  {
+    "statement": "Entwicklung wie Beikost ist von Kind zu Kind individuell",
+    "id": 1254
+  },
+  {
+    "statement": "Es muss nicht unbedingt 180 Tage abgewartet werden, weil erst dann der Darm reif genug ist",
+    "id": 1255
+  },
+  {
+    "statement": "Es sollte dann mit der Beikost gestartet werden, wenn das Kind bereit ist",
+    "id": 1256
+  },
+  {
+    "statement": "Entwicklung wie Beikost lässt sich nicht beschleunigen ",
+    "id": 1257
+  },
+  {
+    "statement": "Ein Kind ist dann soweit mit der Beikost zu starten, wenn alle Beikost-Reifezeichen erfüllt sind",
+    "id": 1258
+  },
+  {
+    "statement": "Es gibt drei Reifezeichen  ",
+    "id": 1259
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass der Zungenstoßreflex weg ist",
+    "id": 1260
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Baby in der Lage ist, die Hand zum Mund zu führen",
+    "id": 1261
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass das Baby mit Unterstützung sitzen kann ohne zusammenzusacken",
+    "id": 1262
+  },
+  {
+    "statement": "Wenn nicht alle Beikost-Reifezeichen erfüllt sind, sollte ausschließlich gestillt oder  Pre gefüttert werden",
+    "id": 1263
+  },
+  {
+    "statement": "Alles was vom Stillen oder Pre Füttern abweicht, gilt als Beikost",
+    "id": 1264
+  },
+  {
+    "statement": "Ein wenige Wochen altes Baby sollte nicht an einem Eis lecken, da der Darm noch nicht so weit ist",
+    "id": 1265
+  },
+  {
+    "statement": "Es wird empfohlen, eine ausgewogene Ernährung ab Beikoststart anzubieten",
+    "id": 1266
+  },
+  {
+    "statement": "Es wird empfohlen, eine vielfältige Ernährung ab Beikoststart anzubieten",
+    "id": 1267
+  },
+  {
+    "statement": "Ein Baby sollte nicht eine Woche lang das gleiche essen",
+    "id": 1268
+  },
+  {
+    "statement": "Die oberste Prämisse in der Beikost is, dass Essen immer Spaß machen soll",
+    "id": 1269
+  },
+  {
+    "statement": "Um mit der Beikost zu starten, sollte sich informiert werden, welche Lebensmittel okay sind ",
+    "id": 1270
+  },
+  {
+    "statement": "Um mit der Beikost zu starten, sollte sich informiert werden, welche Lebensmittel nicht okay sind",
+    "id": 1271
+  },
+  {
+    "statement": "Wenn mit der Beikost gestartet wird, sollte darauf geachtet werden, dass die Nährstoffe wie ein gewisser Anteil Kohlenhydrate abgedeckt werden",
+    "id": 1272
+  },
+  {
+    "statement": "Wenn mit der Beikost gestartet wird, sollte darauf geachtet werden, dass die Nährstoffe wie ein gewisser Anteil Fette abgedeckt werden",
+    "id": 1273
+  },
+  {
+    "statement": "Wenn mit der Beikost gestartet wird, sollte darauf geachtet werden, dass die Nährstoffe wie ein gewisser Anteil Eiweiß abgedeckt werden",
+    "id": 1274
+  },
+  {
+    "statement": "Bei gesunden und reif geborenen Kindern reicht der Eisenspeicher weit über den sechsten Monat hinaus aus",
+    "id": 1275
+  },
+  {
+    "statement": "Whipped bone marrow is an appropriate first food for babies staring solids",
+    "id": 1276
+  },
+  {
+    "statement": "baby's iron stores drop dramatically at around four to five months",
+    "id": 1277
+  },
+  {
+    "statement": "Whipped bone marrow is high in iron ",
+    "id": 1278
+  },
+  {
+    "statement": "Whipped bone marrow is high zinc",
+    "id": 1279
+  },
+  {
+    "statement": "There should be no chunks in the whipped bone marrow",
+    "id": 1280
+  },
+  {
+    "statement": "Whipped bone marrow can be stored in the freezer in silicon trays",
+    "id": 1281
+  },
+  {
+    "statement": "Beikost sollte nicht ab vier Monaten eingeführt werden ",
+    "id": 1282
+  },
+  {
+    "statement": "Nach vier Monaten ist ein Baby noch nicht bereit für Beikost",
+    "id": 1283
+  },
+  {
+    "statement": "Erst nach nach dem vollendeten 6. Lebensmonat, ist der Darm eines Babys wirklich reif",
+    "id": 1284
+  },
+  {
+    "statement": "Wenn Beikost eingeführt wird bevor das Baby 180 Tage alt ist, wird riskiert, das empfindliche Darmmikrobiom zu schädigen",
+    "id": 1285
+  },
+  {
+    "statement": "Die Folgen einer zu frühen Beikosteinführung sind Allergien ",
+    "id": 1286
+  },
+  {
+    "statement": "Die Folgen einer zu frühen Beikosteinführung sind Verdauungsprobleme ",
+    "id": 1287
+  },
+  {
+    "statement": "Die Folgen einer zu frühen Beikosteinführung sind ist geschwächtes Immunsystem in der Zukunft",
+    "id": 1288
+  },
+  {
+    "statement": "Ein Baby braucht in den ersten 6 Lebensmonaten nur Muttermilch",
+    "id": 1289
+  },
+  {
+    "statement": "Es wird empfohlen bis zum sechsten Lebensmonat ausschließlich zu stillen oder Pre-Nahrung zu geben ",
+    "id": 1290
+  },
+  {
+    "statement": "Es wird empfohlen ab dem sechsten Lebensmonat die Beikost einzuführen ",
+    "id": 1291
+  },
+  {
+    "statement": "Die Beikost ersetzt nicht das Stillen oder die Pre-Nahrung",
+    "id": 1292
+  },
+  {
+    "statement": "Stillen oder die Pre-Nahrung bleibt die Hauptnahrungsquelle bei der Einführung der Beikost",
+    "id": 1293
+  },
+  {
+    "statement": "Der Zeitpunkt der Beikostreife ist individuell",
+    "id": 1294
+  },
+  {
+    "statement": "Einige Kinder sind vielleicht schon mit fünfeinhalb Monaten beikostreif",
+    "id": 1295
+  },
+  {
+    "statement": "Einige Kinder sind vielleicht erst mit sieben Monaten beikostreif",
+    "id": 1296
+  },
+  {
+    "statement": "Es sollte auf die individuelle Reife des Kindes geachtet werden ",
+    "id": 1297
+  },
+  {
+    "statement": "Ein Reifezeichen ist die Hand-Mund-Koordination",
+    "id": 1298
+  },
+  {
+    "statement": "Hand-Mund-Koordination bedeutet das Kind kann etwas aufgreifen und alleine zum Mund führen",
+    "id": 1299
+  },
+  {
+    "statement": "Ein wichtiges Reifezeichen ist, dass das Baby mit wenig Hilfe auf dem Schoß aufrecht sitzen kann",
+    "id": 1300
+  },
+  {
+    "statement": "In einem Hochstuhl sollten Kinder erst sitzen, wenn sie sich eigenständig hinsetzen können",
+    "id": 1301
+  },
+  {
+    "statement": "Eigenständig hinsetzen Babys können sich vom Vierfüßler eigenständig in den Sitz setzen ",
+    "id": 1302
+  },
+  {
+    "statement": "Ein Reifezeichen ist, dass der Zungenreflex schon etwas abgeschwächt ist",
+    "id": 1303
+  },
+  {
+    "statement": "Zungenreflex bedeutet, dass Babys etwas rausstoßen aus dem Mund",
+    "id": 1304
+  },
+  {
+    "statement": "Wenn die Beikostreifezeichen erfüllt sind, ist das Baby bereit für die Beikost",
+    "id": 1305
+  },
+  {
+    "statement": "Die Beikost sollte so angeboten werden, dass das Kind das Angebot sehen kann",
+    "id": 1306
+  },
+  {
+    "statement": "Die Beikost sollte so angeboten werden, dass das Kind das Angebot in die Hand nehmen kann",
+    "id": 1307
+  },
+  {
+    "statement": "Es ist völlig egal, ob die Beikost mit Baby-Led-Weaning oder Brei gestartet wird ",
+    "id": 1308
+  },
+  {
+    "statement": "Das Schlimmste ist bei der Beikost ist, wenn sich auf eine Art (Baby-Led-Weaning oder Brei) versteift wird",
+    "id": 1309
+  },
+  {
+    "statement": "Kinder brauchen Baby-Led-Weaning und Brei beides",
+    "id": 1310
+  },
+  {
+    "statement": "Kinder wollen Baby-Led-Weaning und Brei beides",
+    "id": 1311
+  },
+  {
+    "statement": "Durch eine Kombination aus Baby-Led-Weaning und Brei können Babys die Lebensmittel ganz unterschiedlich kennenlernen und entdecken",
+    "id": 1312
+  },
+  {
+    "statement": "Selbstständiges Essen ist mit Brei möglich",
+    "id": 1313
+  },
+  {
+    "statement": "Selbstständiges Essen ist mit Baby-Led-Weaning möglich",
+    "id": 1314
+  },
+  {
+    "statement": "Für die Nährstoffdeckung ist die Mischform aus BLW und Brei deutlich besser als nur eine Form zu geben ",
+    "id": 1315
+  },
+  {
+    "statement": "Closer to six months, once all the signs of readiness are visible, is the right time to introduce solids",
+    "id": 1316
+  },
+  {
+    "statement": "One sign of readiness is that when the baby sits on a flat surface, it is able to balance with their hands and get into a tripod position, at least for a few seconds",
+    "id": 1317
+  },
+  {
+    "statement": "If a baby falls off, when it sits on a flat surface, then it's not ready for solids because the back is not ready to handle the stress of sitting for 15-20 minutes while the baby is exploring at the table",
+    "id": 1318
+  },
+  {
+    "statement": "One sign of readiness is active reaching for objects and then taking it to the mouth while being seated ",
+    "id": 1319
+  },
+  {
+    "statement": "Active reaching for objects and then taking it to the mouth tells whether the baby has good eye-hand-mouth coordination",
+    "id": 1320
+  },
+  {
+    "statement": "One sign of readiness is good neck stability",
+    "id": 1321
+  },
+  {
+    "statement": "The neck should not keep wobbling and falling off when staring solids because a major reason why choking could happen is the neck is not stable",
+    "id": 1322
+  },
+  {
+    "statement": "Swallowing is a very complex process ",
+    "id": 1323
+  },
+  {
+    "statement": "For swallowing neck stability is needed",
+    "id": 1324
+  },
+  {
+    "statement": "Salivating starts from 4 months ",
+    "id": 1325
+  },
+  {
+    "statement": "Salivating alone is not enough to start solids ",
+    "id": 1326
+  },
+  {
+    "statement": "Einem Kind unter einem Jahr sollte keine Kuhmilch aus dem Supermarkt gegeben werden ",
+    "id": 1327
+  },
+  {
+    "statement": "Kuhmilch enthält in der Regel zu viel Eiweiß für Kinder",
+    "id": 1328
+  },
+  {
+    "statement": "Kuhmilch enthält in der Regel zu viel Natrium für Kinder",
+    "id": 1329
+  },
+  {
+    "statement": "Kuhmilch enthält in der Regel zu viel Calcium für Kinder",
+    "id": 1330
+  },
+  {
+    "statement": "Zu viel Eiweiß kann bei kleinen Kindern zu Nierenbelastung führen ",
+    "id": 1331
+  },
+  {
+    "statement": "Zu viel Natrium kann bei kleinen Kindern zu Nierenbelastung führen ",
+    "id": 1332
+  },
+  {
+    "statement": "Zu viel Calcium kann bei kleinen Kindern zu Nierenbelastung führen ",
+    "id": 1333
+  },
+  {
+    "statement": "Kindern unter einem Jahr sollte nur Wasser und Muttermilch gegeben werden ",
+    "id": 1334
+  },
+  {
+    "statement": "After exclusive breastfeeding up to six months, children should be introduced to the outside food",
+    "id": 1335
+  },
+  {
+    "statement": "The introduction of solids should start with liquid soup, water and homemade fruit juice for seven to 10 days",
+    "id": 1336
+  },
+  {
+    "statement": "Two food items should not be introduced in the same day",
+    "id": 1337
+  },
+  {
+    "statement": "The consistency of food should be gradually transitioned from liquid to semi liquid, semi solid, then solid over periods of seven to 10 days like dal soup, then after seven to 10 days dal and after seven to 10 days dal with vegetables",
+    "id": 1338
+  },
+  {
+    "statement": "Different textures of food should be gradually introduced to make a habit",
+    "id": 1339
+  },
+  {
+    "statement": "Different consitencys of food should be gradually introduced to make a habit",
+    "id": 1340
+  },
+  {
+    "statement": "Gradually, once the different variety of outside foods are being introduced, gradually the child will make a habit of a different  variety of food",
+    "id": 1341
+  },
+  {
+    "statement": "Gradually, once the different variety of outside foods are being introduced, gradually the child will make a habit of different tastes of food",
+    "id": 1342
+  },
+  {
+    "statement": "Gradually, once the different variety of outside foods are being introduced, gradually the child will make a habit of different textures of food ",
+    "id": 1343
+  },
+  {
+    "statement": "Gradually, once the different variety of outside foods are being introduced, gradually the child will make a habit of different consistencys of food ",
+    "id": 1344
+  },
+  {
+    "statement": "The initial six to nine months are very vital and crucial for the introduction of a variety of foods ",
+    "id": 1345
+  },
+  {
+    "statement": "The initial six to nine months are very vital and crucial for habit forming ",
+    "id": 1346
+  }
+]
