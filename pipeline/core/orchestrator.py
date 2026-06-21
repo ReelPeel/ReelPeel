@@ -12,8 +12,24 @@ from rich.text import Text
 from .factory import StepFactory
 from .logging import PipelineLogger
 from .models import PipelineState
-from .service_manager import ensure_pubmed_proxy
 from .validator import validate_pipeline_models
+
+
+PUBMED_STEP_TYPES = {"fetch_links", "abstract_evidence"}
+
+
+def config_uses_pubmed(config: Dict) -> bool:
+    def contains(steps) -> bool:
+        for step in steps or []:
+            if step.get("type") in PUBMED_STEP_TYPES:
+                return True
+            if step.get("type") == "module":
+                nested = (step.get("settings") or {}).get("steps")
+                if contains(nested):
+                    return True
+        return False
+
+    return contains(config.get("steps"))
 
 
 class PipelineOrchestrator:
@@ -25,7 +41,9 @@ class PipelineOrchestrator:
 
         # 1. Initialize the Logger Service
         self.logger = PipelineLogger(self.run_id, debug=self.debug)
-        ensure_pubmed_proxy()
+        if config_uses_pubmed(self.config):
+            from .service_manager import ensure_pubmed_proxy
+            ensure_pubmed_proxy()
 
         # 2. VALIDATION (Fail Fast)
         # Check models before doing anything expensive

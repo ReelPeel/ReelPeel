@@ -84,11 +84,28 @@ Evidence = Annotated[
 class Statement(BaseModel):
     id: int
     text: str
+    translated_text_de: Optional[str] = None
+    translated_text_en: Optional[str] = None
+    normalized_text: Optional[str] = None
+    canonical_claim_de: Optional[str] = None
+    canonical_claim_en: Optional[str] = None
+    claim_type: Optional[str] = None
+    routing_reason: Optional[str] = None
+    retrieval_status: Optional[str] = None
+    classification_status: Optional[str] = None
+    failure_stage: Optional[str] = None
+    fallback_label_used: Optional[bool] = None
+    raw_retrieved_chunk_count: Optional[int] = None
+    usable_retrieved_chunk_count: Optional[int] = None
     verdict: Optional[str] = None
     rationale: Optional[str] = None
+    guideline_label: Optional[str] = None
+    cited_chunk_ids: List[str] = Field(default_factory=list)
     score: Optional[float] = None
     queries: List[str] = Field(default_factory=list)
     queries_fetched: List[str] = Field(default_factory=list)
+    retrieval_queries: List[str] = Field(default_factory=list)
+    topic_flags: List[str] = Field(default_factory=list)
     evidence: List[Evidence] = Field(default_factory=list)
     
 

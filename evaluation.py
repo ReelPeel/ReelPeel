@@ -11,6 +11,7 @@ import shutil
 import signal
 import socket
 import subprocess
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -919,5 +920,52 @@ def main():
     print(f"\nDone. Final summary saved in {truthness_summary_path}")
 
 
-if __name__ == "__main__":
+def classification_main(argv=None):
+    import argparse
+    from pathlib import Path
+
+    from evaluation.topic_guideline import TOPIC_PROFILES, run_topic_evaluation
+
+    parser = argparse.ArgumentParser(
+        prog="evaluation.py classify",
+        description="Classify topic claims using only their filename-matched guideline VDB.",
+    )
+    parser.add_argument("--topic", choices=("beikost", "vitamin-d", "all"), required=True)
+    parser.add_argument("--model", default=os.environ.get("EVALUATION_MODEL", "gemma3:27b"))
+    parser.add_argument("--top-k", type=int, default=20)
+    parser.add_argument("--min-score", type=float, default=0.25)
+    parser.add_argument("--limit", type=int)
+    parser.add_argument(
+        "--output-dir",
+        default="evaluation/topic_eval_outputs",
+        help="Root directory; each topic always receives its own subdirectory.",
+    )
+    args = parser.parse_args(argv)
+
+    selected = ("beikost", "vitamin-d") if args.topic == "all" else (args.topic,)
+    llm_settings = _llm_settings_from_env()
+    for topic in selected:
+        profile = TOPIC_PROFILES[topic]
+        outputs = run_topic_evaluation(
+            profile,
+            output_root=Path(args.output_dir),
+            model=args.model,
+            top_k=args.top_k,
+            min_score=args.min_score,
+            limit=args.limit,
+            llm_settings=llm_settings,
+        )
+        print(f"[{topic}] CSV: {outputs['csv']}")
+        print(f"[{topic}] Checkpoint: {outputs['checkpoint']}")
+        print(f"[{topic}] Manifest: {outputs['manifest']}")
+
+
+def entrypoint():
+    if len(sys.argv) > 1 and sys.argv[1] == "classify":
+        classification_main(sys.argv[2:])
+        return
     main()
+
+
+if __name__ == "__main__":
+    entrypoint()

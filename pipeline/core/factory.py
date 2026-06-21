@@ -14,6 +14,9 @@ from ..steps.research import (
     PubTypeWeightStep
 )
 from ..steps.retrieve_guideline_facts_RAG import RetrieveGuidelineFactsStep
+from ..steps.guideline_classification import GuidelineClassificationStep
+from ..steps.translation import TranslateClaimStep
+from ..steps.topic_claim_normalization import TopicClaimNormalizationStep
 from ..steps.stance import StanceEvidenceStep
 from ..steps.verification import (
     FilterEvidenceStep,
@@ -30,12 +33,15 @@ class StepFactory:
         "video_to_audio": VideoToAudioStep,
         "mock_transcript": MockTranscriptLoader,
         "mock_statements": MockStatementLoader,
+        "translate_claim": TranslateClaimStep,
+        "normalize_topic_claim": TopicClaimNormalizationStep,
         "extraction": TranscriptToStatementStep,
         "generate_query": StatementToQueryStep,
         "fetch_links": QueryToLinkStep,
         "abstract_evidence": LinkToAbstractStep,
         "weight_evidence": PubTypeWeightStep,
         "retrieve_guideline_facts": RetrieveGuidelineFactsStep,
+        "classify_guideline": GuidelineClassificationStep,
         "rerank_evidence": RerankEvidenceStep,
         "stance_evidence": StanceEvidenceStep,
         "filter_evidence": FilterEvidenceStep,

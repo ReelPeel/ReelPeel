@@ -244,6 +244,62 @@ The default live path is:
 
 Optional guideline retrieval is available through the RAG utilities in `pipeline/RAG_vdb/`.
 
+
+### Guideline Vector Database
+
+The local guideline index uses SQLite, normalized dense embeddings, FTS5 lexical search, parent context, and page-level provenance. First-time model use may download the selected Hugging Face model; indexing and querying make no application-level web calls.
+
+Build or rebuild an index:
+
+```bash
+python pipeline/RAG_vdb/build_guideline_vdb.py \
+  --pdf_dir ./guidelines \
+  --db_path guidelines_vdb.sqlite \
+  --embed_model NeuML/pubmedbert-base-embeddings \
+  --chunk_tokens 220 \
+  --overlap_tokens 40 \
+  --parent_chunk_tokens 1000 \
+  --parent_overlap_tokens 120
+```
+
+A database using the legacy schema can be intentionally replaced with `--force_reindex --reset_db`. Re-running normally skips unchanged documents; selecting another `--embed_model` adds only that model's missing embeddings.
+
+Inspect corpus health:
+
+```bash
+python pipeline/RAG_vdb/inspect_guideline_vdb.py \
+  --db_path guidelines_vdb.sqlite
+```
+
+Retrieve claim evidence with hybrid dense and BM25 ranking:
+
+```bash
+python pipeline/RAG_vdb/query_guideline_vdb.py \
+  --db_path guidelines_vdb.sqlite \
+  --query "Drug X is recommended for disease Y during pregnancy" \
+  --claim_mode \
+  --show_parent
+```
+
+Add optional cross-encoder reranking:
+
+```bash
+python pipeline/RAG_vdb/query_guideline_vdb.py \
+  --db_path guidelines_vdb.sqlite \
+  --query "Drug X is recommended for disease Y during pregnancy" \
+  --claim_mode \
+  --show_parent \
+  --rerank_model cross-encoder/ms-marco-MiniLM-L-6-v2
+```
+
+Evaluate a JSONL relevance set containing `claim` plus `relevant_chunk_ids` and/or `relevant_pages`:
+
+```bash
+python pipeline/RAG_vdb/evaluate_retrieval.py \
+  --db_path guidelines_vdb.sqlite \
+  --eval_jsonl retrieval_eval.jsonl
+```
+
 ## Technical Pipeline
 
 The pipeline is config-driven. A `PipelineOrchestrator` receives a config with an ordered `steps` array, validates required models, ensures the PubMed proxy is available, instantiates each step through `StepFactory`, and executes everything over a shared `PipelineState`.

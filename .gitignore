@@ -9,6 +9,8 @@ __pycache__
 *.log
 *.pdf
 evaluation/deberta_runs/
+evaluation/eval_outputs
+evaluation/topic_eval_outputs
 downloads/
 .idea
 *.mp4
@@ -17,3 +19,4 @@ downloads/
 
 .vscode
 .github
+*.sqlite

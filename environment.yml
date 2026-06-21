@@ -262,6 +262,8 @@ dependencies:
   - pandas
   - tokenizers
   - transformers
+  - sentence-transformers
+  - pypdf
   - safetensors
   - importlib-metadata=8.7.0
   - asttokens=3.0.0
