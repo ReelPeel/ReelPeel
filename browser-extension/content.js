@@ -1,10 +1,13 @@
 let currentPopup = null;
 let popupState = null;
 let lastAnalyzedUrl = null;
+let lastAnalyzedReelKey = null;
+let displayedReelKey = null;
 let scrollPauseTimer = null;
 let analysisInFlight = false;
 let pendingAnalysisUrl = null;
-let lastSeenUrl = null;
+let pendingAnalysisReelKey = null;
+let lastSeenReelKey = null;
 const scrollPauseDelayMs = 1000;
 const TOOLTIP_STANCE =
   "Stance: Whether the evidence supports, refutes, or is neutral toward the statement.";
@@ -13,17 +16,36 @@ const TOOLTIP_RELEVANCE =
 const TOOLTIP_TYPE = "Type: Publication type (as listed in PubMed).";
 
 
-// Monitor URL changes
+// Monitor SPA navigation. Instagram changes the current Reel through History API
+// calls, which do not necessarily produce a browser navigation event.
 let lastUrl = location.href;
+function handleLocationChange() {
+  if (location.href === lastUrl) return;
+  lastUrl = location.href;
+  checkForReel();
+}
+
 const observer = new MutationObserver(() => {
-  if (location.href !== lastUrl) {
-    lastUrl = location.href;
-    console.log("URL change");
-    checkForReel();
-  }
+  handleLocationChange();
 });
 
 observer.observe(document, { subtree: true, childList: true });
+
+["pushState", "replaceState"].forEach((method) => {
+  try {
+    const original = history[method];
+    if (typeof original !== "function") return;
+    history[method] = function (...args) {
+      const result = original.apply(this, args);
+      handleLocationChange();
+      return result;
+    };
+  } catch (error) {
+    // Scroll and mutation detection remain available if History is protected.
+  }
+});
+window.addEventListener("popstate", handleLocationChange);
+window.addEventListener("hashchange", handleLocationChange);
 
 // Initial check
 checkForReel();
@@ -268,6 +290,51 @@ function getActiveVideoElement() {
   return bestVideo;
 }
 
+function normalizeReelUrl(value) {
+  if (!value) return "";
+  try {
+    const url = new URL(value, window.location.origin);
+    url.hash = "";
+    return url.href;
+  } catch (error) {
+    return String(value);
+  }
+}
+
+function isSpecificReelUrl(value) {
+  try {
+    const url = new URL(value);
+    return /^\/reels?\/[^/]+\/?$/.test(url.pathname);
+  } catch (error) {
+    return false;
+  }
+}
+
+function getCurrentReelKey() {
+  const video = getActiveVideoElement();
+  const container =
+    video &&
+    (video.closest("article") ||
+      video.closest("section") ||
+      video.closest('div[role="presentation"]'));
+  const permalink = container && container.querySelector('a[href*="/reel/"], a[href*="/reels/"]');
+  const mediaSource = video && (video.currentSrc || video.src || video.poster);
+  const locationUrl = normalizeReelUrl(window.location.href);
+  const permalinkUrl = normalizeReelUrl(permalink && permalink.href);
+  const specificReelUrl = [permalinkUrl, locationUrl].find(isSpecificReelUrl);
+
+  if (specificReelUrl) return `reel:${specificReelUrl}`;
+
+  // The URL catches normal navigation. The permalink/media fallback also
+  // distinguishes successive Reels when Instagram keeps the generic /reels/
+  // route while replacing the player in place.
+  return [
+    locationUrl,
+    permalinkUrl,
+    String(mediaSource || ""),
+  ].join("::");
+}
+
 function getReelContextText(video) {
   const metaDescription =
     getMetaContent("og:description") || getMetaContent("description");
@@ -311,17 +378,19 @@ function shouldSkipPipeline(video) {
   return { skip: false };
 }
 
-function markNewReelSeen(reelUrl) {
-  if (!reelUrl || reelUrl === lastSeenUrl) return;
-  lastSeenUrl = reelUrl;
-  if (reelUrl === lastAnalyzedUrl) return;
+function markNewReelSeen(reelKey) {
+  if (!reelKey || reelKey === lastSeenReelKey) return false;
+  lastSeenReelKey = reelKey;
+  displayedReelKey = null;
   const state = ensurePopup();
   state.resetForNewReel();
+  return true;
 }
 
-function queueAnalysisForUrl(reelUrl) {
+function queueAnalysisForUrl(reelUrl, reelKey = getCurrentReelKey()) {
   if (!reelUrl) return;
   pendingAnalysisUrl = reelUrl;
+  pendingAnalysisReelKey = reelKey;
   maybeStartAnalysis();
 }
 
@@ -329,8 +398,10 @@ function maybeStartAnalysis() {
   if (analysisInFlight) return;
   if (!pendingAnalysisUrl) return;
   const nextUrl = pendingAnalysisUrl;
+  const nextReelKey = pendingAnalysisReelKey;
   pendingAnalysisUrl = null;
-  runAnalysis(nextUrl);
+  pendingAnalysisReelKey = null;
+  runAnalysis(nextUrl, nextReelKey);
 }
 
 function stanceClassName(label) {
@@ -1112,13 +1183,8 @@ function createPopupState() {
     const video = getActiveVideoElement();
     state.activeVideo = video;
     state.videoWasPlaying = Boolean(video && !video.paused && !video.ended);
-    if (state.videoWasPlaying) {
-      try {
-        video.pause();
-      } catch (e) {
-        // ignore
-      }
-    }
+    state.attachInquiryPauseGuard();
+    state.pauseInquiryVideo(video);
 
     state.setReelFocus(true);
     state.positionSpotlight();
@@ -1146,6 +1212,7 @@ function createPopupState() {
     window.removeEventListener("touchmove", state._globalBlockScroll, { capture: true });
 
     detachReelExitHold();
+    state.detachInquiryPauseGuard();
 
     // Resume video if we paused it.
     if (state.activeVideo && state.videoWasPlaying) {
@@ -1169,6 +1236,62 @@ function createPopupState() {
       state.inquiryTopbar.style.top = "";
     }
     state.updateBreadcrumb();
+  };
+
+  state.pauseInquiryVideo = function (candidate) {
+    if (!state.isInquiryMode) return;
+
+    const video =
+      candidate instanceof HTMLVideoElement
+        ? candidate
+        : getActiveVideoElement() || state.activeVideo;
+    if (!video) return;
+
+    // Instagram can replace the video element while this tab is backgrounded.
+    // Keep the currently visible player as the protected one in that case.
+    state.activeVideo = video;
+    try {
+      if (!video.paused) video.pause();
+    } catch (e) {
+      // A disconnected player can throw while React replaces the Reel.
+    }
+  };
+
+  state.attachInquiryPauseGuard = function () {
+    if (state._inquiryPauseGuard) return;
+
+    const pauseWhenVisible = () => {
+      if (!state.isInquiryMode) return;
+      state.pauseInquiryVideo();
+    };
+    const pauseOnPlay = (event) => {
+      if (!state.isInquiryMode) return;
+      const video = event && event.target;
+      if (!(video instanceof HTMLVideoElement)) return;
+
+      // Do not interfere with Instagram's offscreen/preload players. The
+      // current player and the one already held by Inquiry Mode must remain
+      // paused, including after a return from an external PubMed tab.
+      if (video === state.activeVideo || video === getActiveVideoElement()) {
+        state.pauseInquiryVideo(video);
+      }
+    };
+
+    state._inquiryPauseGuard = { pauseWhenVisible, pauseOnPlay };
+    window.addEventListener("focus", pauseWhenVisible);
+    window.addEventListener("pageshow", pauseWhenVisible);
+    document.addEventListener("visibilitychange", pauseWhenVisible);
+    document.addEventListener("play", pauseOnPlay, true);
+  };
+
+  state.detachInquiryPauseGuard = function () {
+    const guard = state._inquiryPauseGuard;
+    if (!guard) return;
+    window.removeEventListener("focus", guard.pauseWhenVisible);
+    window.removeEventListener("pageshow", guard.pauseWhenVisible);
+    document.removeEventListener("visibilitychange", guard.pauseWhenVisible);
+    document.removeEventListener("play", guard.pauseOnPlay, true);
+    state._inquiryPauseGuard = null;
   };
 
   state.positionSpotlight = function () {
@@ -1741,20 +1864,32 @@ function ensurePopup() {
 function scheduleAnalysisAfterPause() {
   if (!isReelUrl()) return;
   const currentUrl = window.location.href;
-  markNewReelSeen(currentUrl);
+  const currentReelKey = getCurrentReelKey();
+  markNewReelSeen(currentReelKey);
   if (scrollPauseTimer) {
     clearTimeout(scrollPauseTimer);
   }
   scrollPauseTimer = setTimeout(() => {
     const url = window.location.href;
+    const reelKey = getCurrentReelKey();
     if (!url) return;
-    if (url === lastAnalyzedUrl && !pendingAnalysisUrl) return;
-    queueAnalysisForUrl(url);
+    markNewReelSeen(reelKey);
+    if (
+      reelKey === lastAnalyzedReelKey &&
+      reelKey === displayedReelKey &&
+      !pendingAnalysisUrl
+    ) {
+      return;
+    }
+    queueAnalysisForUrl(url, reelKey);
   }, scrollPauseDelayMs);
 }
 
-async function runAnalysis(reelUrl) {
-  if (!reelUrl || reelUrl === lastAnalyzedUrl) {
+async function runAnalysis(reelUrl, reelKey = getCurrentReelKey()) {
+  if (
+    !reelUrl ||
+    (reelKey === lastAnalyzedReelKey && reelKey === displayedReelKey)
+  ) {
     maybeStartAnalysis();
     return;
   }
@@ -1770,6 +1905,8 @@ async function runAnalysis(reelUrl) {
     console.log(`Skipping pipeline for ${reelUrl}: ${skipCheck.reason}`);
     state.setNotApplicable();
     lastAnalyzedUrl = reelUrl;
+    lastAnalyzedReelKey = reelKey;
+    displayedReelKey = reelKey;
     analysisInFlight = false;
     maybeStartAnalysis();
     return;
@@ -1781,11 +1918,13 @@ async function runAnalysis(reelUrl) {
       url: reelUrl,
     });
 
-    if (window.location.href !== reelUrl) return;
+    if (getCurrentReelKey() !== reelKey) return;
 
     const statements = data && data.statements ? data.statements : [];
     state.setStatements(statements);
     lastAnalyzedUrl = reelUrl;
+    lastAnalyzedReelKey = reelKey;
+    displayedReelKey = reelKey;
   } catch (error) {
     console.error("Error in content script" + error);
   } finally {
@@ -1797,15 +1936,21 @@ async function runAnalysis(reelUrl) {
 function showPopup() {
   ensurePopup();
   const currentUrl = window.location.href;
-  markNewReelSeen(currentUrl);
-  if (!lastAnalyzedUrl) {
-    queueAnalysisForUrl(currentUrl);
+  const currentReelKey = getCurrentReelKey();
+  markNewReelSeen(currentReelKey);
+  if (!lastAnalyzedReelKey) {
+    queueAnalysisForUrl(currentUrl, currentReelKey);
     return;
   }
   scheduleAnalysisAfterPause();
 }
 
 function removePopup() {
+  if (popupState && popupState.isInquiryMode) {
+    popupState.exitInquiryMode();
+  } else if (popupState && popupState.detachInquiryPauseGuard) {
+    popupState.detachInquiryPauseGuard();
+  }
   if (currentPopup) {
     currentPopup.remove();
   }
@@ -1835,8 +1980,11 @@ function removePopup() {
   currentPopup = null;
   popupState = null;
   lastAnalyzedUrl = null;
-  lastSeenUrl = null;
+  lastAnalyzedReelKey = null;
+  displayedReelKey = null;
+  lastSeenReelKey = null;
   pendingAnalysisUrl = null;
+  pendingAnalysisReelKey = null;
   analysisInFlight = false;
   if (scrollPauseTimer) {
     clearTimeout(scrollPauseTimer);

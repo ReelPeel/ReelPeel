@@ -1,5 +1,6 @@
 # main.py ──────────────────────────────────────────────────────────────
 from fastapi import FastAPI, Body, HTTPException
+import asyncio
 import shutil, os
 from .pipeline import run_pipeline
   # ← your existing heavy pipeline
@@ -785,4 +786,5 @@ HARDCODED_PROCESS_RESPONSE: Dict[str, Any] = json.loads(HARDCODED_PROCESS_RESPON
 @app.post("/json")
 async def get_json(payload: dict):
     print(payload)
+    await asyncio.sleep(3)
     return HARDCODED_PROCESS_RESPONSE
