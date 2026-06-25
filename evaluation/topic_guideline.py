@@ -64,18 +64,8 @@ TOPIC_PROFILES: Mapping[str, TopicProfile] = MappingProxyType(
             claims_path=PROJECT_ROOT / "evaluation/data_set/Masterarbeiten/beikost_claims.txt",
             source_csv_path=PROJECT_ROOT / "evaluation/data_set/Masterarbeiten/beikost.CSV",
             vdb_path=PROJECT_ROOT / "pipeline/RAG_vdb/beikost_vdb.sqlite",
-            labels=COMMON_LABELS + ("keine Beikostempfehlung", "Leitlinien uneinig"),
-            label_definitions=MappingProxyType(
-                {
-                    **_COMMON_DEFINITIONS,
-                    "keine Beikostempfehlung": (
-                        "The claim is not a complementary-feeding recommendation, but explanatory, descriptive, or outside recommendation scope."
-                    ),
-                    "Leitlinien uneinig": (
-                        "Retrieved guideline sources give directly conflicting recommendations about the claim."
-                    ),
-                }
-            ),
+            labels=COMMON_LABELS,
+            label_definitions=MappingProxyType(dict(_COMMON_DEFINITIONS)),
         ),
         "vitamin-d": TopicProfile(
             key="vitamin-d",
@@ -318,6 +308,8 @@ def _serialize_evidence(statement) -> List[Dict[str, Any]]:
             "chunk_id": evidence.chunk_id,
             "score": evidence.score,
             "source_path": evidence.source_path,
+            "document_id": getattr(evidence, "document_id", None),
+            "document_title": getattr(evidence, "document_title", None),
             "pages": list(evidence.pages),
             "text": evidence.abstract,
         }
@@ -325,11 +317,27 @@ def _serialize_evidence(statement) -> List[Dict[str, Any]]:
     ]
 
 
+def _serialize_guideline_documents(statement) -> List[Dict[str, Any]]:
+    return [
+        {
+            "document_id": document.document_id,
+            "source_path": document.source_path,
+            "title": document.title,
+            "label": document.label,
+            "cited_chunk_ids": list(document.cited_chunk_ids),
+            "retrieved_chunk_count": int(document.retrieved_chunk_count or 0),
+            "raw_retrieved_chunk_count": int(document.raw_retrieved_chunk_count or 0),
+            "classification_status": document.classification_status,
+            "fallback_label_used": bool(document.fallback_label_used),
+        }
+        for document in getattr(statement, "guideline_documents", [])
+    ]
+
+
 CSV_COLUMNS = (
-    "topic", "claim_id", "video_id", "url",
-    "claim", "gold_label", "predicted_label", "claim_type", "routing_reason",
-    "cited_sources", "cited_pages", "retrieved_chunk_count",
-    "status", "error",
+    "topic", "claim_id", "video_id", "url", "source_row", "source_claim_number",
+    "claim", "gold_label", "predicted_label",
+    "retrieved_chunk_count", "cited_chunks", "guideline_documents",
 )
 
 
@@ -351,14 +359,9 @@ def write_results_csv(path: Path, items: Iterable[Dict[str, Any]]) -> None:
             writer.writerow(
                 {
                     **{column: item.get(column, "") for column in CSV_COLUMNS},
-                    "cited_sources": "|".join(
-                        dict.fromkeys(evidence_by_id[c]["source_path"] for c in cited if c in evidence_by_id)
-                    ),
-                    "cited_pages": "|".join(
-                        f"{c}:{','.join(map(str, evidence_by_id[c]['pages']))}"
-                        for c in cited if c in evidence_by_id
-                    ),
                     "retrieved_chunk_count": item.get("usable_retrieved_chunk_count", item.get("retrieved_chunk_count", 0)),
+                    "cited_chunks": json.dumps(cited_evidence, ensure_ascii=False, separators=(",", ":")),
+                    "guideline_documents": json.dumps(item.get("guideline_documents", []), ensure_ascii=False, separators=(",", ":")),
                 }
             )
         handle.flush()
@@ -400,7 +403,7 @@ def run_topic_evaluation(
     *,
     output_root: Path,
     model: str,
-    top_k: int = 10,
+    top_k: int = 50,
     min_score: float = 0.25,
     limit: Optional[int] = None,
     llm_settings: Optional[Dict[str, str]] = None,
@@ -514,6 +517,7 @@ def run_topic_evaluation(
             item["retrieval_queries"] = list(statement.retrieval_queries)
             item["cited_chunk_ids"] = list(statement.cited_chunk_ids)
             item["evidence"] = _serialize_evidence(statement)
+            item["guideline_documents"] = _serialize_guideline_documents(statement)
             item["usable_retrieved_chunk_count"] = int(statement.usable_retrieved_chunk_count or len(item["evidence"]))
             item["raw_retrieved_chunk_count"] = int(statement.raw_retrieved_chunk_count or item["usable_retrieved_chunk_count"])
             item["retrieved_chunk_count"] = item["usable_retrieved_chunk_count"]

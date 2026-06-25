@@ -4,7 +4,8 @@ Guideline RAG retrieval step and CLI utility.
 
 This module loads a SQLite "vector DB" built from guideline PDFs and retrieves
 relevant guideline chunks for a given claim. It supports multi-query retrieval
-for topic-normalized claims and fuses results across query variants.
+for topic-normalized claims and can retrieve either across the full topic DB or
+per individual guideline document.
 """
 
 from __future__ import annotations
@@ -28,7 +29,7 @@ try:
         _load_sentence_transformer,
     )
     from ..core.base import PipelineStep
-    from ..core.models import PipelineState, RAGEvidence
+    from ..core.models import GuidelineDocumentResult, PipelineState, RAGEvidence
 except ImportError:
     from pipeline.RAG_vdb.query_guideline_vdb import (
         DEFAULT_EMBED_MODEL,
@@ -37,7 +38,7 @@ except ImportError:
         _load_sentence_transformer,
     )
     from pipeline.core.base import PipelineStep
-    from pipeline.core.models import PipelineState, RAGEvidence
+    from pipeline.core.models import GuidelineDocumentResult, PipelineState, RAGEvidence
 
 
 def _merge_text_with_parent(text: str, parent_text: str) -> str:
@@ -66,6 +67,8 @@ def _result_to_rag_evidence(result: Dict[str, Any]) -> RAGEvidence:
         chunk_id=str(result["chunk_id"]),
         score=score,
         source_path=str(result.get("source_path") or ""),
+        document_id=str(result.get("doc_id") or "") or None,
+        document_title=str(result.get("title") or "") or None,
         pages=pages,
         abstract=text,
         weight=1.0,
@@ -154,6 +157,21 @@ def _merge_result(existing: Dict[str, Any], candidate: Dict[str, Any], query_tex
     return existing
 
 
+def _load_guideline_documents(db_path: Path) -> List[Dict[str, str]]:
+    with sqlite3.connect(str(db_path)) as con:
+        rows = con.execute(
+            "SELECT doc_id, source_path, title FROM documents ORDER BY source_path"
+        ).fetchall()
+    return [
+        {
+            "document_id": str(row[0]),
+            "source_path": str(row[1]),
+            "title": str(row[2]) if row[2] is not None else "",
+        }
+        for row in rows
+    ]
+
+
 def retrieve_chunks(
     db_path: Path,
     statement: str,
@@ -161,7 +179,7 @@ def retrieve_chunks(
     embed_model: str = DEFAULT_EMBED_MODEL,
     dense_k: int = 30,
     bm25_k: int = 30,
-    final_k: int = 10,
+    final_k: int = 50,
     rrf_k: int = 60,
     claim_mode: bool = True,
     include_parent_context: bool = True,
@@ -169,12 +187,14 @@ def retrieve_chunks(
     rerank_top_n: int = 30,
     queries: Sequence[str] | None = None,
     topic_flags: Sequence[str] | None = None,
+    doc_id: str | None = None,
 ) -> Tuple[str, List[RAGEvidence], List[RAGEvidence]]:
     db_path = db_path.expanduser().resolve()
     model = _load_sentence_transformer(embed_model)
     reranker = None
     if reranker_model:
         from sentence_transformers import CrossEncoder
+
         reranker = CrossEncoder(reranker_model)
 
     query_list = _dedupe_strings(list(queries or []) + [statement])
@@ -196,6 +216,7 @@ def retrieve_chunks(
                 claim_mode=claim_mode,
                 reranker=reranker,
                 rerank_top_n=rerank_top_n,
+                doc_id=doc_id,
             )
             for result in results:
                 chunk_id = str(result["chunk_id"])
@@ -237,8 +258,19 @@ def retrieve_chunks(
             combined_score += 0.03
         result["combined_score"] = combined_score
     usable_candidates.sort(key=lambda item: float(item.get("combined_score") or 0.0), reverse=True)
-    usable_evidence = [_result_to_rag_evidence(result) for result in usable_candidates[:max(0, final_k)]]
+    usable_evidence = [_result_to_rag_evidence(result) for result in usable_candidates[: max(0, final_k)]]
     return embed_model, usable_evidence, raw_evidence
+
+
+def _sorted_evidence(evidence: Sequence[RAGEvidence]) -> List[RAGEvidence]:
+    return sorted(
+        evidence,
+        key=lambda item: (
+            str(item.source_path),
+            -(float(item.score) if item.score is not None else 0.0),
+            str(item.chunk_id),
+        ),
+    )
 
 
 class RetrieveGuidelineFactsStep(PipelineStep):
@@ -253,7 +285,12 @@ class RetrieveGuidelineFactsStep(PipelineStep):
         if not db_path.exists():
             raise FileNotFoundError(f"Guideline DB not found: {db_path}")
 
-        top_k = int(self.config.get("top_k", 5))
+        topic_documents = _load_guideline_documents(db_path)
+        if not topic_documents:
+            raise ValueError(f"Guideline DB contains no documents: {db_path}")
+
+        top_k = int(self.config.get("top_k", 50))
+        per_guideline_top_k = int(self.config.get("per_guideline_top_k", min(max(top_k, 4), 8)))
         min_score = float(self.config.get("min_score", 0.25))
         dense_k = int(self.config.get("dense_k", max(top_k * 5, top_k)))
         bm25_k = int(self.config.get("bm25_k", max(top_k * 5, top_k)))
@@ -265,8 +302,8 @@ class RetrieveGuidelineFactsStep(PipelineStep):
         rerank_top_n = int(self.config.get("rerank_top_n", max(top_k * 5, top_k)))
 
         print(
-            f"[{self.__class__.__name__}] Using guideline retrieval "
-            f"(dense_k={dense_k}, bm25_k={bm25_k}, final_k={top_k}, claim_mode={claim_mode})."
+            f"[{self.__class__.__name__}] Using per-guideline retrieval "
+            f"(documents={len(topic_documents)}, dense_k={dense_k}, bm25_k={bm25_k}, per_guideline_top_k={per_guideline_top_k}, claim_mode={claim_mode})."
         )
 
         for stmt in state.statements:
@@ -274,41 +311,71 @@ class RetrieveGuidelineFactsStep(PipelineStep):
                 stmt.retrieval_status = stmt.retrieval_status or "skipped_routed"
                 stmt.raw_retrieved_chunk_count = stmt.raw_retrieved_chunk_count or 0
                 stmt.usable_retrieved_chunk_count = stmt.usable_retrieved_chunk_count or 0
+                stmt.guideline_documents = stmt.guideline_documents or []
                 continue
 
-            statement_text = (getattr(stmt, "canonical_claim_de", None) or getattr(stmt, "normalized_text", None) or stmt.text or "").strip()
+            statement_text = (
+                getattr(stmt, "canonical_claim_de", None)
+                or getattr(stmt, "normalized_text", None)
+                or stmt.text
+                or ""
+            ).strip()
             if not statement_text:
                 stmt.retrieval_status = "no_query"
                 stmt.raw_retrieved_chunk_count = 0
                 stmt.usable_retrieved_chunk_count = 0
+                stmt.guideline_documents = []
                 continue
 
             query_list = list(getattr(stmt, "retrieval_queries", None) or [statement_text])
-            _, usable_chunks, raw_chunks = retrieve_chunks(
-                db_path,
-                statement_text,
-                embed_model=embed_model,
-                dense_k=dense_k,
-                bm25_k=bm25_k,
-                final_k=top_k,
-                rrf_k=rrf_k,
-                claim_mode=claim_mode,
-                include_parent_context=include_parent_context,
-                reranker_model=reranker_model,
-                rerank_top_n=rerank_top_n,
-                queries=query_list,
-                topic_flags=getattr(stmt, "topic_flags", None) or [],
-            )
-            filtered_chunks = [chunk for chunk in usable_chunks if float(chunk.score) >= min_score]
-            stmt.raw_retrieved_chunk_count = len(raw_chunks)
-            stmt.usable_retrieved_chunk_count = len(filtered_chunks)
-            stmt.retrieval_status = "ok" if filtered_chunks else "no_usable_chunks"
-            stmt.evidence = list(filtered_chunks)
+            document_results: List[GuidelineDocumentResult] = []
+            flattened_evidence: List[RAGEvidence] = []
+            raw_total = 0
+
+            for document in topic_documents:
+                _, usable_chunks, raw_chunks = retrieve_chunks(
+                    db_path,
+                    statement_text,
+                    embed_model=embed_model,
+                    dense_k=dense_k,
+                    bm25_k=bm25_k,
+                    final_k=per_guideline_top_k,
+                    rrf_k=rrf_k,
+                    claim_mode=claim_mode,
+                    include_parent_context=include_parent_context,
+                    reranker_model=reranker_model,
+                    rerank_top_n=rerank_top_n,
+                    queries=query_list,
+                    topic_flags=getattr(stmt, "topic_flags", None) or [],
+                    doc_id=document["document_id"],
+                )
+                filtered_chunks = [chunk for chunk in usable_chunks if float(chunk.score) >= min_score]
+                raw_total += len(raw_chunks)
+                flattened_evidence.extend(filtered_chunks)
+                document_results.append(
+                    GuidelineDocumentResult(
+                        document_id=document["document_id"],
+                        source_path=document["source_path"],
+                        title=document.get("title") or None,
+                        raw_retrieved_chunk_count=len(raw_chunks),
+                        retrieved_chunk_count=len(filtered_chunks),
+                        evidence=_sorted_evidence(filtered_chunks),
+                    )
+                )
+
+            stmt.guideline_documents = document_results
+            stmt.evidence = _sorted_evidence(flattened_evidence)
+            stmt.raw_retrieved_chunk_count = raw_total
+            stmt.usable_retrieved_chunk_count = len(flattened_evidence)
+            stmt.retrieval_status = "ok" if flattened_evidence else "no_usable_chunks"
 
             if self.debug:
+                counts = ", ".join(
+                    f"{doc.title or doc.document_id}:{doc.retrieved_chunk_count}" for doc in document_results
+                )
                 print(
-                    f"   Statement {stmt.id}: raw={len(raw_chunks)} usable={len(filtered_chunks)} "
-                    f"queries={len(query_list)}."
+                    f"   Statement {stmt.id}: raw={raw_total} usable={len(flattened_evidence)} "
+                    f"queries={len(query_list)} docs=[{counts}]."
                 )
 
         return state
@@ -318,9 +385,10 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--db_path", default="guidelines_vdb.sqlite")
     parser.add_argument("--statement", required=True)
-    parser.add_argument("--top_k", type=int, default=20)
-    parser.add_argument("--min_score", type=float, default=0.25)
+    parser.add_argument("--top_k", type=int, default=50)
+    parser.add_argument("--min_score", type=float, default=0.5)
     parser.add_argument("--embed_model", default=DEFAULT_EMBED_MODEL)
+    parser.add_argument("--doc_id")
     args = parser.parse_args()
 
     embed_model, chunks, raw_chunks = retrieve_chunks(
@@ -328,6 +396,7 @@ def main() -> None:
         statement=args.statement,
         embed_model=args.embed_model,
         final_k=args.top_k,
+        doc_id=args.doc_id,
     )
     chunks = [chunk for chunk in chunks if float(chunk.score) >= args.min_score]
     result: Dict[str, Any] = {

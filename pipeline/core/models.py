@@ -1,7 +1,12 @@
 from enum import Enum
-from typing import Annotated, Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
+
+try:
+    from typing import Annotated
+except ImportError:
+    from typing_extensions import Annotated
 
 
 class StanceLabel(str, Enum):
@@ -16,14 +21,15 @@ class StanceLabel(str, Enum):
             support or refute the statement (e.g., mixed, inconclusive, or
             purely background/contextual information).
     """
+
     SUPPORTS = "Supports"
     REFUTES = "Refutes"
     NEUTRAL = "Neutral"
 
 
-
 class Stance(BaseModel):
     """Represents the stance of a piece of evidence towards a statement."""
+
     abstract_label: Optional[StanceLabel] = None
     abstract_p_supports: Optional[float] = None
     abstract_p_refutes: Optional[float] = None
@@ -69,6 +75,8 @@ class RAGEvidence(EvidenceBase):
     chunk_id: str
     score: float
     source_path: str
+    document_id: Optional[str] = None
+    document_title: Optional[str] = None
     pages: List[int] = Field(default_factory=list)
     abstract: str
     weight: float = 1.0
@@ -79,6 +87,18 @@ Evidence = Annotated[
     Field(discriminator="source_type"),
 ]
 
+
+class GuidelineDocumentResult(BaseModel):
+    document_id: str
+    source_path: str
+    title: Optional[str] = None
+    raw_retrieved_chunk_count: int = 0
+    retrieved_chunk_count: int = 0
+    evidence: List[RAGEvidence] = Field(default_factory=list)
+    label: Optional[str] = None
+    cited_chunk_ids: List[str] = Field(default_factory=list)
+    classification_status: Optional[str] = None
+    fallback_label_used: bool = False
 
 
 class Statement(BaseModel):
@@ -100,6 +120,7 @@ class Statement(BaseModel):
     verdict: Optional[str] = None
     rationale: Optional[str] = None
     guideline_label: Optional[str] = None
+    guideline_documents: List[GuidelineDocumentResult] = Field(default_factory=list)
     cited_chunk_ids: List[str] = Field(default_factory=list)
     score: Optional[float] = None
     queries: List[str] = Field(default_factory=list)
@@ -107,11 +128,11 @@ class Statement(BaseModel):
     retrieval_queries: List[str] = Field(default_factory=list)
     topic_flags: List[str] = Field(default_factory=list)
     evidence: List[Evidence] = Field(default_factory=list)
-    
 
 
 class PipelineState(BaseModel):
     """The 'Source of Truth' passing between steps and modules."""
+
     transcript: Optional[str] = None
     audio_path: Optional[str] = None
     video_path: Optional[str] = None
@@ -121,7 +142,6 @@ class PipelineState(BaseModel):
 
     execution_log: List[Dict[str, Any]] = Field(default_factory=list)
 
-    # ---  Track recursion depth for pretty printing ---
     depth: int = 0
 
     def to_json(self):

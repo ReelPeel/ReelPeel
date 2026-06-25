@@ -14,7 +14,7 @@ CLAIM_TYPE_DESCRIPTIVE = "descriptive_but_guideline_relevant"
 CLAIM_TYPE_EXPLANATORY = "explanatory_non_recommendation"
 CLAIM_TYPE_OFF_TOPIC = "off_topic"
 
-BEIKOST_NON_RECOMMENDATION_LABEL = "keine Beikostempfehlung"
+BEIKOST_NON_RECOMMENDATION_LABEL = "wird nicht in Leitlinien genannt"
 
 
 _FOOD_RULES: Sequence[tuple[re.Pattern[str], str, str]] = (
@@ -194,7 +194,7 @@ class TopicClaimNormalizationStep(PipelineStep):
                 stmt.guideline_label = BEIKOST_NON_RECOMMENDATION_LABEL
                 stmt.routing_reason = routing_reason or "Claim is not a complementary-feeding recommendation."
                 stmt.retrieval_status = "skipped_non_recommendation"
-                stmt.classification_status = "skipped_non_recommendation"
+                stmt.classification_status = "mapped_non_recommendation_to_not_mentioned"
                 stmt.failure_stage = None
                 stmt.fallback_label_used = False
                 stmt.cited_chunk_ids = []
