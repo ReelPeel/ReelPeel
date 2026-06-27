@@ -1,10 +1,11 @@
 import csv
+import json
 import sqlite3
 
 from evaluation.topic_guideline import write_results_csv
 from pipeline.core.models import GuidelineDocumentResult, PipelineState, RAGEvidence, Statement
 from pipeline.steps.guideline_classification import GuidelineClassificationStep
-from pipeline.steps.retrieve_guideline_facts_RAG import retrieve_chunks
+from pipeline.steps.retrieve_guideline_facts_RAG import RetrieveGuidelineFactsStep, retrieve_chunks
 from pipeline.steps.topic_claim_normalization import TopicClaimNormalizationStep, classify_beikost_claim
 
 
@@ -420,6 +421,57 @@ def test_retrieve_chunks_filters_bibliography_and_fuses_queries(monkeypatch, tmp
     assert usable[0].document_id == "doc-1"
 
 
+def test_retrieve_guideline_step_reuses_embedding_model_per_statement(monkeypatch, tmp_path):
+    import pipeline.steps.retrieve_guideline_facts_RAG as rag
+
+    db_path = tmp_path / "guidelines.sqlite"
+    db_path.write_text("placeholder", encoding="utf-8")
+    documents = [
+        {"document_id": "doc-1", "source_path": "/tmp/doc1.pdf", "title": "Doc 1"},
+        {"document_id": "doc-2", "source_path": "/tmp/doc2.pdf", "title": "Doc 2"},
+        {"document_id": "doc-3", "source_path": "/tmp/doc3.pdf", "title": "Doc 3"},
+    ]
+    loaded_models = []
+    cleanup_calls = []
+    seen_models = []
+
+    class FakeModel:
+        pass
+
+    def fake_load(model_name):
+        model = FakeModel()
+        loaded_models.append((model_name, model))
+        return model
+
+    def fake_retrieve_chunks(*args, **kwargs):
+        seen_models.append(kwargs.get("model"))
+        return "embed", [], []
+
+    monkeypatch.setattr(rag, "_load_guideline_documents", lambda path: documents)
+    monkeypatch.setattr(rag, "_load_sentence_transformer", fake_load)
+    monkeypatch.setattr(rag, "retrieve_chunks", fake_retrieve_chunks)
+    monkeypatch.setattr(rag, "release_torch_cuda_memory", lambda: cleanup_calls.append(True))
+
+    step = RetrieveGuidelineFactsStep(
+        {
+            "db_path": str(db_path),
+            "embed_model": "test-embedder",
+            "top_k": 3,
+            "dense_k": 3,
+            "bm25_k": 3,
+        }
+    )
+    state = PipelineState(statements=[Statement(id=1, text="Vitamin D claim")])
+
+    out = step.execute(state)
+
+    assert len(loaded_models) == 1
+    assert len(seen_models) == len(documents)
+    assert all(model is loaded_models[0][1] for model in seen_models)
+    assert cleanup_calls == [True]
+    assert out.statements[0].retrieval_status == "no_usable_chunks"
+
+
 def test_write_results_csv_persists_debugging_fields(tmp_path):
     csv_path = tmp_path / "predictions.csv"
     items = [
@@ -440,11 +492,34 @@ def test_write_results_csv_persists_debugging_fields(tmp_path):
             "failure_stage": "",
             "fallback_label_used": False,
             "retrieval_queries": [],
-            "cited_chunk_ids": [],
-            "evidence": [],
-            "retrieved_chunk_count": 0,
-            "usable_retrieved_chunk_count": 0,
-            "raw_retrieved_chunk_count": 0,
+            "cited_chunk_ids": ["chunk-1"],
+            "evidence": [
+                {
+                    "chunk_id": "chunk-1",
+                    "score": 0.9,
+                    "source_path": "/tmp/guideline.pdf",
+                    "document_id": "doc-1",
+                    "document_title": "Guide",
+                    "pages": [5, 6],
+                    "text": "Guideline evidence text",
+                }
+            ],
+            "guideline_documents": [
+                {
+                    "document_id": "doc-1",
+                    "source_path": "/tmp/guideline.pdf",
+                    "title": "Guide",
+                    "label": "wird nicht in Leitlinien genannt",
+                    "cited_chunk_ids": ["chunk-1"],
+                    "retrieved_chunk_count": 1,
+                    "raw_retrieved_chunk_count": 1,
+                    "classification_status": "ok",
+                    "fallback_label_used": False,
+                }
+            ],
+            "retrieved_chunk_count": 1,
+            "usable_retrieved_chunk_count": 1,
+            "raw_retrieved_chunk_count": 1,
             "vdb_path": "/tmp/test.sqlite",
             "vdb_sha256": "abc",
             "status": "ok",
@@ -454,6 +529,10 @@ def test_write_results_csv_persists_debugging_fields(tmp_path):
     write_results_csv(csv_path, items)
     with csv_path.open(encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))
-    assert rows[0]["predicted_label"] == "wird nicht in Leitlinien genannt"
-    assert rows[0]["retrieved_chunk_count"] == "0"
-    assert rows[0]["cited_chunks"] == "[]"
+    assert rows[0]["predicted_label"] == "3"
+    assert rows[0]["predicted_label_text"] == "wird nicht in Leitlinien genannt"
+    assert rows[0]["retrieved_chunk_count"] == "1"
+    assert rows[0]["guideline_1_title"] == "Guide"
+    assert rows[0]["guideline_1_label"] == "3"
+    assert rows[0]["guideline_1_pages"] == "5; 6"
+    assert json.loads(rows[0]["guideline_1_cited_chunks"])[0]["chunk_id"] == "chunk-1"

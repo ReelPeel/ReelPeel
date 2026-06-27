@@ -29,6 +29,24 @@ COMMON_LABELS = (
     "entspricht teilweise Leitlinien",
 )
 
+LABEL_CODES = MappingProxyType(
+    {
+        "entspricht Leitlinie": 1,
+        "entspricht teilweise Leitlinien": 2,
+        "entspricht Leitlinie teilweise": 2,
+        NOT_MENTIONED: 3,
+        "wird nicht genannt": 3,
+        "widerspricht Leitlinien": 4,
+        "widerspricht Leitlinie": 4,
+    }
+)
+
+
+def label_to_code(label: Optional[str]) -> str:
+    if label is None:
+        return ""
+    return str(LABEL_CODES.get(str(label).strip(), ""))
+
 
 @dataclass(frozen=True)
 class TopicProfile:
@@ -334,39 +352,114 @@ def _serialize_guideline_documents(statement) -> List[Dict[str, Any]]:
     ]
 
 
-CSV_COLUMNS = (
-    "topic", "claim_id", "video_id", "url", "source_row", "source_claim_number",
-    "claim", "gold_label", "predicted_label",
-    "retrieved_chunk_count", "cited_chunks", "guideline_documents",
+BASE_CSV_COLUMNS = (
+    "topic",
+    "claim_id",
+    "video_id",
+    "url",
+    "source_row",
+    "source_claim_number",
+    "claim",
+    "gold_label",
+    "predicted_label",
+    "predicted_label_text",
+    "retrieved_chunk_count",
 )
 
 
+def guideline_csv_columns(max_guidelines: int) -> List[str]:
+    columns = list(BASE_CSV_COLUMNS)
+    for index in range(1, max_guidelines + 1):
+        columns.extend(
+            [
+                f"guideline_{index}_title",
+                f"guideline_{index}_label",
+                f"guideline_{index}_label_text",
+                f"guideline_{index}_cited_chunks",
+                f"guideline_{index}_pages",
+            ]
+        )
+    columns.extend(["status", "error"])
+    return columns
+
+
+def _cited_chunks_for_document(
+    document: Mapping[str, Any], evidence_by_id: Mapping[str, Dict[str, Any]]
+) -> List[Dict[str, Any]]:
+    chunks: List[Dict[str, Any]] = []
+    for chunk_id in document.get("cited_chunk_ids", []) or []:
+        evidence = evidence_by_id.get(chunk_id)
+        if evidence is None:
+            chunks.append({"chunk_id": chunk_id})
+        else:
+            chunks.append(evidence)
+    return chunks
+
+
+def _pages_for_chunks(chunks: Iterable[Mapping[str, Any]]) -> str:
+    pages: List[str] = []
+    seen = set()
+    for chunk in chunks:
+        for page in chunk.get("pages", []) or []:
+            value = str(page)
+            if value in seen:
+                continue
+            seen.add(value)
+            pages.append(value)
+    return "; ".join(pages)
+
+
+def _guideline_columns_for_item(item: Mapping[str, Any], max_guidelines: int) -> Dict[str, Any]:
+    evidence_by_id = {ev.get("chunk_id"): ev for ev in item.get("evidence", []) if ev.get("chunk_id")}
+    documents = list(item.get("guideline_documents", []) or [])
+    row: Dict[str, Any] = {}
+    for index in range(1, max_guidelines + 1):
+        document = documents[index - 1] if index <= len(documents) else {}
+        cited_chunks = _cited_chunks_for_document(document, evidence_by_id) if document else []
+        label_text = document.get("label") if document else None
+        row.update(
+            {
+                f"guideline_{index}_title": document.get("title") or document.get("source_path", ""),
+                f"guideline_{index}_label": label_to_code(label_text),
+                f"guideline_{index}_label_text": label_text or "",
+                f"guideline_{index}_cited_chunks": json.dumps(cited_chunks, ensure_ascii=False, separators=(",", ":")),
+                f"guideline_{index}_pages": _pages_for_chunks(cited_chunks),
+            }
+        )
+    return row
+
+
 def write_results_csv(path: Path, items: Iterable[Dict[str, Any]]) -> None:
+    item_list = list(items)
+    max_guidelines = max((len(item.get("guideline_documents", []) or []) for item in item_list), default=0)
+    columns = guideline_csv_columns(max_guidelines)
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
     with temporary.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=CSV_COLUMNS)
+        writer = csv.DictWriter(handle, fieldnames=columns)
         writer.writeheader()
-        for item in sorted(items, key=lambda value: int(value["claim_id"])):
-            evidence = item.get("evidence", [])
-            evidence_by_id = {ev["chunk_id"]: ev for ev in evidence}
-            cited = item.get("cited_chunk_ids", [])
-            cited_evidence = [
-                evidence_by_id[chunk_id]
-                for chunk_id in cited
-                if chunk_id in evidence_by_id
-            ]
-            writer.writerow(
+        for item in sorted(item_list, key=lambda value: int(value["claim_id"])):
+            label_text = item.get("predicted_label")
+            row = {column: item.get(column, "") for column in BASE_CSV_COLUMNS}
+            row.update(
                 {
-                    **{column: item.get(column, "") for column in CSV_COLUMNS},
-                    "retrieved_chunk_count": item.get("usable_retrieved_chunk_count", item.get("retrieved_chunk_count", 0)),
-                    "cited_chunks": json.dumps(cited_evidence, ensure_ascii=False, separators=(",", ":")),
-                    "guideline_documents": json.dumps(item.get("guideline_documents", []), ensure_ascii=False, separators=(",", ":")),
+                    "predicted_label": label_to_code(label_text),
+                    "predicted_label_text": label_text or "",
+                    "retrieved_chunk_count": item.get(
+                        "usable_retrieved_chunk_count", item.get("retrieved_chunk_count", 0)
+                    ),
+                    "status": item.get("status", ""),
+                    "error": item.get("error", ""),
                 }
             )
+            row.update(_guideline_columns_for_item(item, max_guidelines))
+            writer.writerow(row)
         handle.flush()
         os.fsync(handle.fileno())
     temporary.replace(path)
+
+
+CSV_COLUMNS = tuple(guideline_csv_columns(0))
 
 
 def compute_gold_metrics(items: Iterable[Dict[str, Any]], labels: Sequence[str]) -> Optional[Dict[str, Any]]:

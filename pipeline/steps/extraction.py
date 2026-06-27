@@ -61,6 +61,10 @@ class TranscriptToStatementStep(PipelineStep):
             cleaned_content = self._clean_json(resp)
             claims = json.loads(cleaned_content)
 
+            max_statements = self.config.get("max_statements")
+            if max_statements is not None:
+                claims = claims[: int(max_statements)]
+
             # Map strings to Statement models
             state.statements = [
                 Statement(id=i, text=text) for i, text in enumerate(claims, 1)
@@ -72,7 +76,8 @@ class TranscriptToStatementStep(PipelineStep):
             print(f"[{self.__class__.__name__}] Error during LLM extraction: {e}")
             # Fallback logic: naive sentence splitting
             rough = re.split(r"[.!?]\s+", transcript)
-            fallback_claims = [s.strip() for s in rough if s.strip()][:3]
+            fallback_limit = int(self.config.get("max_statements") or 3)
+            fallback_claims = [s.strip() for s in rough if s.strip()][:fallback_limit]
             state.statements = [
                 Statement(id=i, text=text) for i, text in enumerate(fallback_claims, 1)
             ]

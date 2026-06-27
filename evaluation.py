@@ -960,9 +960,63 @@ def classification_main(argv=None):
         print(f"[{topic}] Manifest: {outputs['manifest']}")
 
 
+
+def video_classification_main(argv=None):
+    import argparse
+    from pathlib import Path
+
+    from evaluation.video_topic_guideline import (
+        DEFAULT_TRANSCRIPTS_ROOT,
+        profiles_for_topics,
+        run_video_topic_evaluation,
+    )
+
+    parser = argparse.ArgumentParser(
+        prog="evaluation.py classify-videos",
+        description="Extract statements from existing video transcripts and classify them using topic guideline VDBs.",
+    )
+    parser.add_argument("--topic", choices=("beikost", "vitamin-d", "all"), required=True)
+    parser.add_argument("--model", default=os.environ.get("EVALUATION_MODEL", "gemma3:27b"))
+    parser.add_argument("--top-k", type=int, default=20)
+    parser.add_argument("--min-score", type=float, default=0.25)
+    parser.add_argument("--limit-videos", type=int)
+    parser.add_argument("--max-statements", type=int, default=20)
+    parser.add_argument(
+        "--output-dir",
+        default="evaluation/video_topic_eval_outputs",
+        help="Root directory; each topic receives its own subdirectory.",
+    )
+    parser.add_argument(
+        "--transcripts-root",
+        default=str(DEFAULT_TRANSCRIPTS_ROOT),
+        help="Directory containing downloads_beikost.json and downloads_vitamind.json.",
+    )
+    args = parser.parse_args(argv)
+
+    llm_settings = _llm_settings_from_env()
+    for profile in profiles_for_topics(args.topic):
+        outputs = run_video_topic_evaluation(
+            profile,
+            output_root=Path(args.output_dir),
+            model=args.model,
+            top_k=args.top_k,
+            min_score=args.min_score,
+            limit_videos=args.limit_videos,
+            transcripts_root=Path(args.transcripts_root),
+            llm_settings=llm_settings,
+            max_statements=args.max_statements,
+        )
+        print(f"[{profile.key}] CSV: {outputs['csv']}")
+        print(f"[{profile.key}] Checkpoint: {outputs['checkpoint']}")
+        print(f"[{profile.key}] Manifest: {outputs['manifest']}")
+
+
 def entrypoint():
     if len(sys.argv) > 1 and sys.argv[1] == "classify":
         classification_main(sys.argv[2:])
+        return
+    if len(sys.argv) > 1 and sys.argv[1] == "classify-videos":
+        video_classification_main(sys.argv[2:])
         return
     main()
 

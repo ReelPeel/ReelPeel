@@ -11,6 +11,7 @@ per individual guideline document.
 from __future__ import annotations
 
 import argparse
+import gc
 import json
 import re
 import sqlite3
@@ -188,11 +189,12 @@ def retrieve_chunks(
     queries: Sequence[str] | None = None,
     topic_flags: Sequence[str] | None = None,
     doc_id: str | None = None,
+    model: Any = None,
+    reranker: Any = None,
 ) -> Tuple[str, List[RAGEvidence], List[RAGEvidence]]:
     db_path = db_path.expanduser().resolve()
-    model = _load_sentence_transformer(embed_model)
-    reranker = None
-    if reranker_model:
+    model = model or _load_sentence_transformer(embed_model)
+    if reranker is None and reranker_model:
         from sentence_transformers import CrossEncoder
 
         reranker = CrossEncoder(reranker_model)
@@ -273,6 +275,24 @@ def _sorted_evidence(evidence: Sequence[RAGEvidence]) -> List[RAGEvidence]:
     )
 
 
+def release_torch_cuda_memory() -> None:
+    """Release cached CUDA allocations after statement-level model work."""
+    gc.collect()
+    try:
+        import torch
+    except Exception:
+        return
+    try:
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            try:
+                torch.cuda.ipc_collect()
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+
 class RetrieveGuidelineFactsStep(PipelineStep):
     """Retrieve topic guideline evidence for each statement."""
 
@@ -331,37 +351,52 @@ class RetrieveGuidelineFactsStep(PipelineStep):
             document_results: List[GuidelineDocumentResult] = []
             flattened_evidence: List[RAGEvidence] = []
             raw_total = 0
+            model = None
+            reranker = None
 
-            for document in topic_documents:
-                _, usable_chunks, raw_chunks = retrieve_chunks(
-                    db_path,
-                    statement_text,
-                    embed_model=embed_model,
-                    dense_k=dense_k,
-                    bm25_k=bm25_k,
-                    final_k=per_guideline_top_k,
-                    rrf_k=rrf_k,
-                    claim_mode=claim_mode,
-                    include_parent_context=include_parent_context,
-                    reranker_model=reranker_model,
-                    rerank_top_n=rerank_top_n,
-                    queries=query_list,
-                    topic_flags=getattr(stmt, "topic_flags", None) or [],
-                    doc_id=document["document_id"],
-                )
-                filtered_chunks = [chunk for chunk in usable_chunks if float(chunk.score) >= min_score]
-                raw_total += len(raw_chunks)
-                flattened_evidence.extend(filtered_chunks)
-                document_results.append(
-                    GuidelineDocumentResult(
-                        document_id=document["document_id"],
-                        source_path=document["source_path"],
-                        title=document.get("title") or None,
-                        raw_retrieved_chunk_count=len(raw_chunks),
-                        retrieved_chunk_count=len(filtered_chunks),
-                        evidence=_sorted_evidence(filtered_chunks),
+            try:
+                model = _load_sentence_transformer(embed_model)
+                if reranker_model:
+                    from sentence_transformers import CrossEncoder
+
+                    reranker = CrossEncoder(reranker_model)
+
+                for document in topic_documents:
+                    _, usable_chunks, raw_chunks = retrieve_chunks(
+                        db_path,
+                        statement_text,
+                        embed_model=embed_model,
+                        dense_k=dense_k,
+                        bm25_k=bm25_k,
+                        final_k=per_guideline_top_k,
+                        rrf_k=rrf_k,
+                        claim_mode=claim_mode,
+                        include_parent_context=include_parent_context,
+                        reranker_model=reranker_model,
+                        rerank_top_n=rerank_top_n,
+                        queries=query_list,
+                        topic_flags=getattr(stmt, "topic_flags", None) or [],
+                        doc_id=document["document_id"],
+                        model=model,
+                        reranker=reranker,
                     )
-                )
+                    filtered_chunks = [chunk for chunk in usable_chunks if float(chunk.score) >= min_score]
+                    raw_total += len(raw_chunks)
+                    flattened_evidence.extend(filtered_chunks)
+                    document_results.append(
+                        GuidelineDocumentResult(
+                            document_id=document["document_id"],
+                            source_path=document["source_path"],
+                            title=document.get("title") or None,
+                            raw_retrieved_chunk_count=len(raw_chunks),
+                            retrieved_chunk_count=len(filtered_chunks),
+                            evidence=_sorted_evidence(filtered_chunks),
+                        )
+                    )
+            finally:
+                del reranker
+                del model
+                release_torch_cuda_memory()
 
             stmt.guideline_documents = document_results
             stmt.evidence = _sorted_evidence(flattened_evidence)
