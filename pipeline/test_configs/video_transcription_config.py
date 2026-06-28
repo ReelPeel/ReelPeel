@@ -14,10 +14,10 @@ BASE_MODEL="gemma3:27b"
 # hf.co/mradermacher/medgemma-27b-text-it-GGUF:Q4_K_M
 # hf.co/mradermacher/DeepSeek-R1-Distill-Qwen-32B-Medical-GGUF:Q6_K
 
-WHISPER_MODEL = "tiny.en"
-# large-v3
+WHISPER_MODEL = "large-v3"
 # turbo
 # tiny
+# tiny.en
 
 STEP_3_MODEL = "gemma3:12b" # Query Generation Model
 RETMAX = 10  # Number of articles per query
