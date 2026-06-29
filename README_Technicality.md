@@ -1,11 +1,37 @@
 # Technical Notes: Stance Step
 
-## Current Issue
+## Current Best Approach
 
-The current stance step uses `cnut1648/biolinkbert-mednli` on the full abstract
-against the claim. This is fast, but it can misclassify topical similarity as
-`Supports`, especially when the abstract is only indirectly related or when the
-relevant conclusion appears late in the abstract.
+Current best approach for the live system:
+
+1. Keep BioLinkBERT-MedNLI for the real-time stance step.
+2. Keep `max_length=512`; do not try 8k/16k context on BioLinkBERT.
+3. Use section-aware chunking:
+   - If strict abstract section headers are detected, use each section as its
+     own stance candidate.
+   - If a section is longer than the available model budget, split only that
+     section with 64-token overlap.
+   - If no section headers are detected, fall back to fixed token chunks over
+     the whole abstract.
+4. Score the title once against the statement, but treat it as weak evidence
+   with weight `0.5`.
+5. Aggregate conservatively from candidate signals and store only the existing
+   `Evidence.stance.abstract_*` fields.
+6. Always pass the same `evidence.stance` object to `/evidence_summary` that is
+   displayed in the UI.
+
+The biggest practical improvement came from step 6, not from changing the
+stance aggregation. The old browser summary route did not send
+`evidence.stance`, so the summary prompt often received `Unknown` stance and
+re-derived the paper direction from the abstract. That made the displayed
+stance and generated summary diverge.
+
+## Original Issue
+
+The original stance step used `cnut1648/biolinkbert-mednli` on the full
+abstract against the claim. This was fast, but it could misclassify topical
+similarity as `Supports`, especially when the abstract was only indirectly
+related or when the relevant conclusion appeared late in the abstract.
 
 Raising `max_length` to 8k/16k is not a useful fix: BioLinkBERT/BERT-style models
 are effectively limited to about 512 tokens. Longer abstracts should be chunked
@@ -27,7 +53,7 @@ This means most statement-title-abstract pairs fit near the 512-token model
 limit, but long reviews/systematic reviews will be truncated today. Chunking
 mainly protects the long-tail cases and late abstract conclusions.
 
-## Proposed Deterministic Approach
+## Deterministic Stance Approach
 
 No additional LLM step is needed.
 
@@ -35,19 +61,21 @@ Pipeline:
 
 1. Normalize whitespace.
 2. Classify the title against the statement once, if a title exists.
-3. Tokenize the abstract with the same tokenizer used by the stance model.
-4. Build fixed-length token chunks with overlap.
-5. Run BioLinkBERT NLI per chunk.
-6. Aggregate title and chunk scores into one overall stance per evidence item.
+3. Detect strict abstract section headers with a whitelist regex.
+4. If sections exist, use each section as an individual chunk candidate.
+5. If no sections exist, tokenize the full abstract with the same tokenizer used
+   by the stance model and build fixed-length token chunks with overlap.
+6. Run BioLinkBERT NLI per title/chunk candidate.
+7. Aggregate title and chunk scores into one overall stance per evidence item.
 
 Recommended chunking:
 
 - Keep `max_length=512`.
 - Compute `statement_token_count` with the BioLinkBERT tokenizer.
 - Use `chunk_size = 512 - (statement_token_count + 16)`.
-- Tokenize the abstract without special tokens.
-- Use fixed token chunks with `64` token overlap.
-- Do not use section labels.
+- Tokenize abstracts/sections without special tokens.
+- Use `64` token overlap when splitting long text.
+- Use sections when strict headers are present.
 - Do not use sentence splitting.
 
 Rationale:
@@ -56,7 +84,9 @@ Rationale:
 - A `64` token overlap preserves local scientific context across boundaries.
 - The p90 abstract length is about 451 rough tokens, so overlap is useful but
   should not be too large.
-- Fixed token windows are deterministic and avoid fragile sentence regex logic.
+- Section-aware chunks reduce some false support by keeping result/conclusion
+  blocks separate from background/method context.
+- Fixed token fallback is deterministic and avoids fragile sentence regex logic.
 
 ## Title Handling
 
@@ -117,7 +147,7 @@ Only the existing overall fields are stored:
 }
 ```
 
-## Offline Evaluation After Chunking
+## Offline Evaluation After Fixed-Token Chunking
 
 Tested with `factchecker_t26` on `offline_mock/**/process.json`.
 
@@ -146,8 +176,8 @@ Comparison against the available evidence summaries in
 - Several obvious summary/stance conflicts remain, especially for indirect
   diagnostic evidence such as egg allergy skin testing.
 
-Conclusion: fixed-token chunking reduces truncation risk but does not by itself
-solve the main stance problem. The remaining issue is mostly model semantics:
+Conclusion: fixed-token chunking reduces truncation risk but does not solve the
+main stance problem by itself. The remaining issue is mostly model semantics:
 BioLinkBERT-MedNLI often treats topical or indirect biomedical evidence as a
 directional stance.
 
@@ -217,6 +247,17 @@ All runs below use the same stored offline data:
 | Stored baseline | Existing stance labels in offline outputs | 191 | 37 | 0 | not measured globally |
 | Fixed-token chunking | Title once + full abstract token chunks with 64-token overlap | 187 | 39 | 2 | 112 |
 | Section-aware chunking | Sections replace full-abstract chunks when headers exist | 174 | 37 | 17 | 107 |
+| 3-sentence sliding windows | Section text split into windows of 3 sentences, stride 1 | 138 | 46 | 44 | 116 |
+
+Current conclusion from these runs:
+
+- Section-aware chunking is the best stance-side default tested so far because
+  it is more conservative and increases `Neutral` for weak/indirect abstracts.
+- The improvement in stance-summary agreement is modest by itself.
+- 3-sentence sliding windows are more conservative, but they performed worse
+  against evidence summaries and create many more candidates per evidence item.
+- The much larger mismatch reduction came from fixing the summary request so it
+  receives the same stance that the UI displays.
 
 Observed transitions:
 
@@ -255,6 +296,16 @@ Section extraction findings:
 - The strict header regex avoids the known false positive `these conclusions:`;
   PMID `18162844` remains `UNKNOWN`.
 
+3-sentence sliding-window test:
+
+- Tested windows of about 3 sentences with stride 1.
+- Average sentence chunks per evidence item: 7.11.
+- Max sentence chunks per evidence item: 25.
+- Counts: 138 `Supports`, 46 `Refutes`, 44 `Neutral`.
+- Summary conflicts: 116.
+- Decision: not used. It is slower and more conservative, but the mismatch is
+  worse than section-aware chunking.
+
 Reproduction commands:
 
 ```bash
@@ -269,12 +320,100 @@ Generated report:
 offline_mock/section_stance_eval.json
 ```
 
+## Aggregation Variants Tested
+
+All variants below were tested on the sweep data with the same BioLinkBERT
+candidate scores. They only change the final aggregation rule.
+
+Sweep source:
+
+```text
+offline_mock/sweep_20260626_072546
+```
+
+Against the old evidence summaries, before the summary route included stance:
+
+| Aggregation | Supports | Refutes | Neutral | Mismatch with Evidence Summary |
+| --- | ---: | ---: | ---: | ---: |
+| Current section-aware aggregation | 166 | 35 | 17 | 99 |
+| `refute=max`, `support=mean(top2)` | 156 | 44 | 18 | 99 |
+| Support only from Results/Conclusion sections | 160 | 40 | 18 | 100 |
+
+Against the newly generated summaries that received `evidence.stance` in the
+request payload:
+
+| Aggregation | Supports | Refutes | Neutral | Mismatch with Evidence Summary |
+| --- | ---: | ---: | ---: | ---: |
+| Current section-aware aggregation | 166 | 35 | 17 | 21 |
+| `refute=max`, `support=mean(top2)` | 156 | 44 | 18 | 29 |
+| Support only from Results/Conclusion sections | 160 | 40 | 18 | 24 |
+
+Conclusion: the alternative aggregation rules did not improve the mismatch.
+The current section-aware aggregation is the best of these tested options.
+
+## Evidence Summary Stance Payload Fix
+
+Bug found:
+
+- Backend `/evidence_summary` could use an optional `evidence.stance`.
+- Browser summary requests did not send `evidence.stance`.
+- Therefore the summary prompt often received `Unknown` stance while the UI
+  displayed a concrete stance label from the stance algorithm.
+
+Fix:
+
+- `browser-extension/content.js` now sends `stance: evidence?.stance || null`
+  in the summary payload.
+- `app/main.py` normalizes stance via `_extract_stance_label(...)`, accepting
+  either a stance object or string.
+
+New sweep generated with the fixed summary route:
+
+```text
+offline_mock/sweep_20260626_072546/run_*/DT*/evidence_summaries_with_stance/
+offline_mock/sweep_20260626_072546/run_*/DT*/manifest_with_stance_summary.json
+```
+
+Reproduction command:
+
+```bash
+python pipeline/test_configs/run_sweep_evidence_summaries_with_stance.py --force
+```
+
+Generation result:
+
+| Metric | Count |
+| --- | ---: |
+| Process files | 20 |
+| Evidence summaries regenerated | 218 |
+| Failed requests | 0 |
+
+Direct mismatch comparison using the stored stance that was sent in the payload:
+
+| Summary source | Mismatch with stored stance |
+| --- | ---: |
+| Old summaries without stance payload | 103 / 218 |
+| New summaries with stance payload | 9 / 218 |
+
+Interpretation:
+
+- `9 / 218` is the cleanest measure of the summary-route fix, because it
+  compares the generated summary against the exact stance sent to the summary
+  prompt.
+- `21 / 218` is the mismatch when those same new summaries are compared against
+  a freshly recomputed current section-aware stance. That number is higher
+  because the recomputed stance is not always identical to the older stored
+  stance in the sweep `process.json`.
+- For live usage, the important invariant is: the summary must be generated
+  from the same `evidence.stance` object that the UI displays.
+
 ## Deep Research Notes
 
-The tested chunking variants are useful for truncation and conservatism, but
-they do not solve the core contradiction problem. The strongest hypothesis for
-future research is that `cnut1648/biolinkbert-mednli` is not calibrated for this
-task: it often maps biomedical topical relatedness to `Supports`.
+The tested chunking variants are useful for truncation and conservatism, and
+the summary payload fix solves most UI-visible stance/summary contradictions.
+The remaining stance-side issue is that `cnut1648/biolinkbert-mednli` is not
+fully calibrated for this task: it can still map biomedical topical relatedness
+to `Supports`.
 
 Promising next directions to research:
 
