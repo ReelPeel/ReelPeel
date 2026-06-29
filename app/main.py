@@ -786,5 +786,5 @@ HARDCODED_PROCESS_RESPONSE: Dict[str, Any] = json.loads(HARDCODED_PROCESS_RESPON
 @app.post("/json")
 async def get_json(payload: dict):
     print(payload)
-    await asyncio.sleep(3)
+    await asyncio.sleep(10)
     return HARDCODED_PROCESS_RESPONSE

@@ -17,7 +17,8 @@ Config keys:
 - batch_size, max_length: inference batching and truncation.
 - evidence_fields: list of evidence fields to score, typically ["abstract", "text"].
 - top_m_by_relevance: if set, only score the top-M evidence by relevance.
-- threshold_decisive: if both support/refute are weak, force Neutral.
+- Abstracts are scored in fixed tokenizer chunks with 64-token overlap.
+- Titles are scored once per evidence item and downweighted in aggregation.
 
 Outputs:
 - ev.stance.abstract_label set to Supports/Refutes/Neutral.
@@ -149,8 +150,8 @@ class StanceEvidenceStep(PipelineStep):
           If set, only compute stance for the Top-M evidence items per statement,
           selected by ev.relevance (descending). Others are left as-is.
 
-      - threshold_decisive: float (default: 0.0)
-          If max(p_supports, p_refutes) < threshold, force label to Neutral.
+      - Titles are scored once per evidence item and downweighted in aggregation.
+      - Abstract/text fields are split into fixed tokenizer chunks with 64-token overlap.
     """
     
     def execute(self, state: PipelineState) -> PipelineState:
@@ -165,7 +166,6 @@ class StanceEvidenceStep(PipelineStep):
         if "abstract" not in evidence_fields and "text" not in evidence_fields:
             evidence_fields = ["abstract", "text"]
         top_m = self.config.get("top_m_by_relevance", None)
-        threshold_decisive = float(self.config.get("threshold_decisive", 0.0))
 
         if torch is None:
             raise RuntimeError("torch/transformers not available for stance.")
@@ -189,7 +189,7 @@ class StanceEvidenceStep(PipelineStep):
 
             premises: List[str] = []
             hypotheses: List[str] = []
-            mapping: List[Tuple[int, str]] = []
+            mapping: List[Tuple[int, str, float]] = []
 
             # Reset per-run fields for selected evidence (nested stance model)
             for i in ev_indices:
@@ -207,27 +207,56 @@ class StanceEvidenceStep(PipelineStep):
                 ev.stance.abstract_p_refutes = None
                 ev.stance.abstract_p_neutral = None
 
+                title = (
+                    getattr(ev, "title", None)
+                    or getattr(ev, "article_title", None)
+                    or getattr(ev, "paper_title", None)
+                )
+                title = str(title).strip() if title else ""
+
+                statement_token_count = len(tokenizer.encode(claim, add_special_tokens=False))
+                chunk_size = max_length - (statement_token_count + 16)
+                if chunk_size < 1:
+                    chunk_size = 1
+                chunk_overlap = 64
+                if chunk_overlap >= chunk_size:
+                    chunk_overlap = max(0, chunk_size - 1)
+                chunk_step = max(1, chunk_size - chunk_overlap)
+                title_added = False
+
                 for field in evidence_fields:
                     txt = getattr(ev, field, None)
-                    title = (
-                        getattr(ev, "title", None)
-                        or getattr(ev, "article_title", None)
-                        or getattr(ev, "paper_title", None)
-                    )
-
-                    if title:
-                        title = str(title).strip()
-                        txt = f"{title}\n\n{txt}"
-
                     if txt:
-                        txt = str(txt).strip()
+                        txt = " ".join(str(txt).split())
 
                     if not txt:
                         continue
 
-                    premises.append(txt)
-                    hypotheses.append(claim)
-                    mapping.append((i, field))
+                    token_ids = tokenizer.encode(txt, add_special_tokens=False)
+                    if not token_ids:
+                        continue
+
+                    if title and not title_added:
+                        premises.append(title)
+                        hypotheses.append(claim)
+                        mapping.append((i, "title", 0.5))
+                        title_added = True
+
+                    start = 0
+                    while start < len(token_ids):
+                        chunk_ids = token_ids[start : start + chunk_size]
+                        chunk_text = tokenizer.decode(
+                            chunk_ids,
+                            skip_special_tokens=True,
+                            clean_up_tokenization_spaces=True,
+                        ).strip()
+                        if chunk_text:
+                            premises.append(chunk_text)
+                            hypotheses.append(claim)
+                            mapping.append((i, field, 1.0))
+                        if start + chunk_size >= len(token_ids):
+                            break
+                        start += chunk_step
 
             if not premises:
                 continue
@@ -249,36 +278,68 @@ class StanceEvidenceStep(PipelineStep):
                     probs = torch.softmax(logits, dim=-1)
                     all_probs.extend(probs.detach().cpu().tolist())
 
-            # Write results back into Evidence.stance
-            for probs, (ev_idx, field) in zip(all_probs, mapping):
-                p_ent = round(float(probs[ent_i]), 2)  # entailment -> Supports
-                p_neu = round(float(probs[neu_i]), 2)  # neutral    -> Neutral
-                p_con = round(float(probs[con_i]), 2)  # contradiction -> Refutes
+            results_by_evidence: Dict[int, List[Tuple[float, float, float, float, StanceLabel]]] = {}
 
+            for probs, (ev_idx, field, weight) in zip(all_probs, mapping):
+                p_ent = float(probs[ent_i])  # entailment -> Supports
+                p_neu = float(probs[neu_i])  # neutral    -> Neutral
+                p_con = float(probs[con_i])  # contradiction -> Refutes
 
-                # Decide label (enum)
-                if max(p_ent, p_con) < threshold_decisive:
-                    label = StanceLabel.NEUTRAL
+                if p_ent >= 0.70 and p_ent - max(p_con, p_neu) >= 0.15:
+                    label = StanceLabel.SUPPORTS
+                elif p_con >= 0.60 and p_con - max(p_ent, p_neu) >= 0.15:
+                    label = StanceLabel.REFUTES
                 else:
-                    label = StanceLabel.SUPPORTS if p_ent >= p_con else StanceLabel.REFUTES
+                    label = StanceLabel.NEUTRAL
+
+                if field == "title" or field == "abstract" or field == "text":
+                    results_by_evidence.setdefault(ev_idx, []).append((p_ent, p_con, p_neu, weight, label))
+
+            # Write aggregated results back into Evidence.stance
+            for ev_idx, candidates in results_by_evidence.items():
+                if not candidates:
+                    continue
+
+                support_score = max(
+                    max(0.0, p_ent - max(p_con, p_neu)) * weight
+                    for p_ent, p_con, p_neu, weight, label in candidates
+                )
+                refute_score = max(
+                    max(0.0, p_con - max(p_ent, p_neu)) * weight
+                    for p_ent, p_con, p_neu, weight, label in candidates
+                )
+
+                if refute_score >= 0.18 and refute_score >= support_score + 0.10:
+                    overall_label = StanceLabel.REFUTES
+                elif support_score >= 0.25 and support_score >= refute_score + 0.15:
+                    overall_label = StanceLabel.SUPPORTS
+                else:
+                    overall_label = StanceLabel.NEUTRAL
+
+                support_candidates = [
+                    p_ent for p_ent, p_con, p_neu, weight, label in candidates
+                    if label == StanceLabel.SUPPORTS
+                ]
+                refute_candidates = [
+                    p_con for p_ent, p_con, p_neu, weight, label in candidates
+                    if label == StanceLabel.REFUTES
+                ]
+
+                p_support = max(support_candidates) if support_candidates else max(
+                    p_ent for p_ent, p_con, p_neu, weight, label in candidates
+                )
+                p_refute = max(refute_candidates) if refute_candidates else max(
+                    p_con for p_ent, p_con, p_neu, weight, label in candidates
+                )
+                p_neutral = max(p_neu for p_ent, p_con, p_neu, weight, label in candidates)
 
                 ev = stmt.evidence[ev_idx]
                 if ev.stance is None:
                     ev.stance = EvidenceStance()
 
-                if field == "abstract":
-                    ev.stance.abstract_label = label
-                    ev.stance.abstract_p_supports = p_ent
-                    ev.stance.abstract_p_refutes = p_con
-                    ev.stance.abstract_p_neutral = p_neu
-                elif field == "text":
-                    if ev.stance.abstract_label is None:
-                        ev.stance.abstract_label = label
-                        ev.stance.abstract_p_supports = p_ent
-                        ev.stance.abstract_p_refutes = p_con
-                        ev.stance.abstract_p_neutral = p_neu
-                else:
-                    # If you add more fields to the Stance model, extend handling here.
-                    pass
+                ev.stance.abstract_label = overall_label
+                ev.stance.abstract_p_supports = round(float(p_support), 2)
+                ev.stance.abstract_p_refutes = round(float(p_refute), 2)
+                ev.stance.abstract_p_neutral = round(float(p_neutral), 2)
 
         return state
