@@ -45,6 +45,7 @@ window) and aggregate probabilities (max/mean) downstream.
 
 from __future__ import annotations
 
+import re
 from typing import List, Tuple, Optional, Dict, Any
 
 import torch
@@ -166,6 +167,55 @@ class StanceEvidenceStep(PipelineStep):
         if "abstract" not in evidence_fields and "text" not in evidence_fields:
             evidence_fields = ["abstract", "text"]
         top_m = self.config.get("top_m_by_relevance", None)
+        section_chunking_enabled = bool(self.config.get("section_chunking_enabled", True))
+        section_headers = [
+            "CONCLUSIONS AND CLINICAL RELEVANCE",
+            "DATA EXTRACTION AND SYNTHESIS",
+            "CONCLUSIONS AND RELEVANCE",
+            "DATA COLLECTION AND ANALYSIS",
+            "MAIN OUTCOMES AND MEASURES",
+            "MAIN OUTCOME AND MEASURES",
+            "MAIN OUTCOME AND MEASURE",
+            "MATERIALS AND METHODS",
+            "BACKGROUND AND OBJECTIVE",
+            "PURPOSE OF REVIEW",
+            "SELECTION CRITERIA",
+            "TRIAL REGISTRATION",
+            "RECENT FINDINGS",
+            "STUDY SELECTION",
+            "SEARCH METHODS",
+            "MATERIAL AND METHOD",
+            "DATA EXTRACTION",
+            "MAIN RESULTS",
+            "STUDY DESIGN",
+            "DATA SOURCES",
+            "INTERPRETATION",
+            "INTERVENTIONS",
+            "CONCLUSIONS",
+            "LIMITATIONS",
+            "OBJECTIVES",
+            "CONCLUSION",
+            "IMPORTANCE",
+            "BACKGROUND",
+            "OBJECTIVE",
+            "RATIONALE",
+            "UNLABELLED",
+            "EXPOSURES",
+            "FINDINGS",
+            "SUMMARY",
+            "METHODS",
+            "RESULTS",
+            "FUNDING",
+            "DESIGN",
+            "AIMS",
+            "AIM",
+        ]
+        section_re = re.compile(
+            r"(^|(?<=[.!?])\s+)("
+            + "|".join(re.escape(h) for h in section_headers)
+            + r")\s*:",
+            re.I,
+        )
 
         if torch is None:
             raise RuntimeError("torch/transformers not available for stance.")
@@ -232,31 +282,49 @@ class StanceEvidenceStep(PipelineStep):
                     if not txt:
                         continue
 
-                    token_ids = tokenizer.encode(txt, add_special_tokens=False)
-                    if not token_ids:
-                        continue
-
                     if title and not title_added:
                         premises.append(title)
                         hypotheses.append(claim)
                         mapping.append((i, "title", 0.5))
                         title_added = True
 
-                    start = 0
-                    while start < len(token_ids):
-                        chunk_ids = token_ids[start : start + chunk_size]
-                        chunk_text = tokenizer.decode(
-                            chunk_ids,
-                            skip_special_tokens=True,
-                            clean_up_tokenization_spaces=True,
-                        ).strip()
-                        if chunk_text:
-                            premises.append(chunk_text)
-                            hypotheses.append(claim)
-                            mapping.append((i, field, 1.0))
-                        if start + chunk_size >= len(token_ids):
-                            break
-                        start += chunk_step
+                    segments: List[Tuple[str, str]] = []
+                    section_matches = list(section_re.finditer(txt)) if section_chunking_enabled else []
+                    if section_matches:
+                        if section_matches[0].start() > 0:
+                            preamble = txt[: section_matches[0].start()].strip()
+                            if preamble:
+                                segments.append(("UNKNOWN", preamble))
+                        for idx, match in enumerate(section_matches):
+                            label = match.group(2).upper()
+                            start_text = match.end()
+                            end_text = section_matches[idx + 1].start() if idx + 1 < len(section_matches) else len(txt)
+                            section_text = txt[start_text:end_text].strip()
+                            if section_text:
+                                segments.append((label, section_text))
+                    else:
+                        segments.append(("UNKNOWN", txt))
+
+                    for section_label, section_text in segments:
+                        token_ids = tokenizer.encode(section_text, add_special_tokens=False)
+                        if not token_ids:
+                            continue
+
+                        start = 0
+                        while start < len(token_ids):
+                            chunk_ids = token_ids[start : start + chunk_size]
+                            chunk_text = tokenizer.decode(
+                                chunk_ids,
+                                skip_special_tokens=True,
+                                clean_up_tokenization_spaces=True,
+                            ).strip()
+                            if chunk_text:
+                                premises.append(chunk_text)
+                                hypotheses.append(claim)
+                                mapping.append((i, field, 1.0))
+                            if start + chunk_size >= len(token_ids):
+                                break
+                            start += chunk_step
 
             if not premises:
                 continue

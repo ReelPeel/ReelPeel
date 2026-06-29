@@ -121,6 +121,14 @@ Only the existing overall fields are stored:
 
 Tested with `factchecker_t26` on `offline_mock/**/process.json`.
 
+Environment:
+
+- Conda env: `factchecker_t26`
+- Python: `3.9`
+- Torch: `2.6.0+cu124`
+- Transformers: `4.55.2`
+- CUDA available during test: yes
+
 Aggregate over 22 process files / 228 evidence items:
 
 - `Supports -> Supports`: 185
@@ -142,3 +150,141 @@ Conclusion: fixed-token chunking reduces truncation risk but does not by itself
 solve the main stance problem. The remaining issue is mostly model semantics:
 BioLinkBERT-MedNLI often treats topical or indirect biomedical evidence as a
 directional stance.
+
+## Offline Evaluation After Section-Aware Chunking
+
+Tested with `factchecker_t26` using
+`pipeline/test_configs/evaluate_section_stance.py`.
+
+Report written to:
+
+```text
+offline_mock/section_stance_eval.json
+```
+
+Section-aware rule:
+
+- If strict section headers are detected, each section is used as an individual
+  stance candidate.
+- If a section is too long, only that section is split with 64-token overlap.
+- If no section header is detected, fall back to fixed-token chunking over the
+  full abstract and mark it as `UNKNOWN`.
+- No section weighting is applied.
+
+Aggregate over 22 process files / 228 evidence items:
+
+- Old stored stance: 191 `Supports`, 37 `Refutes`
+- Fixed-token stance: 187 `Supports`, 39 `Refutes`, 2 `Neutral`
+- Section-aware stance: 174 `Supports`, 37 `Refutes`, 17 `Neutral`
+
+Transitions from fixed-token to section-aware:
+
+- `Supports -> Supports`: 173
+- `Refutes -> Refutes`: 37
+- `Supports -> Neutral`: 14
+- `Neutral -> Supports`: 1
+- `Neutral -> Neutral`: 1
+- `Refutes -> Neutral`: 2
+
+Section extraction:
+
+- 119 evidence items with recognized sections.
+- 109 evidence items fell back to `UNKNOWN`.
+- The known false-positive risk `these conclusions:` is not matched as a
+  section header and stays `UNKNOWN`.
+
+Summary conflict heuristic:
+
+- Fixed-token conflicts: 112
+- Section-aware conflicts: 107
+
+Conclusion: section-aware chunking makes the stance output more conservative
+and increases `Neutral`, but only modestly reduces summary conflicts. The main
+remaining issue still appears to be BioLinkBERT-MedNLI treating indirect or
+topical biomedical evidence as directional stance.
+
+## Evaluation Run History
+
+All runs below use the same stored offline data:
+
+- `offline_mock/**/process.json`
+- 22 process files
+- 228 evidence items
+- 77 unique abstracts observed in earlier length analysis
+
+| Run | Description | Supports | Refutes | Neutral | Summary conflicts |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Stored baseline | Existing stance labels in offline outputs | 191 | 37 | 0 | not measured globally |
+| Fixed-token chunking | Title once + full abstract token chunks with 64-token overlap | 187 | 39 | 2 | 112 |
+| Section-aware chunking | Sections replace full-abstract chunks when headers exist | 174 | 37 | 17 | 107 |
+
+Observed transitions:
+
+- Stored baseline -> fixed-token:
+  - `Supports -> Supports`: 185
+  - `Refutes -> Refutes`: 35
+  - `Supports -> Refutes`: 4
+  - `Supports -> Neutral`: 2
+  - `Refutes -> Supports`: 2
+- Fixed-token -> section-aware:
+  - `Supports -> Supports`: 173
+  - `Refutes -> Refutes`: 37
+  - `Supports -> Neutral`: 14
+  - `Neutral -> Supports`: 1
+  - `Neutral -> Neutral`: 1
+  - `Refutes -> Neutral`: 2
+
+Evidence summary comparison:
+
+- Detailed evidence summaries are available for `offline_mock/DT0UIgzDZ79`.
+- Fixed-token changed only 1 of 10 labels compared with the stored stance for
+  those summary-backed evidence items.
+- Section-aware evaluation reduces global heuristic summary conflicts from 112
+  to 107, so the improvement is small.
+- The most important remaining conflict type is still `Supports` assigned to
+  indirect or topical evidence that the generated evidence summary describes as
+  unclear, indirect, or contradictory.
+
+Section extraction findings:
+
+- 119 evidence items had recognized section headers.
+- 109 evidence items fell back to `UNKNOWN`.
+- Frequent extracted headers: `RESULTS`, `METHODS`, `BACKGROUND`,
+  `CONCLUSIONS`, `OBJECTIVE`, `CONCLUSION`, `SUMMARY`,
+  `PURPOSE OF REVIEW`, `RECENT FINDINGS`.
+- The strict header regex avoids the known false positive `these conclusions:`;
+  PMID `18162844` remains `UNKNOWN`.
+
+Reproduction commands:
+
+```bash
+python -m py_compile pipeline/steps/stance.py
+conda run -n factchecker_t26 python -m py_compile pipeline/test_configs/evaluate_section_stance.py
+conda run -n factchecker_t26 python pipeline/test_configs/evaluate_section_stance.py
+```
+
+Generated report:
+
+```text
+offline_mock/section_stance_eval.json
+```
+
+## Deep Research Notes
+
+The tested chunking variants are useful for truncation and conservatism, but
+they do not solve the core contradiction problem. The strongest hypothesis for
+future research is that `cnut1648/biolinkbert-mednli` is not calibrated for this
+task: it often maps biomedical topical relatedness to `Supports`.
+
+Promising next directions to research:
+
+- Replace or complement MedNLI stance with a model trained/evaluated on
+  scientific claim verification or biomedical evidence inference.
+- Add a directness/relevance gate before stance: same population, intervention,
+  comparator, outcome, and direction.
+- Treat `Neutral` as the default unless evidence directly matches the claim's
+  key qualifiers.
+- Evaluate whether title-only stance should be removed entirely or used only as
+  retrieval/debug metadata, because titles can amplify topical false support.
+- Build a small labeled set from the current evidence summaries and manually
+  adjudicate whether each paper `Supports`, `Refutes`, or is `Neutral/Indirect`.
