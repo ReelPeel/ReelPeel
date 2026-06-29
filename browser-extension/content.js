@@ -1137,6 +1137,7 @@ function createPopupState() {
         evidence?.title || evidence?.article_title || evidence?.paper_title || "",
       pubmed_id: evidence?.pubmed_id,
       url: evidence?.url,
+      stance: evidence?.stance || null,
     };
 
     try {

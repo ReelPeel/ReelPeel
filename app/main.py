@@ -69,6 +69,18 @@ def _clean_text(value: Any, max_chars: Optional[int] = None) -> str:
             text = text[:max_chars] + "..."
     return text
 
+def _extract_stance_label(raw: Any) -> str:
+    if isinstance(raw, dict):
+        return (
+            raw.get("abstract_label")
+            or raw.get("label")
+            or raw.get("abstractLabel")
+            or "Unknown"
+        )
+    if raw:
+        return str(raw)
+    return "Unknown"
+
 def _build_llm_service() -> LLMService:
     return LLMService(
         {
@@ -123,10 +135,11 @@ async def evidence_summary(payload: dict = Body(...)):
         raise HTTPException(400, "Evidence abstract is required for summary")
 
     stance = _clean_text(
-        evidence.get("stance")
-        or evidence.get("Stance")
-        or evidence.get("STANCE")
-        or "Unknown",
+        _extract_stance_label(
+            evidence.get("stance")
+            or evidence.get("Stance")
+            or evidence.get("STANCE")
+        ),
         SUMMARY_MAX_CHARS,
     )
 
