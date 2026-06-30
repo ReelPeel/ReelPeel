@@ -150,6 +150,93 @@ Only the existing overall fields are stored:
 }
 ```
 
+## Stance Probability Problem
+
+Current stored stance probabilities are schema-compatible but semantically
+misleading in multi-candidate stance runs.
+
+The stance step scores multiple candidates per evidence item:
+
+- optional title candidate
+- section chunks, if section headers are detected
+- fixed-token abstract chunks as fallback
+
+The current export then stores independent maxima:
+
+- `abstract_p_supports`: highest support probability from support candidates,
+  otherwise highest raw support probability
+- `abstract_p_refutes`: highest refute probability from refute candidates,
+  otherwise highest raw refute probability
+- `abstract_p_neutral`: highest raw neutral probability
+
+These values can come from different candidates. Therefore they are not a
+normalized probability distribution and should not be interpreted as one model
+output.
+
+Observed problem in the current offline mock:
+
+```text
+Statement:
+Eggs are good for brain development due to their high protein content.
+
+Evidence:
+[Egg components involved in cognitive function].
+PMID: 39279756
+Relevance: 0.76
+```
+
+Candidate-level behavior:
+
+| Candidate | Label | Supports | Refutes | Neutral |
+| --- | ---: | ---: | ---: | ---: |
+| Title | Neutral | 0.0056 | 0.0003 | 0.9941 |
+| Abstract chunk | Supports | 0.9993 | 0.0003 | 0.0005 |
+
+Stored output becomes:
+
+```json
+{
+  "abstract_label": "Supports",
+  "abstract_p_supports": 1.0,
+  "abstract_p_refutes": 0.0,
+  "abstract_p_neutral": 0.99
+}
+```
+
+This looks contradictory because `Supports` and `Neutral` are both near 1.0,
+but they come from different candidates. The label is driven by the abstract
+chunk; the high neutral value comes from the title.
+
+Testing "no title in stance" reduced this specific title-driven artifact but
+did not solve the general issue:
+
+| Offline file | Current labels | No-title labels | Label changes | High support + high neutral cases |
+| --- | --- | --- | ---: | ---: |
+| `DT0UIgzDZ79/process.json` | 8 Supports, 1 Refutes, 2 Neutral | same | 0 | 3 -> 2 |
+| `DT0UbkjDZZj/process.json` | 5 Supports, 1 Refutes, 2 Neutral | same | 0 | 3 -> 3 |
+
+Conclusion:
+
+- Removing titles from stance is likely still sensible because titles are often
+  topical rather than evidential.
+- The larger issue is the stored probability aggregation.
+- The normal response fields should either store the probability vector of the
+  decisive candidate or store calibrated aggregate scores, not independent
+  maxima from different chunks.
+
+Recommended next change:
+
+1. Do not use title candidates in stance. Keep titles for relevance only.
+2. Keep the current label aggregation for now.
+3. Store `abstract_p_*` from the candidate that actually determined the final
+   label:
+   - strongest support-signal candidate when final label is `Supports`
+   - strongest refute-signal candidate when final label is `Refutes`
+   - strongest neutral candidate or weakest directional-signal candidate when
+     final label is `Neutral`
+4. Avoid showing `abstract_p_*` as if they were global evidence probabilities
+   until this is fixed.
+
 ## Diagnostic/Test Gate
 
 This gate is active by default in the live stance step:
