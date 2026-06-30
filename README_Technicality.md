@@ -15,8 +15,11 @@ Current best approach for the live system:
      the whole abstract.
 4. Score the title once against the statement, but treat it as weak evidence
    with weight `0.5`.
-5. Aggregate conservatively from candidate signals and store only the existing
-   `Evidence.stance.abstract_*` fields.
+5. Aggregate candidate probabilities with a simple weighted mean:
+   - title candidate weight `0.5`
+   - every abstract/section chunk weight `1.0`
+   - no section-specific weighting
+   - normalize the stored `abstract_p_*` values so they sum to `1.00`
 6. Apply the diagnostic/test gate by default:
    - diagnostic/test claims with method-mismatch or diagnostic-uncertainty cues
      cannot remain `Supports`; they are downgraded to `Neutral`.
@@ -121,23 +124,24 @@ Suggested thresholds:
 - `Refutes`: `p_refute >= 0.60` and margin `>= 0.15`
 - Else: `Neutral`
 
-Overall evidence stance should aggregate weighted confidence, not label counts.
-Support should require a stronger signal than refutation, because falsely
-endorsing medical claims is the higher-risk error.
+Overall evidence stance now aggregates the candidate probabilities directly.
+This intentionally favors a simple, explainable output distribution over the
+previous max-signal aggregation.
 
 Current overall decision:
 
-- Compute per candidate:
-  - `support_signal = max(0, p_support - max(p_refute, p_neutral))`
-  - `refute_signal = max(0, p_refute - max(p_support, p_neutral))`
-- Weight title signals with `0.5`.
-- Weight abstract chunk signals with `1.0`.
-- Aggregate via max weighted signal.
-- `Refutes` if `refute_score >= 0.18` and
-  `refute_score >= support_score + 0.10`.
-- `Supports` if `support_score >= 0.25` and
-  `support_score >= refute_score + 0.15`.
-- Else `Neutral`.
+- For every title/chunk candidate, keep the raw BioLinkBERT probabilities:
+  `p_support`, `p_refute`, `p_neutral`.
+- Weight title candidates with `0.5`.
+- Weight every abstract/section chunk with `1.0`.
+- Compute weighted means across candidates for all three classes.
+- Normalize the three means so they sum to `1.0`.
+- Decide the final label from the normalized aggregate:
+  - `Supports`: `p_support >= 0.70` and margin `>= 0.15`
+  - `Refutes`: `p_refute >= 0.60` and margin `>= 0.15`
+  - Else: `Neutral`
+- Store the normalized probabilities rounded to 2 decimals, with rounding
+  adjusted so the stored values sum to `1.00`.
 
 Only the existing overall fields are stored:
 
@@ -150,9 +154,9 @@ Only the existing overall fields are stored:
 }
 ```
 
-## Stance Probability Problem
+## Stance Probability Problem And Fix
 
-Current stored stance probabilities are schema-compatible but semantically
+Previous stored stance probabilities were schema-compatible but semantically
 misleading in multi-candidate stance runs.
 
 The stance step scores multiple candidates per evidence item:
@@ -161,7 +165,7 @@ The stance step scores multiple candidates per evidence item:
 - section chunks, if section headers are detected
 - fixed-token abstract chunks as fallback
 
-The current export then stores independent maxima:
+The previous export stored independent maxima:
 
 - `abstract_p_supports`: highest support probability from support candidates,
   otherwise highest raw support probability
@@ -169,9 +173,9 @@ The current export then stores independent maxima:
   otherwise highest raw refute probability
 - `abstract_p_neutral`: highest raw neutral probability
 
-These values can come from different candidates. Therefore they are not a
-normalized probability distribution and should not be interpreted as one model
-output.
+These values could come from different candidates. Therefore they were not a
+normalized probability distribution and should not have been interpreted as one
+model output.
 
 Observed problem in the current offline mock:
 
@@ -192,7 +196,7 @@ Candidate-level behavior:
 | Title | Neutral | 0.0056 | 0.0003 | 0.9941 |
 | Abstract chunk | Supports | 0.9993 | 0.0003 | 0.0005 |
 
-Stored output becomes:
+Previous stored output became:
 
 ```json
 {
@@ -215,27 +219,28 @@ did not solve the general issue:
 | `DT0UIgzDZ79/process.json` | 8 Supports, 1 Refutes, 2 Neutral | same | 0 | 3 -> 2 |
 | `DT0UbkjDZZj/process.json` | 5 Supports, 1 Refutes, 2 Neutral | same | 0 | 3 -> 3 |
 
-Conclusion:
+Implemented fix:
 
-- Removing titles from stance is likely still sensible because titles are often
-  topical rather than evidential.
-- The larger issue is the stored probability aggregation.
-- The normal response fields should either store the probability vector of the
-  decisive candidate or store calibrated aggregate scores, not independent
-  maxima from different chunks.
+- Keep title candidates, but only with weight `0.5`.
+- Keep all abstract/section chunks with weight `1.0`.
+- Store weighted mean probabilities instead of independent maxima.
+- Normalize and round stored probabilities so
+  `abstract_p_supports + abstract_p_refutes + abstract_p_neutral == 1.00`.
 
-Recommended next change:
+Current result for PMID `39279756` after the fix:
 
-1. Do not use title candidates in stance. Keep titles for relevance only.
-2. Keep the current label aggregation for now.
-3. Store `abstract_p_*` from the candidate that actually determined the final
-   label:
-   - strongest support-signal candidate when final label is `Supports`
-   - strongest refute-signal candidate when final label is `Refutes`
-   - strongest neutral candidate or weakest directional-signal candidate when
-     final label is `Neutral`
-4. Avoid showing `abstract_p_*` as if they were global evidence probabilities
-   until this is fixed.
+```json
+{
+  "abstract_label": "Neutral",
+  "abstract_p_supports": 0.67,
+  "abstract_p_refutes": 0.0,
+  "abstract_p_neutral": 0.33
+}
+```
+
+This is less assertive than the previous `Supports` label because the neutral
+title candidate now contributes to the weighted mean instead of being stored as
+an independent max value.
 
 ## Diagnostic/Test Gate
 

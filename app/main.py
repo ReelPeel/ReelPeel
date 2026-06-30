@@ -2,7 +2,8 @@
 from fastapi import FastAPI, Body, HTTPException
 import asyncio
 import shutil, os
-from .pipeline import run_pipeline
+from pathlib import Path
+from .pipeline import run_pipeline, run_pipeline_from_transcript
   # ← your existing heavy pipeline
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
@@ -27,6 +28,12 @@ SUMMARY_MAX_TOKENS = int(os.getenv("SUMMARY_MAX_TOKENS", "120"))
 SUMMARY_MAX_CHARS = int(os.getenv("SUMMARY_MAX_CHARS", "2000"))
 LLM_BASE_URL = os.getenv("LLM_BASE_URL", "http://localhost:11434/v1")
 LLM_API_KEY = os.getenv("LLM_API_KEY", "ollama")
+REPO_ROOT = Path(__file__).resolve().parents[1]
+OFFLINE_MOCK_ROOT = REPO_ROOT / "offline_mock"
+OFFLINE_TRANSCRIPT_REEL_IDS = {"DT0UIgzDZ79", "DT0UbkjDZZj"}
+OFFLINE_TRANSCRIPT_TEMPERATURE = float(os.getenv("OFFLINE_TRANSCRIPT_TEMPERATURE", "0.7"))
+
+
 def extract_reel_id(instagram_url: str) -> str:
     """
     Return the segment that follows /reels/ in an Instagram Reel URL.
@@ -90,6 +97,24 @@ def _build_llm_service() -> LLMService:
     )
 
 
+def _offline_mock_paths(reel_id: str) -> Optional[Dict[str, str]]:
+    if reel_id not in OFFLINE_TRANSCRIPT_REEL_IDS:
+        return None
+
+    reel_dir = OFFLINE_MOCK_ROOT / reel_id
+    transcript_path = reel_dir / "transcript.txt"
+    if not transcript_path.is_file():
+        return None
+
+    video_candidates = sorted((reel_dir / "video").glob("*")) if (reel_dir / "video").is_dir() else []
+    audio_candidates = sorted((reel_dir / "audio").glob("*")) if (reel_dir / "audio").is_dir() else []
+    return {
+        "transcript": str(transcript_path),
+        "video": str(video_candidates[0]) if video_candidates else "",
+        "audio": str(audio_candidates[0]) if audio_candidates else "",
+    }
+
+
 @app.post("/process")
 async def process(payload: dict = Body(...)):
     print("Received payload:", payload)
@@ -99,11 +124,23 @@ async def process(payload: dict = Body(...)):
         raise HTTPException(400, "JSON body must contain a 'url' field")
 
     reel_id = extract_reel_id(url)
-    mock    = _coerce_bool(payload.get("mock", True))
+    mock    = _coerce_bool(payload.get("mock", False))
+    offline_paths = _offline_mock_paths(reel_id)
 
     result = None
     try:
-        if mock:
+        if offline_paths:
+            transcript = Path(offline_paths["transcript"]).read_text(encoding="utf-8")
+            result = run_pipeline_from_transcript(
+                transcript=transcript,
+                audio_path=offline_paths.get("audio") or None,
+                video_path=offline_paths.get("video") or None,
+                temperature=OFFLINE_TRANSCRIPT_TEMPERATURE,
+            )
+            result["_offline_mock_transcript_used"] = True
+            result["_offline_mock_reel_id"] = reel_id
+            result["_offline_mock_temperature"] = OFFLINE_TRANSCRIPT_TEMPERATURE
+        elif mock:
             # Mock mode: just look for a pre-made WAV named <reel_id>.wav
             wav_path = os.path.abspath(f"{reel_id}.wav")
             if not os.path.exists(wav_path):
@@ -117,8 +154,14 @@ async def process(payload: dict = Body(...)):
             video_path = result.get("video_path")
             audio_path = result.get("audio_path")
             cleanup_path = video_path or audio_path
-            if cleanup_path:
+            if cleanup_path and not offline_paths:
                 shutil.rmtree(os.path.dirname(cleanup_path), ignore_errors=True)
+
+
+@app.post("/json")
+async def json_process(payload: dict = Body(...)):
+    return await process(payload)
+
 
 @app.post("/evidence_summary")
 async def evidence_summary(payload: dict = Body(...)):
@@ -148,12 +191,20 @@ async def evidence_summary(payload: dict = Body(...)):
         stance=stance,
         abstract=abstract,
     )
+    summary_temperature = SUMMARY_TEMPERATURE
+    reel_url = payload.get("reel_url")
+    if reel_url:
+        try:
+            if extract_reel_id(reel_url) in OFFLINE_TRANSCRIPT_REEL_IDS:
+                summary_temperature = OFFLINE_TRANSCRIPT_TEMPERATURE
+        except HTTPException:
+            pass
 
     try:
         summary = _build_llm_service().call(
             prompt=prompt,
             model=SUMMARY_MODEL,
-            temperature=SUMMARY_TEMPERATURE,
+            temperature=summary_temperature,
             max_tokens=SUMMARY_MAX_TOKENS,
         )
     except Exception as exc:
@@ -164,6 +215,11 @@ async def evidence_summary(payload: dict = Body(...)):
 @app.get("/number")
 async def get_number():
     return {"number": random.randint(1, 100)}
+
+
+@app.get("/health")
+async def health():
+    return {"ok": True}
 
 
 HARDCODED_PROCESS_RESPONSE_JSON = r'''

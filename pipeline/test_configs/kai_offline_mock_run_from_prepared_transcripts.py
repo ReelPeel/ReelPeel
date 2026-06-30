@@ -21,7 +21,7 @@ OFFLINE_ROOT = REPO_ROOT / "offline_mock"
 VIDEO_IDS = ["DT0UIgzDZ79", "DT0UbkjDZZj"]
 
 
-def _build_config(video_id: str) -> Dict[str, Any]:
+def _build_config(video_id: str, retmax: int | None = None) -> Dict[str, Any]:
     config = copy.deepcopy(VIDEO_URL_PIPELINE_CONFIG)
     config["name"] = "Offline_From_Prepared_Transcript"
     config["run_id"] = f"prepared_transcript_{video_id}"
@@ -30,10 +30,19 @@ def _build_config(video_id: str) -> Dict[str, Any]:
         for step in config.get("steps", [])
         if step.get("type") not in {"download_reel", "video_to_audio", "audio_to_transcript"}
     ]
+    if retmax is not None:
+        for step in config.get("steps", []):
+            step_type = step.get("type")
+            settings = step.setdefault("settings", {})
+            if step_type == "generate_query":
+                prefetch_links = settings.setdefault("prefetch_links", {})
+                prefetch_links["retmax"] = int(retmax)
+            elif step_type == "fetch_links":
+                settings["retmax"] = int(retmax)
     return config
 
 
-def _run_one(video_id: str, force: bool) -> Dict[str, Any]:
+def _run_one(video_id: str, force: bool, retmax: int | None = None) -> Dict[str, Any]:
     video_dir = OFFLINE_ROOT / video_id
     manifest_path = video_dir / "manifest.json"
     transcript_path = video_dir / "transcript.txt"
@@ -56,7 +65,7 @@ def _run_one(video_id: str, force: bool) -> Dict[str, Any]:
         audio_path=str(REPO_ROOT / manifest["audio"]),
         video_path=str(REPO_ROOT / manifest["video"]),
     )
-    config = _build_config(video_id)
+    config = _build_config(video_id, retmax=retmax)
     final_state = PipelineOrchestrator(config).run(state)
 
     process_path.write_text(
@@ -67,6 +76,7 @@ def _run_one(video_id: str, force: bool) -> Dict[str, Any]:
     manifest["pipeline_completed_at_utc"] = datetime.now(timezone.utc).isoformat()
     manifest["pipeline_mode"] = "from_prepared_transcript"
     manifest["pipeline_config_basis"] = "VIDEO_URL_PIPELINE_CONFIG_without_media_steps"
+    manifest["offline_retmax_override"] = retmax
     manifest["process_response"] = str(process_path.relative_to(REPO_ROOT))
     manifest["pipeline_skipped_steps"] = [
         "download_reel",
@@ -81,6 +91,7 @@ def _run_one(video_id: str, force: bool) -> Dict[str, Any]:
     return {
         "reel_id": video_id,
         "process_response": str(process_path.relative_to(REPO_ROOT)),
+        "retmax": retmax,
         "statement_count": len(final_state.statements),
         "evidence_count": sum(len(stmt.evidence) for stmt in final_state.statements),
     }
@@ -91,12 +102,13 @@ def main() -> None:
         description="Run the rest of the current video pipeline from prepared transcripts."
     )
     parser.add_argument("--force", action="store_true")
+    parser.add_argument("--retmax", type=int, default=None)
     args = parser.parse_args()
 
     results: List[Dict[str, Any]] = []
     for video_id in VIDEO_IDS:
         print(f"[pipeline] {video_id}: start", flush=True)
-        result = _run_one(video_id, force=args.force)
+        result = _run_one(video_id, force=args.force, retmax=args.retmax)
         results.append(result)
         print(
             f"[pipeline] {video_id}: wrote {result['process_response']} "
@@ -108,6 +120,7 @@ def main() -> None:
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "mode": "from_prepared_transcript",
         "config_basis": "VIDEO_URL_PIPELINE_CONFIG_without_media_steps",
+        "offline_retmax_override": args.retmax,
         "videos": results,
     }
     root_manifest_path = OFFLINE_ROOT / "prepared_transcript_pipeline_manifest.json"

@@ -426,38 +426,32 @@ class StanceEvidenceStep(PipelineStep):
                 if not candidates:
                     continue
 
-                support_score = max(
-                    max(0.0, p_ent - max(p_con, p_neu)) * weight
-                    for p_ent, p_con, p_neu, weight, label in candidates
-                )
-                refute_score = max(
-                    max(0.0, p_con - max(p_ent, p_neu)) * weight
-                    for p_ent, p_con, p_neu, weight, label in candidates
-                )
+                total_weight = sum(weight for p_ent, p_con, p_neu, weight, label in candidates)
+                if total_weight <= 0:
+                    total_weight = float(len(candidates))
 
-                if refute_score >= 0.18 and refute_score >= support_score + 0.10:
-                    overall_label = StanceLabel.REFUTES
-                elif support_score >= 0.25 and support_score >= refute_score + 0.15:
+                p_support = sum(
+                    p_ent * weight for p_ent, p_con, p_neu, weight, label in candidates
+                ) / total_weight
+                p_refute = sum(
+                    p_con * weight for p_ent, p_con, p_neu, weight, label in candidates
+                ) / total_weight
+                p_neutral = sum(
+                    p_neu * weight for p_ent, p_con, p_neu, weight, label in candidates
+                ) / total_weight
+
+                prob_total = p_support + p_refute + p_neutral
+                if prob_total > 0:
+                    p_support /= prob_total
+                    p_refute /= prob_total
+                    p_neutral /= prob_total
+
+                if p_support >= 0.70 and p_support - max(p_refute, p_neutral) >= 0.15:
                     overall_label = StanceLabel.SUPPORTS
+                elif p_refute >= 0.60 and p_refute - max(p_support, p_neutral) >= 0.15:
+                    overall_label = StanceLabel.REFUTES
                 else:
                     overall_label = StanceLabel.NEUTRAL
-
-                support_candidates = [
-                    p_ent for p_ent, p_con, p_neu, weight, label in candidates
-                    if label == StanceLabel.SUPPORTS
-                ]
-                refute_candidates = [
-                    p_con for p_ent, p_con, p_neu, weight, label in candidates
-                    if label == StanceLabel.REFUTES
-                ]
-
-                p_support = max(support_candidates) if support_candidates else max(
-                    p_ent for p_ent, p_con, p_neu, weight, label in candidates
-                )
-                p_refute = max(refute_candidates) if refute_candidates else max(
-                    p_con for p_ent, p_con, p_neu, weight, label in candidates
-                )
-                p_neutral = max(p_neu for p_ent, p_con, p_neu, weight, label in candidates)
 
                 ev = stmt.evidence[ev_idx]
                 if ev.stance is None:
@@ -487,10 +481,28 @@ class StanceEvidenceStep(PipelineStep):
                         overall_label = StanceLabel.NEUTRAL
                         p_neutral = max(p_neutral, p_support)
                         p_support = min(p_support, 0.49)
+                        prob_total = p_support + p_refute + p_neutral
+                        if prob_total > 0:
+                            p_support /= prob_total
+                            p_refute /= prob_total
+                            p_neutral /= prob_total
+
+                rounded_probs = [
+                    round(float(p_support), 2),
+                    round(float(p_refute), 2),
+                    round(float(p_neutral), 2),
+                ]
+                round_delta = round(1.0 - sum(rounded_probs), 2)
+                if round_delta:
+                    strongest_idx = max(range(3), key=lambda idx: rounded_probs[idx])
+                    rounded_probs[strongest_idx] = round(
+                        rounded_probs[strongest_idx] + round_delta,
+                        2,
+                    )
 
                 ev.stance.abstract_label = overall_label
-                ev.stance.abstract_p_supports = round(float(p_support), 2)
-                ev.stance.abstract_p_refutes = round(float(p_refute), 2)
-                ev.stance.abstract_p_neutral = round(float(p_neutral), 2)
+                ev.stance.abstract_p_supports = rounded_probs[0]
+                ev.stance.abstract_p_refutes = rounded_probs[1]
+                ev.stance.abstract_p_neutral = rounded_probs[2]
 
         return state
