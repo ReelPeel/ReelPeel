@@ -8,7 +8,7 @@ probabilities and label into the nested Evidence.stance model.
 Inputs:
 - state.statements with Statement.text and stmt.evidence populated.
 - Evidence fields used: abstract and/or text (configurable).
-- Optional evidence titles are prefixed to the passage when available.
+- Optional evidence titles are scored once as a separate weak candidate.
 
 Config keys:
 - model_name: default "cnut1648/biolinkbert-mednli".
@@ -17,7 +17,12 @@ Config keys:
 - batch_size, max_length: inference batching and truncation.
 - evidence_fields: list of evidence fields to score, typically ["abstract", "text"].
 - top_m_by_relevance: if set, only score the top-M evidence by relevance.
-- Abstracts are scored in fixed tokenizer chunks with 64-token overlap.
+- section_chunking_enabled: default True. If strict section headers are found,
+  sections are scored as individual candidates; otherwise the full text falls
+  back to fixed tokenizer chunks with 64-token overlap.
+- diagnostic_test_gate_enabled: default True. Downgrades `Supports` to `Neutral`
+  for diagnostic/test claims when the evidence describes diagnostic uncertainty
+  or a formal-test mismatch with a lay skin/application procedure.
 - Titles are scored once per evidence item and downweighted in aggregation.
 
 Outputs:
@@ -32,14 +37,7 @@ Label mapping:
 Runtime notes:
 - Requires torch and transformers.
 - Models are cached in-process to avoid repeated loads.
-- Long inputs are truncated to max_length (no chunking implemented here).
-
-NOTE ON LONG ABSTRACTS
----------------------
-This model was trained with max_seq_length=512 tokens. For long abstracts/summaries,
-we rely on tokenizer truncation (max_length). This keeps the *leading* portion of the
-text and discards the tail. If this becomes an issue, implement chunking (e.g., sliding
-window) and aggregate probabilities (max/mean) downstream.
+- Long sections/texts are chunked to fit max_length.
 
 """
 
@@ -55,6 +53,43 @@ from ..core.base import PipelineStep
 from ..core.models import PipelineState, Stance as EvidenceStance, StanceLabel
 
 _MODEL_CACHE: Dict[Tuple[str, str, bool], Tuple[Any, Any]] = {}
+
+_DIAGNOSTIC_CLAIM_RE = re.compile(
+    r"\b("
+    r"test|tests|tested|testing|"
+    r"diagnos(?:e|es|ed|ing|is|tic|tics)|"
+    r"detect|detects|detected|detecting|"
+    r"screen|screens|screened|screening|"
+    r"check|checks|checked|checking|"
+    r"identify|identifies|identified|identifying|"
+    r"confirm|confirms|confirmed|confirming|"
+    r"rule\s*out"
+    r")\b",
+    re.I,
+)
+_PROCEDURE_SKIN_CLAIM_RE = re.compile(
+    r"\b(apply|applying|rub|rubbing|place|placing|small\s+amount)\b.*\bskin\b"
+    r"|\bskin\b.*\b(apply|applying|rub|rubbing|place|placing|small\s+amount)\b",
+    re.I,
+)
+_DIAGNOSTIC_UNCERTAINTY_RE = re.compile(
+    r"\b("
+    r"gold\s+standard|oral\s+food\s+challenge|"
+    r"double[- ]blind|placebo[- ]controlled|"
+    r"mainly\s+clinical|primarily\s+clinical|"
+    r"not\s+(?:so\s+)?accurate|not\s+reliable|not\s+definitive|"
+    r"limited\s+accuracy|poor\s+accuracy|single\s+diagnosis"
+    r")\b",
+    re.I,
+)
+_FORMAL_DIAGNOSTIC_TEST_RE = re.compile(
+    r"\b("
+    r"skin[- ]prick|prick\s+test|patch\s+test|atopy\s+patch|"
+    r"sige|specific\s+ige|oral\s+food\s+challenge|food\s+challenge|"
+    r"double[- ]blind\s+placebo[- ]controlled"
+    r")\b",
+    re.I,
+)
 
 
 def _pick_device(device_cfg: Optional[str]) -> str:
@@ -151,8 +186,17 @@ class StanceEvidenceStep(PipelineStep):
           If set, only compute stance for the Top-M evidence items per statement,
           selected by ev.relevance (descending). Others are left as-is.
 
+      - section_chunking_enabled: bool (default: True)
+          If true, strict abstract section headers are used as stance candidates.
+          If false, use fixed tokenizer chunks over the whole abstract/text.
+
+      - diagnostic_test_gate_enabled: bool (default: True)
+          If true, conservative post-processing prevents diagnostic/test evidence
+          with uncertainty or method-mismatch cues from supporting a lay claim.
+
       - Titles are scored once per evidence item and downweighted in aggregation.
-      - Abstract/text fields are split into fixed tokenizer chunks with 64-token overlap.
+      - Long section/text candidates are split into fixed tokenizer chunks with
+        64-token overlap.
     """
     
     def execute(self, state: PipelineState) -> PipelineState:
@@ -167,7 +211,21 @@ class StanceEvidenceStep(PipelineStep):
         if "abstract" not in evidence_fields and "text" not in evidence_fields:
             evidence_fields = ["abstract", "text"]
         top_m = self.config.get("top_m_by_relevance", None)
-        section_chunking_enabled = bool(self.config.get("section_chunking_enabled", True))
+        default_section_chunking_enabled = True
+        section_chunking_cfg = self.config.get("section_chunking_enabled", default_section_chunking_enabled)
+        if isinstance(section_chunking_cfg, str):
+            section_chunking_enabled = section_chunking_cfg.strip().lower() not in {"0", "false", "no", "off"}
+        else:
+            section_chunking_enabled = bool(section_chunking_cfg)
+        default_diagnostic_test_gate_enabled = True
+        diagnostic_test_gate_cfg = self.config.get(
+            "diagnostic_test_gate_enabled",
+            default_diagnostic_test_gate_enabled,
+        )
+        if isinstance(diagnostic_test_gate_cfg, str):
+            diagnostic_test_gate_enabled = diagnostic_test_gate_cfg.strip().lower() not in {"0", "false", "no", "off"}
+        else:
+            diagnostic_test_gate_enabled = bool(diagnostic_test_gate_cfg)
         section_headers = [
             "CONCLUSIONS AND CLINICAL RELEVANCE",
             "DATA EXTRACTION AND SYNTHESIS",
@@ -404,6 +462,31 @@ class StanceEvidenceStep(PipelineStep):
                 ev = stmt.evidence[ev_idx]
                 if ev.stance is None:
                     ev.stance = EvidenceStance()
+
+                if diagnostic_test_gate_enabled and overall_label == StanceLabel.SUPPORTS:
+                    title = (
+                        getattr(ev, "title", None)
+                        or getattr(ev, "article_title", None)
+                        or getattr(ev, "paper_title", None)
+                        or ""
+                    )
+                    evidence_text = " ".join(
+                        str(part or "")
+                        for part in [title, getattr(ev, "abstract", None), getattr(ev, "text", None)]
+                    )
+                    is_diagnostic_claim = bool(
+                        _DIAGNOSTIC_CLAIM_RE.search(claim)
+                        or _PROCEDURE_SKIN_CLAIM_RE.search(claim)
+                    )
+                    has_diagnostic_uncertainty = bool(_DIAGNOSTIC_UNCERTAINTY_RE.search(evidence_text))
+                    has_method_mismatch = bool(
+                        _PROCEDURE_SKIN_CLAIM_RE.search(claim)
+                        and _FORMAL_DIAGNOSTIC_TEST_RE.search(evidence_text)
+                    )
+                    if is_diagnostic_claim and (has_diagnostic_uncertainty or has_method_mismatch):
+                        overall_label = StanceLabel.NEUTRAL
+                        p_neutral = max(p_neutral, p_support)
+                        p_support = min(p_support, 0.49)
 
                 ev.stance.abstract_label = overall_label
                 ev.stance.abstract_p_supports = round(float(p_support), 2)

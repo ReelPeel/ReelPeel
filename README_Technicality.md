@@ -17,7 +17,10 @@ Current best approach for the live system:
    with weight `0.5`.
 5. Aggregate conservatively from candidate signals and store only the existing
    `Evidence.stance.abstract_*` fields.
-6. Always pass the same `evidence.stance` object to `/evidence_summary` that is
+6. Apply the diagnostic/test gate by default:
+   - diagnostic/test claims with method-mismatch or diagnostic-uncertainty cues
+     cannot remain `Supports`; they are downgraded to `Neutral`.
+7. Always pass the same `evidence.stance` object to `/evidence_summary` that is
    displayed in the UI.
 
 The biggest practical improvement came from step 6, not from changing the
@@ -147,6 +150,55 @@ Only the existing overall fields are stored:
 }
 ```
 
+## Diagnostic/Test Gate
+
+This gate is active by default in the live stance step:
+
+```python
+diagnostic_test_gate_enabled = True
+```
+
+It is also set explicitly in the current video/audio pipeline configs. The gate
+is a conservative post-processing rule after BioLinkBERT aggregation.
+
+Why it exists:
+
+- BioLinkBERT-MedNLI can map topical diagnostic similarity to `Supports`.
+- The critical example is the egg-skin claim:
+  `Applying a small amount of egg to a child's skin can test for egg allergy.`
+- Papers about formal allergy diagnosis, skin prick tests, patch tests, sIgE,
+  or oral food challenge are topically related but do not necessarily support
+  the lay procedure "apply egg to skin".
+
+Rule:
+
+- Only runs when the aggregated stance is `Supports`.
+- Detects diagnostic/test claims using terms such as `test`, `diagnose`,
+  `detect`, `screen`, `check`, `confirm`, `rule out`.
+- Also detects lay skin procedure claims such as `apply/rub/place` plus `skin`.
+- Downgrades `Supports -> Neutral` when evidence text contains diagnostic
+  uncertainty cues:
+  - `gold standard`
+  - `oral food challenge`
+  - `double-blind`, `placebo-controlled`
+  - `mainly clinical`, `primarily clinical`
+  - `not accurate`, `not reliable`, `not definitive`
+  - `limited accuracy`, `poor accuracy`, `single diagnosis`
+- Also downgrades when the claim describes a simple skin application while the
+  evidence describes formal diagnostic tests:
+  - `skin prick`, `prick test`
+  - `patch test`, `atopy patch`
+  - `sIgE`, `specific IgE`
+  - `oral food challenge`
+
+The downgrade target is `Neutral`, not `Refutes`, because many diagnostic
+papers do not say the test is useless; they say it is indirect, limited, or not
+the gold standard for individual diagnosis.
+
+When the gate fires, the stored label is `Neutral`, and the stored support score
+is capped so downstream prompts do not see a neutral label with a high support
+probability.
+
 ## Offline Evaluation After Fixed-Token Chunking
 
 Tested with `factchecker_t26` on `offline_mock/**/process.json`.
@@ -184,7 +236,7 @@ directional stance.
 ## Offline Evaluation After Section-Aware Chunking
 
 Tested with `factchecker_t26` using
-`pipeline/test_configs/evaluate_section_stance.py`.
+`pipeline/test_configs/kai_offline_mock_evaluate_section_stance.py`.
 
 Report written to:
 
@@ -310,8 +362,8 @@ Reproduction commands:
 
 ```bash
 python -m py_compile pipeline/steps/stance.py
-conda run -n factchecker_t26 python -m py_compile pipeline/test_configs/evaluate_section_stance.py
-conda run -n factchecker_t26 python pipeline/test_configs/evaluate_section_stance.py
+conda run -n factchecker_t26 python -m py_compile pipeline/test_configs/kai_offline_mock_evaluate_section_stance.py
+conda run -n factchecker_t26 python pipeline/test_configs/kai_offline_mock_evaluate_section_stance.py
 ```
 
 Generated report:
@@ -319,6 +371,45 @@ Generated report:
 ```text
 offline_mock/section_stance_eval.json
 ```
+
+## Offline Evaluation After Diagnostic/Test Gate
+
+Tested with:
+
+```bash
+conda run -n factchecker_t26 python pipeline/test_configs/kai_offline_mock_evaluate_diagnostic_stance_gates.py
+```
+
+Source sweep:
+
+```text
+offline_mock/sweep_section_aware_stance
+```
+
+Report:
+
+```text
+offline_mock/diagnostic_stance_gate_eval.json
+```
+
+Results over 122 section-aware evidence-summary items:
+
+| Variant | Supports | Refutes | Neutral | Mismatch | Changed labels | Egg-skin mismatches |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Current section-aware | 95 | 18 | 9 | 17 | 0 | 13 |
+| Rule 1 only: diagnostic uncertainty/method mismatch | 82 | 18 | 22 | 4 | 13 | 0 |
+| Rule 2 diagnostic only: `Supports` + rel `<0.80` | 82 | 18 | 22 | 4 | 13 | 0 |
+| Rule 1 + Rule 2 diagnostic | 82 | 18 | 22 | 4 | 13 | 0 |
+| Rule 2 global: all `Supports` + rel `<0.80` | 64 | 18 | 40 | 14 | 31 | 0 |
+| Rule 1 + Rule 2 global | 64 | 18 | 40 | 14 | 31 | 0 |
+
+Decision:
+
+- Use Rule 1 as the live default.
+- Do not use Rule 2 global; it is too aggressive and neutralizes many more
+  supports while performing worse on mismatches.
+- Keep Rule 2 diagnostic-only as an offline finding for now. It matched Rule 1
+  on this sweep but is less semantically specific.
 
 ## Aggregation Variants Tested
 
@@ -377,7 +468,7 @@ offline_mock/sweep_20260626_072546/run_*/DT*/manifest_with_stance_summary.json
 Reproduction command:
 
 ```bash
-python pipeline/test_configs/run_sweep_evidence_summaries_with_stance.py --force
+python pipeline/test_configs/kai_offline_mock_run_sweep_evidence_summaries_with_stance.py --force
 ```
 
 Generation result:

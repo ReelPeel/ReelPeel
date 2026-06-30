@@ -110,6 +110,8 @@ SCORES_MODULE = {
                     "batch_size": 16,
                     "max_length": 512,
                     "evidence_fields": ["abstract"],
+                    "section_chunking_enabled": True,
+                    "diagnostic_test_gate_enabled": True,
 
                     # optional: only compute stance on Top-M evidence per statement (by ev.relevance)
                     # "top_m_by_relevance": 5,

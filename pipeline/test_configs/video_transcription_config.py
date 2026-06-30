@@ -7,14 +7,14 @@ from pipeline.test_configs.preprompts import PROMPT_TMPL_S3_SPECIFIC, PROMPT_TMP
 
  
 
-BASE_TEMPERATURE = 0.1
+BASE_TEMPERATURE = 0.0
 SCORES_MIN_RELEVANCE = 0.7
 BASE_MODEL="gemma3:27b" 
 # gemma3:27b / 12b
 # hf.co/mradermacher/medgemma-27b-text-it-GGUF:Q4_K_M
 # hf.co/mradermacher/DeepSeek-R1-Distill-Qwen-32B-Medical-GGUF:Q6_K
 
-WHISPER_MODEL = "tiny.en"
+WHISPER_MODEL = "turbo"
 # large-v3
 # turbo
 # tiny
@@ -36,6 +36,8 @@ INCLUDE_EVIDENCE_TEXT = True
 
 SCORES_MODULE_MIN_REL = copy.deepcopy(SCORES_MODULE)
 SCORES_MODULE_MIN_REL["settings"]["steps"][0]["settings"]["min_relevance"] = SCORES_MIN_RELEVANCE
+SCORES_MODULE_MIN_REL["settings"]["steps"][1]["settings"]["section_chunking_enabled"] = True
+SCORES_MODULE_MIN_REL["settings"]["steps"][1]["settings"]["diagnostic_test_gate_enabled"] = True
 
 
 
